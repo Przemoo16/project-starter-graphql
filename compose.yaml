@@ -1,0 +1,18 @@
+services:
+  backend:
+    build:
+      context: ./backend
+      target: dev
+    networks:
+      - backend
+      - frontend
+    ports:
+      - "8000:80"
+    volumes:
+      - type: bind
+        source: ./backend/app
+        target: /app
+
+networks:
+  backend:
+  frontend:

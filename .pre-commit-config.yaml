@@ -1,0 +1,68 @@
+default_install_hook_types: [pre-commit, pre-push]
+default_language_version:
+  python: python3.11
+repos:
+  - repo: https://github.com/pre-commit/pre-commit-hooks
+    rev: v4.4.0
+    hooks:
+      - id: check-added-large-files
+      - id: check-merge-conflict
+      - id: check-toml
+      - id: check-yaml
+        args:
+          - --unsafe
+      - id: debug-statements
+      - id: detect-private-key
+      - id: end-of-file-fixer
+      - id: trailing-whitespace
+  - repo: https://github.com/charliermarsh/ruff-pre-commit
+    rev: v0.0.261
+    hooks:
+      - id: ruff
+        args: [--fix, --exit-non-zero-on-fix]
+  - repo: https://github.com/asottile/pyupgrade
+    rev: v3.3.1
+    hooks:
+      - id: pyupgrade
+        args: [--py311-plus]
+  - repo: https://github.com/pycqa/isort
+    rev: 5.12.0
+    hooks:
+      - id: isort
+  - repo: https://github.com/psf/black
+    rev: 23.3.0
+    hooks:
+      - id: black
+  - repo: https://github.com/pre-commit/mirrors-mypy
+    rev: v1.2.0
+    hooks:
+      - id: mypy
+        args: [--config-file=backend/app/pyproject.toml]
+        additional_dependencies: [fastapi==0.95.1]
+  - repo: https://github.com/pycqa/pylint
+    rev: v3.0.0a6
+    hooks:
+      - id: pylint
+        args: [--rcfile=backend/app/pyproject.toml]
+        additional_dependencies: [fastapi==0.95.1]
+  - repo: https://github.com/PyCQA/bandit
+    rev: 1.7.5
+    hooks:
+      - id: bandit
+        args: [-c=backend/app/pyproject.toml]
+        additional_dependencies: [".[toml]"]
+  - repo: https://github.com/pre-commit/mirrors-prettier
+    rev: v3.0.0-alpha.6
+    hooks:
+      - id: prettier
+  - repo: https://github.com/pre-commit/mirrors-eslint
+    rev: v8.38.0
+    hooks:
+      - id: eslint
+        files: \.[jt]sx?$
+        types: [file]
+        args: [--fix]
+  - repo: https://github.com/shellcheck-py/shellcheck-py
+    rev: v0.9.0.2
+    hooks:
+      - id: shellcheck

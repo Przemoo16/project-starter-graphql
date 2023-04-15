@@ -1,0 +1,9 @@
+# Python
+*.pyc
+
+# Poetry
+dist/
+
+# Tests
+.coverage
+.coveragerc
