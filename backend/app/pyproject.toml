@@ -66,10 +66,15 @@ disable = [
 ]
 
 [tool.pytest.ini_options]
-addopts = "-vvv -rF --cov=app"
+addopts = [
+    "--cov=src",
+    "--strict-config",
+    "--strict-markers"
+]
+xfail_strict = true
 
 [tool.coverage.run]
-# Fixes the problem with misses coverage lines after await
+# Fixes the problem with missing coverage lines after await
 # Described here: https://github.com/nedbat/coveragepy/issues/1082
 concurrency = [
     "greenlet"
@@ -78,7 +83,7 @@ concurrency = [
 [tool.coverage.report]
 omit = [
    "*/tests/*",
-   "**/__init__.py",
+   "*/__init__.py",
 ]
 exclude_lines = [
     "pragma: no cover",
