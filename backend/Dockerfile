@@ -18,19 +18,28 @@ COPY app/pyproject.toml app/poetry.lock /app/
 EXPOSE 80
 
 
-FROM base AS dev
-
-RUN poetry install --no-root --no-interaction --no-ansi
-
-COPY app /app
-
-CMD ["uvicorn", "src.main:app", "--host", "0.0.0.0", "--port", "80", "--reload"]
-
-
 FROM base AS prod
 
-RUN poetry install --no-root --no-dev --no-interaction --no-ansi
+RUN poetry install --no-root --no-interaction --no-ansi --only main
 
 COPY app /app
 
 CMD ["uvicorn", "src.main:app", "--host", "0.0.0.0", "--port", "80"]
+
+
+FROM base AS test
+
+RUN poetry install --no-root --no-interaction --no-ansi --with test
+
+COPY app /app
+
+CMD ["uvicorn", "src.main:app", "--host", "0.0.0.0", "--port", "80"]
+
+
+FROM base AS dev
+
+RUN poetry install --no-root --no-interaction --no-ansi --with test --with dev
+
+COPY app /app
+
+CMD ["uvicorn", "src.main:app", "--host", "0.0.0.0", "--port", "80", "--reload"]
