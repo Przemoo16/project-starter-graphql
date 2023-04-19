@@ -1,11 +1,14 @@
 FROM python:3.11-slim AS base
 
+SHELL ["/bin/bash", "-o", "pipefail", "-c"]
+
 ENV PYTHONUNBUFFERED 1
 
+
 RUN apt-get update \
-    && apt-get install -y curl \
+    && apt-get install --no-install-recommends -y curl=7.74.0-1.3+deb11u7 \
     && rm -rf /var/lib/apt/lists/* \
-    && pip install --upgrade pip
+    && pip install --no-cache-dir --upgrade pip==23.1
 
 RUN curl -sSL https://install.python-poetry.org | python - \
     && ln -s ~/.local/bin/poetry /usr/local/bin/poetry \
