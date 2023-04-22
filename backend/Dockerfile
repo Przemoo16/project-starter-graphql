@@ -8,24 +8,21 @@ ENV PYTHONUNBUFFERED 1
 RUN apt-get update \
     && apt-get install --no-install-recommends -y curl=7.74.0-1.3+deb11u7 \
     && rm -rf /var/lib/apt/lists/* \
-    && pip install --no-cache-dir --upgrade pip==23.1
+    && pip install --no-cache-dir pip==23.1.1
 
 RUN curl -sSL https://install.python-poetry.org | python - \
+    # Upgrade setuptools, which is poetry dependency to non-vulnerable version (reported by Trivy)
+    # FIXME: Remove after poetry resolves it on their own
+    && ~/.local/share/pypoetry/venv/bin/pip install setuptools==65.5.1 \
     && ln -s ~/.local/bin/poetry /usr/local/bin/poetry \
     && poetry config virtualenvs.create false
 
 WORKDIR /app
 
 COPY app/pyproject.toml app/poetry.lock /app/
-
-EXPOSE 80
-
-
-FROM base AS prod
-
 RUN poetry install --no-root --no-interaction --no-ansi --only main
 
-COPY app /app
+EXPOSE 80
 
 CMD ["uvicorn", "src.main:app", "--host", "0.0.0.0", "--port", "80"]
 
@@ -36,8 +33,6 @@ RUN poetry install --no-root --no-interaction --no-ansi --with test
 
 COPY app /app
 
-CMD ["uvicorn", "src.main:app", "--host", "0.0.0.0", "--port", "80"]
-
 
 FROM base AS dev
 
@@ -46,3 +41,8 @@ RUN poetry install --no-root --no-interaction --no-ansi --with test --with dev
 COPY app /app
 
 CMD ["uvicorn", "src.main:app", "--host", "0.0.0.0", "--port", "80", "--reload"]
+
+
+FROM python:3.11-slim
+
+COPY app /app
