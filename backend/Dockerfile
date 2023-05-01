@@ -4,7 +4,6 @@ SHELL ["/bin/bash", "-o", "pipefail", "-c"]
 
 ENV PYTHONUNBUFFERED 1
 
-
 RUN apt-get update \
     && apt-get install --no-install-recommends -y curl=7.74.0-1.3+deb11u7 \
     && rm -rf /var/lib/apt/lists/* \
@@ -43,6 +42,6 @@ COPY app /app
 CMD ["uvicorn", "src.main:app", "--host", "0.0.0.0", "--port", "80", "--reload"]
 
 
-FROM python:3.11-slim
+FROM base as prod
 
 COPY app /app
