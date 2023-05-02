@@ -5,14 +5,15 @@ SHELL ["/bin/bash", "-o", "pipefail", "-c"]
 ENV PYTHONUNBUFFERED 1
 
 RUN apt-get update \
-    && apt-get install --no-install-recommends -y curl=7.74.0-1.3+deb11u7 \
+    && apt-get upgrade -y \
+    && apt-get install --no-install-recommends -y curl \
     && rm -rf /var/lib/apt/lists/* \
-    && pip install --no-cache-dir pip==23.1.1
+    && pip install --no-cache-dir --upgrade pip
 
 RUN curl -sSL https://install.python-poetry.org | python - \
     # Upgrade setuptools, which is poetry dependency to non-vulnerable version (reported by Trivy)
     # FIXME: Remove after poetry resolves it on their own
-    && ~/.local/share/pypoetry/venv/bin/pip install setuptools==65.5.1 \
+    && ~/.local/share/pypoetry/venv/bin/pip install "setuptools>=65.5.1" \
     && ln -s ~/.local/bin/poetry /usr/local/bin/poetry \
     && poetry config virtualenvs.create false
 
