@@ -19,7 +19,7 @@ RUN curl -sSL https://install.python-poetry.org | python - \
 
 WORKDIR /app
 
-COPY app/pyproject.toml app/poetry.lock /app/
+COPY ./app/pyproject.toml ./app/poetry.lock ./
 RUN poetry install --no-root --no-interaction --no-ansi --only main
 
 EXPOSE 80
@@ -31,18 +31,18 @@ FROM base AS test
 
 RUN poetry install --no-root --no-interaction --no-ansi --with test
 
-COPY app /app
+COPY ./app .
 
 
 FROM base AS dev
 
 RUN poetry install --no-root --no-interaction --no-ansi --with test --with dev
 
-COPY app /app
+COPY ./app .
 
 CMD ["uvicorn", "src.main:app", "--host", "0.0.0.0", "--port", "80", "--reload"]
 
 
 FROM base as prod
 
-COPY app /app
+COPY ./app .
