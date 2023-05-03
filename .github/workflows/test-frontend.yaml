@@ -1,4 +1,4 @@
-name: Test Backend
+name: Test Frontend
 on:
   pull_request:
   push:
@@ -28,9 +28,9 @@ jobs:
         uses: docker/build-push-action@v4
         with:
           push: true
-          context: "{{defaultContext}}:backend"
-          tags: ghcr.io/przemoo16/project-starter-graphql-backend:${{ github.run_id }}
-          target: test
+          context: "{{defaultContext}}:frontend"
+          tags: ghcr.io/przemoo16/project-starter-graphql-frontend:${{ github.run_id }}
+          target: dev
           cache-from: type=gha
           cache-to: type=gha,mode=max
           platforms: linux/amd64
@@ -52,7 +52,7 @@ jobs:
           password: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Run unit tests
-        run: docker run --rm ghcr.io/przemoo16/project-starter-graphql-backend:${{ github.run_id }} pytest .
+        run: docker run --rm ghcr.io/przemoo16/project-starter-graphql-frontend:${{ github.run_id }} yarn test
         shell: bash
 
   scan-image:
@@ -72,19 +72,19 @@ jobs:
           password: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Pull image to scan
-        run: docker pull ghcr.io/przemoo16/project-starter-graphql-backend:${{ github.run_id }}
+        run: docker pull ghcr.io/przemoo16/project-starter-graphql-frontend:${{ github.run_id }}
         shell: bash
 
       - name: Run Trivy vulnerability scanner (non-blocking)
         uses: aquasecurity/trivy-action@master
         with:
-          image-ref: ghcr.io/przemoo16/project-starter-graphql-backend:${{ github.run_id }}
+          image-ref: ghcr.io/przemoo16/project-starter-graphql-frontend:${{ github.run_id }}
           format: table
 
       - name: Run Trivy vulnerability scanner (blocking)
         uses: aquasecurity/trivy-action@master
         with:
-          image-ref: ghcr.io/przemoo16/project-starter-graphql-backend:${{ github.run_id }}
+          image-ref: ghcr.io/przemoo16/project-starter-graphql-frontend:${{ github.run_id }}
           format: table
           exit-code: 1
           ignore-unfixed: true
