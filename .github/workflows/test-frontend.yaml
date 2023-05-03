@@ -52,7 +52,7 @@ jobs:
           password: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Run unit tests
-        run: docker run --rm ghcr.io/przemoo16/project-starter-graphql-frontend:${{ github.run_id }} yarn test
+        run: docker run --rm ghcr.io/przemoo16/project-starter-graphql-frontend:${{ github.run_id }} yarn test:ci
         shell: bash
 
   scan-image:
