@@ -22,8 +22,7 @@ export function App(): any {
       <div class="card">
         <button
           onClick={() => {
-            // FIXME: Integrate eslint with preact
-            setCount(count => count + 1); // eslint-disable-line @typescript-eslint/restrict-plus-operands
+            setCount(count => count + 1);
           }}
         >
           count is {count}

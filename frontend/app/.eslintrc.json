@@ -9,7 +9,6 @@
   ],
   "plugins": ["simple-import-sort"],
   "parserOptions": {
-    "tsconfigRootDir": "./frontend/app", // pre-commit hooks run from the root of the repository
     "project": ["./tsconfig.json", "./tsconfig.node.json"],
     "ecmaVersion": "latest",
     "sourceType": "module"
