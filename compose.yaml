@@ -1,5 +1,6 @@
 services:
   backend:
+    image: "${BACKEND_IMAGE}"
     build:
       context: ./backend
       target: dev
@@ -13,6 +14,7 @@ services:
         source: ./backend/app
         target: /app
   frontend:
+    image: "${FRONTEND_IMAGE}"
     build:
       context: ./frontend
       target: dev
