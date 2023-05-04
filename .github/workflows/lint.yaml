@@ -5,15 +5,44 @@ on:
     branches:
       - main
 jobs:
-  lint:
-    name: Run linter
-    runs-on: ubuntu-latest
-    env:
-      BACKEND_DOCKER_LAYERS_CACHE_PATH: /tmp/.buildx-backend-cache
-      FRONTEND_DOCKER_LAYERS_CACHE_PATH: /tmp/.buildx-frontend-cache
+  # FIXME: Consider reusing the same images as in the test workflows.
+  # It could be achieved by creating a new workflow that builds all test images and then other workflows reuse those images.
+  call-build-backend-image:
+    name: Build backend image
 
     permissions:
       contents: read
+      packages: write
+
+    uses: ./.github/workflows/build-image.yaml
+    with:
+      cache-key: backend-lint
+      context: "{{defaultContext}}:backend"
+      tags: ghcr.io/przemoo16/project-starter-graphql-backend:${{ github.run_id }}
+      target: dev
+
+  call-build-frontend-image:
+    name: Build frontend image
+
+    permissions:
+      contents: read
+      packages: write
+
+    uses: ./.github/workflows/build-image.yaml
+    with:
+      cache-key: frontend-lint
+      context: "{{defaultContext}}:frontend"
+      tags: ghcr.io/przemoo16/project-starter-graphql-frontend:${{ github.run_id }}
+      target: dev
+
+  lint:
+    name: Run linter
+    runs-on: ubuntu-latest
+    needs: [call-build-backend-image, call-build-frontend-image]
+
+    permissions:
+      contents: read
+      packages: read
 
     steps:
       - name: Check out repository code
@@ -34,62 +63,16 @@ jobs:
           path: ~/.cache/pre-commit/
           key: pre-commit-${{ env.pythonLocation }}-${{ hashFiles('.pre-commit-config.yaml') }}
 
-      - name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@v2
-
-      # FIXME: Using GitHub Cache API doesn't work for building multiple images
-      # Using local cache as a workaround
-      - name: Cache Docker layers for the backend image
-        uses: actions/cache@v3
+      - name: Login to GitHub Container Registry
+        uses: docker/login-action@v2
         with:
-          path: ${{ env.BACKEND_DOCKER_LAYERS_CACHE_PATH }}
-          key: ${{ runner.os }}-buildx-backend-lint-${{ github.run_id }}
-          restore-keys: |
-            ${{ runner.os }}-buildx-backend-lint-
-
-      - name: Cache Docker layers for the frontend image
-        uses: actions/cache@v3
-        with:
-          path: ${{ env.FRONTEND_DOCKER_LAYERS_CACHE_PATH }}
-          key: ${{ runner.os }}-buildx-frontend-lint-${{ github.run_id }}
-          restore-keys: |
-            ${{ runner.os }}-buildx-frontend-lint-
-
-      - name: Build backend image
-        uses: docker/build-push-action@v4
-        with:
-          load: true
-          context: "{{defaultContext}}:backend"
-          tags: project-starter-graphql-backend:${{ github.run_id }}
-          target: dev
-          cache-from: type=local,src=${{ env.BACKEND_DOCKER_LAYERS_CACHE_PATH }}
-          cache-to: type=local,dest=${{ env.BACKEND_DOCKER_LAYERS_CACHE_PATH }}-new,mode=max
-          platforms: linux/amd64
-
-      - name: Build frontend image
-        uses: docker/build-push-action@v4
-        with:
-          load: true
-          tags: project-starter-graphql-frontend:${{ github.run_id }}
-          context: "{{defaultContext}}:frontend"
-          target: dev
-          cache-from: type=local,src=${{ env.FRONTEND_DOCKER_LAYERS_CACHE_PATH }}
-          cache-to: type=local,dest=${{ env.FRONTEND_DOCKER_LAYERS_CACHE_PATH }}-new,mode=max
-          platforms: linux/amd64
-
-      - # FIXME: Temp fix
-        # https://github.com/docker/build-push-action/issues/252
-        # https://github.com/moby/buildkit/issues/1896
-        name: Move cache
-        run: |
-          rm -rf ${{ env.BACKEND_DOCKER_LAYERS_CACHE_PATH }}
-          rm -rf ${{ env.FRONTEND_DOCKER_LAYERS_CACHE_PATH }}
-          mv ${{ env.BACKEND_DOCKER_LAYERS_CACHE_PATH }}-new ${{ env.BACKEND_DOCKER_LAYERS_CACHE_PATH }}
-          mv ${{ env.FRONTEND_DOCKER_LAYERS_CACHE_PATH }}-new ${{ env.FRONTEND_DOCKER_LAYERS_CACHE_PATH }}
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Run linter
         run: |
-          export BACKEND_IMAGE=project-starter-graphql-backend:${{ github.run_id }}
-          export FRONTEND_IMAGE=project-starter-graphql-frontend:${{ github.run_id }}
+          export BACKEND_IMAGE=ghcr.io/przemoo16/project-starter-graphql-backend:${{ github.run_id }}
+          export FRONTEND_IMAGE=ghcr.io/przemoo16/project-starter-graphql-frontend:${{ github.run_id }}
           pre-commit run --all-files --show-diff-on-failure
         shell: bash
