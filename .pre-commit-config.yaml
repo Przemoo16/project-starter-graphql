@@ -34,24 +34,33 @@ repos:
     rev: 23.3.0
     hooks:
       - id: black
-  - repo: https://github.com/pre-commit/mirrors-mypy
-    rev: v1.2.0
-    hooks:
-      - id: mypy
-        args: [--config-file=backend/app/pyproject.toml]
-        additional_dependencies: [fastapi==0.95.1]
-  - repo: https://github.com/pycqa/pylint
-    rev: v3.0.0a6
-    hooks:
-      - id: pylint
-        args: [--rcfile=backend/app/pyproject.toml]
-        additional_dependencies: [fastapi==0.95.1]
   - repo: https://github.com/PyCQA/bandit
     rev: 1.7.5
     hooks:
       - id: bandit
         args: [-c=backend/app/pyproject.toml]
         additional_dependencies: [".[toml]"]
+  - repo: local
+    hooks:
+      - id: mypy
+        name: mypy
+        entry: docker compose run -T --rm --no-deps backend mypy .
+        language: system
+        pass_filenames: false
+  - repo: local
+    hooks:
+      - id: pylint
+        name: pylint
+        entry: docker compose run -T --rm --no-deps backend pylint src
+        language: system
+        pass_filenames: false
+  - repo: local
+    hooks:
+      - id: eslint
+        name: eslint
+        entry: docker compose run -T --rm --no-deps frontend yarn lint
+        language: system
+        pass_filenames: false
   - repo: https://github.com/pre-commit/mirrors-prettier
     rev: v3.0.0-alpha.9-for-vscode
     hooks:
@@ -60,25 +69,6 @@ repos:
     rev: v0.34.0
     hooks:
       - id: markdownlint-fix
-  - repo: https://github.com/pre-commit/mirrors-eslint
-    rev: v8.39.0
-    hooks:
-      - id: eslint
-        files: \.[jt]sx?$
-        types: [file]
-        args: [--fix]
-        additional_dependencies: [
-            # Required by eslint-config-standard-with-typescript
-            eslint@8.39.0,
-            eslint-plugin-promise@6.1.1,
-            eslint-plugin-import@2.27.5,
-            eslint-plugin-n@15.7.0,
-            "@typescript-eslint/eslint-plugin@5.59.2",
-            eslint-config-standard-with-typescript@34.0.1,
-            # --------------------------------------------------
-            eslint-config-prettier@8.8.0,
-            eslint-plugin-simple-import-sort@10.0.0,
-          ]
   - repo: https://github.com/hadolint/hadolint.git
     rev: v2.12.1-beta
     hooks:
