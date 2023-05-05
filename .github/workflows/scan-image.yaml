@@ -1,13 +1,11 @@
 name: Scan Docker image
-
 on:
   workflow_call:
     inputs:
       image:
-        description: Docker image
+        description: Docker image to scan
         required: true
         type: string
-
 jobs:
   scan-image:
     name: Scan Image with Trivy

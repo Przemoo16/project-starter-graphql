@@ -1,5 +1,4 @@
 name: Build and Push Docker image
-
 on:
   workflow_call:
     inputs:
@@ -28,7 +27,6 @@ on:
         type: string
         default: |
           linux/amd64
-
 jobs:
   build-push-image:
     name: Build and Push image
