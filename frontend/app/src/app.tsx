@@ -2,7 +2,7 @@ import './app.css';
 
 import { useState } from 'preact/hooks';
 
-import viteLogo from '../public/vite.svg';
+import viteLogo from '../../vite.svg';
 import preactLogo from './assets/preact.svg';
 
 export function App(): any {
