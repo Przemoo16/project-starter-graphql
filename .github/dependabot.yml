@@ -7,6 +7,12 @@ updates:
     commit-message:
       prefix: ⬆
   - package-ecosystem: "pip"
+    directory: "/infrastructure"
+    schedule:
+      interval: "daily"
+    commit-message:
+      prefix: ⬆
+  - package-ecosystem: "pip"
     directory: "/backend/app"
     schedule:
       interval: "daily"

@@ -27,6 +27,6 @@ FROM base as build
 RUN yarn build
 
 
-FROM nginx:1.23.4
+FROM nginx:1.23
 
 COPY --from=build /app/dist /usr/share/nginx/html

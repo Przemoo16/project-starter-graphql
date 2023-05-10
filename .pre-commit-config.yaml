@@ -15,6 +15,7 @@ repos:
       - id: debug-statements
       - id: detect-private-key
       - id: end-of-file-fixer
+      - id: requirements-txt-fixer
       - id: trailing-whitespace
   - repo: https://github.com/charliermarsh/ruff-pre-commit
     rev: v0.0.265
@@ -38,29 +39,8 @@ repos:
     rev: 1.7.5
     hooks:
       - id: bandit
-        args: [-c=backend/app/pyproject.toml]
+        args: [-c=pyproject.toml]
         additional_dependencies: [".[toml]"]
-  - repo: local
-    hooks:
-      - id: mypy
-        name: mypy
-        entry: docker compose run -T --rm --no-deps backend mypy .
-        language: system
-        pass_filenames: false
-  - repo: local
-    hooks:
-      - id: pylint
-        name: pylint
-        entry: docker compose run -T --rm --no-deps backend pylint src
-        language: system
-        pass_filenames: false
-  - repo: local
-    hooks:
-      - id: eslint
-        name: eslint
-        entry: docker compose run -T --rm --no-deps frontend yarn lint
-        language: system
-        pass_filenames: false
   - repo: https://github.com/pre-commit/mirrors-prettier
     rev: v3.0.0-alpha.9-for-vscode
     hooks:
@@ -85,3 +65,43 @@ repos:
     rev: 2.1.1
     hooks:
       - id: bashate
+  - repo: local
+    hooks:
+      - id: mypy-backend
+        name: mypy (backend)
+        entry: docker compose run -T --rm --no-deps backend mypy .
+        language: system
+        files: ^backend/
+        types: [python]
+        require_serial: true
+        pass_filenames: false
+      - id: mypy-infrastructure
+        name: mypy (infrastructure)
+        entry: ./infrastructure/venv/bin/python -m mypy
+        language: system
+        files: ^infrastructure/
+        types: [python]
+        require_serial: true
+      - id: pylint-backend
+        name: pylint (backend)
+        entry: docker compose run -T --rm --no-deps backend pylint src
+        language: system
+        files: ^backend/
+        types: [python]
+        require_serial: true
+        pass_filenames: false
+      - id: pylint-infrastructure
+        name: pylint (infrastructure)
+        entry: ./infrastructure/venv/bin/python -m pylint
+        language: system
+        files: ^infrastructure/
+        types: [python]
+        require_serial: true
+      - id: eslint-frontend
+        name: eslint (frontend)
+        entry: docker compose run -T --rm --no-deps frontend yarn lint
+        language: system
+        files: ^frontend/
+        types: [javascript, jsx, ts, tsx]
+        require_serial: true
+        pass_filenames: false

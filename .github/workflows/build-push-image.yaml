@@ -3,7 +3,7 @@ on:
   workflow_call:
     inputs:
       cache-key:
-        description: Key that is used together with the target to define the cache scope
+        description: "Key that is used together with the target to define the cache scope, see: https://docs.docker.com/build/cache/backends/gha/#scope"
         type: string
         required: true
       context:

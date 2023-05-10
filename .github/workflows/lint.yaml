@@ -27,12 +27,27 @@ jobs:
 
       - name: Install pre-commit
         run: pip install pre-commit
+        shell: bash
 
       - name: Restore pre-commit cache
         uses: actions/cache@v3
         with:
           path: ~/.cache/pre-commit/
-          key: pre-commit-${{ env.pythonLocation }}-${{ hashFiles('.pre-commit-config.yaml') }}
+          key: ${{ runner.os }}-${{ env.pythonLocation }}-pre-commit-${{ hashFiles('.pre-commit-config.yaml') }}
+
+      - name: Restore infrastructure venv cache
+        id: infrastructure-venv-cache
+        uses: actions/cache@v3
+        with:
+          path: ./infrastructure/venv
+          key: ${{ runner.os }}-${{ env.pythonLocation }}-infrastructure-venv-${{ hashFiles('./infrastructure/requirements.txt') }}
+
+      - name: Create infrastructure venv
+        if: steps.infrastructure-venv-cache.outputs.cache-hit != 'true'
+        run: |
+          python -m venv ./infrastructure/venv
+          ./infrastructure/venv/bin/pip install -r ./infrastructure/requirements.txt
+        shell: bash
 
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v2
