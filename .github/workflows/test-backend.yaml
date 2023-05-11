@@ -36,7 +36,7 @@ jobs:
           password: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Run unit tests
-        run: docker run --rm ghcr.io/przemoo16/project-starter-graphql-backend:${{ github.run_id }} pytest .
+        run: docker run --rm ghcr.io/przemoo16/project-starter-graphql-backend:${{ needs.call-build-push-image.outputs.image-tag }} pytest .
         shell: bash
 
   call-scan-image:
@@ -48,4 +48,4 @@ jobs:
 
     uses: ./.github/workflows/scan-image.yaml
     with:
-      image: ghcr.io/przemoo16/project-starter-graphql-backend:${{ github.run_id }}
+      image: ghcr.io/przemoo16/project-starter-graphql-backend:${{ needs.call-build-push-image.outputs.image-tag }}

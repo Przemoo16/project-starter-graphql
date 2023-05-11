@@ -27,10 +27,16 @@ on:
         type: string
         default: |
           linux/amd64
+    outputs:
+      image-tag:
+        description: Image tag for the built Docker image
+        value: ${{ jobs.build-push-image.outputs.image-tag }}
 jobs:
   build-push-image:
     name: Build and Push image
     runs-on: ubuntu-latest
+    outputs:
+      image-tag: ${{ steps.image-tag.outputs.image-tag }}
 
     steps:
       - name: Set up Docker Buildx
@@ -63,3 +69,9 @@ jobs:
           cache-from: type=gha,scope=${{ env.CACHE_SCOPE }}
           cache-to: type=gha,mode=max,scope=${{ env.CACHE_SCOPE }}
           platforms: ${{ inputs.platforms }}
+
+      - name: Output the primary image tag
+        id: image-tag
+        run: |
+          echo "image-tag=${{ steps.meta.outputs.version }}" >> $GITHUB_OUTPUT
+        shell: bash
