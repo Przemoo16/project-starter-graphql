@@ -17,7 +17,7 @@ jobs:
       cache-key: backend
       context: "{{defaultContext}}:backend"
       target: test
-      images: ghcr.io/przemoo16/project-starter-graphql-backend
+      images: ghcr.io/przemoo16/project-starter-graphql/backend
 
   run-unit-tests:
     name: Run unit tests
@@ -36,7 +36,7 @@ jobs:
           password: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Run unit tests
-        run: docker run --rm ghcr.io/przemoo16/project-starter-graphql-backend:${{ needs.call-build-push-image.outputs.image-tag }} pytest .
+        run: docker run --rm ghcr.io/przemoo16/project-starter-graphql/backend:${{ needs.call-build-push-image.outputs.image-tag }} pytest .
         shell: bash
 
   call-scan-image:
@@ -48,4 +48,4 @@ jobs:
 
     uses: ./.github/workflows/scan-image.yaml
     with:
-      image: ghcr.io/przemoo16/project-starter-graphql-backend:${{ needs.call-build-push-image.outputs.image-tag }}
+      image: ghcr.io/przemoo16/project-starter-graphql/backend:${{ needs.call-build-push-image.outputs.image-tag }}
