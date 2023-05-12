@@ -2,7 +2,7 @@ FROM python:3.11-slim AS base
 
 SHELL ["/bin/bash", "-o", "pipefail", "-c"]
 
-ENV PYTHONUNBUFFERED 1
+ENV PYTHONUNBUFFERED=1
 
 RUN apt-get update \
     && apt-get upgrade -y \
