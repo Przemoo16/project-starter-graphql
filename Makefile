@@ -1,15 +1,6 @@
 COMPOSE := docker compose
 
-.PHONY: build lint run setup test-backend test-frontend
-
-build:
-	$(COMPOSE) build
-
-lint:
-	pre-commit run --all-files --show-diff-on-failure
-
-run:
-	$(COMPOSE) up
+.PHONY: setup test-backend test-frontend
 
 setup:
 	git config blame.ignoreRevsFile .git-blame-ignore-revs
