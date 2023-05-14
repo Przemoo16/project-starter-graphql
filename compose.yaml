@@ -29,7 +29,7 @@ services:
       # Ignore node_modules from the host when using bind mounts by applying the named volume
       - type: volume
         source: node_modules
-        target: /app/node_modules/
+        target: /app/node_modules
     depends_on:
       - backend
 

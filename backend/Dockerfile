@@ -2,7 +2,7 @@ FROM python:3.11-slim AS base
 
 SHELL ["/bin/bash", "-o", "pipefail", "-c"]
 
-ENV PYTHONUNBUFFERED 1
+ENV PYTHONUNBUFFERED=1
 
 RUN apt-get update \
     && apt-get upgrade -y \
@@ -27,16 +27,9 @@ EXPOSE 80
 CMD ["uvicorn", "src.main:app", "--host", "0.0.0.0", "--port", "80"]
 
 
-FROM base AS test
-
-RUN poetry install --no-root --no-interaction --no-ansi --with test
-
-COPY ./app .
-
-
 FROM base AS dev
 
-RUN poetry install --no-root --no-interaction --no-ansi --with test --with dev
+RUN poetry install --no-root --no-interaction --no-ansi --with dev
 
 COPY ./app .
 
