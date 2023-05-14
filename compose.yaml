@@ -12,7 +12,7 @@ services:
     volumes:
       - type: bind
         source: ./backend/app
-        target: /app
+        target: /opt/app
   frontend:
     image: "${FRONTEND_IMAGE}"
     build:
@@ -25,11 +25,11 @@ services:
     volumes:
       - type: bind
         source: ./frontend/app
-        target: /app
+        target: /opt/app
       # Ignore node_modules from the host when using bind mounts by applying the named volume
       - type: volume
         source: node_modules
-        target: /app/node_modules
+        target: /opt/app/node_modules
     depends_on:
       - backend
 

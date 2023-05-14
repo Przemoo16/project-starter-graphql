@@ -2,8 +2,8 @@ name: Purge cache
 on:
   workflow_dispatch:
   schedule:
-    # Run daily at 3am
-    - cron: "0 3 * * *"
+    # Run on Saturday at 3am
+    - cron: "0 3 * * SAT"
 jobs:
   purge-cache:
     name: Purge cache

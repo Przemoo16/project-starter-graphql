@@ -17,7 +17,7 @@ RUN curl -sSL https://install.python-poetry.org | python - \
     && ln -s ~/.local/bin/poetry /usr/local/bin/poetry \
     && poetry config virtualenvs.create false
 
-WORKDIR /app
+WORKDIR /opt/app
 
 COPY ./app/pyproject.toml ./app/poetry.lock ./
 RUN poetry install --no-root --no-interaction --no-ansi --only main

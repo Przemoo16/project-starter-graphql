@@ -32,6 +32,9 @@ max-complexity = 10
 "__init__.py" = [
     "F401" # imported but unused
 ]
+"infrastructure/*" = [
+    "F403" # from module import *
+]
 
 [tool.mypy]
 ignore_missing_imports = true
@@ -43,6 +46,7 @@ max-line-length = 88
 
 [tool.pylint."messages control"]
 disable = [
+    "duplicate-code",
     "fixme",
     "missing-docstring"
 ]
