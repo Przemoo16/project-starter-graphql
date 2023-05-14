@@ -35,6 +35,17 @@ jobs:
           path: ~/.cache/pre-commit/
           key: ${{ runner.os }}-${{ env.pythonLocation }}-pre-commit-${{ hashFiles('.pre-commit-config.yaml') }}
 
+      # FIXME: Running mypy against the pulumi is super slow. Using cache to speed it
+      # up. It utilizes the restore-keys to always update the existing cache:
+      # https://github.com/actions/cache/blob/main/tips-and-workarounds.md#update-a-cache
+      - name: Restore mypy cache
+        uses: actions/cache@v3
+        with:
+          path: ./.mypy_cache
+          key: ${{ runner.os }}-${{ env.pythonLocation }}-mypy-${{ github.run_id }}
+          restore-keys: |
+            ${{ runner.os }}-${{ env.pythonLocation }}-mypy
+
       - name: Restore infrastructure venv cache
         id: infrastructure-venv-cache
         uses: actions/cache@v3

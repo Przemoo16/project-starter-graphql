@@ -16,7 +16,7 @@ jobs:
     with:
       cache-key: backend
       context: "{{defaultContext}}:backend"
-      target: test
+      target: dev
       images: ghcr.io/przemoo16/project-starter-graphql-backend
 
   run-unit-tests:
