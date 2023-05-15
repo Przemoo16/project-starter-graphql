@@ -1,0 +1,27 @@
+name: Purge cache
+on:
+  workflow_dispatch:
+  schedule:
+    # Run daily at 3am
+    - cron: "0 3 * * *"
+jobs:
+  purge-cache:
+    name: Purge cache
+    runs-on: ubuntu-latest
+
+    permissions:
+      actions: write
+
+    steps:
+      - name: Purge cache
+        run: |
+          REPO=${{ github.repository }}
+          res=$(gh api --paginate -H "Accept: application/vnd.github+json" /repos/"$REPO"/actions/caches)
+
+          for cache_key in $(echo "$res" | jq '.actions_caches[].id'); do
+              echo Deleting the cache key: "$cache_key"
+              gh api --method DELETE /repos/"$REPO"/actions/caches/"$cache_key"
+          done
+        shell: bash
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
