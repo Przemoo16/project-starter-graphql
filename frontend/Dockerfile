@@ -6,7 +6,7 @@ RUN apt-get update \
     && apt-get upgrade -y \
     && rm -rf /var/lib/apt/lists/*
 
-WORKDIR /app
+WORKDIR /opt/app
 
 COPY ./app/package.json ./app/yarn.lock ./
 RUN yarn install --frozen-lockfile \
@@ -29,4 +29,4 @@ RUN yarn build
 
 FROM nginx:1.23
 
-COPY --from=build /app/dist /usr/share/nginx/html
+COPY --from=build /opt/app/dist /usr/share/nginx/html
