@@ -1,0 +1,49 @@
+name: Preview infrastructure
+on:
+  pull_request:
+jobs:
+  preview:
+    name: Preview infrastructure
+    runs-on: ubuntu-latest
+
+    permissions:
+      contents: read
+      id-token: write
+
+    steps:
+      - name: Check out repository code
+        uses: actions/checkout@v3
+
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: "3.11"
+
+      - name: Restore infrastructure venv cache
+        id: infrastructure-venv-cache
+        uses: actions/cache@v3
+        with:
+          path: ./infrastructure/venv
+          key: ${{ runner.os }}-${{ env.pythonLocation }}-infrastructure-venv-${{ hashFiles('./infrastructure/requirements.txt') }}
+
+      - name: Create infrastructure venv
+        if: steps.infrastructure-venv-cache.outputs.cache-hit != 'true'
+        run: |
+          python -m venv ./infrastructure/venv
+          ./infrastructure/venv/bin/pip install -r ./infrastructure/requirements.txt
+        shell: bash
+
+      - name: Configure AWS Credentials
+        uses: aws-actions/configure-aws-credentials@v2
+        with:
+          aws-region: eu-central-1
+          role-to-assume: arn:aws:iam::059132655198:role/github-actions-role
+
+      - name: Show a preview of infrastructure updates
+        uses: pulumi/actions@v4
+        with:
+          work-dir: ./infrastructure
+          command: preview
+          stack-name: prod
+        env:
+          PULUMI_ACCESS_TOKEN: ${{ secrets.PULUMI_ACCESS_TOKEN }}
