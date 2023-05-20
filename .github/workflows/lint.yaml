@@ -84,6 +84,10 @@ jobs:
           cache-to: type=gha,mode=max,scope=frontend-dev
           platforms: linux/amd64
 
+      - name: Create env file from the template
+        run: cp ./.env.template ./.env
+        shell: bash
+
       - name: Run linter
         run: |
           export BACKEND_IMAGE=${{ env.BACKEND_IMAGE }}
