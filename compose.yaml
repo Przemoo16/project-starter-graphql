@@ -13,6 +13,22 @@ services:
       - type: bind
         source: ./backend/app
         target: /opt/app
+    depends_on:
+      - db
+    env_file:
+      - .env
+  db:
+    image: postgres:15.3
+    networks:
+      - backend
+    ports:
+      - "5432:5432"
+    volumes:
+      - type: volume
+        source: db-data
+        target: /var/lib/postgresql/data
+    environment:
+      POSTGRES_PASSWORD: "${DB__PASSWORD}"
   frontend:
     image: "${FRONTEND_IMAGE}"
     build:
@@ -30,12 +46,11 @@ services:
       - type: volume
         source: node_modules
         target: /opt/app/node_modules
-    depends_on:
-      - backend
 
 networks:
   backend:
   frontend:
 
 volumes:
+  db-data:
   node_modules:

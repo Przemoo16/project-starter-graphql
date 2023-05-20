@@ -1,5 +1,6 @@
 [tool.isort]
 profile = "black"
+known_first_party = "src"
 
 [tool.ruff]
 select = [
@@ -48,7 +49,8 @@ max-line-length = 88
 disable = [
     "duplicate-code",
     "fixme",
-    "missing-docstring"
+    "missing-docstring",
+    "too-few-public-methods"
 ]
 
 [tool.bandit]
