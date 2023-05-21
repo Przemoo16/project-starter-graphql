@@ -24,8 +24,6 @@ RUN poetry install --no-root --no-interaction --no-ansi --only main
 
 EXPOSE 80
 
-CMD ["uvicorn", "src.main:app", "--host", "0.0.0.0", "--port", "80"]
-
 
 FROM base AS dev
 
@@ -33,9 +31,11 @@ RUN poetry install --no-root --no-interaction --no-ansi --with dev
 
 COPY ./app .
 
-CMD ["uvicorn", "src.main:app", "--host", "0.0.0.0", "--port", "80", "--reload"]
+CMD ["./run.sh", "--reload"]
 
 
 FROM base as prod
 
 COPY ./app .
+
+CMD ["./run.sh"]
