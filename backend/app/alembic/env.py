@@ -1,23 +1,18 @@
 import asyncio
-import os
 from logging.config import fileConfig
 
 from alembic import context
 from sqlalchemy import pool
-from sqlalchemy.engine import URL, Connection
+from sqlalchemy.engine import Connection
 from sqlalchemy.ext.asyncio import async_engine_from_config
+
+from src.config.settings import get_settings
+from src.models import Base
 
 
 def get_url() -> str:
-    url = URL.create(
-        drivername=os.getenv("DB__DRIVER", "postgresql+asyncpg"),
-        username=os.getenv("DB__USERNAME", "postgres"),
-        password=os.environ["DB__PASSWORD"],
-        host=os.getenv("DB__HOST", "db"),
-        port=int(os.getenv("DB__PORT", "5432")),
-        database=os.getenv("DB__NAME", "postgres"),
-    )
-    return url.render_as_string(hide_password=False)
+    settings = get_settings()
+    return settings.db.url.render_as_string(hide_password=False)
 
 
 # this is the Alembic Config object, which provides
@@ -35,7 +30,7 @@ if config.config_file_name is not None:
 # for 'autogenerate' support
 # from myapp import mymodel
 # target_metadata = mymodel.Base.metadata
-target_metadata = None
+target_metadata = Base.metadata
 
 # other values from the config, defined by the needs of env.py,
 # can be acquired:
