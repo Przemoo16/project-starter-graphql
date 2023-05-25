@@ -2,12 +2,12 @@ name: Test Frontend
 on:
   pull_request:
     paths:
-      - frontend
+      - frontend/**
   push:
     branches:
       - main
     paths:
-      - frontend
+      - frontend/**
 jobs:
   call-build-push-image:
     name: Build and Push image

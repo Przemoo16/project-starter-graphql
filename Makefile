@@ -1,6 +1,9 @@
 COMPOSE := docker compose
 
-.PHONY: setup test-backend test-frontend
+.PHONY: distclean setup test-backend test-frontend
+
+distclean:
+	$(COMPOSE) down --volumes
 
 setup:
 	git config blame.ignoreRevsFile .git-blame-ignore-revs
