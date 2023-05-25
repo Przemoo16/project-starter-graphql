@@ -17,6 +17,7 @@ services:
       - db
     env_file:
       - .env
+
   db:
     image: postgres:15.3
     networks:
@@ -29,6 +30,11 @@ services:
         target: /var/lib/postgresql/data
     environment:
       POSTGRES_PASSWORD: "${DB__PASSWORD}"
+      POSTGRES_USER: "${DB__USERNAME}"
+      POSTGRES_DB: "${DB__NAME}"
+      POSTGRES_HOST: "${DB__HOST}"
+      POSTGRES_PORT: "${DB__PORT}"
+
   frontend:
     image: "${FRONTEND_IMAGE}"
     build:
@@ -46,6 +52,63 @@ services:
       - type: volume
         source: node_modules
         target: /opt/app/node_modules
+
+  redis:
+    image: redis:7.0
+    networks:
+      - backend
+    ports:
+      - "6379:6379"
+
+  celery-worker:
+    build:
+      context: ./backend
+      target: dev
+    networks:
+      - backend
+    volumes:
+      - type: bind
+        source: ./backend/app
+        target: /opt/app
+    depends_on:
+      - redis
+    env_file:
+      - .env
+    command: "celery --app src.celery:app worker --loglevel INFO"
+
+  celery-beat:
+    build:
+      context: ./backend
+      target: dev
+    networks:
+      - backend
+    volumes:
+      - type: bind
+        source: ./backend/app
+        target: /opt/app
+    depends_on:
+      - redis
+    env_file:
+      - .env
+    command: "celery --app src.celery:app beat --loglevel INFO"
+
+  flower:
+    build:
+      context: ./backend
+      target: dev
+    networks:
+      - backend
+    ports:
+      - "5555:5555"
+    volumes:
+      - type: bind
+        source: ./backend/app
+        target: /opt/app
+    depends_on:
+      - redis
+    env_file:
+      - .env
+    command: "celery --app src.celery:app flower"
 
 networks:
   backend:
