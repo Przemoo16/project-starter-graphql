@@ -1,6 +1,8 @@
 name: Preview infrastructure
 on:
   pull_request:
+    paths:
+      - infrastructure
 jobs:
   preview:
     name: Preview infrastructure
