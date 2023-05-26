@@ -11,7 +11,7 @@ services:
       - "8000:80"
     volumes:
       - type: bind
-        source: ./backend/app
+        source: ./backend
         target: /opt/app
     depends_on:
       - db
@@ -46,7 +46,7 @@ services:
       - "5173:5173"
     volumes:
       - type: bind
-        source: ./frontend/app
+        source: ./frontend
         target: /opt/app
       # Ignore node_modules from the host when using bind mounts by applying the named volume
       - type: volume
@@ -68,13 +68,13 @@ services:
       - backend
     volumes:
       - type: bind
-        source: ./backend/app
+        source: ./backend
         target: /opt/app
     depends_on:
       - redis
     env_file:
       - .env
-    command: "celery --app src.celery:app worker --loglevel INFO"
+    command: "celery --app backend.celery:app worker --loglevel INFO"
 
   celery-beat:
     build:
@@ -84,13 +84,13 @@ services:
       - backend
     volumes:
       - type: bind
-        source: ./backend/app
+        source: ./backend
         target: /opt/app
     depends_on:
       - redis
     env_file:
       - .env
-    command: "celery --app src.celery:app beat --loglevel INFO"
+    command: "celery --app backend.celery:app beat --loglevel INFO"
 
   flower:
     build:
@@ -102,13 +102,13 @@ services:
       - "5555:5555"
     volumes:
       - type: bind
-        source: ./backend/app
+        source: ./backend
         target: /opt/app
     depends_on:
       - redis
     env_file:
       - .env
-    command: "celery --app src.celery:app flower"
+    command: "celery --app backend.celery:app flower"
 
 networks:
   backend:

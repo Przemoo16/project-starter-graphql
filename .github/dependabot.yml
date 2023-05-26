@@ -13,13 +13,13 @@ updates:
     commit-message:
       prefix: ⬆
   - package-ecosystem: "pip"
-    directory: "/backend/app"
+    directory: "/backend"
     schedule:
       interval: "daily"
     commit-message:
       prefix: ⬆
   - package-ecosystem: "npm"
-    directory: "/frontend/app"
+    directory: "/frontend"
     schedule:
       interval: "daily"
     commit-message:

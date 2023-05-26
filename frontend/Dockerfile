@@ -8,11 +8,11 @@ RUN apt-get update \
 
 WORKDIR /opt/app
 
-COPY ./app/package.json ./app/yarn.lock ./
+COPY ./package.json ./yarn.lock ./
 RUN yarn install --frozen-lockfile \
     && yarn cache clean
 
-COPY ./app .
+COPY . .
 
 
 FROM base AS dev
