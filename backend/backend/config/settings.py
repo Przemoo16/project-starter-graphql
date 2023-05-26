@@ -2,8 +2,8 @@ from functools import lru_cache
 
 from pydantic import BaseSettings
 
-from src.config.celery import CelerySettings
-from src.config.db import DBSettings
+from backend.config.celery import CelerySettings
+from backend.config.db import DBSettings
 
 
 class Settings(BaseSettings):

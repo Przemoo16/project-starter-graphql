@@ -1,6 +1,6 @@
 [tool.isort]
 profile = "black"
-known_first_party = "src"
+known_first_party = "backend"
 
 [tool.ruff]
 select = [

@@ -1,0 +1,11 @@
+# Exclude everything:
+*
+
+# Excplicity define what should get into docker image
+!alembic
+!alembic.ini
+!backend
+!poetry.lock
+!pyproject.toml
+!run.sh
+!tests

@@ -19,8 +19,11 @@ RUN curl -sSL https://install.python-poetry.org | python - \
 
 WORKDIR /opt/app
 
-COPY ./app/pyproject.toml ./app/poetry.lock ./
+COPY ./pyproject.toml ./poetry.lock ./
 RUN poetry install --no-root --no-interaction --no-ansi --only main
+
+COPY ./alembic.ini ./run.sh ./
+COPY ./alembic ./alembic
 
 EXPOSE 80
 
@@ -29,13 +32,18 @@ FROM base AS dev
 
 RUN poetry install --no-root --no-interaction --no-ansi --with dev
 
-COPY ./app .
+COPY ./backend ./backend
+COPY ./tests ./tests
+
+RUN poetry install --only-root --no-interaction --no-ansi
 
 CMD ["./run.sh", "--reload"]
 
 
 FROM base as prod
 
-COPY ./app .
+COPY ./backend ./backend
+
+RUN poetry install --only-root --no-interaction --no-ansi
 
 CMD ["./run.sh"]
