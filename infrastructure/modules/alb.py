@@ -1,37 +1,65 @@
+from collections.abc import Sequence
+from dataclasses import dataclass
+
 import pulumi
 import pulumi_aws as aws
 import pulumi_awsx as awsx
-from modules.network import vpc
 
-config = pulumi.Config()
 
-alb_security_group = aws.ec2.SecurityGroup(
-    "alb-security-group",
-    vpc_id=vpc.vpc_id,
-    ingress=[
-        aws.ec2.SecurityGroupIngressArgs(
-            from_port=80,
-            to_port=80,
-            protocol="tcp",
-            cidr_blocks=["0.0.0.0/0"],
+@dataclass
+class ALBArgs:
+    vpc_id: pulumi.Input[str]
+    target_port: pulumi.Input[int]
+    subnet_ids: pulumi.Input[Sequence[str]]
+
+
+class ALB(pulumi.ComponentResource):
+    @property
+    def target_group(self) -> pulumi.Output[aws.lb.TargetGroup]:
+        return self._alb.default_target_group  # type: ignore[no-any-return]
+
+    @property
+    def dns_name(self) -> pulumi.Output[str]:
+        return self._alb.load_balancer.dns_name  # type: ignore[no-any-return]
+
+    def __init__(
+        self, name: str, args: ALBArgs, opts: pulumi.ResourceOptions | None = None
+    ):
+        super().__init__("modules:alb:ALB", name, {}, opts)
+
+        security_group = aws.ec2.SecurityGroup(
+            f"{name}-security-group",
+            vpc_id=args.vpc_id,
+            ingress=[
+                aws.ec2.SecurityGroupIngressArgs(
+                    from_port=80,
+                    to_port=80,
+                    protocol="tcp",
+                    cidr_blocks=["0.0.0.0/0"],
+                )
+            ],
+            egress=[
+                aws.ec2.SecurityGroupEgressArgs(
+                    from_port=0,
+                    to_port=0,
+                    protocol="-1",
+                    cidr_blocks=["0.0.0.0/0"],
+                )
+            ],
+            opts=pulumi.ResourceOptions(parent=self),
         )
-    ],
-    egress=[
-        aws.ec2.SecurityGroupEgressArgs(
-            from_port=0,
-            to_port=0,
-            protocol="-1",
-            cidr_blocks=["0.0.0.0/0"],
+
+        self._alb = awsx.lb.ApplicationLoadBalancer(
+            f"{name}-alb",
+            security_groups=[security_group.id],
+            subnet_ids=args.subnet_ids,
+            default_target_group_port=args.target_port,
+            opts=pulumi.ResourceOptions(parent=self),
         )
-    ],
-)
 
-alb = awsx.lb.ApplicationLoadBalancer(
-    "alb",
-    security_groups=[alb_security_group.id],
-    subnet_ids=vpc.public_subnet_ids,
-    default_target_group_port=config.require_int("frontend_container_port"),
-)
-
-pulumi.export("alb_security_group_id", alb_security_group.id)
-pulumi.export("alb_dns_name", alb.load_balancer.dns_name)
+        self.register_outputs(
+            {
+                "security_group_id": security_group.id,
+                "dns_name": self.dns_name,
+            }
+        )
