@@ -45,3 +45,35 @@ config:
     type: integer
     description: Port of the frontend container.
     default: 80
+  database_name:
+    type: string
+    description: Name of the database.
+    default: projectStarter
+  database_port:
+    type: integer
+    description: Port of the database.
+    default: 5432
+  database_engine:
+    type: string
+    description: The database engine to use.
+    default: postgres
+  database_engine_version:
+    type: string
+    description: The database engine version to use.
+    default: "15.3"
+  database_storage_type:
+    type: string
+    description: The database storage type.
+    default: gp2
+  database_allocated_storage:
+    type: integer
+    description: The allocated storage in gibibytes.
+    default: 20
+  database_instance_class:
+    type: string
+    description: The instance type of the RDS instance.
+    default: db.t3.medium
+  database_username:
+    type: string
+    description: Username for the master DB user.
+    default: projectStarter
