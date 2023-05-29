@@ -1,11 +1,13 @@
 import pulumi
+from helpers.date import get_utc_timestamp
+from helpers.hash import generate_hash
 from modules.alb import ALB, ALBArgs
-from modules.date import get_utc_timestamp
 from modules.ecs import ECSService, ECSServiceArgs, create_ecs_cluster
-from modules.hash import generate_hash
+from modules.elasticache import ElastiCache, ElastiCacheArgs
 from modules.network import create_vpc
 from modules.rds import RDS, RDSArgs
 
+stack = pulumi.get_stack()
 config = pulumi.Config()
 
 vpc = create_vpc("vpc")
@@ -15,8 +17,8 @@ database = RDS(
     RDSArgs(
         vpc_id=vpc.vpc_id,
         subnet_ids=vpc.private_subnet_ids,
-        port=config.require_int("database_port"),
         name=config.require("database_name"),
+        port=config.require_int("database_port"),
         engine=config.require("database_engine"),
         engine_version=config.require("database_engine_version"),
         storage_type=config.require("database_storage_type"),
@@ -28,6 +30,18 @@ database = RDS(
         ),
         username=config.require("database_username"),
         password=config.require_secret("database_password"),
+    ),
+)
+
+cache = ElastiCache(
+    "cache",
+    ElastiCacheArgs(
+        vpc_id=vpc.vpc_id,
+        subnet_ids=vpc.private_subnet_ids,
+        port=config.require_int("cache_port"),
+        description=f"Redis cache by the Pulumi for the {stack!r} stack",
+        engine_version=config.require("cache_engine_version"),
+        node_type=config.require("cache_node_type"),
     ),
 )
 
@@ -78,6 +92,8 @@ pulumi.export("private_subnets_ids", vpc.private_subnet_ids)
 pulumi.export("public_subnets_ids", vpc.public_subnet_ids)
 
 pulumi.export("database_endpoint", database.endpoint)
+
+pulumi.export("cache_endpoint", cache.endpoint)
 
 pulumi.export("lb_dns_name", lb.dns_name)
 
