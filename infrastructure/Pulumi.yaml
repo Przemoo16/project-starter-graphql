@@ -51,7 +51,7 @@ config:
     default: projectStarter
   database_port:
     type: integer
-    description: Port of the database.
+    description: The port on which the DB accepts connections.
     default: 5432
   database_engine:
     type: string
@@ -77,3 +77,15 @@ config:
     type: string
     description: Username for the master DB user.
     default: projectStarter
+  cache_port:
+    type: integer
+    description: Port number on which each of the cache nodes will accept connections.
+    default: 6379
+  cache_engine_version:
+    type: string
+    description: Version number of the cache engine to be used.
+    default: "7.0"
+  cache_node_type:
+    type: string
+    description: Instance class to be used.
+    default: cache.t3.micro

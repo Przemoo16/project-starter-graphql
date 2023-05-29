@@ -6,30 +6,27 @@ import pulumi_aws as aws
 
 
 @dataclass
-class RDSArgs:
+class ElastiCacheArgs:
     vpc_id: pulumi.Input[str]
     subnet_ids: pulumi.Input[Sequence[str]]
-    name: pulumi.Input[str]
     port: pulumi.Input[int]
-    engine: pulumi.Input[str]
+    description: pulumi.Input[str]
     engine_version: pulumi.Input[str]
-    storage_type: pulumi.Input[str]
-    allocated_storage: pulumi.Input[int]
-    instance_class: pulumi.Input[str]
-    final_snapshot_identifier: pulumi.Input[str]
-    username: pulumi.Input[str]
-    password: pulumi.Input[str]
+    node_type: pulumi.Input[str]
 
 
-class RDS(pulumi.ComponentResource):
+class ElastiCache(pulumi.ComponentResource):
     @property
     def endpoint(self) -> pulumi.Output[str]:
-        return self._database.endpoint  # type: ignore[no-any-return]
+        return self._cache.primary_endpoint_address  # type: ignore[no-any-return]
 
     def __init__(
-        self, name: str, args: RDSArgs, opts: pulumi.ResourceOptions | None = None
+        self,
+        name: str,
+        args: ElastiCacheArgs,
+        opts: pulumi.ResourceOptions | None = None,
     ):
-        super().__init__("modules:rds:RDS", name, {}, opts)
+        super().__init__("modules:elasticache:ElastiCache", name, {}, opts)
 
         security_group = aws.ec2.SecurityGroup(
             f"{name}-security-group",
@@ -54,39 +51,27 @@ class RDS(pulumi.ComponentResource):
             opts=pulumi.ResourceOptions(parent=self),
         )
 
-        subnet_group = aws.rds.SubnetGroup(
+        subnet_group = aws.elasticache.SubnetGroup(
             f"{name}-subnet-group",
             subnet_ids=args.subnet_ids,
             opts=pulumi.ResourceOptions(parent=self),
         )
 
-        self._database = aws.rds.Instance(
-            f"{name}-instance",
-            name=args.name,
+        self._cache = aws.elasticache.ReplicationGroup(
+            f"{name}-replication-group",
             port=args.port,
-            engine=args.engine,
+            description=args.description,
             engine_version=args.engine_version,
-            storage_type=args.storage_type,
-            allocated_storage=args.allocated_storage,
-            instance_class=args.instance_class,
-            final_snapshot_identifier=args.final_snapshot_identifier,
-            username=args.username,
-            password=args.password,
-            vpc_security_group_ids=[security_group.id],
-            db_subnet_group_name=subnet_group.name,
-            opts=pulumi.ResourceOptions(
-                parent=self, ignore_changes=["final_snapshot_identifier"]
-            ),
+            node_type=args.node_type,
+            security_group_ids=[security_group.id],
+            subnet_group_name=subnet_group.name,
+            opts=pulumi.ResourceOptions(parent=self),
         )
 
         self.register_outputs(
             {
                 "security_group_id": security_group.id,
                 "subnet_group_id": subnet_group.id,
-                "username": self._database.username,
-                "name": self._database.name,
-                "host": self._database.address,
-                "port": self._database.port,
                 "endpoint": self.endpoint,
             }
         )
