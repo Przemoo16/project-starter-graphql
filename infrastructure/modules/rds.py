@@ -8,7 +8,7 @@ import pulumi_aws as aws
 @dataclass
 class RDSArgs:
     vpc_id: pulumi.Input[str]
-    subnet_ids: pulumi.Input[Sequence[str]]
+    subnet_ids: pulumi.Input[Sequence[pulumi.Input[str]]]
     name: pulumi.Input[str]
     port: pulumi.Input[int]
     engine: pulumi.Input[str]
@@ -22,6 +22,22 @@ class RDSArgs:
 
 
 class RDS(pulumi.ComponentResource):
+    @property
+    def username(self) -> pulumi.Output[str]:
+        return self._database.username  # type: ignore[no-any-return]
+
+    @property
+    def name(self) -> pulumi.Output[str]:
+        return self._database.name  # type: ignore[no-any-return]
+
+    @property
+    def host(self) -> pulumi.Output[str]:
+        return self._database.address  # type: ignore[no-any-return]
+
+    @property
+    def port(self) -> pulumi.Output[int]:
+        return self._database.port  # type: ignore[no-any-return]
+
     @property
     def endpoint(self) -> pulumi.Output[str]:
         return self._database.endpoint  # type: ignore[no-any-return]
@@ -42,15 +58,6 @@ class RDS(pulumi.ComponentResource):
                     cidr_blocks=["0.0.0.0/0"],
                 )
             ],
-            # TODO: Check if egress is needed
-            # egress=[
-            #     aws.ec2.SecurityGroupEgressArgs(
-            #         from_port=0,
-            #         to_port=0,
-            #         protocol="-1",
-            #         cidr_blocks=["0.0.0.0/0"],
-            #     )
-            # ],
             opts=pulumi.ResourceOptions(parent=self),
         )
 
@@ -83,10 +90,10 @@ class RDS(pulumi.ComponentResource):
             {
                 "security_group_id": security_group.id,
                 "subnet_group_id": subnet_group.id,
-                "username": self._database.username,
-                "name": self._database.name,
-                "host": self._database.address,
-                "port": self._database.port,
+                "username": self.username,
+                "name": self.name,
+                "host": self.host,
+                "port": self.port,
                 "endpoint": self.endpoint,
             }
         )

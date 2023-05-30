@@ -1,4 +1,4 @@
 config:
   aws:region: eu-central-1
   project-starter-graphql:database_password:
-    secure: AAABAA+edKaRXI4+xN1u7vDjGUx1m6iWzzoN6WrxDZbLeGab0BXmyAmq0uORsQqaM028bg==
+    secure: AAABANDLG2U7zErAFpjOMGAnm5GfW0yPDu64+f4AAbPR1NfulndjqWuNYym/5O1wzNRQUQ==

@@ -8,7 +8,7 @@ import pulumi_aws as aws
 @dataclass
 class ElastiCacheArgs:
     vpc_id: pulumi.Input[str]
-    subnet_ids: pulumi.Input[Sequence[str]]
+    subnet_ids: pulumi.Input[Sequence[pulumi.Input[str]]]
     port: pulumi.Input[int]
     description: pulumi.Input[str]
     engine_version: pulumi.Input[str]
@@ -39,15 +39,6 @@ class ElastiCache(pulumi.ComponentResource):
                     cidr_blocks=["0.0.0.0/0"],
                 )
             ],
-            # TODO: Check if egress is needed
-            # egress=[
-            #     aws.ec2.SecurityGroupEgressArgs(
-            #         from_port=0,
-            #         to_port=0,
-            #         protocol="-1",
-            #         cidr_blocks=["0.0.0.0/0"],
-            #     )
-            # ],
             opts=pulumi.ResourceOptions(parent=self),
         )
 
