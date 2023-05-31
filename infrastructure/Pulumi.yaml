@@ -51,6 +51,14 @@ config:
     description: Instance class to be used.
     default: cache.t3.micro
 
+  frontend_repository_name:
+    type: string
+    description: Name of the frontend repository.
+    default: project-starter-graphql-frontend
+  frontend_image_tag:
+    type: string
+    description: The frontend image tag.
+    default: latest
   frontend_service_desired_count:
     type: integer
     description: Number of instances of the frontend task to place and keep running.
@@ -63,15 +71,19 @@ config:
     type: string
     description: The hard limit of memory (in MiB) to present to the frontend task.
     default: "2048"
-  frontend_container_image:
-    type: string
-    description: The image used to start a frontend container.
-    default: 059132655198.dkr.ecr.eu-central-1.amazonaws.com/project-starter-graphql-frontend
   frontend_container_port:
     type: integer
     description: Exposed port of the frontend container.
     default: 80
 
+  backend_repository_name:
+    type: string
+    description: Name of the backend repository.
+    default: project-starter-graphql-backend
+  backend_image_tag:
+    type: string
+    description: The backend image tag.
+    default: latest
   backend_service_desired_count:
     type: integer
     description: Number of instances of the backend task to place and keep running.
@@ -84,10 +96,6 @@ config:
     type: string
     description: The hard limit of memory (in MiB) to present to the backend task.
     default: "2048"
-  backend_container_image:
-    type: string
-    description: The image used to start a backend container.
-    default: 059132655198.dkr.ecr.eu-central-1.amazonaws.com/project-starter-graphql-backend
   backend_container_port:
     type: integer
     description: Exposed port of the backend container.
@@ -105,10 +113,6 @@ config:
     type: string
     description: The hard limit of memory (in MiB) to present to the celery worker task.
     default: "2048"
-  celery_worker_container_image:
-    type: string
-    description: The image used to start a celery worker container.
-    default: 059132655198.dkr.ecr.eu-central-1.amazonaws.com/project-starter-graphql-backend
   celery_worker_container_port:
     type: integer
     description: Exposed port of the celery worker container.
@@ -138,10 +142,6 @@ config:
     type: string
     description: The hard limit of memory (in MiB) to present to the celery beat task.
     default: "2048"
-  celery_beat_container_image:
-    type: string
-    description: The image used to start a celery image container.
-    default: 059132655198.dkr.ecr.eu-central-1.amazonaws.com/project-starter-graphql-backend
   celery_beat_container_port:
     type: integer
     description: Exposed port of the celery beat container.
