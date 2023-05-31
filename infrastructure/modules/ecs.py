@@ -1,4 +1,4 @@
-from collections.abc import Sequence
+from collections.abc import Mapping, Sequence
 from dataclasses import dataclass
 
 import pulumi
@@ -14,13 +14,15 @@ def create_ecs_cluster(name: str) -> aws.ecs.Cluster:
 class ECSServiceArgs:
     cluster_arn: pulumi.Input[str]
     vpc_id: pulumi.Input[str]
-    subnet_ids: pulumi.Input[Sequence[str]]
+    subnet_ids: pulumi.Input[Sequence[pulumi.Input[str]]]
     service_desired_count: pulumi.Input[int]
     task_cpu: pulumi.Input[str]
     task_memory: pulumi.Input[str]
     container_image: pulumi.Input[str]
     container_port: pulumi.Input[int]
     target_group: pulumi.Input[aws.lb.TargetGroup] | None = None
+    container_command: pulumi.Input[Sequence[pulumi.Input[str]]] | None = None
+    container_environment: Mapping[str, pulumi.Input[str]] | None = None
 
 
 class ECSService(pulumi.ComponentResource):
@@ -68,14 +70,13 @@ class ECSService(pulumi.ComponentResource):
                 container=awsx.ecs.TaskDefinitionContainerDefinitionArgs(
                     image=args.container_image,
                     essential=True,
-                    port_mappings=[
-                        awsx.ecs.TaskDefinitionPortMappingArgs(
-                            target_group=args.target_group,
-                            container_port=None
-                            if args.target_group
-                            else args.container_port,
-                        )
-                    ],
+                    port_mappings=get_port_mappings(
+                        args.target_group, args.container_port
+                    ),
+                    command=args.container_command,
+                    environment=convert_container_environment(
+                        args.container_environment
+                    ),
                 ),
             ),
             opts=pulumi.ResourceOptions(parent=self),
@@ -86,3 +87,26 @@ class ECSService(pulumi.ComponentResource):
                 "security_group_id": security_group.id,
             }
         )
+
+
+def get_port_mappings(
+    target_group: pulumi.Input[aws.lb.TargetGroup] | None,
+    container_port: pulumi.Input[int],
+) -> list[awsx.ecs.TaskDefinitionPortMappingArgs]:
+    return [
+        awsx.ecs.TaskDefinitionPortMappingArgs(
+            target_group=target_group,
+            container_port=None if target_group else container_port,
+        )
+    ]
+
+
+def convert_container_environment(
+    environment: Mapping[str, pulumi.Input[str]] | None
+) -> list[awsx.ecs.TaskDefinitionKeyValuePairArgs] | None:
+    if not environment:
+        return None
+    return [
+        awsx.ecs.TaskDefinitionKeyValuePairArgs(name=name, value=value)
+        for name, value in environment.items()
+    ]

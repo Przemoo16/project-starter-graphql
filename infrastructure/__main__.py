@@ -7,6 +7,7 @@ from modules.elasticache import ElastiCache, ElastiCacheArgs
 from modules.network import create_vpc
 from modules.rds import RDS, RDSArgs
 
+project = pulumi.get_project()
 stack = pulumi.get_stack()
 config = pulumi.Config()
 
@@ -25,8 +26,7 @@ database = RDS(
         allocated_storage=config.require_int("database_allocated_storage"),
         instance_class=config.require("database_instance_class"),
         final_snapshot_identifier=(
-            "project-starter-graphql-"
-            f"{generate_hash(get_utc_timestamp(), digest_size=16)}"
+            f"{project}-{generate_hash(get_utc_timestamp(), digest_size=16)}"
         ),
         username=config.require("database_username"),
         password=config.require_secret("database_password"),
@@ -39,7 +39,7 @@ cache = ElastiCache(
         vpc_id=vpc.vpc_id,
         subnet_ids=vpc.private_subnet_ids,
         port=config.require_int("cache_port"),
-        description=f"Redis cache by the Pulumi for the {stack!r} stack",
+        description=(f"Redis cache for the {stack!r} stack in the {project!r} project"),
         engine_version=config.require("cache_engine_version"),
         node_type=config.require("cache_node_type"),
     ),
@@ -71,7 +71,17 @@ frontend_service = ECSService(
     ),
 )
 
-# TODO: Pass DB envs to the container
+backend_environment = {
+    # TODO: Use the SSM Parameter to save DB password and pass it as a container secret
+    "DB__PASSWORD": config.require_secret("database_password"),
+    "DB__USERNAME": database.username,
+    "DB__NAME": database.name,
+    "DB__HOST": database.host,
+    "DB__PORT": database.port.apply(str),
+    "CELERY__BROKER_URL": pulumi.Output.concat("redis://", cache.endpoint),
+    "CELERY__RESULT_BACKEND": pulumi.Output.concat("redis://", cache.endpoint),
+}
+
 backend_service = ECSService(
     "backend",
     ECSServiceArgs(
@@ -83,6 +93,39 @@ backend_service = ECSService(
         task_memory=config.require("backend_task_memory"),
         container_image=config.require("backend_container_image"),
         container_port=config.require_int("backend_container_port"),
+        container_environment=backend_environment,
+    ),
+)
+
+celery_worker_service = ECSService(
+    "celery-worker",
+    ECSServiceArgs(
+        cluster_arn=cluster.arn,
+        vpc_id=vpc.vpc_id,
+        subnet_ids=vpc.private_subnet_ids,
+        service_desired_count=config.require_int("celery_worker_service_desired_count"),
+        task_cpu=config.require("celery_worker_task_cpu"),
+        task_memory=config.require("celery_worker_task_memory"),
+        container_image=config.require("celery_worker_container_image"),
+        container_port=config.require_int("celery_worker_container_port"),
+        container_command=config.require_object("celery_worker_container_command"),
+        container_environment=backend_environment,
+    ),
+)
+
+celery_beat_service = ECSService(
+    "celery-beat",
+    ECSServiceArgs(
+        cluster_arn=cluster.arn,
+        vpc_id=vpc.vpc_id,
+        subnet_ids=vpc.private_subnet_ids,
+        service_desired_count=config.require_int("celery_beat_service_desired_count"),
+        task_cpu=config.require("celery_beat_task_cpu"),
+        task_memory=config.require("celery_beat_task_memory"),
+        container_image=config.require("celery_beat_container_image"),
+        container_port=config.require_int("celery_beat_container_port"),
+        container_command=config.require_object("celery_beat_container_command"),
+        container_environment=backend_environment,
     ),
 )
 

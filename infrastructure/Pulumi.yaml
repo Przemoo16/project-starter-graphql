@@ -5,46 +5,6 @@ runtime:
     virtualenv: venv
 description: A Python program to deploy a containerized service on AWS
 config:
-  backend_service_desired_count:
-    type: integer
-    description: Number of instances of the backend task to place and keep running.
-    default: 1
-  backend_task_cpu:
-    type: string
-    description: The hard limit of CPU units to present for the backend task.
-    default: "1024"
-  backend_task_memory:
-    type: string
-    description: The hard limit of memory (in MiB) to present to the backend task.
-    default: "2048"
-  backend_container_image:
-    type: string
-    description: Backend image.
-    default: 059132655198.dkr.ecr.eu-central-1.amazonaws.com/project-starter-graphql-backend
-  backend_container_port:
-    type: integer
-    description: Port of the backend container.
-    default: 80
-  frontend_service_desired_count:
-    type: integer
-    description: Number of instances of the frontend task to place and keep running.
-    default: 1
-  frontend_task_cpu:
-    type: string
-    description: The hard limit of CPU units to present for the frontend task.
-    default: "1024"
-  frontend_task_memory:
-    type: string
-    description: The hard limit of memory (in MiB) to present to the frontend task.
-    default: "2048"
-  frontend_container_image:
-    type: string
-    description: Frontend image.
-    default: 059132655198.dkr.ecr.eu-central-1.amazonaws.com/project-starter-graphql-frontend
-  frontend_container_port:
-    type: integer
-    description: Port of the frontend container.
-    default: 80
   database_name:
     type: string
     description: Name of the database.
@@ -77,6 +37,7 @@ config:
     type: string
     description: Username for the master DB user.
     default: projectStarter
+
   cache_port:
     type: integer
     description: Port number on which each of the cache nodes will accept connections.
@@ -89,3 +50,111 @@ config:
     type: string
     description: Instance class to be used.
     default: cache.t3.micro
+
+  frontend_service_desired_count:
+    type: integer
+    description: Number of instances of the frontend task to place and keep running.
+    default: 1
+  frontend_task_cpu:
+    type: string
+    description: The hard limit of CPU units to present for the frontend task.
+    default: "1024"
+  frontend_task_memory:
+    type: string
+    description: The hard limit of memory (in MiB) to present to the frontend task.
+    default: "2048"
+  frontend_container_image:
+    type: string
+    description: The image used to start a frontend container.
+    default: 059132655198.dkr.ecr.eu-central-1.amazonaws.com/project-starter-graphql-frontend
+  frontend_container_port:
+    type: integer
+    description: Exposed port of the frontend container.
+    default: 80
+
+  backend_service_desired_count:
+    type: integer
+    description: Number of instances of the backend task to place and keep running.
+    default: 1
+  backend_task_cpu:
+    type: string
+    description: The hard limit of CPU units to present for the backend task.
+    default: "1024"
+  backend_task_memory:
+    type: string
+    description: The hard limit of memory (in MiB) to present to the backend task.
+    default: "2048"
+  backend_container_image:
+    type: string
+    description: The image used to start a backend container.
+    default: 059132655198.dkr.ecr.eu-central-1.amazonaws.com/project-starter-graphql-backend
+  backend_container_port:
+    type: integer
+    description: Exposed port of the backend container.
+    default: 80
+
+  celery_worker_service_desired_count:
+    type: integer
+    description: Number of instances of the celery worker task to place and keep running.
+    default: 1
+  celery_worker_task_cpu:
+    type: string
+    description: The hard limit of CPU units to present for the celery worker task.
+    default: "1024"
+  celery_worker_task_memory:
+    type: string
+    description: The hard limit of memory (in MiB) to present to the celery worker task.
+    default: "2048"
+  celery_worker_container_image:
+    type: string
+    description: The image used to start a celery worker container.
+    default: 059132655198.dkr.ecr.eu-central-1.amazonaws.com/project-starter-graphql-backend
+  celery_worker_container_port:
+    type: integer
+    description: Exposed port of the celery worker container.
+    default: 80
+  celery_worker_container_command:
+    type: array
+    description: The command that's passed to the celery worker container.
+    items:
+      type: string
+    default:
+      - celery
+      - --app
+      - backend.celery:app
+      - worker
+      - --loglevel
+      - INFO
+
+  celery_beat_service_desired_count:
+    type: integer
+    description: Number of instances of the celery beat task to place and keep running.
+    default: 1
+  celery_beat_task_cpu:
+    type: string
+    description: The hard limit of CPU units to present for the celery beat task.
+    default: "1024"
+  celery_beat_task_memory:
+    type: string
+    description: The hard limit of memory (in MiB) to present to the celery beat task.
+    default: "2048"
+  celery_beat_container_image:
+    type: string
+    description: The image used to start a celery image container.
+    default: 059132655198.dkr.ecr.eu-central-1.amazonaws.com/project-starter-graphql-backend
+  celery_beat_container_port:
+    type: integer
+    description: Exposed port of the celery beat container.
+    default: 80
+  celery_beat_container_command:
+    type: array
+    description: The command that's passed to the celery beat container.
+    items:
+      type: string
+    default:
+      - celery
+      - --app
+      - backend.celery:app
+      - beat
+      - --loglevel
+      - INFO
