@@ -7,20 +7,21 @@ ENV PYTHONUNBUFFERED=1
 RUN apt-get update \
     && apt-get upgrade -y \
     && apt-get install --no-install-recommends -y curl \
-    && rm -rf /var/lib/apt/lists/* \
-    && pip install --no-cache-dir --upgrade pip
+    && rm -rf /var/lib/apt/lists/*
 
 RUN curl -sSL https://install.python-poetry.org | python - \
     # Upgrade setuptools, which is poetry dependency to non-vulnerable version (reported by Trivy)
     # FIXME: Remove after poetry resolves it on their own
-    && ~/.local/share/pypoetry/venv/bin/pip install "setuptools>=65.5.1" \
-    && ln -s ~/.local/bin/poetry /usr/local/bin/poetry \
+    && /root/.local/share/pypoetry/venv/bin/pip install "setuptools>=65.5.1" \
+    && ln -s /root/.local/bin/poetry /usr/local/bin/poetry \
     && poetry config virtualenvs.create false
 
 WORKDIR /opt/app
 
 COPY ./pyproject.toml ./poetry.lock ./
-RUN poetry install --no-root --no-interaction --no-ansi --only main
+RUN --mount=type=cache,target=/root/.cache/pypoetry/cache \
+    --mount=type=cache,target=/root/.cache/pypoetry/artifacts \
+    poetry install --no-root --no-interaction --no-ansi --only main
 
 COPY ./alembic.ini ./run.sh ./
 COPY ./alembic ./alembic
@@ -30,7 +31,9 @@ EXPOSE 80
 
 FROM base AS dev
 
-RUN poetry install --no-root --no-interaction --no-ansi --with dev
+RUN --mount=type=cache,target=/root/.cache/pypoetry/cache \
+    --mount=type=cache,target=/root/.cache/pypoetry/artifacts \
+    poetry install --no-root --no-interaction --no-ansi --with dev
 
 COPY ./backend ./backend
 COPY ./tests ./tests
