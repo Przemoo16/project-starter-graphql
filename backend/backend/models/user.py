@@ -4,7 +4,7 @@ from uuid import UUID, uuid4
 from sqlalchemy import String
 from sqlalchemy.orm import Mapped, mapped_column
 
-from backend.models.base import Base
+from backend.db.base import Base
 from backend.models.functions import utcnow
 
 
