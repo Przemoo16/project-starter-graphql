@@ -43,7 +43,7 @@ RUN poetry install --only-root --no-interaction --no-ansi
 CMD ["./run.sh", "--reload"]
 
 
-FROM base as prod
+FROM base
 
 COPY ./backend ./backend
 
