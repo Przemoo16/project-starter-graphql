@@ -1,19 +1,19 @@
 import logging
 
+from sqlalchemy.engine import URL
 from sqlalchemy.ext.asyncio import AsyncEngine, create_async_engine
 
-from backend.config.db import DBSettings
 from backend.config.settings import get_settings
 
 logger = logging.getLogger(__name__)
 
 
-def create_engine(settings: DBSettings) -> AsyncEngine:
+def create_engine(url: URL) -> AsyncEngine:
     logger.debug(
         "Creating a database engine with the connection string %r",
-        settings.url.render_as_string(),
+        url.render_as_string(),
     )
-    return create_async_engine(settings.url)
+    return create_async_engine(url)
 
 
 async def dispose_engine(engine: AsyncEngine) -> None:
@@ -21,7 +21,7 @@ async def dispose_engine(engine: AsyncEngine) -> None:
     await engine.dispose()
 
 
-_engine = create_engine(get_settings().db)
+_engine = create_engine(get_settings().db.url)
 
 
 def get_engine() -> AsyncEngine:

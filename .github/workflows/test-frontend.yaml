@@ -23,25 +23,17 @@ jobs:
       target: dev
       images: ghcr.io/przemoo16/project-starter-graphql-frontend
 
-  run-unit-tests:
+  call-test-image-unit:
     name: Run unit tests
-    runs-on: ubuntu-latest
     needs: [call-build-push-image]
 
     permissions:
+      contents: read
       packages: read
 
-    steps:
-      - name: Login to GitHub Container Registry
-        uses: docker/login-action@v2
-        with:
-          registry: ghcr.io
-          username: ${{ github.actor }}
-          password: ${{ secrets.GITHUB_TOKEN }}
-
-      - name: Run unit tests
-        run: docker run --rm ghcr.io/przemoo16/project-starter-graphql-frontend:${{ needs.call-build-push-image.outputs.image-tag }} yarn test:ci
-        shell: bash
+    uses: ./.github/workflows/test-image.yaml
+    with:
+      command: FRONTEND_IMAGE=ghcr.io/przemoo16/project-starter-graphql-frontend:${{ needs.call-build-push-image.outputs.image-tag }} make unit-test-frontend
 
   call-scan-image:
     name: Scan image

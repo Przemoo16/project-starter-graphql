@@ -17,5 +17,7 @@ class User(Base):
     full_name: Mapped[str] = mapped_column(String(64))
     confirmed_email: Mapped[bool] = mapped_column(default=False)
     created_at: Mapped[datetime] = mapped_column(server_default=utcnow())
-    updated_at: Mapped[datetime] = mapped_column(default=utcnow(), onupdate=utcnow())
+    updated_at: Mapped[datetime] = mapped_column(
+        server_default=utcnow(), onupdate=utcnow()
+    )
     last_login: Mapped[datetime | None] = mapped_column(default=None)
