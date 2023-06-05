@@ -33,7 +33,7 @@ jobs:
 
     uses: ./.github/workflows/test-image.yaml
     with:
-      command: FRONTEND_IMAGE=ghcr.io/przemoo16/project-starter-graphql-frontend:${{ needs.call-build-push-image.outputs.image-tag }} make unit-test-frontend
+      command: make unit-test-frontend
 
   call-scan-image:
     name: Scan image

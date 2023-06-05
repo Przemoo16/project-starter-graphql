@@ -33,7 +33,7 @@ jobs:
 
     uses: ./.github/workflows/test-image.yaml
     with:
-      command: BACKEND_IMAGE=ghcr.io/przemoo16/project-starter-graphql-backend:${{ needs.call-build-push-image.outputs.image-tag }} make unit-test-backend
+      command: make unit-test-backend
 
   call-test-image-integration:
     name: Run integration tests
@@ -45,7 +45,7 @@ jobs:
 
     uses: ./.github/workflows/test-image.yaml
     with:
-      command: BACKEND_IMAGE=ghcr.io/przemoo16/project-starter-graphql-backend:${{ needs.call-build-push-image.outputs.image-tag }} make integration-test-backend
+      command: make integration-test-backend
 
   call-scan-image:
     name: Scan image

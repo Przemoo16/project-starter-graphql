@@ -90,5 +90,5 @@ jobs:
 
       - name: Run linter
         run: |
-          BACKEND_IMAGE=${{ env.BACKEND_IMAGE }} FRONTEND_IMAGE=${{ env.FRONTEND_IMAGE }} make lint
+          make lint
         shell: bash

@@ -9,7 +9,7 @@ integration-test-backend:
 	$(COMPOSE) run --rm backend pytest tests/integration
 
 lint:
-	pre-commit run --all-files --show-diff-on-failure
+	pre-commit run --all-files --show-diff-on-failure -vvv
 
 setup:
 	git config blame.ignoreRevsFile .git-blame-ignore-revs
