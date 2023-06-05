@@ -1,3 +1,4 @@
+import logging
 from collections.abc import AsyncGenerator
 from contextlib import asynccontextmanager
 
@@ -5,7 +6,18 @@ from fastapi import FastAPI
 from sqlalchemy.ext.asyncio import AsyncEngine
 
 from backend.api.graphql.api import get_router
+from backend.config.settings import get_settings
 from backend.db.engine import dispose_engine, get_engine
+
+settings = get_settings()
+
+logging.basicConfig(
+    format=(
+        "%(threadName)s(%(thread)d): %(asctime)s - %(levelname)s - "
+        "%(name)s:%(lineno)d - %(message)s"
+    ),
+    level=settings.app.logging_level,
+)
 
 
 def get_local_app(engine: AsyncEngine, debug: bool = False) -> FastAPI:
@@ -23,4 +35,4 @@ def get_local_app(engine: AsyncEngine, debug: bool = False) -> FastAPI:
 
 def get_app() -> FastAPI:
     engine = get_engine()
-    return get_local_app(engine)
+    return get_local_app(engine, settings.app.dev_mode)
