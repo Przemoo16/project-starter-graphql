@@ -89,8 +89,5 @@ jobs:
         shell: bash
 
       - name: Run linter
-        run: |
-          export BACKEND_IMAGE=${{ env.BACKEND_IMAGE }}
-          export FRONTEND_IMAGE=${{ env.FRONTEND_IMAGE }}
-          pre-commit run --all-files --show-diff-on-failure
+        run: BACKEND_IMAGE=${{ env.BACKEND_IMAGE }} FRONTEND_IMAGE=${{ env.FRONTEND_IMAGE }} make lint
         shell: bash
