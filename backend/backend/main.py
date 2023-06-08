@@ -5,7 +5,7 @@ from contextlib import asynccontextmanager
 from fastapi import FastAPI
 from sqlalchemy.ext.asyncio import AsyncEngine
 
-from backend.api.graphql.api import get_router
+from backend.api.graphql.router import get_router
 from backend.config.settings import get_settings
 from backend.db.engine import dispose_engine, get_engine
 

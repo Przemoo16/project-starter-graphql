@@ -1,15 +1,12 @@
 import orjson
-import strawberry
 from graphql.validation import NoSchemaIntrospectionCustomRule
 from strawberry import Schema
 from strawberry.extensions import AddValidationRules, SchemaExtension
 from strawberry.fastapi import GraphQLRouter
 from strawberry.http import GraphQLHTTPResponse
 
-
-@strawberry.type
-class Query:
-    test: str
+from backend.api.graphql.context import get_context
+from backend.api.graphql.query import Query
 
 
 class Router(GraphQLRouter):  # type: ignore[type-arg]
@@ -19,7 +16,7 @@ class Router(GraphQLRouter):  # type: ignore[type-arg]
 
 def get_router(debug: bool = False) -> Router:
     schema = get_schema(debug)
-    return Router(schema, graphiql=debug)
+    return Router(schema, graphiql=debug, context_getter=get_context)
 
 
 def get_schema(debug: bool = False) -> Schema:
