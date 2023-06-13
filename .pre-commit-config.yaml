@@ -17,20 +17,11 @@ repos:
       - id: end-of-file-fixer
       - id: requirements-txt-fixer
       - id: trailing-whitespace
-  - repo: https://github.com/charliermarsh/ruff-pre-commit
-    rev: v0.0.270
+  - repo: https://github.com/astral-sh/ruff-pre-commit
+    rev: v0.0.272
     hooks:
       - id: ruff
         args: [--fix, --exit-non-zero-on-fix]
-  - repo: https://github.com/asottile/pyupgrade
-    rev: v3.4.0
-    hooks:
-      - id: pyupgrade
-        args: [--py311-plus]
-  - repo: https://github.com/pycqa/isort
-    rev: 5.12.0
-    hooks:
-      - id: isort
   - repo: https://github.com/psf/black
     rev: 23.3.0
     hooks:
