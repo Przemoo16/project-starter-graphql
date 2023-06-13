@@ -48,13 +48,21 @@ plugins = [
 [tool.pylint.format]
 max-line-length = 88
 
-[tool.pylint."messages control"]
+[tool.pylint.BASIC]
+good-names = [
+    "id"
+]
+
+[tool.pylint."MESSAGES CONTROL"]
 disable = [
     "duplicate-code",
     "fixme",
     "missing-docstring",
     "too-few-public-methods",
     "too-many-instance-attributes"
+]
+enable = [
+    "useless-suppression"
 ]
 extension-pkg-whitelist = [
     "orjson",

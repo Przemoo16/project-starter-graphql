@@ -7,7 +7,7 @@ from sqlalchemy.ext.asyncio import async_engine_from_config
 
 from alembic import context
 from backend.config.settings import get_settings
-from backend.db import Base
+from backend.models import Base
 
 
 def get_url() -> str:

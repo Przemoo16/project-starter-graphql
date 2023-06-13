@@ -49,6 +49,9 @@ disable = [
     "too-few-public-methods",
     "too-many-instance-attributes"
 ]
+enable = [
+    "useless-suppression"
+]
 
 [tool.bandit]
 exclude_dirs = [

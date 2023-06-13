@@ -3,11 +3,13 @@ from collections.abc import AsyncGenerator, Generator
 import pytest
 from fastapi import FastAPI
 from httpx import AsyncClient
-from sqlalchemy.ext.asyncio import AsyncEngine
+from sqlalchemy.ext.asyncio import AsyncEngine, AsyncSession, async_sessionmaker
 
 from backend.config.settings import get_settings
 from backend.db.engine import create_engine, dispose_engine
+from backend.db.session import create_session_factory
 from backend.main import get_local_app
+from backend.models.base import Base
 
 
 @pytest.fixture(name="engine", scope="session")
@@ -17,9 +19,34 @@ async def engine_fixture() -> AsyncGenerator[AsyncEngine, None]:
     await dispose_engine(engine)
 
 
+@pytest.fixture(name="session_factory", scope="session")
+async def session_factory_fixture(
+    engine: AsyncEngine,
+) -> async_sessionmaker[AsyncSession]:
+    return create_session_factory(engine)
+
+
+@pytest.fixture(name="create_tables")
+async def create_tables_fixture(engine: AsyncEngine) -> AsyncGenerator[None, None]:
+    async with engine.begin() as conn:
+        await conn.run_sync(Base.metadata.create_all)
+    yield
+    async with engine.begin() as conn:
+        await conn.run_sync(Base.metadata.drop_all)
+
+
+@pytest.fixture(name="session")
+async def session_fixture(
+    session_factory: async_sessionmaker[AsyncSession],
+    create_tables: None,  # pylint: disable=unused-argument
+) -> AsyncGenerator[AsyncSession, None]:
+    async with session_factory() as session:
+        yield session
+
+
 @pytest.fixture(name="app_instance", scope="session")
-def app_instance_fixture(engine: AsyncEngine) -> Generator[FastAPI, None, None]:
-    yield get_local_app(engine)
+def app_instance_fixture(engine: AsyncEngine) -> FastAPI:
+    return get_local_app(engine)
 
 
 @pytest.fixture(name="app")
