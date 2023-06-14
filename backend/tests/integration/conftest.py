@@ -26,7 +26,7 @@ async def session_factory_fixture(
     return create_session_factory(engine)
 
 
-@pytest.fixture(name="create_tables")
+@pytest.fixture(name="_create_tables")
 async def _create_tables_fixture(engine: AsyncEngine) -> AsyncGenerator[None, None]:
     async with engine.begin() as conn:
         await conn.run_sync(Base.metadata.create_all)
