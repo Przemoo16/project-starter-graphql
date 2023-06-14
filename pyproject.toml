@@ -11,7 +11,6 @@ select = [
     "W",   # pycodestyle warnings
 ]
 ignore = [
-    "B008", # do not perform function call in argument defaults
     "D100", # missing docstring in public module
     "D101", # missing docstring in public class
     "D102", # missing docstring in public method

@@ -1,6 +1,6 @@
 COMPOSE := docker compose
 
-.PHONY: distclean integration-test-backend lint setup test-backend test-frontend unit-test-backend unit-test-frontend
+.PHONY: distclean integration-test-backend lint setup unit-test-backend unit-test-frontend
 
 distclean:
 	$(COMPOSE) down --volumes
@@ -14,10 +14,6 @@ lint:
 setup:
 	git config blame.ignoreRevsFile .git-blame-ignore-revs
 	pre-commit install
-
-test-backend: unit-test-backend integration-test-backend
-
-test-frontend: unit-test-frontend
 
 unit-test-backend:
 	$(COMPOSE) run --rm --no-deps backend pytest tests/unit
