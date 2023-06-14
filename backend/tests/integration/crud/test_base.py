@@ -43,7 +43,7 @@ def crud_fixture(session: AsyncSession) -> CRUD:
     return CRUD(model=Test, session=session)
 
 
-@pytest.mark.anyio
+@pytest.mark.anyio()
 async def test_create(crud: CRUD, session: AsyncSession) -> None:
     data = TestCreate(id=1, name="Created User")
 
@@ -54,7 +54,7 @@ async def test_create(crud: CRUD, session: AsyncSession) -> None:
     assert retrieved_obj.name == "Created User"
 
 
-@pytest.mark.anyio
+@pytest.mark.anyio()
 async def test_create_no_refresh(crud: CRUD) -> None:
     data = TestCreate()
 
@@ -63,7 +63,7 @@ async def test_create_no_refresh(crud: CRUD) -> None:
     assert instance_state(db_obj).expired
 
 
-@pytest.mark.anyio
+@pytest.mark.anyio()
 async def test_create_refresh(crud: CRUD) -> None:
     data = TestCreate()
 
@@ -72,7 +72,7 @@ async def test_create_refresh(crud: CRUD) -> None:
     assert not instance_state(db_obj).expired
 
 
-@pytest.mark.anyio
+@pytest.mark.anyio()
 async def test_read_one(crud: CRUD, session: AsyncSession) -> None:
     session.add(Test(id=1))
     await session.commit()
@@ -83,7 +83,7 @@ async def test_read_one(crud: CRUD, session: AsyncSession) -> None:
     assert db_obj.id == 1
 
 
-@pytest.mark.anyio
+@pytest.mark.anyio()
 async def test_read_one_not_found(crud: CRUD, session: AsyncSession) -> None:
     session.add(Test(id=1))
     await session.commit()
@@ -93,7 +93,7 @@ async def test_read_one_not_found(crud: CRUD, session: AsyncSession) -> None:
         await crud.read_one(filters)
 
 
-@pytest.mark.anyio
+@pytest.mark.anyio()
 async def test_update(crud: CRUD, session: AsyncSession) -> None:
     initial_obj = Test(id=1, name="Test User", age=25)
     session.add(initial_obj)
@@ -108,7 +108,7 @@ async def test_update(crud: CRUD, session: AsyncSession) -> None:
     assert retrieved_obj.age == 25
 
 
-@pytest.mark.anyio
+@pytest.mark.anyio()
 async def test_update_no_refresh(crud: CRUD) -> None:
     data = TestUpdate()
 
@@ -117,7 +117,7 @@ async def test_update_no_refresh(crud: CRUD) -> None:
     assert instance_state(db_obj).expired
 
 
-@pytest.mark.anyio
+@pytest.mark.anyio()
 async def test_update_and_refresh(crud: CRUD) -> None:
     data = TestUpdate()
 
@@ -126,7 +126,7 @@ async def test_update_and_refresh(crud: CRUD) -> None:
     assert not instance_state(db_obj).expired
 
 
-@pytest.mark.anyio
+@pytest.mark.anyio()
 async def test_delete(crud: CRUD, session: AsyncSession) -> None:
     initial_obj = Test(id=1)
     session.add(initial_obj)

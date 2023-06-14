@@ -6,7 +6,7 @@ from sqlalchemy.ext.asyncio import AsyncEngine
 from backend.main import get_local_app
 
 
-@pytest.mark.anyio
+@pytest.mark.anyio()
 @pytest.mark.parametrize("url", ["/docs", "/redoc"])
 async def test_openapi_documentation_is_disabled(url: str, engine: AsyncEngine) -> None:
     app = get_local_app(engine)
@@ -17,9 +17,9 @@ async def test_openapi_documentation_is_disabled(url: str, engine: AsyncEngine) 
     assert response.status_code == status.HTTP_404_NOT_FOUND
 
 
-@pytest.mark.anyio
+@pytest.mark.anyio()
 @pytest.mark.parametrize(
-    "debug,status_code",
+    ("debug", "status_code"),
     [(True, status.HTTP_200_OK), (False, status.HTTP_404_NOT_FOUND)],
 )
 async def test_enable_disable_graphiql(
@@ -33,8 +33,8 @@ async def test_enable_disable_graphiql(
     assert response.status_code == status_code
 
 
-@pytest.mark.anyio
-@pytest.mark.parametrize("debug,error", [(True, False), (False, True)])
+@pytest.mark.anyio()
+@pytest.mark.parametrize(("debug", "error"), [(True, False), (False, True)])
 async def test_enable_disable_schema_introspection(
     debug: bool, error: bool, engine: AsyncEngine
 ) -> None:

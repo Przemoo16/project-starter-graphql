@@ -27,7 +27,7 @@ async def session_factory_fixture(
 
 
 @pytest.fixture(name="create_tables")
-async def create_tables_fixture(engine: AsyncEngine) -> AsyncGenerator[None, None]:
+async def _create_tables_fixture(engine: AsyncEngine) -> AsyncGenerator[None, None]:
     async with engine.begin() as conn:
         await conn.run_sync(Base.metadata.create_all)
     yield
@@ -37,8 +37,7 @@ async def create_tables_fixture(engine: AsyncEngine) -> AsyncGenerator[None, Non
 
 @pytest.fixture(name="session")
 async def session_fixture(
-    session_factory: async_sessionmaker[AsyncSession],
-    create_tables: None,  # pylint: disable=unused-argument
+    session_factory: async_sessionmaker[AsyncSession], _create_tables: None
 ) -> AsyncGenerator[AsyncSession, None]:
     async with session_factory() as session:
         yield session

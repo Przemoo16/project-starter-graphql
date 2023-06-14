@@ -5,9 +5,8 @@ from sqlalchemy.sql import expression
 from sqlalchemy.types import DateTime
 
 
-class utcnow(  # pylint: disable=invalid-name, abstract-method, too-many-ancestors
-    expression.FunctionElement[Any]
-):
+# pylint: disable=invalid-name, abstract-method, too-many-ancestors
+class utcnow(expression.FunctionElement[Any]):  # noqa: N801
     type = DateTime()
     inherit_cache = True
 
