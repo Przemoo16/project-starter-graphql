@@ -58,7 +58,7 @@ async def test_create(crud: CRUD, session: AsyncSession) -> None:
 async def test_create_no_refresh(crud: CRUD) -> None:
     data = TestCreate()
 
-    db_obj = await crud.create(data, refresh=False)
+    db_obj = await crud.create(data)
 
     assert instance_state(db_obj).expired
 
@@ -67,7 +67,7 @@ async def test_create_no_refresh(crud: CRUD) -> None:
 async def test_create_refresh(crud: CRUD) -> None:
     data = TestCreate()
 
-    db_obj = await crud.create(data, refresh=True)
+    db_obj = await crud.create_and_refresh(data)
 
     assert not instance_state(db_obj).expired
 
@@ -78,7 +78,9 @@ async def test_read_one(crud: CRUD, session: AsyncSession) -> None:
     await session.commit()
     filters = TestFilters(id=1)
 
-    await crud.read_one(filters)
+    db_obj = await crud.read_one(filters)
+
+    assert db_obj.id == 1
 
 
 @pytest.mark.anyio
@@ -110,16 +112,16 @@ async def test_update(crud: CRUD, session: AsyncSession) -> None:
 async def test_update_no_refresh(crud: CRUD) -> None:
     data = TestUpdate()
 
-    db_obj = await crud.update(Test(), data, refresh=False)
+    db_obj = await crud.update(Test(), data)
 
     assert instance_state(db_obj).expired
 
 
 @pytest.mark.anyio
-async def test_update_refresh(crud: CRUD) -> None:
+async def test_update_and_refresh(crud: CRUD) -> None:
     data = TestUpdate()
 
-    db_obj = await crud.update(Test(), data, refresh=True)
+    db_obj = await crud.update_and_refresh(Test(), data)
 
     assert not instance_state(db_obj).expired
 

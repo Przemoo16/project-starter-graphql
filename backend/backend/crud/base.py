@@ -24,9 +24,17 @@ class BaseCRUD(Generic[Model, CreateData, UpdateData, Filters]):
         self.model = model
         self.session = session
 
-    async def create(self, data: CreateData, refresh: bool = False) -> Model:
-        obj = self.model(**asdict(data))
-        return await self._add_to_db(obj, refresh)
+    async def create(self, data: CreateData) -> Model:
+        created_obj = self._create_obj(data)
+        return await self._commit(created_obj)
+
+    async def create_and_refresh(self, data: CreateData) -> Model:
+        created_obj = self._create_obj(data)
+        return await self._commit_and_refresh(created_obj)
+
+    def _create_obj(self, data: CreateData) -> Model:
+        data_dict = asdict(data)
+        return self.model(**data_dict)
 
     async def read_one(self, filters: Filters) -> Model:
         statement = self._build_where_statement(select(self.model), filters)
@@ -36,25 +44,34 @@ class BaseCRUD(Generic[Model, CreateData, UpdateData, Filters]):
         except NoResultFound as exc:
             raise NoObjectFoundError from exc
 
-    async def update(
-        self, obj: Model, data: UpdateData, refresh: bool = False
-    ) -> Model:
+    async def update(self, obj: Model, data: UpdateData) -> Model:
+        updated_obj = self._update_obj(obj, data)
+        return await self._commit(updated_obj)
+
+    async def update_and_refresh(self, obj: Model, data: UpdateData) -> Model:
+        updated_obj = self._update_obj(obj, data)
+        return await self._commit_and_refresh(updated_obj)
+
+    def _update_obj(self, obj: Model, data: UpdateData) -> Model:
         data_dict = asdict(data)
         for field, value in data_dict.items():
             if is_unset(value):
                 continue
             setattr(obj, field, value)
-        return await self._add_to_db(obj, refresh)
+        return obj
 
     async def delete(self, obj: Model) -> None:
         await self.session.delete(obj)
         await self.session.commit()
 
-    async def _add_to_db(self, obj: Model, refresh: bool = False) -> Model:
+    async def _commit(self, obj: Model) -> Model:
         self.session.add(obj)
         await self.session.commit()
-        if refresh:
-            await self.session.refresh(obj)
+        return obj
+
+    async def _commit_and_refresh(self, obj: Model) -> Model:
+        obj = await self._commit(obj)
+        await self.session.refresh(obj)
         return obj
 
     def _build_where_statement(
