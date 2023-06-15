@@ -1344,13 +1344,13 @@ full = ["httpx (>=0.22.0)", "itsdangerous", "jinja2", "python-multipart", "pyyam
 
 [[package]]
 name = "strawberry-graphql"
-version = "0.184.1"
+version = "0.185.1"
 description = "A library for creating GraphQL APIs"
 optional = false
 python-versions = ">=3.7,<4.0"
 files = [
-    {file = "strawberry_graphql-0.184.1-py3-none-any.whl", hash = "sha256:a0232fad8a65ef45ebba915da347d4cb04fb457f0ff9af5c5fd9502851f30330"},
-    {file = "strawberry_graphql-0.184.1.tar.gz", hash = "sha256:d7bddabe48a177dc1b35ee808bb2496b5c2b403a492cd1ee945db94468d5d6c1"},
+    {file = "strawberry_graphql-0.185.1-py3-none-any.whl", hash = "sha256:90d8cd138d7f10e96abf8632eacd3767ec59d0e0afb564d39e275ff341fc5b85"},
+    {file = "strawberry_graphql-0.185.1.tar.gz", hash = "sha256:99e8b18e1a1eb15f6954760e8c3f00c63cca53740be1032c44e3b97b4f5e705e"},
 ]
 
 [package.dependencies]
@@ -1358,7 +1358,7 @@ fastapi = {version = ">=0.65.2", optional = true, markers = "extra == \"fastapi\
 graphql-core = ">=3.2.0,<3.3.0"
 python-dateutil = ">=2.7.0,<3.0.0"
 python-multipart = {version = ">=0.0.5,<0.0.7", optional = true, markers = "extra == \"asgi\" or extra == \"debug-server\" or extra == \"fastapi\""}
-typing_extensions = ">=4.0.0,<5.0.0"
+typing_extensions = ">=4.1.0"
 
 [package.extras]
 aiohttp = ["aiohttp (>=3.7.4.post0,<4.0.0)"]
@@ -1721,4 +1721,4 @@ files = [
 [metadata]
 lock-version = "2.0"
 python-versions = "^3.11"
-content-hash = "649195f941813ec2b430d5993790a901d0753931f1a606183fdeb6d04e94c067"
+content-hash = "74624145eaa629355792feee6fb55b72b5edf7d868e05d391973fac6582a592a"
