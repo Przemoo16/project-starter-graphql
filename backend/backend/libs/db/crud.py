@@ -3,13 +3,13 @@ from typing import Generic, TypeVar
 
 from sqlalchemy.exc import NoResultFound
 from sqlalchemy.ext.asyncio import AsyncSession
+from sqlalchemy.orm import DeclarativeBase
 from sqlalchemy.sql import Select, select
 
-from backend.models.base import Base
-from backend.types.dataclass import DataClassProtocol
-from backend.types.scalars import is_unset
+from backend.libs.types.dataclass import DataClassProtocol
+from backend.libs.types.scalars import is_unset
 
-Model = TypeVar("Model", bound=Base)
+Model = TypeVar("Model", bound=DeclarativeBase)
 CreateData = TypeVar("CreateData", bound=DataClassProtocol)
 UpdateData = TypeVar("UpdateData", bound=DataClassProtocol)
 Filters = TypeVar("Filters", bound=DataClassProtocol)

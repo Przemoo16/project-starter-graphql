@@ -2,7 +2,7 @@ from typing import Any
 
 import pytest
 
-from backend.types.scalars import UNSET, is_unset
+from backend.libs.types.scalars import UNSET, is_unset
 
 
 @pytest.mark.parametrize(("value", "unset"), [("test", False), (UNSET, True)])

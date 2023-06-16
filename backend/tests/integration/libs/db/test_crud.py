@@ -5,9 +5,9 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import Mapped, mapped_column
 from sqlalchemy.orm.attributes import instance_state
 
-from backend.crud.base import BaseCRUD, NoObjectFoundError
-from backend.models.base import Base
-from backend.types.scalars import UNSET
+from backend.libs.db.crud import BaseCRUD, NoObjectFoundError
+from backend.libs.types.scalars import UNSET
+from tests.integration.conftest import Base
 
 
 class Test(Base):
