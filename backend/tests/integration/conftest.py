@@ -6,10 +6,12 @@ from httpx import AsyncClient
 from sqlalchemy.ext.asyncio import AsyncEngine, AsyncSession, async_sessionmaker
 
 from backend.config.settings import get_settings
-from backend.db.engine import create_engine, dispose_engine
-from backend.db.session import create_session_factory
+from backend.libs.db.engine import create_engine, dispose_engine
+from backend.libs.db.session import create_session_factory
 from backend.main import get_local_app
 from backend.models.base import Base
+
+__all__ = ["Base"]
 
 
 @pytest.fixture(name="engine", scope="session")
