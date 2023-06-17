@@ -1,5 +1,3 @@
-from typing import Any, ClassVar, Protocol
+from strawberry import asdict
 
-
-class DataClassProtocol(Protocol):
-    __dataclass_fields__: ClassVar[dict[str, Any]]
+__all__ = ["asdict"]

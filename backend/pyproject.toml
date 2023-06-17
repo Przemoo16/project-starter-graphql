@@ -41,7 +41,7 @@ plugins = [
     "strawberry.ext.mypy_plugin"
 ]
 
-[tool.pylint.format]
+[tool.pylint.FORMAT]
 max-line-length = 88
 
 [tool.pylint.BASIC]
