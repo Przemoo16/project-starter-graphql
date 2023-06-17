@@ -5,7 +5,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import Mapped, mapped_column
 from sqlalchemy.orm.attributes import instance_state
 
-from backend.libs.db.crud import BaseCRUD, NoObjectFoundError
+from backend.libs.db.crud import CRUD, NoObjectFoundError
 from backend.libs.types.scalars import UNSET
 from tests.integration.conftest import Base
 
@@ -35,16 +35,16 @@ class TestFilters:
     name: str = UNSET
 
 
-CRUD = BaseCRUD[Test, TestCreate, TestUpdate, TestFilters]
+TestCRUD = CRUD[Test, TestCreate, TestUpdate, TestFilters]
 
 
 @pytest.fixture(name="crud")
-def crud_fixture(session: AsyncSession) -> CRUD:
-    return CRUD(model=Test, session=session)
+def crud_fixture(session: AsyncSession) -> TestCRUD:
+    return TestCRUD(model=Test, session=session)
 
 
 @pytest.mark.anyio()
-async def test_create(crud: CRUD, session: AsyncSession) -> None:
+async def test_create(crud: TestCRUD, session: AsyncSession) -> None:
     data = TestCreate(id=1, name="Created User")
 
     await crud.create(data)
@@ -55,7 +55,7 @@ async def test_create(crud: CRUD, session: AsyncSession) -> None:
 
 
 @pytest.mark.anyio()
-async def test_create_no_refresh(crud: CRUD) -> None:
+async def test_create_no_refresh(crud: TestCRUD) -> None:
     data = TestCreate()
 
     db_obj = await crud.create(data)
@@ -64,7 +64,7 @@ async def test_create_no_refresh(crud: CRUD) -> None:
 
 
 @pytest.mark.anyio()
-async def test_create_refresh(crud: CRUD) -> None:
+async def test_create_refresh(crud: TestCRUD) -> None:
     data = TestCreate()
 
     db_obj = await crud.create_and_refresh(data)
@@ -73,7 +73,7 @@ async def test_create_refresh(crud: CRUD) -> None:
 
 
 @pytest.mark.anyio()
-async def test_read_one(crud: CRUD, session: AsyncSession) -> None:
+async def test_read_one(crud: TestCRUD, session: AsyncSession) -> None:
     session.add(Test(id=1))
     await session.commit()
     filters = TestFilters(id=1)
@@ -84,7 +84,7 @@ async def test_read_one(crud: CRUD, session: AsyncSession) -> None:
 
 
 @pytest.mark.anyio()
-async def test_read_one_not_found(crud: CRUD, session: AsyncSession) -> None:
+async def test_read_one_not_found(crud: TestCRUD, session: AsyncSession) -> None:
     session.add(Test(id=1))
     await session.commit()
     filters = TestFilters(id=2)
@@ -94,7 +94,7 @@ async def test_read_one_not_found(crud: CRUD, session: AsyncSession) -> None:
 
 
 @pytest.mark.anyio()
-async def test_update(crud: CRUD, session: AsyncSession) -> None:
+async def test_update(crud: TestCRUD, session: AsyncSession) -> None:
     initial_obj = Test(id=1, name="Test User", age=25)
     session.add(initial_obj)
     await session.commit()
@@ -109,7 +109,7 @@ async def test_update(crud: CRUD, session: AsyncSession) -> None:
 
 
 @pytest.mark.anyio()
-async def test_update_no_refresh(crud: CRUD) -> None:
+async def test_update_no_refresh(crud: TestCRUD) -> None:
     data = TestUpdate()
 
     db_obj = await crud.update(Test(), data)
@@ -118,7 +118,7 @@ async def test_update_no_refresh(crud: CRUD) -> None:
 
 
 @pytest.mark.anyio()
-async def test_update_and_refresh(crud: CRUD) -> None:
+async def test_update_and_refresh(crud: TestCRUD) -> None:
     data = TestUpdate()
 
     db_obj = await crud.update_and_refresh(Test(), data)
@@ -127,7 +127,7 @@ async def test_update_and_refresh(crud: CRUD) -> None:
 
 
 @pytest.mark.anyio()
-async def test_delete(crud: CRUD, session: AsyncSession) -> None:
+async def test_delete(crud: TestCRUD, session: AsyncSession) -> None:
     initial_obj = Test(id=1)
     session.add(initial_obj)
     await session.commit()
