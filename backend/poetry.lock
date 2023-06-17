@@ -1344,13 +1344,13 @@ full = ["httpx (>=0.22.0)", "itsdangerous", "jinja2", "python-multipart", "pyyam
 
 [[package]]
 name = "strawberry-graphql"
-version = "0.186.0"
+version = "0.186.1"
 description = "A library for creating GraphQL APIs"
 optional = false
 python-versions = ">=3.7,<4.0"
 files = [
-    {file = "strawberry_graphql-0.186.0-py3-none-any.whl", hash = "sha256:6a788de7f6168cff0577d380070ddc0e79515505c112cf9e9c3396df7374c6c3"},
-    {file = "strawberry_graphql-0.186.0.tar.gz", hash = "sha256:5dddc9deba323a4fe54ecad85e0a6c8cc249cbca3b5d17c34b9c8a55534f9f05"},
+    {file = "strawberry_graphql-0.186.1-py3-none-any.whl", hash = "sha256:8aca8db58036f924e79e869d4f8f6c25a0a4063124aa40742dfc9a62dc816f1b"},
+    {file = "strawberry_graphql-0.186.1.tar.gz", hash = "sha256:6c9603dce5f0f852a1af784c4516a7cd2358aec598c1528ac97d4008bd211e77"},
 ]
 
 [package.dependencies]
@@ -1721,4 +1721,4 @@ files = [
 [metadata]
 lock-version = "2.0"
 python-versions = "^3.11"
-content-hash = "eb58d6f6f933d7a6e51d03f59bbc38193438aed376078b7599ee6b8922c59504"
+content-hash = "8c6c7f007d740c7bc5db88b7a923540247b9cb015cdec8182f3d9e33c802a420"

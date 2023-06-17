@@ -17,7 +17,7 @@ fastapi = "^0.97.0"
 orjson = "^3.9.1"
 redis = "^4.5.5"
 sqlalchemy = "^2.0.16"
-strawberry-graphql = {extras = ["fastapi"], version = "^0.186.0"}
+strawberry-graphql = {extras = ["fastapi"], version = "^0.186.1"}
 uvicorn = {extras = ["standard"], version = "^0.22.0"}
 
 [tool.poetry.group.dev]
