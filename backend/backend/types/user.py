@@ -1,4 +1,8 @@
+from dataclasses import dataclass
+
 import strawberry
+
+from backend.libs.types.scalars import UNSET
 
 
 @strawberry.type
@@ -8,11 +12,14 @@ class UserCreate:
     full_name: str
 
 
-@strawberry.type
+@dataclass
 class UserUpdate:
-    pass
+    email: str = UNSET
+    password: str = UNSET
+    full_name: str = UNSET
+    confirmed_email: bool = UNSET
 
 
 @strawberry.type
 class UserFilters:
-    pass
+    email: str = UNSET
