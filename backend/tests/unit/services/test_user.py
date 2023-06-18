@@ -138,13 +138,25 @@ async def test_update_user() -> None:
 @pytest.mark.anyio()
 async def test_update_user_email() -> None:
     data = UserUpdateData(email="updated@email.com")
-    user = User(email="test@email.com", confirmed_email=True)
+    user = User(email="test@email.com")
     crud = TestUserCRUD()
 
     updated_user = await update_user(user, data, crud)
 
     assert updated_user.email == "updated@email.com"
     assert updated_user.confirmed_email is False
+
+
+@pytest.mark.anyio()
+async def test_update_user_email_the_same_email_provided() -> None:
+    data = UserUpdateData(email="test@email.com")
+    user = User(email="test@email.com")
+    crud = TestUserCRUD()
+
+    updated_user = await update_user(user, data, crud)
+
+    assert updated_user.email == "test@email.com"
+    assert updated_user.confirmed_email is not False
 
 
 @pytest.mark.anyio()

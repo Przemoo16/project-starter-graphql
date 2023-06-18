@@ -3,6 +3,7 @@ from copy import copy
 from backend.crud.base import CRUDProtocol
 from backend.libs.db.crud import NoObjectFoundError
 from backend.libs.security.password import hash_password
+from backend.libs.types.scalars import is_value_set
 from backend.models.user import User
 from backend.types.user import UserCreateData, UserFilters, UserUpdateData
 
@@ -47,14 +48,14 @@ async def get_active_user(filters: UserFilters, crud: UserCRUDProtocol) -> User:
 
 async def update_user(user: User, data: UserUpdateData, crud: UserCRUDProtocol) -> User:
     copied_data = copy(data)
-    if copied_data.email:
+    if is_value_set(copied_data.email) and copied_data.email != user.email:
         try:
             await get_user(UserFilters(email=copied_data.email), crud)
         except UserNotFoundError:
             copied_data.confirmed_email = False
         else:
             raise UserAlreadyExistsError
-    if copied_data.password:
+    if is_value_set(copied_data.password):
         copied_data.password = hash_password(copied_data.password)
     return await crud.update_and_refresh(user, copied_data)
 
