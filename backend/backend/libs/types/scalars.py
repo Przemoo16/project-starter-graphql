@@ -5,5 +5,5 @@ import strawberry
 UNSET = strawberry.UNSET
 
 
-def is_unset(value: Any) -> bool:
-    return value is UNSET
+def is_value_set(value: Any) -> bool:
+    return value is not UNSET

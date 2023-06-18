@@ -2,11 +2,11 @@ from typing import Any
 
 import pytest
 
-from backend.libs.types.scalars import UNSET, is_unset
+from backend.libs.types.scalars import UNSET, is_value_set
 
 
-@pytest.mark.parametrize(("value", "unset"), [("test", False), (UNSET, True)])
-def test_value_is_unset(value: Any, unset: bool) -> None:
-    res = is_unset(value)
+@pytest.mark.parametrize(("value", "is_set"), [("test", True), (UNSET, False)])
+def test_set_value(value: Any, is_set: bool) -> None:
+    res = is_value_set(value)
 
-    assert res == unset
+    assert res == is_set

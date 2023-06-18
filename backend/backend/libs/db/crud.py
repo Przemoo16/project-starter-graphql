@@ -6,7 +6,7 @@ from sqlalchemy.orm import DeclarativeBase
 from sqlalchemy.sql import Select, select
 
 from backend.libs.types.dataclass import asdict
-from backend.libs.types.scalars import is_unset
+from backend.libs.types.scalars import is_value_set
 
 Model = TypeVar("Model", bound=DeclarativeBase)
 # FIXME: Bound the variables to a dataclass protocol and use asdict from the dataclass
@@ -57,9 +57,8 @@ class CRUD(Generic[Model, CreateData_contra, UpdateData_contra, Filters_contra])
     def _update_obj(self, obj: Model, data: UpdateData_contra) -> Model:
         data_dict = asdict(data)
         for field, value in data_dict.items():
-            if is_unset(value):
-                continue
-            setattr(obj, field, value)
+            if is_value_set(value):
+                setattr(obj, field, value)
         return obj
 
     async def delete(self, obj: Model) -> None:
@@ -81,7 +80,6 @@ class CRUD(Generic[Model, CreateData_contra, UpdateData_contra, Filters_contra])
     ) -> Select[tuple[Model]]:
         filters_dict = asdict(filters)
         for field, value in filters_dict.items():
-            if is_unset(value):
-                continue
-            statement = statement.where(getattr(self.model, field) == value)
+            if is_value_set(value):
+                statement = statement.where(getattr(self.model, field) == value)
         return statement
