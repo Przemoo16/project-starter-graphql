@@ -6,14 +6,14 @@ from backend.libs.types.scalars import UNSET
 
 
 @strawberry.type
-class UserCreate:
+class UserCreateData:
     email: str
     password: str
     full_name: str
 
 
 @dataclass
-class UserUpdate:
+class UserUpdateData:
     email: str = UNSET
     password: str = UNSET
     full_name: str = UNSET

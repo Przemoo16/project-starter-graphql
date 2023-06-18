@@ -111,8 +111,9 @@ async def test_update(crud: TestCRUD, session: AsyncSession) -> None:
 @pytest.mark.anyio()
 async def test_update_no_refresh(crud: TestCRUD) -> None:
     data = TestUpdate()
+    obj = Test()
 
-    db_obj = await crud.update(Test(), data)
+    db_obj = await crud.update(obj, data)
 
     assert instance_state(db_obj).expired
 
@@ -120,8 +121,9 @@ async def test_update_no_refresh(crud: TestCRUD) -> None:
 @pytest.mark.anyio()
 async def test_update_and_refresh(crud: TestCRUD) -> None:
     data = TestUpdate()
+    obj = Test()
 
-    db_obj = await crud.update_and_refresh(Test(), data)
+    db_obj = await crud.update_and_refresh(obj, data)
 
     assert not instance_state(db_obj).expired
 
