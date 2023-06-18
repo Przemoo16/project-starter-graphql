@@ -64,7 +64,7 @@ async def test_create_no_refresh(crud: TestCRUD) -> None:
 
 
 @pytest.mark.anyio()
-async def test_create_refresh(crud: TestCRUD) -> None:
+async def test_create_and_refresh(crud: TestCRUD) -> None:
     data = TestCreate()
 
     db_obj = await crud.create_and_refresh(data)
@@ -84,7 +84,7 @@ async def test_read_one(crud: TestCRUD, session: AsyncSession) -> None:
 
 
 @pytest.mark.anyio()
-async def test_read_one_not_found(crud: TestCRUD, session: AsyncSession) -> None:
+async def test_read_one_object_not_found(crud: TestCRUD, session: AsyncSession) -> None:
     session.add(Test(id=1))
     await session.commit()
     filters = TestFilters(id=2)
