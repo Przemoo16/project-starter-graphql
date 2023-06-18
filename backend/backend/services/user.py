@@ -4,9 +4,9 @@ from backend.crud.base import CRUDProtocol
 from backend.libs.db.crud import NoObjectFoundError
 from backend.libs.security.password import hash_password
 from backend.models.user import User
-from backend.types.user import UserCreate, UserFilters, UserUpdate
+from backend.types.user import UserCreateData, UserFilters, UserUpdateData
 
-UserCRUDProtocol = CRUDProtocol[User, UserCreate, UserUpdate, UserFilters]
+UserCRUDProtocol = CRUDProtocol[User, UserCreateData, UserUpdateData, UserFilters]
 
 
 class UserAlreadyExistsError(Exception):
@@ -21,7 +21,7 @@ class InactiveUserError(Exception):
     pass
 
 
-async def create_user(data: UserCreate, crud: UserCRUDProtocol) -> User:
+async def create_user(data: UserCreateData, crud: UserCRUDProtocol) -> User:
     try:
         await get_user(UserFilters(email=data.email), crud)
     except UserNotFoundError:
@@ -45,7 +45,7 @@ async def get_active_user(filters: UserFilters, crud: UserCRUDProtocol) -> User:
     return user
 
 
-async def update_user(user: User, data: UserUpdate, crud: UserCRUDProtocol) -> User:
+async def update_user(user: User, data: UserUpdateData, crud: UserCRUDProtocol) -> User:
     copied_data = copy(data)
     if copied_data.email:
         try:

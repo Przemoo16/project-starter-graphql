@@ -39,21 +39,19 @@ async def test_enable_disable_schema_introspection(
     debug: bool, error: bool, engine: AsyncEngine
 ) -> None:
     app = get_local_app(engine, debug)
+    payload = {
+        "query": """
+            query {
+                __schema {
+                    types {
+                        name
+                    }
+                }
+            }
+        """
+    }
 
     async with AsyncClient(app=app, base_url="http://test") as client:
-        response = await client.post(
-            "/graphql",
-            json={
-                "query": """
-                    query {
-                        __schema {
-                            types {
-                                name
-                            }
-                        }
-                    }
-                """
-            },
-        )
+        response = await client.post("/graphql", json=payload)
 
     assert bool(response.json().get("errors")) == error
