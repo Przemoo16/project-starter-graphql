@@ -17,6 +17,10 @@ class UserNotFoundError(Exception):
     pass
 
 
+class InactiveUserError(Exception):
+    pass
+
+
 async def create_user(data: UserCreate, crud: UserCRUDProtocol) -> User:
     try:
         await get_user(UserFilters(email=data.email), crud)
@@ -32,6 +36,13 @@ async def get_user(filters: UserFilters, crud: UserCRUDProtocol) -> User:
         return await crud.read_one(filters)
     except NoObjectFoundError as exc:
         raise UserNotFoundError from exc
+
+
+async def get_active_user(filters: UserFilters, crud: UserCRUDProtocol) -> User:
+    user = await get_user(filters, crud)
+    if not user.is_active:
+        raise InactiveUserError
+    return user
 
 
 async def update_user(user: User, data: UserUpdate, crud: UserCRUDProtocol) -> User:

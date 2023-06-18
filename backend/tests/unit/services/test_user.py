@@ -3,10 +3,12 @@ import pytest
 from backend.libs.db.crud import NoObjectFoundError
 from backend.models.user import User
 from backend.services.user import (
+    InactiveUserError,
     UserAlreadyExistsError,
     UserNotFoundError,
     create_user,
     delete_user,
+    get_active_user,
     get_user,
     update_user,
 )
@@ -82,9 +84,10 @@ async def test_create_user_already_exists() -> None:
 @pytest.mark.anyio()
 async def test_get_user() -> None:
     filters = UserFilters(email="test@email.com")
-    crud = TestUserCRUD(existing_user=User(email="test@email.com"))
 
-    user = await get_user(filters, crud)
+    user = await get_user(
+        filters, TestUserCRUD(existing_user=User(email="test@email.com"))
+    )
 
     assert user
 
@@ -95,6 +98,31 @@ async def test_get_user_not_found() -> None:
 
     with pytest.raises(UserNotFoundError):
         await get_user(filters, TestUserCRUD())
+
+
+@pytest.mark.anyio()
+async def test_get_active_user() -> None:
+    filters = UserFilters(email="test@email.com")
+
+    user = await get_active_user(
+        filters,
+        TestUserCRUD(existing_user=User(email="test@email.com", confirmed_email=True)),
+    )
+
+    assert user
+
+
+@pytest.mark.anyio()
+async def test_get_inactive_user() -> None:
+    filters = UserFilters(email="test@email.com")
+
+    with pytest.raises(InactiveUserError):
+        await get_active_user(
+            filters,
+            TestUserCRUD(
+                existing_user=User(email="test@email.com", confirmed_email=False)
+            ),
+        )
 
 
 @pytest.mark.anyio()
