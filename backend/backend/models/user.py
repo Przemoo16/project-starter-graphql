@@ -21,3 +21,7 @@ class User(Base):
         server_default=utcnow(), onupdate=utcnow()
     )
     last_login: Mapped[datetime | None] = mapped_column(default=None)
+
+    @property
+    def is_active(self) -> bool:
+        return self.confirmed_email
