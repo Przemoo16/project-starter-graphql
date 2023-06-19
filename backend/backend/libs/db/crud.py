@@ -1,3 +1,4 @@
+from dataclasses import asdict
 from typing import Generic, TypeVar
 
 from sqlalchemy.exc import NoResultFound
@@ -5,16 +6,17 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import DeclarativeBase
 from sqlalchemy.sql import Select, select
 
-from backend.libs.types.dataclass import asdict
+from backend.libs.types.dataclass import DataClassProtocol
 from backend.libs.types.scalars import is_value_set
 
 Model = TypeVar("Model", bound=DeclarativeBase)
-# FIXME: Bound the variables to a dataclass protocol and use asdict from the dataclass
-# package. Currently it's not possible because mypy doesn't recognize that
-# strawberry.type decorator produces dataclasses
-CreateData_contra = TypeVar("CreateData_contra", contravariant=True)
-UpdateData_contra = TypeVar("UpdateData_contra", contravariant=True)
-Filters_contra = TypeVar("Filters_contra", contravariant=True)
+CreateData_contra = TypeVar(
+    "CreateData_contra", bound=DataClassProtocol, contravariant=True
+)
+UpdateData_contra = TypeVar(
+    "UpdateData_contra", bound=DataClassProtocol, contravariant=True
+)
+Filters_contra = TypeVar("Filters_contra", bound=DataClassProtocol, contravariant=True)
 
 
 class NoObjectFoundError(Exception):
