@@ -1,12 +1,10 @@
-from dataclasses import dataclass
-
 import pytest
+from pydantic import BaseModel
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import Mapped, mapped_column
 from sqlalchemy.orm.attributes import instance_state
 
 from backend.libs.db.crud import CRUD, NoObjectFoundError
-from backend.libs.types.scalars import UNSET
 from tests.integration.conftest import Base
 
 
@@ -17,22 +15,19 @@ class Test(Base):
     age: Mapped[int] = mapped_column(default=25)
 
 
-@dataclass
-class TestCreate:
+class TestCreate(BaseModel):
     id: int = 1
     name: str = "Created User"
 
 
-@dataclass
-class TestUpdate:
-    name: str = UNSET
-    age: int = UNSET
+class TestUpdate(BaseModel):
+    name: str | None = None
+    age: int | None = None
 
 
-@dataclass
-class TestFilters:
-    id: int = UNSET
-    name: str = UNSET
+class TestFilters(BaseModel):
+    id: int | None = None
+    name: str | None = None
 
 
 TestCRUD = CRUD[Test, TestCreate, TestUpdate, TestFilters]

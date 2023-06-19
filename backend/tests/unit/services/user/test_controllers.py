@@ -1,23 +1,20 @@
-from dataclasses import asdict
-
 import pytest
 
 from backend.libs.db.crud import NoObjectFoundError
-from backend.libs.types.scalars import is_value_set
 from backend.models.user import User
-from backend.services.user import (
-    InactiveUserError,
-    UserAlreadyExistsError,
-    UserCreateData,
-    UserFilters,
-    UserNotFoundError,
-    UserUpdateData,
+from backend.services.user.controllers import (
     create_user,
     delete_user,
     get_active_user,
     get_user,
     update_user,
 )
+from backend.services.user.exceptions import (
+    InactiveUserError,
+    UserAlreadyExistsError,
+    UserNotFoundError,
+)
+from backend.services.user.schemas import UserCreateData, UserFilters, UserUpdateData
 from tests.unit.stubs.crud.base import CRUDStub
 
 
@@ -47,46 +44,6 @@ class TestUserCRUD(  # pylint: disable=abstract-method
 
     async def delete(self, obj: User) -> None:
         pass
-
-
-@pytest.mark.parametrize("data_class", [UserCreateData, UserUpdateData])
-def test_user_data_does_not_include_plain_password_related_fields(
-    data_class: type[UserCreateData] | type[UserUpdateData],
-) -> None:
-    email = "test@email.com"
-    password = "plain_password"
-
-    data = data_class(
-        email=email,
-        password=password,
-        hash_password_algorithm=lambda _: "hashed_password",
-    )
-
-    data_dict = asdict(data)
-    assert "password" not in data_dict
-    assert "hash_password_algorithm" not in data_dict
-
-
-@pytest.mark.parametrize("data_class", [UserCreateData, UserUpdateData])
-def test_user_data_hashes_password(
-    data_class: type[UserCreateData] | type[UserUpdateData],
-) -> None:
-    email = "test@email.com"
-    password = "plain_password"
-
-    data = data_class(
-        email=email,
-        password=password,
-        hash_password_algorithm=lambda _: "hashed_password",
-    )
-
-    assert data.hashed_password == "hashed_password"
-
-
-def test_user_update_data_do_not_hash_password_if_not_present() -> None:
-    data = UserUpdateData()
-
-    assert not is_value_set(data.hashed_password)
 
 
 @pytest.mark.anyio()
