@@ -1,18 +1,23 @@
+from dataclasses import asdict
+
 import pytest
 
 from backend.libs.db.crud import NoObjectFoundError
+from backend.libs.types.scalars import is_value_set
 from backend.models.user import User
 from backend.services.user import (
     InactiveUserError,
     UserAlreadyExistsError,
+    UserCreateData,
+    UserFilters,
     UserNotFoundError,
+    UserUpdateData,
     create_user,
     delete_user,
     get_active_user,
     get_user,
     update_user,
 )
-from backend.types.user import UserCreateData, UserFilters, UserUpdateData
 from tests.unit.stubs.crud.base import CRUDStub
 
 
@@ -23,7 +28,10 @@ class TestUserCRUD(  # pylint: disable=abstract-method
         self.existing_user = existing_user
 
     async def create_and_refresh(self, data: UserCreateData) -> User:
-        return User(email=data.email, password=data.password, full_name=data.full_name)
+        return User(
+            email=data.email,
+            hashed_password=data.hashed_password,
+        )
 
     async def read_one(self, filters: UserFilters) -> User:
         if self.existing_user:
@@ -33,8 +41,7 @@ class TestUserCRUD(  # pylint: disable=abstract-method
     async def update_and_refresh(self, obj: User, data: UserUpdateData) -> User:
         return User(
             email=data.email,
-            password=data.password,
-            full_name=data.full_name,
+            hashed_password=data.hashed_password,
             confirmed_email=data.confirmed_email,
         )
 
@@ -42,39 +49,66 @@ class TestUserCRUD(  # pylint: disable=abstract-method
         pass
 
 
-def hash_password(_: str) -> str:
-    return "hashed_password"
+@pytest.mark.parametrize("data_class", [UserCreateData, UserUpdateData])
+def test_user_data_does_not_include_plain_password_related_fields(
+    data_class: type[UserCreateData] | type[UserUpdateData],
+) -> None:
+    email = "test@email.com"
+    password = "plain_password"
+
+    data = data_class(
+        email=email,
+        password=password,
+        hash_password_algorithm=lambda _: "hashed_password",
+    )
+
+    data_dict = asdict(data)
+    assert "password" not in data_dict
+    assert "hash_password_algorithm" not in data_dict
+
+
+@pytest.mark.parametrize("data_class", [UserCreateData, UserUpdateData])
+def test_user_data_hashes_password(
+    data_class: type[UserCreateData] | type[UserUpdateData],
+) -> None:
+    email = "test@email.com"
+    password = "plain_password"
+
+    data = data_class(
+        email=email,
+        password=password,
+        hash_password_algorithm=lambda _: "hashed_password",
+    )
+
+    assert data.hashed_password == "hashed_password"
+
+
+def test_user_update_data_do_not_hash_password_if_not_present() -> None:
+    data = UserUpdateData()
+
+    assert not is_value_set(data.hashed_password)
 
 
 @pytest.mark.anyio()
 async def test_create_user() -> None:
     data = UserCreateData(
-        email="test@email.com", password="plain_password", full_name="Test User"
+        email="test@email.com",
+        password="plain_password",
+        hash_password_algorithm=lambda _: "hashed_password",
     )
     crud = TestUserCRUD()
 
     user = await create_user(data, crud)
 
     assert user.email == "test@email.com"
-    assert user.full_name == "Test User"
-
-
-@pytest.mark.anyio()
-async def test_create_user_password_is_hashed() -> None:
-    data = UserCreateData(
-        email="test@email.com", password="plain_password", full_name="Test User"
-    )
-    crud = TestUserCRUD()
-
-    user = await create_user(data, crud)
-
-    assert user.password != "plain_password"
 
 
 @pytest.mark.anyio()
 async def test_create_user_already_exists() -> None:
     data = UserCreateData(
-        email="test@email.com", password="plain_password", full_name="Test User"
+        email="test@email.com",
+        password="plain_password",
+        hash_password_algorithm=lambda _: "hashed_password",
     )
     crud = TestUserCRUD(existing_user=User(email="test@email.com"))
 
@@ -126,13 +160,13 @@ async def test_get_inactive_user() -> None:
 
 @pytest.mark.anyio()
 async def test_update_user() -> None:
-    data = UserUpdateData(full_name="Updated User")
-    user = User(full_name="Test User")
+    data = UserUpdateData(confirmed_email=True)
+    user = User(confirmed_email=False)
     crud = TestUserCRUD()
 
     updated_user = await update_user(user, data, crud)
 
-    assert updated_user.full_name == "Updated User"
+    assert updated_user.confirmed_email is True
 
 
 @pytest.mark.anyio()
@@ -167,18 +201,6 @@ async def test_update_user_email_already_exists() -> None:
 
     with pytest.raises(UserAlreadyExistsError):
         await update_user(user, data, crud)
-
-
-@pytest.mark.anyio()
-async def test_update_user_password_is_hashed() -> None:
-    data = UserUpdateData(password="new_password")
-    user = User(password="current_password")
-    crud = TestUserCRUD()
-
-    updated_user = await update_user(user, data, crud)
-
-    assert updated_user.password != "current_password"
-    assert updated_user.password != "new_password"
 
 
 @pytest.mark.anyio()

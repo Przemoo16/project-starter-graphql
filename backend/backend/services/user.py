@@ -1,13 +1,13 @@
+from collections.abc import Callable
 from copy import copy
+from dataclasses import InitVar, dataclass, field
+from typing import Union
 
 from backend.crud.base import CRUDProtocol
 from backend.libs.db.crud import NoObjectFoundError
 from backend.libs.security.password import hash_password
-from backend.libs.types.scalars import is_value_set
+from backend.libs.types.scalars import UNSET, is_value_set
 from backend.models.user import User
-from backend.types.user import UserCreateData, UserFilters, UserUpdateData
-
-UserCRUDProtocol = CRUDProtocol[User, UserCreateData, UserUpdateData, UserFilters]
 
 
 class UserAlreadyExistsError(Exception):
@@ -22,13 +22,49 @@ class InactiveUserError(Exception):
     pass
 
 
+@dataclass
+class UserCreateData:
+    email: str
+    password: InitVar[str]
+    hash_password_algorithm: InitVar[Callable[[str], str]] = hash_password
+    hashed_password: str = field(init=False, repr=False)
+
+    def __post_init__(
+        self, password: str, hash_password_algorithm: Callable[[str], str]
+    ) -> None:
+        self.hashed_password = hash_password_algorithm(password)
+
+
+@dataclass
+class UserUpdateData:
+    email: Union[str, "UNSET"] = UNSET
+    password: InitVar[Union[str, "UNSET"]] = UNSET
+    hash_password_algorithm: InitVar[Callable[[str], str]] = hash_password
+    hashed_password: Union[str, "UNSET"] = field(default=UNSET, init=False, repr=False)
+    confirmed_email: Union[bool, "UNSET"] = UNSET
+
+    def __post_init__(
+        self,
+        password: Union[str, "UNSET"],
+        hash_password_algorithm: Callable[[str], str],
+    ) -> None:
+        if is_value_set(password):
+            self.hashed_password = hash_password_algorithm(password)
+
+
+@dataclass
+class UserFilters:
+    email: Union[str, "UNSET"] = UNSET
+
+
+UserCRUDProtocol = CRUDProtocol[User, UserCreateData, UserUpdateData, UserFilters]
+
+
 async def create_user(data: UserCreateData, crud: UserCRUDProtocol) -> User:
     try:
         await get_user(UserFilters(email=data.email), crud)
     except UserNotFoundError:
-        copied_data = copy(data)
-        copied_data.password = hash_password(copied_data.password)
-        return await crud.create_and_refresh(copied_data)
+        return await crud.create_and_refresh(data)
     raise UserAlreadyExistsError
 
 
@@ -47,17 +83,15 @@ async def get_active_user(filters: UserFilters, crud: UserCRUDProtocol) -> User:
 
 
 async def update_user(user: User, data: UserUpdateData, crud: UserCRUDProtocol) -> User:
-    copied_data = copy(data)
-    if is_value_set(copied_data.email) and copied_data.email != user.email:
+    if is_value_set(data.email) and data.email != user.email:
         try:
-            await get_user(UserFilters(email=copied_data.email), crud)
+            await get_user(UserFilters(email=data.email), crud)
         except UserNotFoundError:
-            copied_data.confirmed_email = False
+            data = copy(data)
+            data.confirmed_email = False
         else:
             raise UserAlreadyExistsError
-    if is_value_set(copied_data.password):
-        copied_data.password = hash_password(copied_data.password)
-    return await crud.update_and_refresh(user, copied_data)
+    return await crud.update_and_refresh(user, data)
 
 
 async def delete_user(user: User, crud: UserCRUDProtocol) -> None:
