@@ -1,12 +1,15 @@
-COMPOSE := docker compose
+COMPOSE_DEV := docker compose -f compose.yaml
+COMPOSE_TEST := docker compose -f compose.test.yaml --env-file .env.test
 
 .PHONY: distclean integration-test-backend lint setup unit-test-backend unit-test-frontend
 
 distclean:
-	$(COMPOSE) down --volumes
+	$(COMPOSE_DEV) down --volumes
+	$(COMPOSE_TEST) down --volumes
 
 integration-test-backend:
-	$(COMPOSE) run --rm backend pytest tests/integration
+	$(COMPOSE_TEST) run --rm backend-test pytest tests/integration
+	$(COMPOSE_TEST) down
 
 lint:
 	pre-commit run --all-files --show-diff-on-failure
@@ -16,7 +19,7 @@ setup:
 	pre-commit install
 
 unit-test-backend:
-	$(COMPOSE) run --rm --no-deps backend pytest tests/unit
+	$(COMPOSE_TEST) run --rm --no-deps backend-test pytest tests/unit
 
 unit-test-frontend:
-	$(COMPOSE) run --rm --no-deps frontend yarn test:ci
+	$(COMPOSE_DEV) run --rm --no-deps frontend yarn test:ci

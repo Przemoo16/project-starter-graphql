@@ -6,6 +6,7 @@ from httpx import AsyncClient
 from sqlalchemy.ext.asyncio import AsyncEngine, AsyncSession, async_sessionmaker
 
 from backend.config.settings import get_settings
+from backend.db.session import get_session
 from backend.libs.db.engine import create_engine, dispose_engine
 from backend.libs.db.session import create_session_factory
 from backend.main import get_local_app
@@ -51,7 +52,10 @@ def app_instance_fixture(engine: AsyncEngine) -> FastAPI:
 
 
 @pytest.fixture(name="app")
-def app_fixture(app_instance: FastAPI) -> Generator[FastAPI, None, None]:
+def app_fixture(
+    app_instance: FastAPI, session: AsyncSession
+) -> Generator[FastAPI, None, None]:
+    app_instance.dependency_overrides[get_session] = lambda: session
     yield app_instance
     app_instance.dependency_overrides.clear()
 
