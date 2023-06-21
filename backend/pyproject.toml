@@ -19,7 +19,7 @@ passlib = {extras = ["bcrypt"], version = "^1.7.4"}
 pydantic = {extras = ["email"], version = "^1.10.9"}
 redis = "^4.5.5"
 sqlalchemy = "^2.0.16"
-strawberry-graphql = {extras = ["fastapi"], version = "^0.186.3"}
+strawberry-graphql = {extras = ["fastapi"], version = "^0.187.3"}
 uvicorn = {extras = ["standard"], version = "^0.22.0"}
 
 [tool.poetry.group.dev]
