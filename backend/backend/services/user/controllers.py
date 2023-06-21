@@ -2,12 +2,12 @@ from copy import copy
 
 from backend.crud.base import CRUDProtocol
 from backend.libs.db.crud import NoObjectFoundError
-from backend.models.user import User
 from backend.services.user.exceptions import (
     InactiveUserError,
     UserAlreadyExistsError,
     UserNotFoundError,
 )
+from backend.services.user.models import User
 from backend.services.user.schemas import UserCreateData, UserFilters, UserUpdateData
 
 UserCRUDProtocol = CRUDProtocol[User, UserCreateData, UserUpdateData, UserFilters]

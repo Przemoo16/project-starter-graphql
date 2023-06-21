@@ -1,7 +1,6 @@
 import pytest
 
 from backend.libs.db.crud import NoObjectFoundError
-from backend.models.user import User
 from backend.services.user.controllers import (
     create_user,
     delete_user,
@@ -14,6 +13,7 @@ from backend.services.user.exceptions import (
     UserAlreadyExistsError,
     UserNotFoundError,
 )
+from backend.services.user.models import User
 from backend.services.user.schemas import UserCreateData, UserFilters, UserUpdateData
 from tests.unit.stubs.crud.base import CRUDStub
 

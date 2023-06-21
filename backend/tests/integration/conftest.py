@@ -9,7 +9,7 @@ from backend.config.settings import get_settings
 from backend.libs.db.engine import create_engine, dispose_engine
 from backend.libs.db.session import create_session_factory
 from backend.main import get_local_app
-from backend.models.base import Base
+from backend.models import Base
 
 __all__ = ["Base"]
 
