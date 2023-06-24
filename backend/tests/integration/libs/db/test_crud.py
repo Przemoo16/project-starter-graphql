@@ -9,50 +9,50 @@ from tests.integration.conftest import Base
 from tests.integration.helpers.db import save_to_db
 
 
-class Test(Base):
+class Dummy(Base):
     __tablename__ = "test"
     id: Mapped[int] = mapped_column(primary_key=True)
-    name: Mapped[str] = mapped_column(default="Test User")
+    name: Mapped[str] = mapped_column(default="Test")
     age: Mapped[int] = mapped_column(default=25)
 
 
-class TestCreate(BaseModel):
+class DummyCreate(BaseModel):
     id: int = 1
-    name: str = "Created User"
+    name: str = "Created"
 
 
-class TestUpdate(BaseModel):
+class DummyUpdate(BaseModel):
     name: str | None = None
     age: int | None = None
 
 
-class TestFilters(BaseModel):
+class DummyFilters(BaseModel):
     id: int | None = None
     name: str | None = None
 
 
-TestCRUD = CRUD[Test, TestCreate, TestUpdate, TestFilters]
+DummyCRUD = CRUD[Dummy, DummyCreate, DummyUpdate, DummyFilters]
 
 
 @pytest.fixture(name="crud")
-def crud_fixture(session: AsyncSession) -> TestCRUD:
-    return TestCRUD(model=Test, session=session)
+def crud_fixture(session: AsyncSession) -> DummyCRUD:
+    return DummyCRUD(model=Dummy, session=session)
 
 
 @pytest.mark.anyio()
-async def test_create(crud: TestCRUD, session: AsyncSession) -> None:
-    data = TestCreate(id=1, name="Created User")
+async def test_create(crud: DummyCRUD, session: AsyncSession) -> None:
+    data = DummyCreate(id=1, name="Created")
 
     await crud.create(data)
 
-    retrieved_obj = await session.get(Test, 1)
+    retrieved_obj = await session.get(Dummy, 1)
     assert retrieved_obj
-    assert retrieved_obj.name == "Created User"
+    assert retrieved_obj.name == "Created"
 
 
 @pytest.mark.anyio()
-async def test_create_no_refresh(crud: TestCRUD) -> None:
-    data = TestCreate()
+async def test_create_no_refresh(crud: DummyCRUD) -> None:
+    data = DummyCreate()
 
     db_obj = await crud.create(data)
 
@@ -60,8 +60,8 @@ async def test_create_no_refresh(crud: TestCRUD) -> None:
 
 
 @pytest.mark.anyio()
-async def test_create_and_refresh(crud: TestCRUD) -> None:
-    data = TestCreate()
+async def test_create_and_refresh(crud: DummyCRUD) -> None:
+    data = DummyCreate()
 
     db_obj = await crud.create_and_refresh(data)
 
@@ -69,9 +69,9 @@ async def test_create_and_refresh(crud: TestCRUD) -> None:
 
 
 @pytest.mark.anyio()
-async def test_read_one(crud: TestCRUD, session: AsyncSession) -> None:
-    await save_to_db(session, Test(id=1))
-    filters = TestFilters(id=1)
+async def test_read_one(crud: DummyCRUD, session: AsyncSession) -> None:
+    await save_to_db(session, Dummy(id=1))
+    filters = DummyFilters(id=1)
 
     db_obj = await crud.read_one(filters)
 
@@ -79,32 +79,34 @@ async def test_read_one(crud: TestCRUD, session: AsyncSession) -> None:
 
 
 @pytest.mark.anyio()
-async def test_read_one_object_not_found(crud: TestCRUD, session: AsyncSession) -> None:
-    await save_to_db(session, Test(id=1))
-    filters = TestFilters(id=2)
+async def test_read_one_object_not_found(
+    crud: DummyCRUD, session: AsyncSession
+) -> None:
+    await save_to_db(session, Dummy(id=1))
+    filters = DummyFilters(id=2)
 
     with pytest.raises(NoObjectFoundError):
         await crud.read_one(filters)
 
 
 @pytest.mark.anyio()
-async def test_update(crud: TestCRUD, session: AsyncSession) -> None:
-    initial_obj = Test(id=1, name="Test User", age=25)
+async def test_update(crud: DummyCRUD, session: AsyncSession) -> None:
+    initial_obj = Dummy(id=1, name="Test", age=25)
     await save_to_db(session, initial_obj)
-    data = TestUpdate(name="Updated User")
+    data = DummyUpdate(name="Updated")
 
     await crud.update(initial_obj, data)
 
-    retrieved_obj = await session.get(Test, 1)
+    retrieved_obj = await session.get(Dummy, 1)
     assert retrieved_obj
-    assert retrieved_obj.name == "Updated User"
+    assert retrieved_obj.name == "Updated"
     assert retrieved_obj.age == 25
 
 
 @pytest.mark.anyio()
-async def test_update_no_refresh(crud: TestCRUD) -> None:
-    data = TestUpdate()
-    obj = Test()
+async def test_update_no_refresh(crud: DummyCRUD) -> None:
+    data = DummyUpdate()
+    obj = Dummy()
 
     db_obj = await crud.update(obj, data)
 
@@ -112,9 +114,9 @@ async def test_update_no_refresh(crud: TestCRUD) -> None:
 
 
 @pytest.mark.anyio()
-async def test_update_and_refresh(crud: TestCRUD) -> None:
-    data = TestUpdate()
-    obj = Test()
+async def test_update_and_refresh(crud: DummyCRUD) -> None:
+    data = DummyUpdate()
+    obj = Dummy()
 
     db_obj = await crud.update_and_refresh(obj, data)
 
@@ -122,10 +124,10 @@ async def test_update_and_refresh(crud: TestCRUD) -> None:
 
 
 @pytest.mark.anyio()
-async def test_delete(crud: TestCRUD, session: AsyncSession) -> None:
-    initial_obj = Test(id=1)
+async def test_delete(crud: DummyCRUD, session: AsyncSession) -> None:
+    initial_obj = Dummy(id=1)
     await save_to_db(session, initial_obj)
 
     await crud.delete(initial_obj)
 
-    assert not await session.get(Test, 1)
+    assert not await session.get(Dummy, 1)
