@@ -6,6 +6,7 @@ from sqlalchemy.orm.attributes import instance_state
 
 from backend.libs.db.crud import CRUD, NoObjectFoundError
 from tests.integration.conftest import Base
+from tests.integration.helpers.db import save_to_db
 
 
 class Test(Base):
@@ -69,8 +70,7 @@ async def test_create_and_refresh(crud: TestCRUD) -> None:
 
 @pytest.mark.anyio()
 async def test_read_one(crud: TestCRUD, session: AsyncSession) -> None:
-    session.add(Test(id=1))
-    await session.commit()
+    await save_to_db(session, Test(id=1))
     filters = TestFilters(id=1)
 
     db_obj = await crud.read_one(filters)
@@ -80,8 +80,7 @@ async def test_read_one(crud: TestCRUD, session: AsyncSession) -> None:
 
 @pytest.mark.anyio()
 async def test_read_one_object_not_found(crud: TestCRUD, session: AsyncSession) -> None:
-    session.add(Test(id=1))
-    await session.commit()
+    await save_to_db(session, Test(id=1))
     filters = TestFilters(id=2)
 
     with pytest.raises(NoObjectFoundError):
@@ -91,8 +90,7 @@ async def test_read_one_object_not_found(crud: TestCRUD, session: AsyncSession) 
 @pytest.mark.anyio()
 async def test_update(crud: TestCRUD, session: AsyncSession) -> None:
     initial_obj = Test(id=1, name="Test User", age=25)
-    session.add(initial_obj)
-    await session.commit()
+    await save_to_db(session, initial_obj)
     data = TestUpdate(name="Updated User")
 
     await crud.update(initial_obj, data)
@@ -126,8 +124,7 @@ async def test_update_and_refresh(crud: TestCRUD) -> None:
 @pytest.mark.anyio()
 async def test_delete(crud: TestCRUD, session: AsyncSession) -> None:
     initial_obj = Test(id=1)
-    session.add(initial_obj)
-    await session.commit()
+    await save_to_db(session, initial_obj)
 
     await crud.delete(initial_obj)
 

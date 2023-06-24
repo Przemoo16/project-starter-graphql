@@ -6,6 +6,7 @@ from strawberry.fastapi import GraphQLRouter
 from strawberry.http import GraphQLHTTPResponse
 
 from backend.api.graphql.context import get_context
+from backend.api.graphql.mutation import Mutation
 from backend.api.graphql.query import Query
 
 
@@ -24,4 +25,4 @@ def get_schema(debug: bool = False) -> Schema:
     if not debug:
         schema_extensions.append(AddValidationRules([NoSchemaIntrospectionCustomRule]))
 
-    return Schema(Query, extensions=schema_extensions)
+    return Schema(query=Query, mutation=Mutation, extensions=schema_extensions)

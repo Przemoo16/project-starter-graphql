@@ -1,0 +1,24 @@
+services:
+  backend-test:
+    image: "${BACKEND_IMAGE}"
+    build:
+      context: ./backend
+      target: dev
+    volumes:
+      - type: bind
+        source: ./backend
+        target: /opt/app
+    depends_on:
+      - db-test
+    env_file:
+      - .env
+      - .env.test
+
+  db-test:
+    image: postgres:15.3
+    environment:
+      POSTGRES_PASSWORD: "${DB__PASSWORD}"
+      POSTGRES_USER: "${DB__USERNAME}"
+      POSTGRES_DB: "${DB__NAME}"
+      POSTGRES_HOST: "${DB__HOST}"
+      POSTGRES_PORT: "${DB__PORT}"

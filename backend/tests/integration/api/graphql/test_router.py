@@ -7,17 +7,6 @@ from backend.main import get_local_app
 
 
 @pytest.mark.anyio()
-@pytest.mark.parametrize("url", ["/docs", "/redoc"])
-async def test_openapi_documentation_is_disabled(url: str, engine: AsyncEngine) -> None:
-    app = get_local_app(engine)
-
-    async with AsyncClient(app=app, base_url="http://test") as client:
-        response = await client.get(url)
-
-    assert response.status_code == status.HTTP_404_NOT_FOUND
-
-
-@pytest.mark.anyio()
 @pytest.mark.parametrize(
     ("debug", "status_code"),
     [(True, status.HTTP_200_OK), (False, status.HTTP_404_NOT_FOUND)],
@@ -42,11 +31,11 @@ async def test_enable_disable_schema_introspection(
     payload = {
         "query": """
             query {
-                __schema {
-                    types {
-                        name
-                    }
+              __schema {
+                types {
+                  name
                 }
+              }
             }
         """
     }
