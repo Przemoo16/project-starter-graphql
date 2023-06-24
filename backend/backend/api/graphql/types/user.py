@@ -1,8 +1,10 @@
+from collections.abc import Sequence
 from uuid import UUID
 
 import strawberry
 
-from backend.api.graphql.types.error import Failure
+from backend.api.graphql.types.error import Problem
+from backend.api.graphql.types.validation import InvalidInput
 
 
 @strawberry.input
@@ -12,15 +14,20 @@ class UserCreateInput:
 
 
 @strawberry.type
-class User:
+class CreateUserSuccess:
     id: UUID
     email: str
 
 
 @strawberry.type
-class UserAlreadyExists(Failure):
+class UserAlreadyExists(Problem):
     message: str = "User with provided email already exists"
     email: str
 
 
-CreateUserResponse = User | UserAlreadyExists
+@strawberry.type
+class CreateUserFailure:
+    problems: Sequence[InvalidInput | UserAlreadyExists]
+
+
+CreateUserResponse = CreateUserSuccess | CreateUserFailure

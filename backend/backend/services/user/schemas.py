@@ -1,10 +1,13 @@
 from collections.abc import Callable
 from typing import Any
 
-from pydantic import BaseModel, Field, validator
+from pydantic import BaseModel, EmailStr, Field, validator
 from pydantic.main import ModelMetaclass
 
+from backend.config.settings import get_settings
 from backend.libs.security.password import hash_password
+
+settings = get_settings()
 
 
 def hash_password_validator(
@@ -17,11 +20,13 @@ def hash_password_validator(
 
 
 class UserCreateData(BaseModel):
-    email: str
+    email: EmailStr
     hash_password_algorithm: Callable[[str], str] = Field(
         default=hash_password, exclude=True
     )
-    hashed_password: str = Field(alias="password")
+    hashed_password: str = Field(
+        min_length=settings.user.password_min_length, alias="password"
+    )
 
     _hash_password = validator("hashed_password", allow_reuse=True)(
         hash_password_validator
@@ -29,11 +34,13 @@ class UserCreateData(BaseModel):
 
 
 class UserUpdateData(BaseModel):
-    email: str | None = None
+    email: EmailStr | None = None
     hash_password_algorithm: Callable[[str], str] = Field(
         default=hash_password, exclude=True
     )
-    hashed_password: str | None = Field(default=None, alias="password")
+    hashed_password: str | None = Field(
+        default=None, min_length=settings.user.password_min_length, alias="password"
+    )
     confirmed_email: bool | None = None
 
     _hash_password = validator("hashed_password", allow_reuse=True)(

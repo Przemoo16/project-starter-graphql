@@ -2,5 +2,5 @@ import strawberry
 
 
 @strawberry.interface
-class Failure:
+class Problem:
     message: str
