@@ -1,6 +1,6 @@
 from pydantic import BaseModel, Field, ValidationError
 
-from backend.api.graphql.types.validation import from_pydantic_error
+from backend.libs.api.types import from_pydantic_error
 
 
 def test_from_pydantic_error() -> None:

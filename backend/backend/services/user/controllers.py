@@ -1,7 +1,6 @@
 from copy import copy
 
-from backend.crud.base import CRUDProtocol
-from backend.libs.db.crud import NoObjectFoundError
+from backend.libs.db.crud import CRUDProtocol, NoObjectFoundError
 from backend.services.user.exceptions import (
     InactiveUserError,
     UserAlreadyExistsError,

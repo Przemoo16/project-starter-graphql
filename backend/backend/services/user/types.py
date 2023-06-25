@@ -3,8 +3,7 @@ from uuid import UUID
 
 import strawberry
 
-from backend.api.graphql.types.error import Problem
-from backend.api.graphql.types.validation import InvalidInput
+from backend.libs.api.types import InvalidInput, Problem
 
 
 @strawberry.input

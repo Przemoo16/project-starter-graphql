@@ -3,7 +3,10 @@ from collections.abc import Sequence
 import strawberry
 from pydantic import ValidationError
 
-from backend.api.graphql.types.error import Problem
+
+@strawberry.interface
+class Problem:
+    message: str
 
 
 @strawberry.type

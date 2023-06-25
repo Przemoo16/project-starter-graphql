@@ -7,8 +7,8 @@ from sqlalchemy.ext.asyncio import AsyncEngine
 
 from backend.api.graphql.router import get_router
 from backend.config.settings import get_settings
-from backend.db.engine import get_engine
-from backend.libs.db.engine import dispose_engine
+from backend.db import get_engine
+from backend.libs.db.engine import dispose_async_engine
 
 settings = get_settings()
 
@@ -25,7 +25,7 @@ def get_local_app(engine: AsyncEngine, debug: bool = False) -> FastAPI:
     @asynccontextmanager
     async def lifespan(_: FastAPI) -> AsyncGenerator[None, None]:
         yield
-        await dispose_engine(engine)
+        await dispose_async_engine(engine)
 
     local_app = FastAPI(lifespan=lifespan, openapi_url=None)
 

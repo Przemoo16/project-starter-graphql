@@ -1,7 +1,7 @@
 import strawberry
 
-from backend.api.graphql.resolvers.user import create_user_resolver
-from backend.api.graphql.types.user import CreateUserResponse
+from backend.services.user.resolvers import create_user_resolver
+from backend.services.user.types import CreateUserResponse
 
 
 @strawberry.type

@@ -1,19 +1,20 @@
 import logging
 
 from sqlalchemy.engine import URL
-from sqlalchemy.ext.asyncio import AsyncEngine, create_async_engine
+from sqlalchemy.ext.asyncio import AsyncEngine
+from sqlalchemy.ext.asyncio import create_async_engine as aio_create_async_engine
 
 logger = logging.getLogger(__name__)
 
 
-def create_engine(url: URL) -> AsyncEngine:
+def create_async_engine(url: URL) -> AsyncEngine:
     logger.debug(
-        "Creating a database engine with the connection string %r",
+        "Creating an async database engine with the connection string %r",
         url.render_as_string(),
     )
-    return create_async_engine(url)
+    return aio_create_async_engine(url)
 
 
-async def dispose_engine(engine: AsyncEngine) -> None:
-    logger.debug("Disposing the database engine")
+async def dispose_async_engine(engine: AsyncEngine) -> None:
+    logger.debug("Disposing the async database engine")
     await engine.dispose()
