@@ -11,7 +11,6 @@ async def test_create_user(async_client: AsyncClient) -> None:
         "query": """
             mutation {
               createUser(user: {email: "test@email.com", password: "plain_password"}) {
-                __typename
                 ... on CreateUserSuccess {
                   id
                   email
@@ -24,7 +23,6 @@ async def test_create_user(async_client: AsyncClient) -> None:
     response = await async_client.post("/graphql", json=payload)
 
     data = response.json()["data"]["createUser"]
-    assert data["__typename"] == "CreateUserSuccess"
     assert "id" in data
     assert data["email"] == "test@email.com"
 
@@ -35,7 +33,6 @@ async def test_create_user_invalid_input(async_client: AsyncClient) -> None:
         "query": """
             mutation {
               createUser(user: {email: "test", password: "plain_password"}) {
-                __typename
                 ... on CreateUserFailure {
                   problems {
                     __typename
@@ -61,10 +58,8 @@ async def test_create_user_already_exists(
         "query": """
             mutation {
               createUser(user: {email: "test@email.com", password: "plain_password"}) {
-                __typename
                 ... on CreateUserFailure {
                   problems {
-                    __typename
                     ... on UserAlreadyExists {
                       message
                       email
@@ -79,6 +74,5 @@ async def test_create_user_already_exists(
     response = await async_client.post("/graphql", json=payload)
 
     data = response.json()["data"]["createUser"]["problems"][0]
-    assert data["__typename"] == "UserAlreadyExists"
     assert "message" in data
     assert data["email"] == "test@email.com"

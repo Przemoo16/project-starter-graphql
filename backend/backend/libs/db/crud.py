@@ -1,4 +1,4 @@
-from typing import Generic, TypeVar
+from typing import Generic, Protocol, TypeVar
 
 from pydantic import BaseModel
 from sqlalchemy.exc import NoResultFound
@@ -14,6 +14,28 @@ Filters_contra = TypeVar("Filters_contra", bound=BaseModel, contravariant=True)
 
 class NoObjectFoundError(Exception):
     pass
+
+
+class CRUDProtocol(
+    Protocol[Model, CreateData_contra, UpdateData_contra, Filters_contra]
+):
+    async def create(self, data: CreateData_contra) -> Model:
+        ...
+
+    async def create_and_refresh(self, data: CreateData_contra) -> Model:
+        ...
+
+    async def read_one(self, filters: Filters_contra) -> Model:
+        ...
+
+    async def update(self, obj: Model, data: UpdateData_contra) -> Model:
+        ...
+
+    async def update_and_refresh(self, obj: Model, data: UpdateData_contra) -> Model:
+        ...
+
+    async def delete(self, obj: Model) -> None:
+        ...
 
 
 class CRUD(Generic[Model, CreateData_contra, UpdateData_contra, Filters_contra]):

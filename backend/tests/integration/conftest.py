@@ -6,9 +6,9 @@ from httpx import AsyncClient
 from sqlalchemy.ext.asyncio import AsyncEngine, AsyncSession, async_sessionmaker
 
 from backend.config.settings import get_settings
-from backend.db.session import get_session
-from backend.libs.db.engine import create_engine, dispose_engine
-from backend.libs.db.session import create_session_factory
+from backend.db import get_session
+from backend.libs.db.engine import create_async_engine, dispose_async_engine
+from backend.libs.db.session import create_async_session_factory
 from backend.main import get_local_app
 from backend.models import Base
 
@@ -17,16 +17,16 @@ __all__ = ["Base"]
 
 @pytest.fixture(name="engine", scope="session")
 async def engine_fixture() -> AsyncGenerator[AsyncEngine, None]:
-    engine = create_engine(get_settings().db.url)
+    engine = create_async_engine(get_settings().db.url)
     yield engine
-    await dispose_engine(engine)
+    await dispose_async_engine(engine)
 
 
 @pytest.fixture(name="session_factory", scope="session")
 async def session_factory_fixture(
     engine: AsyncEngine,
 ) -> async_sessionmaker[AsyncSession]:
-    return create_session_factory(engine)
+    return create_async_session_factory(engine)
 
 
 @pytest.fixture(name="_create_tables")

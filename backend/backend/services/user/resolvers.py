@@ -1,19 +1,19 @@
 from pydantic import ValidationError
 
-from backend.api.graphql.context import Info
-from backend.api.graphql.types.user import (
+from backend.libs.api.context import Info
+from backend.libs.api.types import from_pydantic_error
+from backend.libs.db.crud import CRUD
+from backend.services.user.controllers import create_user
+from backend.services.user.exceptions import UserAlreadyExistsError
+from backend.services.user.models import User
+from backend.services.user.schemas import UserCreateData, UserFilters, UserUpdateData
+from backend.services.user.types import (
     CreateUserFailure,
     CreateUserResponse,
     CreateUserSuccess,
     UserAlreadyExists,
     UserCreateInput,
 )
-from backend.api.graphql.types.validation import from_pydantic_error
-from backend.libs.db.crud import CRUD
-from backend.services.user.controllers import create_user
-from backend.services.user.exceptions import UserAlreadyExistsError
-from backend.services.user.models import User
-from backend.services.user.schemas import UserCreateData, UserFilters, UserUpdateData
 
 UserCRUD = CRUD[User, UserCreateData, UserUpdateData, UserFilters]
 
