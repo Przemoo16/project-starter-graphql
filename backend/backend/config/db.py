@@ -4,10 +4,10 @@ from sqlalchemy.engine import URL
 
 class DBSettings(BaseModel):
     password: str
-    username: str = "postgres"
-    name: str = "postgres"
-    host: str = "db"
-    port: int = 5432
+    username: str
+    name: str
+    host: str
+    port: int
     driver: str = "postgresql+asyncpg"
 
     @property

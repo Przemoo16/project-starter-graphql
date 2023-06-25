@@ -22,10 +22,6 @@ jobs:
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Create env file from the template
-        run: cp ./.env.template ./.env
-        shell: bash
-
       - name: Run tests
         run: ${{ inputs.command }}
         shell: bash

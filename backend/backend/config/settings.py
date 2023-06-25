@@ -5,12 +5,14 @@ from pydantic import BaseSettings
 from backend.config.app import APPSettings
 from backend.config.celery import CelerySettings
 from backend.config.db import DBSettings
+from backend.config.user import UserSettings
 
 
 class Settings(BaseSettings):
-    app: APPSettings
+    app: APPSettings = APPSettings()
     db: DBSettings
     celery: CelerySettings
+    user: UserSettings = UserSettings()
 
     class Config:
         env_nested_delimiter = "__"
