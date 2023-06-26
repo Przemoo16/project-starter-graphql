@@ -125,7 +125,7 @@ config:
     default:
       - celery
       - --app
-      - backend.celery:app
+      - backend.celery:celery_app
       - worker
       - --loglevel
       - INFO
@@ -154,7 +154,7 @@ config:
     default:
       - celery
       - --app
-      - backend.celery:app
+      - backend.celery:celery_app
       - beat
       - --loglevel
       - INFO
