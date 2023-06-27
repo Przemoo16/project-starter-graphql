@@ -4,6 +4,9 @@ services:
     build:
       context: ./backend
       target: dev
+    networks:
+      - backend-test
+      - frontend-test
     volumes:
       - type: bind
         source: ./backend
@@ -15,9 +18,64 @@ services:
 
   db-test:
     image: postgres:15.3
+    networks:
+      - backend-test
     environment:
       POSTGRES_PASSWORD: "${DB__PASSWORD}"
       POSTGRES_USER: "${DB__USERNAME}"
       POSTGRES_DB: "${DB__NAME}"
       POSTGRES_HOST: "${DB__HOST}"
       POSTGRES_PORT: "${DB__PORT}"
+
+  frontend-test:
+    image: "${FRONTEND_IMAGE}"
+    build:
+      context: ./frontend
+      target: dev
+    networks:
+      - frontend-test
+    volumes:
+      - type: bind
+        source: ./frontend
+        target: /opt/app
+
+  redis-test:
+    image: redis:7.0
+    networks:
+      - backend-test
+
+  celery-worker-test:
+    build:
+      context: ./backend
+      target: dev
+    networks:
+      - backend-test
+    volumes:
+      - type: bind
+        source: ./backend
+        target: /opt/app
+    depends_on:
+      - redis-test
+    env_file:
+      - .env.test
+    command: "celery --app backend.celery:celery_app worker --loglevel INFO"
+
+  celery-beat-test:
+    build:
+      context: ./backend
+      target: dev
+    networks:
+      - backend-test
+    volumes:
+      - type: bind
+        source: ./backend
+        target: /opt/app
+    depends_on:
+      - redis-test
+    env_file:
+      - .env.test
+    command: "celery --app backend.celery:celery_app beat --loglevel INFO"
+
+networks:
+  backend-test:
+  frontend-test:

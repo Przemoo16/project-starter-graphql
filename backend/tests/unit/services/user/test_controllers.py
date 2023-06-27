@@ -1,11 +1,13 @@
 import pytest
 
 from backend.libs.db.crud import NoObjectFoundError
+from backend.libs.email.message import HTMLMessage
 from backend.services.user.controllers import (
     create_user,
     delete_user,
     get_active_user,
     get_user,
+    send_confirmation_email,
     update_user,
 )
 from backend.services.user.exceptions import (
@@ -166,3 +168,23 @@ async def test_delete_user() -> None:
     crud = TestUserCRUD()
 
     await delete_user(user, crud)
+
+
+def test_send_confirmation_email() -> None:
+    url_template = "http://test/{token}"
+    token = "test-token"
+    message_result = {}
+
+    def send_email(message: HTMLMessage) -> None:
+        nonlocal message_result
+        message_result = {
+            "subject": message.subject,
+            "html_message": message.html_message,
+            "plain_message": message.plain_message,
+        }
+
+    send_confirmation_email(url_template, token, send_email)
+
+    assert message_result["subject"]
+    assert "http://test/test-token" in message_result["html_message"]
+    assert "http://test/test-token" in message_result["plain_message"]
