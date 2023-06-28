@@ -1,3 +1,4 @@
+import logging
 from collections.abc import Callable
 from copy import copy
 from gettext import gettext as _
@@ -7,11 +8,19 @@ from backend.libs.db.crud import CRUDProtocol, NoObjectFoundError
 from backend.libs.email.message import HTMLMessage
 from backend.services.user.exceptions import (
     InactiveUserError,
+    InvalidCredentialsError,
     UserAlreadyExistsError,
     UserNotFoundError,
 )
 from backend.services.user.models import User
-from backend.services.user.schemas import UserCreateData, UserFilters, UserUpdateData
+from backend.services.user.schemas import (
+    Credentials,
+    UserCreateData,
+    UserFilters,
+    UserUpdateData,
+)
+
+logger = logging.getLogger(__name__)
 
 UserCRUDProtocol = CRUDProtocol[User, UserCreateData, UserUpdateData, UserFilters]
 
@@ -45,6 +54,7 @@ async def update_user(user: User, data: UserUpdateData, crud: UserCRUDProtocol) 
         except UserNotFoundError:
             data = copy(data)
             data.confirmed_email = False
+            logger.info("Mark the user %r as unconfirmed email", user.email)
         else:
             raise UserAlreadyExistsError
     return await crud.update_and_refresh(user, data)
@@ -52,6 +62,35 @@ async def update_user(user: User, data: UserUpdateData, crud: UserCRUDProtocol) 
 
 async def delete_user(user: User, crud: UserCRUDProtocol) -> None:
     await crud.delete(user)
+
+
+async def authenticate(
+    credentials: Credentials,
+    password_validator: Callable[[str, str], tuple[bool, str | None]],
+    password_hasher: Callable[[str], str],
+    crud: UserCRUDProtocol,
+) -> User:
+    try:
+        user = await get_user(UserFilters(email=credentials.email), crud)
+    except UserNotFoundError as exc:
+        # Run the password hasher to mitigate timing attack
+        password_hasher(credentials.password)
+        logger.info("User %r not found", credentials.email)
+        raise InvalidCredentialsError from exc
+    is_valid, updated_password_hash = password_validator(
+        credentials.password, user.hashed_password
+    )
+    if not is_valid:
+        logger.info("Invalid password for the user %r", user.email)
+        raise InvalidCredentialsError
+    if not user.is_active:
+        raise InactiveUserError
+    if updated_password_hash:
+        user = await crud.update_and_refresh(
+            user, UserUpdateData(hashed_password=updated_password_hash)
+        )
+        logger.info("Updated password hash for the user %r", user.email)
+    return user
 
 
 class TemplateLoader(Protocol):

@@ -1,52 +1,68 @@
 from collections.abc import Callable
 from typing import Any
 
-from pydantic import BaseModel, EmailStr, Field, validator
-from pydantic.main import ModelMetaclass
+from pydantic import BaseModel, EmailStr, Field, SecretStr, validator
 
 from backend.config.settings import get_settings
 
 settings = get_settings()
 
-
-def hash_password_validator(
-    cls: ModelMetaclass,  # pylint: disable=unused-argument
-    password: str,
-    values: dict[str, Any],
-) -> str:
-    algorithm: Callable[[str], str] | None = values.get("hash_password_algorithm")
-    if not algorithm:
-        msg = "Missing hash password algorithm"
-        raise ValueError(msg)
-    return algorithm(password)
+PasswordHasher = Callable[[str], str]
 
 
 class UserCreateData(BaseModel):
     email: EmailStr
-    hash_password_algorithm: Callable[[str], str] = Field(exclude=True)
+    password_hasher: PasswordHasher = Field(exclude=True)
     hashed_password: str = Field(
         min_length=settings.user.password_min_length, alias="password"
     )
 
-    _hash_password = validator("hashed_password", allow_reuse=True)(
-        hash_password_validator
-    )
+    @validator("hashed_password")
+    def hash_password(  # pylint: disable=no-self-argument
+        cls,  # noqa: N805
+        plain_password: str,
+        values: dict[str, Any],
+    ) -> str:
+        password_hasher: PasswordHasher = values["password_hasher"]
+        return password_hasher(plain_password)
 
 
 class UserUpdateData(BaseModel):
     email: EmailStr | None = None
-    hash_password_algorithm: Callable[[str], str] | None = Field(
-        default=None, exclude=True
+    password: SecretStr | None = Field(
+        default=None, min_length=settings.user.password_min_length, exclude=True
     )
-    hashed_password: str | None = Field(
-        default=None, min_length=settings.user.password_min_length, alias="password"
-    )
+    password_hasher: PasswordHasher | None = Field(default=None, exclude=True)
+    hashed_password: str | None = None
     confirmed_email: bool | None = None
 
-    _hash_password = validator("hashed_password", allow_reuse=True)(
-        hash_password_validator
-    )
+    @validator("hashed_password", always=True)
+    def hash_password(  # pylint: disable=no-self-argument
+        cls,  # noqa: N805
+        hashed_password: str | None,
+        values: dict[str, Any],
+    ) -> str | None:
+        if hashed_password:
+            return hashed_password
+        plain_password: SecretStr | None = values.get("password")
+        if not plain_password:
+            return None
+        password_hasher = cls._get_password_hasher(values)
+        return password_hasher(plain_password.get_secret_value())
+
+    @staticmethod
+    def _get_password_hasher(values: dict[str, Any]) -> PasswordHasher:
+        password_hasher: PasswordHasher | None = values.get("password_hasher")
+        if not password_hasher:
+            msg = "Missing password hasher"
+            raise ValueError(msg)
+        return password_hasher
 
 
 class UserFilters(BaseModel):
     email: str | None = None
+
+
+class Credentials(BaseModel):
+    email: str
+    password: str

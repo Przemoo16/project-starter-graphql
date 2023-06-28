@@ -8,3 +8,7 @@ class UserNotFoundError(Exception):
 
 class InactiveUserError(Exception):
     pass
+
+
+class InvalidCredentialsError(Exception):
+    pass
