@@ -27,24 +27,13 @@ services:
       POSTGRES_HOST: "${DB__HOST}"
       POSTGRES_PORT: "${DB__PORT}"
 
-  frontend-test:
-    image: "${FRONTEND_IMAGE}"
-    build:
-      context: ./frontend
-      target: dev
-    networks:
-      - frontend-test
-    volumes:
-      - type: bind
-        source: ./frontend
-        target: /opt/app
-
   redis-test:
     image: redis:7.0
     networks:
       - backend-test
 
   celery-worker-test:
+    image: "${BACKEND_IMAGE}"
     build:
       context: ./backend
       target: dev
@@ -61,6 +50,7 @@ services:
     command: "celery --app backend.celery:celery_app worker --loglevel INFO"
 
   celery-beat-test:
+    image: "${BACKEND_IMAGE}"
     build:
       context: ./backend
       target: dev

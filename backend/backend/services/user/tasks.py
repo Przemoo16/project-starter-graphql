@@ -9,6 +9,7 @@ from backend.libs.email.message import (
     send_html_email,
 )
 from backend.services.user.controllers import send_confirmation_email
+from backend.services.user.jinja import load_template
 
 logger = logging.getLogger(__name__)
 
@@ -28,6 +29,9 @@ def send_confirmation_email_task(receiver: str, token: str) -> None:
         ),
     )
     send_confirmation_email(
-        settings.user.email_confirmation_url, token, send_email_func
+        url_template=settings.user.email_confirmation_url,
+        token=token,
+        template_loader=load_template,
+        send_email_func=send_email_func,
     )
     logger.info("Sent confirmation email to %r", receiver)
