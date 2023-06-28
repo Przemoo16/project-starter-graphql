@@ -1,5 +1,6 @@
 from collections.abc import Callable
 from copy import copy
+from typing import Any, Protocol
 
 from backend.libs.db.crud import CRUDProtocol, NoObjectFoundError
 from backend.libs.email.message import HTMLMessage
@@ -52,22 +53,20 @@ async def delete_user(user: User, crud: UserCRUDProtocol) -> None:
     await crud.delete(user)
 
 
+class TemplateLoader(Protocol):
+    def __call__(self, name: str, **kwargs: Any) -> str:
+        ...
+
+
 def send_confirmation_email(
-    url_template: str, token: str, send_email_func: Callable[[HTMLMessage], None]
+    url_template: str,
+    token: str,
+    template_loader: TemplateLoader,
+    send_email_func: Callable[[HTMLMessage], None],
 ) -> None:
     link = url_template.format(token=token)
     subject = "Confirm email"
-    html_message = f"""
-        <!DOCTYPE html>
-        <html>
-        <head></head>
-        <body>
-            <p>
-            <a href="{link}">Click here to confirm your email</a>
-            </p>
-        </body>
-        </html>
-    """
+    html_message = template_loader("email-confirmation.html", link=link)
     plain_message = f"Click the link to confirm your email: {link})"
     send_email_func(
         HTMLMessage(

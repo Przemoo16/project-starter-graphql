@@ -1,3 +1,5 @@
+from typing import Any
+
 import pytest
 
 from backend.libs.db.crud import NoObjectFoundError
@@ -20,7 +22,7 @@ from backend.services.user.schemas import UserCreateData, UserFilters, UserUpdat
 from tests.unit.stubs.crud.base import CRUDStub
 
 
-class TestUserCRUD(  # pylint: disable=abstract-method
+class UserCRUD(  # pylint: disable=abstract-method
     CRUDStub[User, UserCreateData, UserUpdateData, UserFilters]
 ):
     def __init__(self, existing_user: User | None = None):
@@ -55,7 +57,7 @@ async def test_create_user() -> None:
         password="plain_password",
         hash_password_algorithm=lambda _: "hashed_password",
     )
-    crud = TestUserCRUD()
+    crud = UserCRUD()
 
     user = await create_user(data, crud)
 
@@ -69,7 +71,7 @@ async def test_create_user_already_exists() -> None:
         password="plain_password",
         hash_password_algorithm=lambda _: "hashed_password",
     )
-    crud = TestUserCRUD(existing_user=User(email="test@email.com"))
+    crud = UserCRUD(existing_user=User(email="test@email.com"))
 
     with pytest.raises(UserAlreadyExistsError):
         await create_user(data, crud)
@@ -78,7 +80,7 @@ async def test_create_user_already_exists() -> None:
 @pytest.mark.anyio()
 async def test_get_user() -> None:
     filters = UserFilters(email="test@email.com")
-    crud = TestUserCRUD(existing_user=User(email="test@email.com"))
+    crud = UserCRUD(existing_user=User(email="test@email.com"))
 
     user = await get_user(filters, crud)
 
@@ -88,7 +90,7 @@ async def test_get_user() -> None:
 @pytest.mark.anyio()
 async def test_get_user_not_found() -> None:
     filters = UserFilters(email="test@email.com")
-    crud = TestUserCRUD()
+    crud = UserCRUD()
 
     with pytest.raises(UserNotFoundError):
         await get_user(filters, crud)
@@ -97,9 +99,7 @@ async def test_get_user_not_found() -> None:
 @pytest.mark.anyio()
 async def test_get_active_user() -> None:
     filters = UserFilters(email="test@email.com")
-    crud = TestUserCRUD(
-        existing_user=User(email="test@email.com", confirmed_email=True)
-    )
+    crud = UserCRUD(existing_user=User(email="test@email.com", confirmed_email=True))
 
     user = await get_active_user(filters, crud)
 
@@ -109,9 +109,7 @@ async def test_get_active_user() -> None:
 @pytest.mark.anyio()
 async def test_get_inactive_user() -> None:
     filters = UserFilters(email="test@email.com")
-    crud = TestUserCRUD(
-        existing_user=User(email="test@email.com", confirmed_email=False)
-    )
+    crud = UserCRUD(existing_user=User(email="test@email.com", confirmed_email=False))
 
     with pytest.raises(InactiveUserError):
         await get_active_user(filters, crud)
@@ -121,7 +119,7 @@ async def test_get_inactive_user() -> None:
 async def test_update_user() -> None:
     data = UserUpdateData(confirmed_email=True)
     user = User(confirmed_email=False)
-    crud = TestUserCRUD()
+    crud = UserCRUD()
 
     updated_user = await update_user(user, data, crud)
 
@@ -132,7 +130,7 @@ async def test_update_user() -> None:
 async def test_update_user_email() -> None:
     data = UserUpdateData(email="updated@email.com")
     user = User(email="test@email.com")
-    crud = TestUserCRUD()
+    crud = UserCRUD()
 
     updated_user = await update_user(user, data, crud)
 
@@ -144,7 +142,7 @@ async def test_update_user_email() -> None:
 async def test_update_user_email_the_same_email_provided() -> None:
     data = UserUpdateData(email="test@email.com")
     user = User(email="test@email.com")
-    crud = TestUserCRUD()
+    crud = UserCRUD()
 
     updated_user = await update_user(user, data, crud)
 
@@ -156,7 +154,7 @@ async def test_update_user_email_the_same_email_provided() -> None:
 async def test_update_user_email_already_exists() -> None:
     data = UserUpdateData(email="updated@email.com")
     user = User(email="test@email.com")
-    crud = TestUserCRUD(existing_user=User(email="updated@email.com"))
+    crud = UserCRUD(existing_user=User(email="updated@email.com"))
 
     with pytest.raises(UserAlreadyExistsError):
         await update_user(user, data, crud)
@@ -165,7 +163,7 @@ async def test_update_user_email_already_exists() -> None:
 @pytest.mark.anyio()
 async def test_delete_user() -> None:
     user = User()
-    crud = TestUserCRUD()
+    crud = UserCRUD()
 
     await delete_user(user, crud)
 
@@ -175,6 +173,9 @@ def test_send_confirmation_email() -> None:
     token = "test-token"
     message_result = {}
 
+    def load_template(name: str, **kwargs: Any) -> str:
+        return f"{name} {kwargs}"
+
     def send_email(message: HTMLMessage) -> None:
         nonlocal message_result
         message_result = {
@@ -183,8 +184,11 @@ def test_send_confirmation_email() -> None:
             "plain_message": message.plain_message,
         }
 
-    send_confirmation_email(url_template, token, send_email)
+    send_confirmation_email(url_template, token, load_template, send_email)
 
     assert message_result["subject"]
-    assert "http://test/test-token" in message_result["html_message"]
+    assert (
+        message_result["html_message"]
+        == "email-confirmation.html {'link': 'http://test/test-token'}"
+    )
     assert "http://test/test-token" in message_result["plain_message"]
