@@ -1,5 +1,6 @@
 from collections.abc import Callable
 from copy import copy
+from gettext import gettext as _
 from typing import Any, Protocol
 
 from backend.libs.db.crud import CRUDProtocol, NoObjectFoundError
@@ -65,9 +66,9 @@ def send_confirmation_email(
     send_email_func: Callable[[HTMLMessage], None],
 ) -> None:
     link = url_template.format(token=token)
-    subject = "Confirm email"
+    subject = _("Confirm email")
     html_message = template_loader("email-confirmation.html", link=link)
-    plain_message = f"Click the link to confirm your email: {link})"
+    plain_message = _("Click the link to confirm your email: {link}").format(link=link)
     send_email_func(
         HTMLMessage(
             subject=subject, html_message=html_message, plain_message=plain_message
