@@ -33,3 +33,10 @@ def test_user_data_hashes_password(
     )
 
     assert data.hashed_password == "hashed_password"
+
+
+def test_user_update_data_missing_password_hash_algorithm() -> None:
+    password = "plain_password"
+
+    with pytest.raises(ValueError, match="Missing hash password algorithm"):
+        UserUpdateData(password=password)

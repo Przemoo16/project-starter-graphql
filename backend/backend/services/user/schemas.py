@@ -5,7 +5,6 @@ from pydantic import BaseModel, EmailStr, Field, validator
 from pydantic.main import ModelMetaclass
 
 from backend.config.settings import get_settings
-from backend.libs.security.password import hash_password
 
 settings = get_settings()
 
@@ -15,15 +14,16 @@ def hash_password_validator(
     password: str,
     values: dict[str, Any],
 ) -> str:
-    algorithm: Callable[[str], str] = values["hash_password_algorithm"]
+    algorithm: Callable[[str], str] | None = values.get("hash_password_algorithm")
+    if not algorithm:
+        msg = "Missing hash password algorithm"
+        raise ValueError(msg)
     return algorithm(password)
 
 
 class UserCreateData(BaseModel):
     email: EmailStr
-    hash_password_algorithm: Callable[[str], str] = Field(
-        default=hash_password, exclude=True
-    )
+    hash_password_algorithm: Callable[[str], str] = Field(exclude=True)
     hashed_password: str = Field(
         min_length=settings.user.password_min_length, alias="password"
     )
@@ -35,8 +35,8 @@ class UserCreateData(BaseModel):
 
 class UserUpdateData(BaseModel):
     email: EmailStr | None = None
-    hash_password_algorithm: Callable[[str], str] = Field(
-        default=hash_password, exclude=True
+    hash_password_algorithm: Callable[[str], str] | None = Field(
+        default=None, exclude=True
     )
     hashed_password: str | None = Field(
         default=None, min_length=settings.user.password_min_length, alias="password"

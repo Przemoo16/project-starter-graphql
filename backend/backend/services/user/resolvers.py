@@ -3,6 +3,7 @@ from pydantic import ValidationError
 from backend.libs.api.context import Info
 from backend.libs.api.types import from_pydantic_error
 from backend.libs.db.crud import CRUD
+from backend.libs.security.password import hash_password
 from backend.services.user.controllers import create_user
 from backend.services.user.exceptions import UserAlreadyExistsError
 from backend.services.user.models import User
@@ -36,4 +37,6 @@ async def create_user_resolver(info: Info, user: UserCreateInput) -> CreateUserR
 
 
 def _validate_create_data(user: UserCreateInput) -> UserCreateData:
-    return UserCreateData(email=user.email, password=user.password)
+    return UserCreateData(
+        email=user.email, password=user.password, hash_password_algorithm=hash_password
+    )
