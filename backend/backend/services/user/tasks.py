@@ -17,7 +17,7 @@ settings = get_settings()
 
 
 @celery_app.task  # type: ignore[misc]
-def send_confirmation_email_task(receiver: str, token: str) -> None:
+def send_confirmation_email_task(receiver: str) -> None:
     send_email_func = partial(
         send_html_email,
         participants=EmailParticipants(sender=settings.email.sender, receiver=receiver),
@@ -30,7 +30,7 @@ def send_confirmation_email_task(receiver: str, token: str) -> None:
     )
     send_confirmation_email(
         url_template=settings.user.email_confirmation_url,
-        token=token,
+        token_encoder=lambda token: token,
         template_loader=load_template,
         send_email_func=send_email_func,
     )

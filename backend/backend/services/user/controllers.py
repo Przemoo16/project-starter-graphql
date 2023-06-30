@@ -101,10 +101,11 @@ class TemplateLoader(Protocol):
 
 def send_confirmation_email(
     url_template: str,
-    token: str,
+    token_encoder: Callable[[str], str],
     template_loader: TemplateLoader,
     send_email_func: Callable[[HTMLMessage], None],
 ) -> None:
+    token = token_encoder("TODO: Generate token")  # nosec
     link = url_template.format(token=token)
     subject = _("Confirm email")
     html_message = template_loader("email-confirmation.html", link=link)
