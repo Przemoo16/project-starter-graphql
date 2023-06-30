@@ -15,9 +15,10 @@ from backend.services.user.controllers import (
     update_user,
 )
 from backend.services.user.exceptions import (
-    InactiveUserError,
     InvalidCredentialsError,
     UserAlreadyExistsError,
+    UserInactiveError,
+    UserNotConfirmedError,
     UserNotFoundError,
 )
 from backend.services.user.models import User
@@ -112,7 +113,7 @@ async def test_get_inactive_user() -> None:
     filters = UserFilters(email="test@email.com")
     crud = UserCRUD(existing_user=User(email="test@email.com", confirmed_email=False))
 
-    with pytest.raises(InactiveUserError):
+    with pytest.raises(UserInactiveError):
         await get_active_user(filters, crud)
 
 
@@ -304,7 +305,7 @@ async def test_failure_authentication_invalid_password() -> None:
 
 
 @pytest.mark.anyio()
-async def test_failure_authentication_inactive_user() -> None:
+async def test_failure_authentication_user_not_confirmed() -> None:
     credentials = Credentials(email="test@email.com", password="plain_password")
     crud = UserCRUD(
         existing_user=User(
@@ -314,7 +315,7 @@ async def test_failure_authentication_inactive_user() -> None:
         )
     )
 
-    with pytest.raises(InactiveUserError):
+    with pytest.raises(UserNotConfirmedError):
         await authenticate(
             credentials, success_password_validator, lambda _: "hashed_password", crud
         )

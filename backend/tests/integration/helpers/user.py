@@ -1,6 +1,7 @@
 import uuid
 from typing import Any
 
+from passlib.context import CryptContext
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from backend.services.user.models import User
@@ -14,3 +15,10 @@ async def create_user(session: AsyncSession, **kwargs: Any) -> User:
         kwargs["hashed_password"] = "hashed_password"
     user = User(**kwargs)
     return await save_to_db(session, user)
+
+
+_pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
+
+
+def hash_password(password: str) -> str:
+    return _pwd_context.hash(password)
