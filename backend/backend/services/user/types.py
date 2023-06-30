@@ -1,4 +1,5 @@
 from collections.abc import Sequence
+from typing import Annotated
 from uuid import UUID
 
 import strawberry
@@ -24,9 +25,16 @@ class UserAlreadyExists(Problem):
     email: str
 
 
+CreateUserProblem = Annotated[
+    InvalidInput | UserAlreadyExists, strawberry.union("CreateUserProblem")
+]
+
+
 @strawberry.type
 class CreateUserFailure:
-    problems: Sequence[InvalidInput | UserAlreadyExists]
+    problems: Sequence[CreateUserProblem]
 
 
-CreateUserResponse = CreateUserSuccess | CreateUserFailure
+CreateUserResponse = Annotated[
+    CreateUserSuccess | CreateUserFailure, strawberry.union("CreateUserResponse")
+]

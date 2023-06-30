@@ -1,3 +1,4 @@
+from contextlib import suppress
 from typing import Any
 
 import pytest
@@ -5,6 +6,7 @@ import pytest
 from backend.libs.db.crud import NoObjectFoundError
 from backend.libs.email.message import HTMLMessage
 from backend.services.user.controllers import (
+    authenticate,
     create_user,
     delete_user,
     get_active_user,
@@ -14,11 +16,17 @@ from backend.services.user.controllers import (
 )
 from backend.services.user.exceptions import (
     InactiveUserError,
+    InvalidCredentialsError,
     UserAlreadyExistsError,
     UserNotFoundError,
 )
 from backend.services.user.models import User
-from backend.services.user.schemas import UserCreateData, UserFilters, UserUpdateData
+from backend.services.user.schemas import (
+    Credentials,
+    UserCreateData,
+    UserFilters,
+    UserUpdateData,
+)
 from tests.unit.stubs.crud.base import CRUDStub
 
 
@@ -29,10 +37,7 @@ class UserCRUD(  # pylint: disable=abstract-method
         self.existing_user = existing_user
 
     async def create_and_refresh(self, data: UserCreateData) -> User:
-        return User(
-            email=data.email,
-            hashed_password=data.hashed_password,
-        )
+        return User(**data.dict())
 
     async def read_one(self, filters: UserFilters) -> User:
         if self.existing_user:
@@ -40,11 +45,7 @@ class UserCRUD(  # pylint: disable=abstract-method
         raise NoObjectFoundError
 
     async def update_and_refresh(self, obj: User, data: UserUpdateData) -> User:
-        return User(
-            email=data.email,
-            hashed_password=data.hashed_password,
-            confirmed_email=data.confirmed_email,
-        )
+        return User(**data.dict(exclude_unset=True))
 
     async def delete(self, obj: User) -> None:
         pass
@@ -55,7 +56,7 @@ async def test_create_user() -> None:
     data = UserCreateData(
         email="test@email.com",
         password="plain_password",
-        hash_password_algorithm=lambda _: "hashed_password",
+        password_hasher=lambda _: "hashed_password",
     )
     crud = UserCRUD()
 
@@ -69,7 +70,7 @@ async def test_create_user_already_exists() -> None:
     data = UserCreateData(
         email="test@email.com",
         password="plain_password",
-        hash_password_algorithm=lambda _: "hashed_password",
+        password_hasher=lambda _: "hashed_password",
     )
     crud = UserCRUD(existing_user=User(email="test@email.com"))
 
@@ -192,3 +193,128 @@ def test_send_confirmation_email() -> None:
         == "email-confirmation.html {'link': 'http://test/test-token'}"
     )
     assert "http://test/test-token" in message_result["plain_message"]
+
+
+def success_password_validator(*_: str) -> tuple[bool, None]:
+    return True, None
+
+
+@pytest.mark.anyio()
+async def test_success_authentication_without_password_hash_update() -> None:
+    credentials = Credentials(email="test@email.com", password="plain_password")
+    crud = UserCRUD(
+        existing_user=User(
+            email="test@email.com",
+            hashed_password="hashed_password",
+            confirmed_email=True,
+        )
+    )
+
+    user = await authenticate(
+        credentials, success_password_validator, lambda _: "hashed_password", crud
+    )
+
+    assert user.hashed_password == "hashed_password"
+
+
+@pytest.mark.anyio()
+async def test_success_authentication_with_password_hash_update() -> None:
+    credentials = Credentials(email="test@email.com", password="plain_password")
+    crud = UserCRUD(
+        existing_user=User(
+            email="test@email.com",
+            hashed_password="hashed_password",
+            confirmed_email=True,
+        )
+    )
+
+    def password_validator_update_hash(*_: str) -> tuple[bool, str]:
+        return True, "new_hashed_password"
+
+    user = await authenticate(
+        credentials, password_validator_update_hash, lambda _: "hashed_password", crud
+    )
+
+    assert user.hashed_password == "new_hashed_password"
+
+
+@pytest.mark.anyio()
+async def test_failure_authentication_user_not_found() -> None:
+    credentials = Credentials(email="test@email.com", password="plain_password")
+    crud = UserCRUD()
+
+    with pytest.raises(InvalidCredentialsError):
+        await authenticate(
+            credentials, success_password_validator, lambda _: "hashed_password", crud
+        )
+
+
+@pytest.mark.anyio()
+@pytest.mark.parametrize(
+    ("user", "hasher_called"),
+    [
+        (
+            User(
+                email="test@email.com",
+                hashed_password="hashed_password",
+                confirmed_email=True,
+            ),
+            False,
+        ),
+        (None, True),
+    ],
+)
+async def test_authentication_calling_password_hasher(
+    user: User | None, hasher_called: bool
+) -> None:
+    credentials = Credentials(email="test@email.com", password="plain_password")
+    crud = UserCRUD(existing_user=user)
+
+    hash_function_called = False
+
+    def hash_func(_: str) -> str:
+        nonlocal hash_function_called
+        hash_function_called = True
+        return "hashed_password"
+
+    with suppress(InvalidCredentialsError):
+        await authenticate(credentials, success_password_validator, hash_func, crud)
+
+    assert hash_function_called == hasher_called
+
+
+@pytest.mark.anyio()
+async def test_failure_authentication_invalid_password() -> None:
+    credentials = Credentials(email="test@email.com", password="plain_password")
+    crud = UserCRUD(
+        existing_user=User(
+            email="test@email.com",
+            hashed_password="hashed_password",
+            confirmed_email=True,
+        )
+    )
+
+    def failure_validator(*_: str) -> tuple[bool, None]:
+        return False, None
+
+    with pytest.raises(InvalidCredentialsError):
+        await authenticate(
+            credentials, failure_validator, lambda _: "hashed_password", crud
+        )
+
+
+@pytest.mark.anyio()
+async def test_failure_authentication_inactive_user() -> None:
+    credentials = Credentials(email="test@email.com", password="plain_password")
+    crud = UserCRUD(
+        existing_user=User(
+            email="test@email.com",
+            hashed_password="hashed_password",
+            confirmed_email=False,
+        )
+    )
+
+    with pytest.raises(InactiveUserError):
+        await authenticate(
+            credentials, success_password_validator, lambda _: "hashed_password", crud
+        )

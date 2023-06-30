@@ -38,5 +38,5 @@ async def create_user_resolver(info: Info, user: UserCreateInput) -> CreateUserR
 
 def _validate_create_data(user: UserCreateInput) -> UserCreateData:
     return UserCreateData(
-        email=user.email, password=user.password, hash_password_algorithm=hash_password
+        email=user.email, password=user.password, password_hasher=hash_password
     )
