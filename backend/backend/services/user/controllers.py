@@ -7,9 +7,10 @@ from typing import Any, Protocol
 from backend.libs.db.crud import CRUDProtocol, NoObjectFoundError
 from backend.libs.email.message import HTMLMessage
 from backend.services.user.exceptions import (
-    InactiveUserError,
     InvalidCredentialsError,
     UserAlreadyExistsError,
+    UserInactiveError,
+    UserNotConfirmedError,
     UserNotFoundError,
 )
 from backend.services.user.models import User
@@ -43,7 +44,7 @@ async def get_user(filters: UserFilters, crud: UserCRUDProtocol) -> User:
 async def get_active_user(filters: UserFilters, crud: UserCRUDProtocol) -> User:
     user = await get_user(filters, crud)
     if not user.is_active:
-        raise InactiveUserError
+        raise UserInactiveError
     return user
 
 
@@ -83,8 +84,8 @@ async def authenticate(
     if not is_valid:
         logger.info("Invalid password for the user %r", user.email)
         raise InvalidCredentialsError
-    if not user.is_active:
-        raise InactiveUserError
+    if not user.confirmed_email:
+        raise UserNotConfirmedError
     if updated_password_hash:
         user = await crud.update_and_refresh(
             user, UserUpdateData(hashed_password=updated_password_hash)

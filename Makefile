@@ -1,7 +1,10 @@
 COMPOSE_DEV := docker compose -f compose.yaml
 COMPOSE_TEST := docker compose -f compose.test.yaml --env-file .env.test
 
-.PHONY: distclean integration-test-backend lint setup unit-test-backend unit-test-frontend
+.PHONY: confirm-email distclean integration-test-backend lint setup unit-test-backend unit-test-frontend
+
+confirm-email:
+	$(COMPOSE_DEV) exec --no-TTY db psql --username=postgres postgres -c "UPDATE public.user SET confirmed_email=TRUE WHERE email='$(EMAIL)';"
 
 distclean:
 	$(COMPOSE_DEV) down --rmi local --volumes --remove-orphans
