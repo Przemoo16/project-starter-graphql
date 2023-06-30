@@ -1,3 +1,4 @@
+from datetime import datetime
 from typing import Annotated
 
 from pydantic import ValidationError
@@ -7,7 +8,7 @@ from backend.libs.api.context import Info
 from backend.libs.api.types import from_pydantic_error
 from backend.libs.db.crud import CRUD
 from backend.libs.security.password import hash_password, verify_and_update_password
-from backend.services.user.controllers import authenticate, create_user
+from backend.services.user.controllers import authenticate, create_user, update_user
 from backend.services.user.exceptions import (
     InvalidCredentialsError,
     UserAlreadyExistsError,
@@ -54,9 +55,7 @@ async def create_user_resolver(
         created_user = await create_user(user_data, crud)
     except UserAlreadyExistsError:
         return CreateUserFailure(problems=[UserAlreadyExists(email=user_input.email)])
-    send_confirmation_email_task.delay(
-        receiver=created_user.email, token="TODO: Generate token"  # nosec
-    )
+    send_confirmation_email_task.delay(receiver=created_user.email)
     return CreateUserSuccess(id=created_user.id, email=created_user.email)
 
 
@@ -68,7 +67,9 @@ async def login(
         email=credentials_input.username, password=credentials_input.password
     )
     try:
-        await authenticate(credentials, verify_and_update_password, hash_password, crud)
+        user = await authenticate(
+            credentials, verify_and_update_password, hash_password, crud
+        )
     except InvalidCredentialsError:
         return LoginFailure(
             problems=[InvalidCredentials(username=credentials_input.username)]
@@ -77,8 +78,9 @@ async def login(
         return LoginFailure(
             problems=[UserNotConfirmed(username=credentials_input.username)]
         )
+    await update_user(user, UserUpdateData(last_login=datetime.utcnow()), crud)
     return LoginSuccess(  # nosec
         access_token="TODO: Generate token",
         refresh_token="TODO: Generate token",
-        token_type="TODO: Generate token",
+        token_type="Bearer",
     )

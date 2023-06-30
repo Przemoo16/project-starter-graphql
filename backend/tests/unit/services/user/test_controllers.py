@@ -172,7 +172,6 @@ async def test_delete_user() -> None:
 
 def test_send_confirmation_email() -> None:
     url_template = "http://test/{token}"
-    token = "test-token"
     message_result = {}
 
     def load_template(name: str, **kwargs: Any) -> str:
@@ -186,7 +185,9 @@ def test_send_confirmation_email() -> None:
             "plain_message": message.plain_message,
         }
 
-    send_confirmation_email(url_template, token, load_template, send_email)
+    send_confirmation_email(
+        url_template, lambda _: "test-token", load_template, send_email
+    )
 
     assert message_result["subject"]
     assert (

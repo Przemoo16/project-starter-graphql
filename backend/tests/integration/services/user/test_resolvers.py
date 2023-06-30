@@ -105,7 +105,32 @@ async def test_login(async_client: AsyncClient, session: AsyncSession) -> None:
     data = response.json()["data"]["login"]
     assert "accessToken" in data
     assert "refreshToken" in data
-    assert data["tokenType"] == "TODO: Generate token"
+    assert data["tokenType"] == "Bearer"
+
+
+@pytest.mark.anyio()
+async def test_login_last_login_updated(
+    async_client: AsyncClient, session: AsyncSession
+) -> None:
+    user = await create_user(
+        session,
+        email="test@email.com",
+        hashed_password=hash_password("plain_password"),
+        confirmed_email=True,
+    )
+    payload = {
+        "query": """
+            mutation {
+              login(input: {username: "test@email.com", password: "plain_password"}) {
+                __typename
+              }
+            }
+        """
+    }
+
+    await async_client.post("/graphql", json=payload)
+
+    assert user.last_login
 
 
 @pytest.mark.anyio()

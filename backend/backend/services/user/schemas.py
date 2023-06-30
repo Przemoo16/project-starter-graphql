@@ -1,4 +1,5 @@
 from collections.abc import Callable
+from datetime import datetime
 from typing import Any
 
 from pydantic import BaseModel, EmailStr, Field, SecretStr, validator
@@ -35,6 +36,7 @@ class UserUpdateData(BaseModel):
     password_hasher: PasswordHasher | None = Field(default=None, exclude=True)
     hashed_password: str | None = None
     confirmed_email: bool | None = None
+    last_login: datetime | None = None
 
     @validator("hashed_password", always=True)
     def hash_password(  # pylint: disable=no-self-argument
