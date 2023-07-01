@@ -1,8 +1,16 @@
 from collections.abc import Callable
+from dataclasses import dataclass
 from datetime import datetime
-from typing import Any
 
-from pydantic import BaseModel, EmailStr, Field, SecretStr, validator
+from pydantic import (
+    BaseModel,
+    EmailStr,
+    Field,
+    FieldValidationInfo,
+    SecretStr,
+    field_validator,
+    model_validator,
+)
 
 from backend.config.settings import get_settings
 
@@ -18,13 +26,13 @@ class UserCreateData(BaseModel):
         min_length=settings.user.password_min_length, alias="password"
     )
 
-    @validator("hashed_password")
+    @field_validator("hashed_password", mode="after")
     def hash_password(  # pylint: disable=no-self-argument
         cls,  # noqa: N805
         plain_password: str,
-        values: dict[str, Any],
+        info: FieldValidationInfo,
     ) -> str:
-        password_hasher: PasswordHasher = values["password_hasher"]
+        password_hasher: PasswordHasher = info.data["password_hasher"]
         return password_hasher(plain_password)
 
 
@@ -38,33 +46,28 @@ class UserUpdateData(BaseModel):
     confirmed_email: bool | None = None
     last_login: datetime | None = None
 
-    @validator("hashed_password", always=True)
+    @model_validator(mode="after")  # type: ignore[arg-type]
     def hash_password(  # pylint: disable=no-self-argument
         cls,  # noqa: N805
-        hashed_password: str | None,
-        values: dict[str, Any],
-    ) -> str | None:
-        if hashed_password:
-            return hashed_password
-        plain_password: SecretStr | None = values.get("password")
-        if not plain_password:
-            return None
-        password_hasher = cls._get_password_hasher(values)
-        return password_hasher(plain_password.get_secret_value())
-
-    @staticmethod
-    def _get_password_hasher(values: dict[str, Any]) -> PasswordHasher:
-        password_hasher: PasswordHasher | None = values.get("password_hasher")
-        if not password_hasher:
+        model: "UserUpdateData",
+    ) -> "UserUpdateData":
+        if not model.password:
+            return model
+        if not model.password_hasher:
             msg = "Missing password hasher"
             raise ValueError(msg)
-        return password_hasher
+        if model.hashed_password:
+            msg = "Either 'password' or 'hashed_password' can be specified, not both."
+            raise ValueError(msg)
+        model.hashed_password = model.password_hasher(model.password.get_secret_value())
+        return model
 
 
 class UserFilters(BaseModel):
     email: str | None = None
 
 
-class Credentials(BaseModel):
+@dataclass
+class Credentials:
     email: str
     password: str

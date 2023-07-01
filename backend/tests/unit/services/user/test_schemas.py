@@ -47,7 +47,7 @@ def test_user_schema_does_not_export_password_related_fields(
         password_hasher=lambda _: "hashed_password",
     )
 
-    data_dict = data.dict()
+    data_dict = data.model_dump()
     assert "password_hasher" not in data_dict
     assert "password" not in data_dict
 
@@ -68,14 +68,6 @@ def test_user_schema_hashes_password(
     assert data.hashed_password == "hashed_password"
 
 
-def test_user_update_schema_hashed_password_provided() -> None:
-    hashed_password = "hashed_password"
-
-    data = UserUpdateData(hashed_password=hashed_password)
-
-    assert data.hashed_password == "hashed_password"
-
-
 def test_user_update_schema_no_password_provided() -> None:
     email = "test@email.com"
 
@@ -89,3 +81,26 @@ def test_user_update_schema_missing_password_hasher() -> None:
 
     with pytest.raises(ValidationError, match="Missing password hasher"):
         UserUpdateData(password=password)
+
+
+def test_user_update_schema_hashed_password_provided() -> None:
+    hashed_password = "hashed_password"
+
+    data = UserUpdateData(hashed_password=hashed_password)
+
+    assert data.hashed_password == "hashed_password"
+
+
+def test_user_update_schema_both_password_and_hash_password_present() -> None:
+    password = "plain_password"
+    hashed_password = "hashed_password"
+
+    with pytest.raises(
+        ValidationError,
+        match="Either 'password' or 'hashed_password' can be specified, not both.",
+    ):
+        UserUpdateData(
+            password=password,
+            hashed_password=hashed_password,
+            password_hasher=lambda _: "hashed_password",
+        )

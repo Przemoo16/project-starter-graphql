@@ -1,4 +1,4 @@
-from pydantic import BaseSettings
+from pydantic_settings import BaseSettings, SettingsConfigDict
 
 from backend.config.app import APPSettings
 from backend.config.celery import CelerySettings
@@ -14,11 +14,10 @@ class Settings(BaseSettings):
     user: UserSettings
     email: EmailSettings
 
-    class Config:
-        env_nested_delimiter = "__"
+    model_config = SettingsConfigDict(env_nested_delimiter="__")
 
 
-_settings = Settings()
+_settings = Settings()  # type: ignore[call-arg]
 
 
 def get_settings() -> Settings:

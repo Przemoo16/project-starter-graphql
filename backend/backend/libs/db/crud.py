@@ -52,7 +52,7 @@ class CRUD(Generic[Model, CreateData_contra, UpdateData_contra, Filters_contra])
         return await self._commit_and_refresh(created_obj)
 
     def _create_obj(self, data: CreateData_contra) -> Model:
-        data_dict = data.dict()
+        data_dict = data.model_dump()
         return self.model(**data_dict)
 
     async def read_one(self, filters: Filters_contra) -> Model:
@@ -72,7 +72,7 @@ class CRUD(Generic[Model, CreateData_contra, UpdateData_contra, Filters_contra])
         return await self._commit_and_refresh(updated_obj)
 
     def _update_obj(self, obj: Model, data: UpdateData_contra) -> Model:
-        data_dict = data.dict(exclude_unset=True)
+        data_dict = data.model_dump(exclude_unset=True)
         for field, value in data_dict.items():
             setattr(obj, field, value)
         return obj
@@ -94,7 +94,7 @@ class CRUD(Generic[Model, CreateData_contra, UpdateData_contra, Filters_contra])
     def _build_where_statement(
         self, statement: Select[tuple[Model]], filters: Filters_contra
     ) -> Select[tuple[Model]]:
-        filters_dict = filters.dict(exclude_unset=True)
+        filters_dict = filters.model_dump(exclude_unset=True)
         for field, value in filters_dict.items():
             statement = statement.where(getattr(self.model, field) == value)
         return statement
