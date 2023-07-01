@@ -38,7 +38,7 @@ class UserCRUD(  # pylint: disable=abstract-method
         self.existing_user = existing_user
 
     async def create_and_refresh(self, data: UserCreateData) -> User:
-        return User(**data.dict())
+        return User(**data.model_dump())
 
     async def read_one(self, filters: UserFilters) -> User:
         if self.existing_user:
@@ -46,7 +46,7 @@ class UserCRUD(  # pylint: disable=abstract-method
         raise NoObjectFoundError
 
     async def update_and_refresh(self, obj: User, data: UserUpdateData) -> User:
-        return User(**data.dict(exclude_unset=True))
+        return User(**data.model_dump(exclude_unset=True))
 
     async def delete(self, obj: User) -> None:
         pass

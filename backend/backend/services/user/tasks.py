@@ -29,7 +29,7 @@ def send_confirmation_email_task(receiver: str) -> None:
         ),
     )
     send_confirmation_email(
-        url_template=settings.user.email_confirmation_url,
+        url_template=settings.user.email_confirmation_url,  # type: ignore[arg-type]
         token_encoder=lambda token: token,
         template_loader=load_template,
         send_email_func=send_email_func,

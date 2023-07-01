@@ -13,11 +13,12 @@ python = "^3.11"
 alembic = "^1.11.1"
 asyncpg = "^0.27.0"
 celery = "^5.3.1"
-fastapi = "^0.99.0"
+fastapi = "0.100.0-beta2"
 jinja2 = "^3.1.2"
 orjson = "^3.9.1"
 passlib = {extras = ["bcrypt"], version = "^1.7.4"}
-pydantic = {extras = ["email"], version = "^1.10.10"}
+pydantic = {extras = ["email"], version = "^2.0"}
+pydantic-settings = "^2.0.0"
 redis = "^4.6.0"
 sqlalchemy = "^2.0.17"
 strawberry-graphql = {extras = ["fastapi"], version = "^0.192.0"}
@@ -44,6 +45,10 @@ plugins = [
     "pydantic.mypy",
     "strawberry.ext.mypy_plugin"
 ]
+
+[tool.pydantic-mypy]
+init_forbid_extra = true
+warn_required_dynamic_aliases = true
 
 [tool.pylint.FORMAT]
 max-line-length = 88
