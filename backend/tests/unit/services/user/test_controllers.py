@@ -9,7 +9,6 @@ from backend.services.user.controllers import (
     authenticate,
     create_user,
     delete_user,
-    get_active_user,
     get_user,
     send_confirmation_email,
     update_user,
@@ -17,7 +16,6 @@ from backend.services.user.controllers import (
 from backend.services.user.exceptions import (
     InvalidCredentialsError,
     UserAlreadyExistsError,
-    UserInactiveError,
     UserNotConfirmedError,
     UserNotFoundError,
 )
@@ -96,25 +94,6 @@ async def test_get_user_not_found() -> None:
 
     with pytest.raises(UserNotFoundError):
         await get_user(filters, crud)
-
-
-@pytest.mark.anyio()
-async def test_get_active_user() -> None:
-    filters = UserFilters(email="test@email.com")
-    crud = UserCRUD(existing_user=User(email="test@email.com", confirmed_email=True))
-
-    user = await get_active_user(filters, crud)
-
-    assert user
-
-
-@pytest.mark.anyio()
-async def test_get_inactive_user() -> None:
-    filters = UserFilters(email="test@email.com")
-    crud = UserCRUD(existing_user=User(email="test@email.com", confirmed_email=False))
-
-    with pytest.raises(UserInactiveError):
-        await get_active_user(filters, crud)
 
 
 @pytest.mark.anyio()

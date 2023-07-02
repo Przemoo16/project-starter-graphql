@@ -6,10 +6,6 @@ class UserNotFoundError(Exception):
     pass
 
 
-class UserInactiveError(Exception):
-    pass
-
-
 class UserNotConfirmedError(Exception):
     pass
 

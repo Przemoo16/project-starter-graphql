@@ -20,7 +20,3 @@ class User(Base):
     updated_at: Mapped[datetime] = mapped_column(
         server_default=utcnow(), onupdate=utcnow()
     )
-
-    @property
-    def is_active(self) -> bool:
-        return self.confirmed_email

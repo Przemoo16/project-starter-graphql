@@ -9,7 +9,6 @@ from backend.libs.email.message import HTMLMessage
 from backend.services.user.exceptions import (
     InvalidCredentialsError,
     UserAlreadyExistsError,
-    UserInactiveError,
     UserNotConfirmedError,
     UserNotFoundError,
 )
@@ -28,8 +27,8 @@ UserCRUDProtocol = CRUDProtocol[User, UserCreateData, UserUpdateData, UserFilter
 
 async def create_user(data: UserCreateData, crud: UserCRUDProtocol) -> User:
     try:
-        await get_user(UserFilters(email=data.email), crud)
-    except UserNotFoundError:
+        await crud.read_one(UserFilters(email=data.email))
+    except NoObjectFoundError:
         return await crud.create_and_refresh(data)
     raise UserAlreadyExistsError
 
@@ -41,18 +40,11 @@ async def get_user(filters: UserFilters, crud: UserCRUDProtocol) -> User:
         raise UserNotFoundError from exc
 
 
-async def get_active_user(filters: UserFilters, crud: UserCRUDProtocol) -> User:
-    user = await get_user(filters, crud)
-    if not user.is_active:
-        raise UserInactiveError
-    return user
-
-
 async def update_user(user: User, data: UserUpdateData, crud: UserCRUDProtocol) -> User:
     if data.email and data.email != user.email:
         try:
-            await get_user(UserFilters(email=data.email), crud)
-        except UserNotFoundError:
+            await crud.read_one(UserFilters(email=data.email))
+        except NoObjectFoundError:
             data = copy(data)
             data.confirmed_email = False
             logger.info("Mark the user %r as unconfirmed email", user.email)
@@ -72,8 +64,8 @@ async def authenticate(
     crud: UserCRUDProtocol,
 ) -> User:
     try:
-        user = await get_user(UserFilters(email=credentials.email), crud)
-    except UserNotFoundError as exc:
+        user = await crud.read_one(UserFilters(email=credentials.email))
+    except NoObjectFoundError as exc:
         # Run the password hasher to mitigate timing attack
         password_hasher(credentials.password)
         logger.info("User %r not found", credentials.email)
