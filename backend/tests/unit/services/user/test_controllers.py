@@ -10,6 +10,7 @@ from backend.services.user.controllers import (
     create_user,
     delete_user,
     get_user,
+    login_user,
     send_confirmation_email,
     update_user,
 )
@@ -178,6 +179,25 @@ def test_send_confirmation_email() -> None:
 
 def success_password_validator(*_: str) -> tuple[bool, None]:
     return True, None
+
+
+@pytest.mark.anyio()
+async def test_update_last_login_when_user_log_in() -> None:
+    credentials = Credentials(email="test@email.com", password="plain_password")
+    crud = UserCRUD(
+        existing_user=User(
+            email="test@email.com",
+            hashed_password="hashed_password",
+            confirmed_email=True,
+            last_login=None,
+        )
+    )
+
+    user = await login_user(
+        credentials, success_password_validator, lambda _: "hashed_password", crud
+    )
+
+    assert user.last_login
 
 
 @pytest.mark.anyio()
