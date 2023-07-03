@@ -1,6 +1,7 @@
 import logging
 from collections.abc import Callable
 from copy import copy
+from datetime import datetime
 from gettext import gettext as _
 from typing import Any, Protocol
 
@@ -23,6 +24,8 @@ from backend.services.user.schemas import (
 logger = logging.getLogger(__name__)
 
 UserCRUDProtocol = CRUDProtocol[User, UserCreateData, UserUpdateData, UserFilters]
+PasswordValidator = Callable[[str, str], tuple[bool, str | None]]
+PasswordHasher = Callable[[str], str]
 
 
 async def create_user(data: UserCreateData, crud: UserCRUDProtocol) -> User:
@@ -57,10 +60,22 @@ async def delete_user(user: User, crud: UserCRUDProtocol) -> None:
     await crud.delete(user)
 
 
+async def login_user(
+    credentials: Credentials,
+    password_validator: PasswordValidator,
+    password_hasher: PasswordHasher,
+    crud: UserCRUDProtocol,
+) -> User:
+    user = await authenticate(credentials, password_validator, password_hasher, crud)
+    return await crud.update_and_refresh(
+        user, UserUpdateData(last_login=datetime.utcnow())
+    )
+
+
 async def authenticate(
     credentials: Credentials,
-    password_validator: Callable[[str, str], tuple[bool, str | None]],
-    password_hasher: Callable[[str], str],
+    password_validator: PasswordValidator,
+    password_hasher: PasswordHasher,
     crud: UserCRUDProtocol,
 ) -> User:
     try:
