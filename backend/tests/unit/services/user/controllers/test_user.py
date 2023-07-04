@@ -1,17 +1,14 @@
 from contextlib import suppress
-from typing import Any
 
 import pytest
 
 from backend.libs.db.crud import NoObjectFoundError
-from backend.libs.email.message import HTMLMessage
-from backend.services.user.controllers import (
+from backend.services.user.controllers.user import (
     authenticate,
     create_user,
     delete_user,
     get_user,
     login_user,
-    send_confirmation_email,
     update_user,
 )
 from backend.services.user.exceptions import (
@@ -148,33 +145,6 @@ async def test_delete_user() -> None:
     crud = UserCRUD()
 
     await delete_user(user, crud)
-
-
-def test_send_confirmation_email() -> None:
-    url_template = "http://test/{token}"
-    message_result = {}
-
-    def load_template(name: str, **kwargs: Any) -> str:
-        return f"{name} {kwargs}"
-
-    def send_email(message: HTMLMessage) -> None:
-        nonlocal message_result
-        message_result = {
-            "subject": message.subject,
-            "html_message": message.html_message,
-            "plain_message": message.plain_message,
-        }
-
-    send_confirmation_email(
-        url_template, lambda _: "test-token", load_template, send_email
-    )
-
-    assert message_result["subject"]
-    assert (
-        message_result["html_message"]
-        == "email-confirmation.html {'link': 'http://test/test-token'}"
-    )
-    assert "http://test/test-token" in message_result["plain_message"]
 
 
 def success_password_validator(*_: str) -> tuple[bool, None]:

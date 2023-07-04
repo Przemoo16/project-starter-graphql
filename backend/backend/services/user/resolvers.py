@@ -1,13 +1,20 @@
+from functools import partial
 from typing import Annotated
 
 from pydantic import ValidationError
 from strawberry import argument
 
+from backend.config.settings import get_settings
 from backend.libs.api.context import Info
 from backend.libs.api.types import from_pydantic_error
 from backend.libs.db.crud import CRUD
 from backend.libs.security.password import hash_password, verify_and_update_password
-from backend.services.user.controllers import create_user, login_user
+from backend.libs.security.token import create_paseto_token_public_v4
+from backend.services.user.controllers.token import (
+    create_access_token,
+    create_refresh_token,
+)
+from backend.services.user.controllers.user import create_user, login_user
 from backend.services.user.exceptions import (
     InvalidCredentialsError,
     UserAlreadyExistsError,
@@ -37,6 +44,8 @@ from backend.services.user.types import (
 
 UserCRUD = CRUD[User, UserCreateData, UserUpdateData, UserFilters]
 
+settings = get_settings().user
+
 
 async def create_user_resolver(
     info: Info, user_input: Annotated[UserCreateInput, argument(name="input")]
@@ -54,7 +63,9 @@ async def create_user_resolver(
         created_user = await create_user(user_data, crud)
     except UserAlreadyExistsError:
         return CreateUserFailure(problems=[UserAlreadyExists(email=user_input.email)])
-    send_confirmation_email_task.delay(receiver=created_user.email)
+    send_confirmation_email_task.delay(
+        user_id=created_user.id, user_email=created_user.email
+    )
     return CreateUserSuccess(id=created_user.id, email=created_user.email)
 
 
@@ -66,7 +77,9 @@ async def login(
         email=credentials_input.username, password=credentials_input.password
     )
     try:
-        await login_user(credentials, verify_and_update_password, hash_password, crud)
+        user = await login_user(
+            credentials, verify_and_update_password, hash_password, crud
+        )
     except InvalidCredentialsError:
         return LoginFailure(
             problems=[InvalidCredentials(username=credentials_input.username)]
@@ -75,8 +88,22 @@ async def login(
         return LoginFailure(
             problems=[UserNotConfirmed(username=credentials_input.username)]
         )
-    return LoginSuccess(  # nosec
-        access_token="TODO: Generate token",
-        refresh_token="TODO: Generate token",
-        token_type="Bearer",
+    return LoginSuccess(
+        access_token=create_access_token(
+            user_id=user.id,
+            token_creator=partial(
+                create_paseto_token_public_v4,
+                key=settings.auth_private_key.get_secret_value(),
+                expiration=int(settings.access_token_lifetime.total_seconds()),
+            ),
+        ),
+        refresh_token=create_refresh_token(
+            user_id=user.id,
+            token_creator=partial(
+                create_paseto_token_public_v4,
+                key=settings.auth_private_key.get_secret_value(),
+                expiration=int(settings.refresh_token_lifetime.total_seconds()),
+            ),
+        ),
+        token_type="Bearer",  # nosec
     )

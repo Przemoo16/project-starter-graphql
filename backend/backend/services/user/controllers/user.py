@@ -2,11 +2,8 @@ import logging
 from collections.abc import Callable
 from copy import copy
 from datetime import datetime
-from gettext import gettext as _
-from typing import Any, Protocol
 
 from backend.libs.db.crud import CRUDProtocol, NoObjectFoundError
-from backend.libs.email.message import HTMLMessage
 from backend.services.user.exceptions import (
     InvalidCredentialsError,
     UserAlreadyExistsError,
@@ -99,26 +96,3 @@ async def authenticate(
         )
         logger.info("Updated password hash for the user %r", user.email)
     return user
-
-
-class TemplateLoader(Protocol):
-    def __call__(self, name: str, **kwargs: Any) -> str:
-        ...
-
-
-def send_confirmation_email(
-    url_template: str,
-    token_encoder: Callable[[str], str],
-    template_loader: TemplateLoader,
-    send_email_func: Callable[[HTMLMessage], None],
-) -> None:
-    token = token_encoder("TODO: Generate token")  # nosec
-    link = url_template.format(token=token)
-    subject = _("Confirm email")
-    html_message = template_loader("email-confirmation.html", link=link)
-    plain_message = _("Click the link to confirm your email: {link}").format(link=link)
-    send_email_func(
-        HTMLMessage(
-            subject=subject, html_message=html_message, plain_message=plain_message
-        )
-    )
