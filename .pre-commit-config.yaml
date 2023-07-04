@@ -14,6 +14,11 @@ repos:
           - --unsafe
       - id: debug-statements
       - id: detect-private-key
+        exclude: |
+          (?x)^(
+            .env.template|
+            .env.test
+          )$
       - id: end-of-file-fixer
       - id: requirements-txt-fixer
       - id: trailing-whitespace
