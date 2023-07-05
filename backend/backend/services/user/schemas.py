@@ -1,6 +1,7 @@
 from collections.abc import Callable
 from dataclasses import dataclass
 from datetime import datetime
+from uuid import UUID
 
 from pydantic import (
     BaseModel,
@@ -64,6 +65,7 @@ class UserUpdateData(BaseModel):
 
 
 class UserFilters(BaseModel):
+    id: UUID | None = None
     email: str | None = None
 
 

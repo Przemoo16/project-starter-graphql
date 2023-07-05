@@ -9,14 +9,21 @@ from backend.libs.api.context import Info
 from backend.libs.api.types import from_pydantic_error
 from backend.libs.db.crud import CRUD
 from backend.libs.security.password import hash_password, verify_and_update_password
-from backend.libs.security.token import create_paseto_token_public_v4
-from backend.services.user.controllers.token import (
+from backend.libs.security.token import (
+    create_paseto_token_public_v4,
+    read_paseto_token_public_v4,
+)
+from backend.services.user.controllers import (
+    confirm_email,
     create_access_token,
     create_refresh_token,
+    create_user,
+    login,
 )
-from backend.services.user.controllers.user import create_user, login_user
 from backend.services.user.exceptions import (
     InvalidCredentialsError,
+    InvalidEmailConfirmationTokenError,
+    UserAlreadyConfirmedError,
     UserAlreadyExistsError,
     UserNotConfirmedError,
 )
@@ -29,14 +36,19 @@ from backend.services.user.schemas import (
 )
 from backend.services.user.tasks import send_confirmation_email_task
 from backend.services.user.types import (
+    ConfirmEmailFailure,
+    ConfirmEmailResponse,
+    ConfirmEmailSuccess,
     CreateUserFailure,
     CreateUserResponse,
     CreateUserSuccess,
     InvalidCredentials,
+    InvalidEmailConfirmationToken,
     LoginFailure,
     LoginInput,
     LoginResponse,
     LoginSuccess,
+    UserAlreadyConfirmed,
     UserAlreadyExists,
     UserCreateInput,
     UserNotConfirmed,
@@ -50,7 +62,6 @@ settings = get_settings().user
 async def create_user_resolver(
     info: Info, user_input: Annotated[UserCreateInput, argument(name="input")]
 ) -> CreateUserResponse:
-    crud = UserCRUD(model=User, session=info.context.session)
     try:
         user_data = UserCreateData(
             email=user_input.email,
@@ -59,6 +70,7 @@ async def create_user_resolver(
         )
     except ValidationError as exc:
         return CreateUserFailure(problems=from_pydantic_error(exc))
+    crud = UserCRUD(model=User, session=info.context.session)
     try:
         created_user = await create_user(user_data, crud)
     except UserAlreadyExistsError:
@@ -69,7 +81,24 @@ async def create_user_resolver(
     return CreateUserSuccess(id=created_user.id, email=created_user.email)
 
 
-async def login(
+async def confirm_email_resolver(info: Info, token: str) -> ConfirmEmailResponse:
+    crud = UserCRUD(model=User, session=info.context.session)
+    try:
+        user = await confirm_email(
+            token,
+            partial(read_paseto_token_public_v4, key=settings.auth_public_key),
+            crud,
+        )
+    except InvalidEmailConfirmationTokenError:
+        return ConfirmEmailFailure(
+            problems=[InvalidEmailConfirmationToken(token=token)]
+        )
+    except UserAlreadyConfirmedError as exc:
+        return ConfirmEmailFailure(problems=[UserAlreadyConfirmed(email=exc.email)])
+    return ConfirmEmailSuccess(id=user.id, email=user.email)
+
+
+async def login_resolver(
     info: Info, credentials_input: Annotated[LoginInput, argument(name="input")]
 ) -> LoginResponse:
     crud = UserCRUD(model=User, session=info.context.session)
@@ -77,9 +106,7 @@ async def login(
         email=credentials_input.username, password=credentials_input.password
     )
     try:
-        user = await login_user(
-            credentials, verify_and_update_password, hash_password, crud
-        )
+        user = await login(credentials, verify_and_update_password, hash_password, crud)
     except InvalidCredentialsError:
         return LoginFailure(
             problems=[InvalidCredentials(username=credentials_input.username)]
@@ -93,16 +120,16 @@ async def login(
             user_id=user.id,
             token_creator=partial(
                 create_paseto_token_public_v4,
-                key=settings.auth_private_key.get_secret_value(),
                 expiration=int(settings.access_token_lifetime.total_seconds()),
+                key=settings.auth_private_key.get_secret_value(),
             ),
         ),
         refresh_token=create_refresh_token(
             user_id=user.id,
             token_creator=partial(
                 create_paseto_token_public_v4,
-                key=settings.auth_private_key.get_secret_value(),
                 expiration=int(settings.refresh_token_lifetime.total_seconds()),
+                key=settings.auth_private_key.get_secret_value(),
             ),
         ),
         token_type="Bearer",  # nosec

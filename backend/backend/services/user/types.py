@@ -40,6 +40,40 @@ CreateUserResponse = Annotated[
 ]
 
 
+@strawberry.type
+class ConfirmEmailSuccess:
+    id: UUID
+    email: str
+
+
+@strawberry.type
+class InvalidEmailConfirmationToken(Problem):
+    message: str = "Provided token is invalid"
+    token: str
+
+
+@strawberry.type
+class UserAlreadyConfirmed(Problem):
+    message: str = "User has already been confirmed"
+    email: str
+
+
+ConfirmEmailProblem = Annotated[
+    InvalidEmailConfirmationToken | UserAlreadyConfirmed,
+    strawberry.union("ConfirmEmailProblem"),
+]
+
+
+@strawberry.type
+class ConfirmEmailFailure:
+    problems: Sequence[ConfirmEmailProblem]
+
+
+ConfirmEmailResponse = Annotated[
+    ConfirmEmailSuccess | ConfirmEmailFailure, strawberry.union("ConfirmEmailResponse")
+]
+
+
 @strawberry.input
 class LoginInput:
     username: str
