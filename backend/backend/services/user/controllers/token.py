@@ -20,11 +20,11 @@ class TokenType(Enum):
 
 
 def create_access_token(user_id: UUID, token_creator: TokenCreator) -> str:
-    return token_creator(payload={"sub": str(user_id), "type": TokenType.ACCESS})
+    return token_creator(payload={"sub": str(user_id), "type": TokenType.ACCESS.value})
 
 
 def create_refresh_token(user_id: UUID, token_creator: TokenCreator) -> str:
-    return token_creator(payload={"sub": str(user_id), "type": TokenType.REFRESH})
+    return token_creator(payload={"sub": str(user_id), "type": TokenType.REFRESH.value})
 
 
 def create_email_confirmation_token(
@@ -34,7 +34,7 @@ def create_email_confirmation_token(
         payload={
             "sub": str(user_id),
             "email": user_email,
-            "type": TokenType.EMAIL_CONFIRMATION,
+            "type": TokenType.EMAIL_CONFIRMATION.value,
         }
     )
 
