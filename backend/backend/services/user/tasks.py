@@ -12,7 +12,7 @@ from backend.libs.email.message import (
 from backend.libs.security.token import (
     create_paseto_token_public_v4,
 )
-from backend.services.user.controllers.token import (
+from backend.services.user.controllers import (
     create_email_confirmation_token,
     send_confirmation_email,
 )
@@ -43,10 +43,10 @@ def send_confirmation_email_task(user_id: UUID, user_email: str) -> None:
         user_email=user_email,
         token_creator=partial(
             create_paseto_token_public_v4,
-            key=settings.user.auth_private_key.get_secret_value(),
             expiration=int(
                 settings.user.email_confirmation_token_lifetime.total_seconds()
             ),
+            key=settings.user.auth_private_key.get_secret_value(),
         ),
     )
     send_confirmation_email(

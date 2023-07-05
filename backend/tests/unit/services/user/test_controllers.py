@@ -1,18 +1,32 @@
+from collections.abc import Mapping
 from contextlib import suppress
+from typing import Any
+from uuid import UUID
 
 import pytest
 
 from backend.libs.db.crud import NoObjectFoundError
-from backend.services.user.controllers.user import (
+from backend.libs.email.message import HTMLMessage
+from backend.libs.security.token import InvalidTokenError
+from backend.services.user.controllers import (
+    TokenType,
     authenticate,
+    confirm_email,
+    create_access_token,
+    create_email_confirmation_token,
+    create_refresh_token,
     create_user,
     delete_user,
     get_user,
-    login_user,
+    login,
+    read_email_confirmation_token,
+    send_confirmation_email,
     update_user,
 )
 from backend.services.user.exceptions import (
     InvalidCredentialsError,
+    InvalidEmailConfirmationTokenError,
+    UserAlreadyConfirmedError,
     UserAlreadyExistsError,
     UserNotConfirmedError,
     UserNotFoundError,
@@ -37,7 +51,13 @@ class UserCRUD(  # pylint: disable=abstract-method
         return User(**data.model_dump())
 
     async def read_one(self, filters: UserFilters) -> User:
-        if self.existing_user:
+        if not self.existing_user:
+            raise NoObjectFoundError
+        filters_dict = filters.model_dump(exclude_unset=True)
+        if all(
+            getattr(self.existing_user, field) == value
+            for field, value in filters_dict.items()
+        ):
             return self.existing_user
         raise NoObjectFoundError
 
@@ -147,27 +167,183 @@ async def test_delete_user() -> None:
     await delete_user(user, crud)
 
 
-def success_password_validator(*_: str) -> tuple[bool, None]:
-    return True, None
+def test_send_confirmation_email() -> None:
+    url_template = "http://test/{token}"
+    token = "test-token"
+    message_result = {}
+
+    def load_template(name: str, **kwargs: Any) -> str:
+        return f"{name} {kwargs}"
+
+    def send_email(message: HTMLMessage) -> None:
+        nonlocal message_result
+        message_result = {
+            "subject": message.subject,
+            "html_message": message.html_message,
+            "plain_message": message.plain_message,
+        }
+
+    send_confirmation_email(url_template, token, load_template, send_email)
+
+    assert message_result["subject"]
+    assert (
+        message_result["html_message"]
+        == "email-confirmation.html {'link': 'http://test/test-token'}"
+    )
+    assert "http://test/test-token" in message_result["plain_message"]
+
+
+def test_create_email_confirmation_token() -> None:
+    user_id = UUID("6d9c79d6-9641-4746-92d9-2cc9ebdca941")
+    user_email = "test@email.com"
+
+    def create_token(payload: Mapping[str, Any]) -> str:
+        return f"sub:{payload['sub']}-email:{payload['email']}-type:{payload['type']}"
+
+    token = create_email_confirmation_token(user_id, user_email, create_token)
+
+    assert token == (
+        "sub:6d9c79d6-9641-4746-92d9-2cc9ebdca941-email:test@email.com-"
+        "type:email-confirmation"
+    )
+
+
+def test_read_email_confirmation_token() -> None:
+    token = "test-token"
+
+    def read_token(_: str) -> dict[str, str]:
+        return {
+            "sub": "6d9c79d6-9641-4746-92d9-2cc9ebdca941",
+            "email": "test@email.com",
+            "type": TokenType.EMAIL_CONFIRMATION.value,
+        }
+
+    data = read_email_confirmation_token(token, read_token)
+
+    assert data.id == UUID("6d9c79d6-9641-4746-92d9-2cc9ebdca941")
+    assert data.email == "test@email.com"
+
+
+def test_read_email_confirmation_token_invalid_token() -> None:
+    token = "test-token"
+
+    def read_token(_: str) -> dict[str, str]:
+        raise InvalidTokenError
+
+    with pytest.raises(InvalidEmailConfirmationTokenError):
+        read_email_confirmation_token(token, read_token)
+
+
+def test_read_email_confirmation_token_invalid_token_type() -> None:
+    token = "test-token"
+
+    def read_token(_: str) -> dict[str, str]:
+        return {
+            "sub": "6d9c79d6-9641-4746-92d9-2cc9ebdca941",
+            "email": "test@email.com",
+            "type": "invalid-type",
+        }
+
+    with pytest.raises(InvalidEmailConfirmationTokenError):
+        read_email_confirmation_token(token, read_token)
 
 
 @pytest.mark.anyio()
-async def test_update_last_login_when_user_log_in() -> None:
-    credentials = Credentials(email="test@email.com", password="plain_password")
+async def test_confirm_email() -> None:
+    token = "test-token"
     crud = UserCRUD(
         existing_user=User(
+            id=UUID("6d9c79d6-9641-4746-92d9-2cc9ebdca941"),
             email="test@email.com",
             hashed_password="hashed_password",
-            confirmed_email=True,
-            last_login=None,
+            confirmed_email=False,
         )
     )
 
-    user = await login_user(
-        credentials, success_password_validator, lambda _: "hashed_password", crud
+    def read_token(_: str) -> dict[str, str]:
+        return {
+            "sub": "6d9c79d6-9641-4746-92d9-2cc9ebdca941",
+            "email": "test@email.com",
+            "type": TokenType.EMAIL_CONFIRMATION.value,
+        }
+
+    user = await confirm_email(token, read_token, crud)
+
+    assert user.confirmed_email is True
+
+
+@pytest.mark.anyio()
+async def test_confirm_email_user_id_not_found() -> None:
+    token = "test-token"
+    crud = UserCRUD(
+        existing_user=User(
+            id=UUID("6d9c79d6-9641-4746-92d9-2cc9ebdca941"),
+            email="test@email.com",
+            hashed_password="hashed_password",
+            confirmed_email=False,
+        )
     )
 
-    assert user.last_login
+    def read_token(_: str) -> dict[str, str]:
+        return {
+            "sub": "e85b027d-67be-48ea-a11a-40e34d57442b",
+            "email": "test@email.com",
+            "type": TokenType.EMAIL_CONFIRMATION.value,
+        }
+
+    with pytest.raises(InvalidEmailConfirmationTokenError):
+        await confirm_email(token, read_token, crud)
+
+
+@pytest.mark.anyio()
+async def test_confirm_email_user_email_not_found() -> None:
+    token = "test-token"
+    crud = UserCRUD(
+        existing_user=User(
+            id=UUID("6d9c79d6-9641-4746-92d9-2cc9ebdca941"),
+            email="test@email.com",
+            hashed_password="hashed_password",
+            confirmed_email=False,
+        )
+    )
+
+    def read_token(_: str) -> dict[str, str]:
+        return {
+            "sub": "6d9c79d6-9641-4746-92d9-2cc9ebdca941",
+            "email": "invalid@email.com",
+            "type": TokenType.EMAIL_CONFIRMATION.value,
+        }
+
+    with pytest.raises(InvalidEmailConfirmationTokenError):
+        await confirm_email(token, read_token, crud)
+
+
+@pytest.mark.anyio()
+async def test_confirm_email_user_already_confirmed() -> None:
+    token = "test-token"
+    crud = UserCRUD(
+        existing_user=User(
+            id=UUID("6d9c79d6-9641-4746-92d9-2cc9ebdca941"),
+            email="test@email.com",
+            hashed_password="hashed_password",
+            confirmed_email=True,
+        )
+    )
+
+    def read_token(_: str) -> dict[str, str]:
+        return {
+            "sub": "6d9c79d6-9641-4746-92d9-2cc9ebdca941",
+            "email": "test@email.com",
+            "type": TokenType.EMAIL_CONFIRMATION.value,
+        }
+
+    with pytest.raises(UserAlreadyConfirmedError) as exc_info:
+        await confirm_email(token, read_token, crud)
+    assert exc_info.value.email == "test@email.com"
+
+
+def success_password_validator(*_: str) -> tuple[bool, None]:
+    return True, None
 
 
 @pytest.mark.anyio()
@@ -289,3 +465,44 @@ async def test_failure_authentication_user_not_confirmed() -> None:
         await authenticate(
             credentials, success_password_validator, lambda _: "hashed_password", crud
         )
+
+
+@pytest.mark.anyio()
+async def test_update_last_login_when_user_log_in() -> None:
+    credentials = Credentials(email="test@email.com", password="plain_password")
+    crud = UserCRUD(
+        existing_user=User(
+            email="test@email.com",
+            hashed_password="hashed_password",
+            confirmed_email=True,
+            last_login=None,
+        )
+    )
+
+    user = await login(
+        credentials, success_password_validator, lambda _: "hashed_password", crud
+    )
+
+    assert user.last_login
+
+
+def test_create_access_token() -> None:
+    user_id = UUID("6d9c79d6-9641-4746-92d9-2cc9ebdca941")
+
+    def create_token(payload: Mapping[str, Any]) -> str:
+        return f"sub:{payload['sub']}-type:{payload['type']}"
+
+    token = create_access_token(user_id, create_token)
+
+    assert token == "sub:6d9c79d6-9641-4746-92d9-2cc9ebdca941-type:access"
+
+
+def test_create_refresh_token() -> None:
+    user_id = UUID("6d9c79d6-9641-4746-92d9-2cc9ebdca941")
+
+    def create_token(payload: Mapping[str, Any]) -> str:
+        return f"sub:{payload['sub']}-type:{payload['type']}"
+
+    token = create_refresh_token(user_id, create_token)
+
+    assert token == "sub:6d9c79d6-9641-4746-92d9-2cc9ebdca941-type:refresh"
