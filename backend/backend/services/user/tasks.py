@@ -9,12 +9,15 @@ from backend.libs.email.message import (
     SMTPServer,
     send_html_email,
 )
+from backend.libs.security.password import hash_password
 from backend.libs.security.token import (
     create_paseto_token_public_v4,
 )
 from backend.services.user.controllers import (
     create_email_confirmation_token,
+    create_reset_password_token,
     send_confirmation_email,
+    send_reset_password_email,
 )
 from backend.services.user.jinja import load_template
 
@@ -56,3 +59,41 @@ def send_confirmation_email_task(user_id: UUID, user_email: str) -> None:
         send_email_func=send_email_func,
     )
     logger.info("Sent confirmation email to %r", user_email)
+
+
+@celery_app.task  # type: ignore[misc]
+def send_reset_password_email_task(
+    user_id: UUID, user_email: str, user_password: str
+) -> None:
+    send_email_func = partial(
+        send_html_email,
+        participants=EmailParticipants(
+            sender=settings.email.sender, receiver=user_email
+        ),
+        smtp_server=SMTPServer(
+            host=settings.email.smtp_host,
+            port=settings.email.smtp_port,
+            user=settings.email.smtp_user,
+            password=settings.email.smtp_password.get_secret_value(),
+        ),
+    )
+
+    token = create_reset_password_token(
+        user_id=user_id,
+        user_password=user_password,
+        password_hasher=hash_password,
+        token_creator=partial(
+            create_paseto_token_public_v4,
+            expiration=int(
+                settings.user.email_confirmation_token_lifetime.total_seconds()
+            ),
+            key=settings.user.auth_private_key.get_secret_value(),
+        ),
+    )
+    send_reset_password_email(
+        url_template=settings.user.reset_password_url_template,
+        token=token,
+        template_loader=load_template,
+        send_email_func=send_email_func,
+    )
+    logger.info("Sent reset password email to %r", user_email)

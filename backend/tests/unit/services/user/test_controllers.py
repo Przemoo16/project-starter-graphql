@@ -15,12 +15,14 @@ from backend.services.user.controllers import (
     create_access_token,
     create_email_confirmation_token,
     create_refresh_token,
+    create_reset_password_token,
     create_user,
     delete_user,
     get_user,
     login,
     read_email_confirmation_token,
     send_confirmation_email,
+    send_reset_password_email,
     update_user,
 )
 from backend.services.user.exceptions import (
@@ -68,12 +70,16 @@ class UserCRUD(  # pylint: disable=abstract-method
         pass
 
 
+def get_test_password(_: str) -> str:
+    return "hashed_password"
+
+
 @pytest.mark.anyio()
 async def test_create_user() -> None:
     data = UserCreateData(
         email="test@email.com",
         password="plain_password",
-        password_hasher=lambda _: "hashed_password",
+        password_hasher=get_test_password,
     )
     crud = UserCRUD()
 
@@ -87,7 +93,7 @@ async def test_create_user_already_exists() -> None:
     data = UserCreateData(
         email="test@email.com",
         password="plain_password",
-        password_hasher=lambda _: "hashed_password",
+        password_hasher=get_test_password,
     )
     crud = UserCRUD(existing_user=User(email="test@email.com"))
 
@@ -358,7 +364,7 @@ async def test_success_authentication_without_password_hash_update() -> None:
     )
 
     user = await authenticate(
-        credentials, success_password_validator, lambda _: "hashed_password", crud
+        credentials, success_password_validator, get_test_password, crud
     )
 
     assert user.hashed_password == "hashed_password"
@@ -379,7 +385,7 @@ async def test_success_authentication_with_password_hash_update() -> None:
         return True, "new_hashed_password"
 
     user = await authenticate(
-        credentials, password_validator_update_hash, lambda _: "hashed_password", crud
+        credentials, password_validator_update_hash, get_test_password, crud
     )
 
     assert user.hashed_password == "new_hashed_password"
@@ -392,7 +398,7 @@ async def test_failure_authentication_user_not_found() -> None:
 
     with pytest.raises(InvalidCredentialsError):
         await authenticate(
-            credentials, success_password_validator, lambda _: "hashed_password", crud
+            credentials, success_password_validator, get_test_password, crud
         )
 
 
@@ -445,9 +451,7 @@ async def test_failure_authentication_invalid_password() -> None:
         return False, None
 
     with pytest.raises(InvalidCredentialsError):
-        await authenticate(
-            credentials, failure_validator, lambda _: "hashed_password", crud
-        )
+        await authenticate(credentials, failure_validator, get_test_password, crud)
 
 
 @pytest.mark.anyio()
@@ -463,7 +467,7 @@ async def test_failure_authentication_user_not_confirmed() -> None:
 
     with pytest.raises(UserNotConfirmedError):
         await authenticate(
-            credentials, success_password_validator, lambda _: "hashed_password", crud
+            credentials, success_password_validator, get_test_password, crud
         )
 
 
@@ -479,9 +483,7 @@ async def test_update_last_login_when_user_log_in() -> None:
         )
     )
 
-    user = await login(
-        credentials, success_password_validator, lambda _: "hashed_password", crud
-    )
+    user = await login(credentials, success_password_validator, get_test_password, crud)
 
     assert user.last_login
 
@@ -506,3 +508,52 @@ def test_create_refresh_token() -> None:
     token = create_refresh_token(user_id, create_token)
 
     assert token == "sub:6d9c79d6-9641-4746-92d9-2cc9ebdca941-type:refresh"
+
+
+def test_send_reset_password_email() -> None:
+    url_template = "http://test/{token}"
+    token = "test-token"
+    message_result = {}
+
+    def load_template(name: str, **kwargs: Any) -> str:
+        return f"{name} {kwargs}"
+
+    def send_email(message: HTMLMessage) -> None:
+        nonlocal message_result
+        message_result = {
+            "subject": message.subject,
+            "html_message": message.html_message,
+            "plain_message": message.plain_message,
+        }
+
+    send_reset_password_email(url_template, token, load_template, send_email)
+
+    assert message_result["subject"]
+    assert (
+        message_result["html_message"]
+        == "reset-password.html {'link': 'http://test/test-token'}"
+    )
+    assert "http://test/test-token" in message_result["plain_message"]
+
+
+def test_create_reset_password_token() -> None:
+    user_id = UUID("6d9c79d6-9641-4746-92d9-2cc9ebdca941")
+    user_password = "hashed_password"
+
+    def hash_password(_: str) -> str:
+        return "again_hashed_password"
+
+    def create_token(payload: Mapping[str, Any]) -> str:
+        return (
+            f"sub:{payload['sub']}-fingerprint:{payload['fingerprint']}-"
+            f"type:{payload['type']}"
+        )
+
+    token = create_reset_password_token(
+        user_id, user_password, hash_password, create_token
+    )
+
+    assert token == (
+        "sub:6d9c79d6-9641-4746-92d9-2cc9ebdca941-"
+        "fingerprint:again_hashed_password-type:reset-password"
+    )

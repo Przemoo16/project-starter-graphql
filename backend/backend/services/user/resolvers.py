@@ -1,3 +1,4 @@
+import logging
 from functools import partial
 from typing import Annotated
 
@@ -18,6 +19,7 @@ from backend.services.user.controllers import (
     create_access_token,
     create_refresh_token,
     create_user,
+    get_confirmed_user,
     login,
 )
 from backend.services.user.exceptions import (
@@ -26,6 +28,7 @@ from backend.services.user.exceptions import (
     UserAlreadyConfirmedError,
     UserAlreadyExistsError,
     UserNotConfirmedError,
+    UserNotFoundError,
 )
 from backend.services.user.models import User
 from backend.services.user.schemas import (
@@ -34,7 +37,10 @@ from backend.services.user.schemas import (
     UserFilters,
     UserUpdateData,
 )
-from backend.services.user.tasks import send_confirmation_email_task
+from backend.services.user.tasks import (
+    send_confirmation_email_task,
+    send_reset_password_email_task,
+)
 from backend.services.user.types import (
     ConfirmEmailFailure,
     ConfirmEmailResponse,
@@ -48,11 +54,14 @@ from backend.services.user.types import (
     LoginInput,
     LoginResponse,
     LoginSuccess,
+    ResetPasswordResponse,
     UserAlreadyConfirmed,
     UserAlreadyExists,
     UserCreateInput,
     UserNotConfirmed,
 )
+
+logger = logging.getLogger(__name__)
 
 UserCRUD = CRUD[User, UserCreateData, UserUpdateData, UserFilters]
 
@@ -134,3 +143,18 @@ async def login_resolver(
         ),
         token_type="Bearer",  # nosec
     )
+
+
+async def reset_password_resolver(info: Info, email: str) -> ResetPasswordResponse:
+    crud = UserCRUD(model=User, session=info.context.session)
+    try:
+        user = await get_confirmed_user(UserFilters(email=email), crud)
+    except UserNotFoundError:
+        logger.debug("Message has not been sent because user not found")
+    except UserNotConfirmedError:
+        logger.debug("Message has not been sent because user not confirmed")
+    else:
+        send_reset_password_email_task.delay(
+            user_id=user.id, user_email=user.email, user_password=user.hashed_password
+        )
+    return ResetPasswordResponse(email=email)

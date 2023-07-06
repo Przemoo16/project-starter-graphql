@@ -4,6 +4,10 @@ from pydantic import ValidationError
 from backend.services.user.schemas import UserCreateData, UserUpdateData
 
 
+def get_test_password(_: str) -> str:
+    return "hashed_password"
+
+
 @pytest.mark.parametrize("schema", [UserCreateData, UserUpdateData])
 def test_user_schema_invalid_email(
     schema: type[UserCreateData] | type[UserUpdateData],
@@ -12,11 +16,7 @@ def test_user_schema_invalid_email(
     password = "plain_password"
 
     with pytest.raises(ValidationError, match="email"):
-        schema(
-            email=email,
-            password=password,
-            password_hasher=lambda _: "hashed_password",
-        )
+        schema(email=email, password=password, password_hasher=get_test_password)
 
 
 @pytest.mark.parametrize("schema", [UserCreateData, UserUpdateData])
@@ -27,11 +27,7 @@ def test_user_schema_password_too_short(
     password = "p"
 
     with pytest.raises(ValidationError, match="password"):
-        schema(
-            email=email,
-            password=password,
-            password_hasher=lambda _: "hashed_password",
-        )
+        schema(email=email, password=password, password_hasher=get_test_password)
 
 
 @pytest.mark.parametrize("schema", [UserCreateData, UserUpdateData])
@@ -41,11 +37,7 @@ def test_user_schema_does_not_export_password_related_fields(
     email = "test@email.com"
     password = "plain_password"
 
-    data = schema(
-        email=email,
-        password=password,
-        password_hasher=lambda _: "hashed_password",
-    )
+    data = schema(email=email, password=password, password_hasher=get_test_password)
 
     data_dict = data.model_dump()
     assert "password_hasher" not in data_dict
@@ -59,11 +51,10 @@ def test_user_schema_hashes_password(
     email = "test@email.com"
     password = "plain_password"
 
-    data = schema(
-        email=email,
-        password=password,
-        password_hasher=lambda _: "hashed_password",
-    )
+    def hash_password(_: str) -> str:
+        return "hashed_password"
+
+    data = schema(email=email, password=password, password_hasher=hash_password)
 
     assert data.hashed_password == "hashed_password"
 
@@ -102,5 +93,5 @@ def test_user_update_schema_both_password_and_hash_password_present() -> None:
         UserUpdateData(
             password=password,
             hashed_password=hashed_password,
-            password_hasher=lambda _: "hashed_password",
+            password_hasher=get_test_password,
         )
