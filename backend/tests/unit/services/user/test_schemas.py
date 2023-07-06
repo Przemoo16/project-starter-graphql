@@ -1,7 +1,11 @@
 import pytest
 from pydantic import ValidationError
 
-from backend.services.user.schemas import UserCreateData, UserUpdateData
+from backend.services.user.schemas import (
+    SetPasswordData,
+    UserCreateData,
+    UserUpdateData,
+)
 
 
 def get_test_password(_: str) -> str:
@@ -95,3 +99,40 @@ def test_user_update_schema_both_password_and_hash_password_present() -> None:
             hashed_password=hashed_password,
             password_hasher=get_test_password,
         )
+
+
+def test_set_password_schema_password_too_short() -> None:
+    token = "test-token"
+    password = "p"
+
+    with pytest.raises(ValidationError, match="password"):
+        SetPasswordData(
+            token=token, password=password, password_hasher=get_test_password
+        )
+
+
+def test_set_password_schema_does_not_export_password_related_fields() -> None:
+    token = "test-token"
+    password = "plain_password"
+
+    data = SetPasswordData(
+        token=token, password=password, password_hasher=get_test_password
+    )
+
+    data_dict = data.model_dump()
+    assert "password_hasher" not in data_dict
+    assert "password" not in data_dict
+
+
+def test_set_password_schema_hashes_password() -> None:
+    token = "test-token"
+    password = "plain_password"
+
+    def hash_password(_: str) -> str:
+        return "hashed_password"
+
+    data = SetPasswordData(
+        token=token, password=password, password_hasher=hash_password
+    )
+
+    assert data.hashed_password == "hashed_password"

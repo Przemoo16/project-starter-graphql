@@ -24,3 +24,7 @@ class InvalidCredentialsError(Exception):
 
 class UserNotConfirmedError(Exception):
     pass
+
+
+class InvalidResetPasswordTokenError(Exception):
+    pass

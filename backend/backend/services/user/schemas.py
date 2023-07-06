@@ -73,3 +73,20 @@ class UserFilters(BaseModel):
 class Credentials:
     email: str
     password: str
+
+
+class SetPasswordData(BaseModel):
+    token: str
+    password_hasher: PasswordHasher = Field(exclude=True)
+    hashed_password: str = Field(
+        min_length=settings.user.password_min_length, alias="password"
+    )
+
+    @field_validator("hashed_password", mode="after")
+    def hash_password(  # pylint: disable=no-self-argument
+        cls,  # noqa: N805
+        plain_password: str,
+        info: FieldValidationInfo,
+    ) -> str:
+        password_hasher: PasswordHasher = info.data["password_hasher"]
+        return password_hasher(plain_password)

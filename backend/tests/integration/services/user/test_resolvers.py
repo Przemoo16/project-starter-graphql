@@ -5,7 +5,9 @@ from httpx import AsyncClient
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from tests.integration.helpers.user import (
+    create_confirmed_user,
     create_email_confirmation_token,
+    create_reset_password_token,
     create_user,
     hash_password,
 )
@@ -57,7 +59,7 @@ async def test_create_user_invalid_input(async_client: AsyncClient) -> None:
 
 @pytest.mark.anyio()
 async def test_create_user_already_exists(
-    async_client: AsyncClient, session: AsyncSession
+    session: AsyncSession, async_client: AsyncClient
 ) -> None:
     await create_user(session, email="test@email.com")
     payload = {
@@ -86,13 +88,10 @@ async def test_create_user_already_exists(
 
 @pytest.mark.anyio()
 async def test_confirm_email(
-    async_client: AsyncClient, session: AsyncSession, auth_private_key: str
+    session: AsyncSession, auth_private_key: str, async_client: AsyncClient
 ) -> None:
     user = await create_user(
-        session,
-        id=UUID("6d9c79d6-9641-4746-92d9-2cc9ebdca941"),
-        email="test@email.com",
-        confirmed_email=False,
+        session, id=UUID("6d9c79d6-9641-4746-92d9-2cc9ebdca941"), email="test@email.com"
     )
     token = create_email_confirmation_token(auth_private_key, user.id, user.email)
     payload = {
@@ -116,26 +115,20 @@ async def test_confirm_email(
 
 
 @pytest.mark.anyio()
-async def test_confirm_email_invalid_token(
-    async_client: AsyncClient, auth_private_key: str
-) -> None:
-    token = create_email_confirmation_token(
-        auth_private_key, UUID("6d9c79d6-9641-4746-92d9-2cc9ebdca941"), "test@email.com"
-    )
+async def test_confirm_email_invalid_token(async_client: AsyncClient) -> None:
     payload = {
-        "query": f"""
-            mutation {{
-              confirmEmail(token: "{token}") {{
-                ... on ConfirmEmailFailure {{
-                  problems {{
-                    ... on InvalidEmailConfirmationToken {{
+        "query": """
+            mutation {
+              confirmEmail(token: "invalid-token") {
+                ... on ConfirmEmailFailure {
+                  problems {
+                    ... on InvalidEmailConfirmationToken {
                       message
-                      token
-                    }}
-                  }}
-                }}
-              }}
-            }}
+                    }
+                  }
+                }
+              }
+            }
         """
     }
 
@@ -143,18 +136,14 @@ async def test_confirm_email_invalid_token(
 
     data = response.json()["data"]["confirmEmail"]["problems"][0]
     assert "message" in data
-    assert data["token"] == token
 
 
 @pytest.mark.anyio()
 async def test_confirm_email_already_confirmed(
-    async_client: AsyncClient, session: AsyncSession, auth_private_key: str
+    session: AsyncSession, auth_private_key: str, async_client: AsyncClient
 ) -> None:
-    user = await create_user(
-        session,
-        id=UUID("6d9c79d6-9641-4746-92d9-2cc9ebdca941"),
-        email="test@email.com",
-        confirmed_email=True,
+    user = await create_confirmed_user(
+        session, id=UUID("6d9c79d6-9641-4746-92d9-2cc9ebdca941"), email="test@email.com"
     )
     token = create_email_confirmation_token(auth_private_key, user.id, user.email)
     payload = {
@@ -182,12 +171,9 @@ async def test_confirm_email_already_confirmed(
 
 
 @pytest.mark.anyio()
-async def test_login(async_client: AsyncClient, session: AsyncSession) -> None:
-    await create_user(
-        session,
-        email="test@email.com",
-        hashed_password=hash_password("plain_password"),
-        confirmed_email=True,
+async def test_login(session: AsyncSession, async_client: AsyncClient) -> None:
+    await create_confirmed_user(
+        session, email="test@email.com", hashed_password=hash_password("plain_password")
     )
     payload = {
         "query": """
@@ -213,13 +199,10 @@ async def test_login(async_client: AsyncClient, session: AsyncSession) -> None:
 
 @pytest.mark.anyio()
 async def test_login_invalid_credentials(
-    async_client: AsyncClient, session: AsyncSession
+    session: AsyncSession, async_client: AsyncClient
 ) -> None:
-    await create_user(
-        session,
-        email="test@email.com",
-        hashed_password=hash_password("plain_password"),
-        confirmed_email=True,
+    await create_confirmed_user(
+        session, email="test@email.com", hashed_password=hash_password("plain_password")
     )
     payload = {
         "query": """
@@ -247,13 +230,10 @@ async def test_login_invalid_credentials(
 
 @pytest.mark.anyio()
 async def test_login_user_not_confirmed(
-    async_client: AsyncClient, session: AsyncSession
+    session: AsyncSession, async_client: AsyncClient
 ) -> None:
     await create_user(
-        session,
-        email="test@email.com",
-        hashed_password=hash_password("plain_password"),
-        confirmed_email=False,
+        session, email="test@email.com", hashed_password=hash_password("plain_password")
     )
     payload = {
         "query": """
@@ -263,7 +243,7 @@ async def test_login_user_not_confirmed(
                   problems {
                     ... on UserNotConfirmed {
                       message
-                      username
+                      email
                     }
                   }
                 }
@@ -276,16 +256,12 @@ async def test_login_user_not_confirmed(
 
     data = response.json()["data"]["login"]["problems"][0]
     assert "message" in data
-    assert data["username"] == "test@email.com"
+    assert data["email"] == "test@email.com"
 
 
 @pytest.mark.anyio()
-async def test_reset_password(async_client: AsyncClient, session: AsyncSession) -> None:
-    await create_user(
-        session,
-        email="test@email.com",
-        confirmed_email=True,
-    )
+async def test_reset_password(session: AsyncSession, async_client: AsyncClient) -> None:
+    await create_confirmed_user(session, email="test@email.com")
     payload = {
         "query": """
             mutation {
@@ -325,13 +301,9 @@ async def test_reset_password_user_not_exists(async_client: AsyncClient) -> None
 
 @pytest.mark.anyio()
 async def test_reset_password_user_not_confirmed(
-    async_client: AsyncClient, session: AsyncSession
+    session: AsyncSession, async_client: AsyncClient
 ) -> None:
-    await create_user(
-        session,
-        email="test@email.com",
-        confirmed_email=False,
-    )
+    await create_user(session, email="test@email.com")
     payload = {
         "query": """
             mutation {
@@ -347,3 +319,80 @@ async def test_reset_password_user_not_confirmed(
 
     data = response.json()["data"]["resetPassword"]
     assert data
+
+
+@pytest.mark.anyio()
+async def test_set_password(
+    session: AsyncSession, auth_private_key: str, async_client: AsyncClient
+) -> None:
+    user = await create_confirmed_user(session)
+    token = create_reset_password_token(auth_private_key, user.id, user.hashed_password)
+    payload = {
+        "query": f"""
+            mutation {{
+              setPassword(input: {{token: "{token}", password: "new_password"}}) {{
+                ... on SetPasswordSuccess {{
+                  message
+                }}
+              }}
+            }}
+        """
+    }
+
+    response = await async_client.post("/graphql", json=payload)
+
+    data = response.json()["data"]["setPassword"]
+    assert "message" in data
+
+
+@pytest.mark.anyio()
+async def test_set_password_invalid_input(
+    auth_private_key: str, async_client: AsyncClient
+) -> None:
+    token = create_reset_password_token(
+        auth_private_key,
+        UUID("6d9c79d6-9641-4746-92d9-2cc9ebdca941"),
+        "hashed_password",
+    )
+    payload = {
+        "query": f"""
+            mutation {{
+              setPassword(input: {{token: "{token}", password: "p"}}) {{
+                ... on SetPasswordFailure {{
+                  problems {{
+                    __typename
+                  }}
+                }}
+              }}
+            }}
+        """
+    }
+
+    response = await async_client.post("/graphql", json=payload)
+
+    data = response.json()["data"]["setPassword"]["problems"][0]
+    assert data["__typename"] == "InvalidInput"
+
+
+@pytest.mark.anyio()
+async def test_set_password_invalid_token(async_client: AsyncClient) -> None:
+    payload = {
+        "query": """
+            mutation {
+              setPassword(input: {token: "invalid-token", password: "new_password"}) {
+                ... on SetPasswordFailure {
+                  problems {
+                    ... on InvalidResetPasswordToken {
+                      message
+                    }
+                  }
+                }
+              }
+            }
+        """
+    }
+
+    response = await async_client.post("/graphql", json=payload)
+
+    data = response.json()["data"]["setPassword"]["problems"][0]
+    assert "message" in data
