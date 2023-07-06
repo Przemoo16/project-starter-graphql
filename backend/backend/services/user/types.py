@@ -49,7 +49,6 @@ class ConfirmEmailSuccess:
 @strawberry.type
 class InvalidEmailConfirmationToken(Problem):
     message: str = "Provided token is invalid"
-    token: str
 
 
 @strawberry.type
@@ -96,7 +95,7 @@ class InvalidCredentials(Problem):
 @strawberry.type
 class UserNotConfirmed(Problem):
     message: str = "User has not confirmed the email"
-    username: str
+    email: str
 
 
 LoginProblem = Annotated[
@@ -118,3 +117,34 @@ LoginResponse = Annotated[
 class ResetPasswordResponse:
     message: str = "If provided valid email, the email to reset password has been sent"
     email: str
+
+
+@strawberry.input
+class SetPasswordInput:
+    token: str
+    password: str
+
+
+@strawberry.type
+class SetPasswordSuccess:
+    message: str = "New password has been set up"
+
+
+@strawberry.type
+class InvalidResetPasswordToken(Problem):
+    message: str = "Provided token is invalid"
+
+
+SetPasswordProblem = Annotated[
+    InvalidInput | InvalidResetPasswordToken, strawberry.union("SetPasswordProblem")
+]
+
+
+@strawberry.type
+class SetPasswordFailure:
+    problems: Sequence[SetPasswordProblem]
+
+
+SetPasswordResponse = Annotated[
+    SetPasswordSuccess | SetPasswordFailure, strawberry.union("SetPasswordResponse")
+]

@@ -21,10 +21,12 @@ from backend.services.user.controllers import (
     create_user,
     get_confirmed_user,
     login,
+    set_password,
 )
 from backend.services.user.exceptions import (
     InvalidCredentialsError,
     InvalidEmailConfirmationTokenError,
+    InvalidResetPasswordTokenError,
     UserAlreadyConfirmedError,
     UserAlreadyExistsError,
     UserNotConfirmedError,
@@ -33,6 +35,7 @@ from backend.services.user.exceptions import (
 from backend.services.user.models import User
 from backend.services.user.schemas import (
     Credentials,
+    SetPasswordData,
     UserCreateData,
     UserFilters,
     UserUpdateData,
@@ -50,11 +53,16 @@ from backend.services.user.types import (
     CreateUserSuccess,
     InvalidCredentials,
     InvalidEmailConfirmationToken,
+    InvalidResetPasswordToken,
     LoginFailure,
     LoginInput,
     LoginResponse,
     LoginSuccess,
     ResetPasswordResponse,
+    SetPasswordFailure,
+    SetPasswordInput,
+    SetPasswordResponse,
+    SetPasswordSuccess,
     UserAlreadyConfirmed,
     UserAlreadyExists,
     UserCreateInput,
@@ -99,9 +107,7 @@ async def confirm_email_resolver(info: Info, token: str) -> ConfirmEmailResponse
             crud,
         )
     except InvalidEmailConfirmationTokenError:
-        return ConfirmEmailFailure(
-            problems=[InvalidEmailConfirmationToken(token=token)]
-        )
+        return ConfirmEmailFailure(problems=[InvalidEmailConfirmationToken()])
     except UserAlreadyConfirmedError as exc:
         return ConfirmEmailFailure(problems=[UserAlreadyConfirmed(email=exc.email)])
     return ConfirmEmailSuccess(id=user.id, email=user.email)
@@ -122,7 +128,7 @@ async def login_resolver(
         )
     except UserNotConfirmedError:
         return LoginFailure(
-            problems=[UserNotConfirmed(username=credentials_input.username)]
+            problems=[UserNotConfirmed(email=credentials_input.username)]
         )
     return LoginSuccess(
         access_token=create_access_token(
@@ -158,3 +164,27 @@ async def reset_password_resolver(info: Info, email: str) -> ResetPasswordRespon
             user_id=user.id, user_email=user.email, user_password=user.hashed_password
         )
     return ResetPasswordResponse(email=email)
+
+
+async def set_password_resolver(
+    info: Info, set_password_input: Annotated[SetPasswordInput, argument(name="input")]
+) -> SetPasswordResponse:
+    try:
+        set_password_data = SetPasswordData(
+            token=set_password_input.token,
+            password=set_password_input.password,
+            password_hasher=hash_password,
+        )
+    except ValidationError as exc:
+        return SetPasswordFailure(problems=from_pydantic_error(exc))
+    crud = UserCRUD(model=User, session=info.context.session)
+    try:
+        await set_password(
+            set_password_data,
+            partial(read_paseto_token_public_v4, key=settings.auth_public_key),
+            verify_and_update_password,
+            crud,
+        )
+    except InvalidResetPasswordTokenError:
+        return SetPasswordFailure(problems=[InvalidResetPasswordToken()])
+    return SetPasswordSuccess()

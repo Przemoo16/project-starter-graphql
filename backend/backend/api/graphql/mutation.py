@@ -5,12 +5,14 @@ from backend.services.user.resolvers import (
     create_user_resolver,
     login_resolver,
     reset_password_resolver,
+    set_password_resolver,
 )
 from backend.services.user.types import (
     ConfirmEmailResponse,
     CreateUserResponse,
     LoginResponse,
     ResetPasswordResponse,
+    SetPasswordResponse,
 )
 
 
@@ -24,3 +26,4 @@ class Mutation:
     reset_password: ResetPasswordResponse = strawberry.field(
         resolver=reset_password_resolver
     )
+    set_password: SetPasswordResponse = strawberry.field(resolver=set_password_resolver)

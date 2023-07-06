@@ -18,16 +18,20 @@ from backend.services.user.controllers import (
     create_reset_password_token,
     create_user,
     delete_user,
+    get_confirmed_user,
     get_user,
     login,
     read_email_confirmation_token,
+    read_reset_password_token,
     send_confirmation_email,
     send_reset_password_email,
+    set_password,
     update_user,
 )
 from backend.services.user.exceptions import (
     InvalidCredentialsError,
     InvalidEmailConfirmationTokenError,
+    InvalidResetPasswordTokenError,
     UserAlreadyConfirmedError,
     UserAlreadyExistsError,
     UserNotConfirmedError,
@@ -36,6 +40,7 @@ from backend.services.user.exceptions import (
 from backend.services.user.models import User
 from backend.services.user.schemas import (
     Credentials,
+    SetPasswordData,
     UserCreateData,
     UserFilters,
     UserUpdateData,
@@ -118,6 +123,34 @@ async def test_get_user_not_found() -> None:
 
     with pytest.raises(UserNotFoundError):
         await get_user(filters, crud)
+
+
+@pytest.mark.anyio()
+async def test_get_confirmed_user() -> None:
+    filters = UserFilters(email="test@email.com")
+    crud = UserCRUD(existing_user=User(email="test@email.com", confirmed_email=True))
+
+    user = await get_confirmed_user(filters, crud)
+
+    assert user
+
+
+@pytest.mark.anyio()
+async def test_get_not_confirmed_user_not_found() -> None:
+    filters = UserFilters(email="test@email.com")
+    crud = UserCRUD()
+
+    with pytest.raises(UserNotFoundError):
+        await get_confirmed_user(filters, crud)
+
+
+@pytest.mark.anyio()
+async def test_get_not_confirmed_user() -> None:
+    filters = UserFilters(email="test@email.com")
+    crud = UserCRUD(existing_user=User(email="test@email.com", confirmed_email=False))
+
+    with pytest.raises(UserNotConfirmedError):
+        await get_confirmed_user(filters, crud)
 
 
 @pytest.mark.anyio()
@@ -261,7 +294,6 @@ async def test_confirm_email() -> None:
         existing_user=User(
             id=UUID("6d9c79d6-9641-4746-92d9-2cc9ebdca941"),
             email="test@email.com",
-            hashed_password="hashed_password",
             confirmed_email=False,
         )
     )
@@ -285,7 +317,6 @@ async def test_confirm_email_user_id_not_found() -> None:
         existing_user=User(
             id=UUID("6d9c79d6-9641-4746-92d9-2cc9ebdca941"),
             email="test@email.com",
-            hashed_password="hashed_password",
             confirmed_email=False,
         )
     )
@@ -308,7 +339,6 @@ async def test_confirm_email_user_email_not_found() -> None:
         existing_user=User(
             id=UUID("6d9c79d6-9641-4746-92d9-2cc9ebdca941"),
             email="test@email.com",
-            hashed_password="hashed_password",
             confirmed_email=False,
         )
     )
@@ -331,7 +361,6 @@ async def test_confirm_email_user_already_confirmed() -> None:
         existing_user=User(
             id=UUID("6d9c79d6-9641-4746-92d9-2cc9ebdca941"),
             email="test@email.com",
-            hashed_password="hashed_password",
             confirmed_email=True,
         )
     )
@@ -407,11 +436,7 @@ async def test_failure_authentication_user_not_found() -> None:
     ("user", "hasher_called"),
     [
         (
-            User(
-                email="test@email.com",
-                hashed_password="hashed_password",
-                confirmed_email=True,
-            ),
+            User(email="test@email.com", confirmed_email=True),
             False,
         ),
         (None, True),
@@ -425,13 +450,13 @@ async def test_authentication_calling_password_hasher(
 
     hash_function_called = False
 
-    def hash_func(_: str) -> str:
+    def hash_password(_: str) -> str:
         nonlocal hash_function_called
         hash_function_called = True
         return "hashed_password"
 
     with suppress(InvalidCredentialsError):
-        await authenticate(credentials, success_password_validator, hash_func, crud)
+        await authenticate(credentials, success_password_validator, hash_password, crud)
 
     assert hash_function_called == hasher_called
 
@@ -439,13 +464,7 @@ async def test_authentication_calling_password_hasher(
 @pytest.mark.anyio()
 async def test_failure_authentication_invalid_password() -> None:
     credentials = Credentials(email="test@email.com", password="plain_password")
-    crud = UserCRUD(
-        existing_user=User(
-            email="test@email.com",
-            hashed_password="hashed_password",
-            confirmed_email=True,
-        )
-    )
+    crud = UserCRUD(existing_user=User(email="test@email.com", confirmed_email=True))
 
     def failure_validator(*_: str) -> tuple[bool, None]:
         return False, None
@@ -457,13 +476,7 @@ async def test_failure_authentication_invalid_password() -> None:
 @pytest.mark.anyio()
 async def test_failure_authentication_user_not_confirmed() -> None:
     credentials = Credentials(email="test@email.com", password="plain_password")
-    crud = UserCRUD(
-        existing_user=User(
-            email="test@email.com",
-            hashed_password="hashed_password",
-            confirmed_email=False,
-        )
-    )
+    crud = UserCRUD(existing_user=User(email="test@email.com", confirmed_email=False))
 
     with pytest.raises(UserNotConfirmedError):
         await authenticate(
@@ -476,10 +489,7 @@ async def test_update_last_login_when_user_log_in() -> None:
     credentials = Credentials(email="test@email.com", password="plain_password")
     crud = UserCRUD(
         existing_user=User(
-            email="test@email.com",
-            hashed_password="hashed_password",
-            confirmed_email=True,
-            last_login=None,
+            email="test@email.com", confirmed_email=True, last_login=None
         )
     )
 
@@ -557,3 +567,142 @@ def test_create_reset_password_token() -> None:
         "sub:6d9c79d6-9641-4746-92d9-2cc9ebdca941-"
         "fingerprint:again_hashed_password-type:reset-password"
     )
+
+
+def test_read_reset_password_token() -> None:
+    token = "test-token"
+
+    def read_token(_: str) -> dict[str, str]:
+        return {
+            "sub": "6d9c79d6-9641-4746-92d9-2cc9ebdca941",
+            "fingerprint": "test-fingerprint",
+            "type": TokenType.RESET_PASSWORD.value,
+        }
+
+    data = read_reset_password_token(token, read_token)
+
+    assert data.id == UUID("6d9c79d6-9641-4746-92d9-2cc9ebdca941")
+    assert data.fingerprint == "test-fingerprint"
+
+
+def test_read_reset_password_token_invalid_token() -> None:
+    token = "test-token"
+
+    def read_token(_: str) -> dict[str, str]:
+        raise InvalidTokenError
+
+    with pytest.raises(InvalidResetPasswordTokenError):
+        read_reset_password_token(token, read_token)
+
+
+def test_read_reset_password_token_invalid_token_type() -> None:
+    token = "test-token"
+
+    def read_token(_: str) -> dict[str, str]:
+        return {
+            "sub": "6d9c79d6-9641-4746-92d9-2cc9ebdca941",
+            "fingerprint": "test-fingerprint",
+            "type": "invalid-type",
+        }
+
+    with pytest.raises(InvalidResetPasswordTokenError):
+        read_reset_password_token(token, read_token)
+
+
+@pytest.mark.anyio()
+async def test_set_password() -> None:
+    def hash_password(_: str) -> str:
+        return "new_hashed_password"
+
+    data = SetPasswordData(
+        token="test-token",
+        password="new_password",
+        password_hasher=hash_password,
+    )
+    crud = UserCRUD(
+        existing_user=User(
+            id=UUID("6d9c79d6-9641-4746-92d9-2cc9ebdca941"), confirmed_email=True
+        )
+    )
+
+    def read_token(_: str) -> dict[str, str]:
+        return {
+            "sub": "6d9c79d6-9641-4746-92d9-2cc9ebdca941",
+            "fingerprint": "test-fingerprint",
+            "type": TokenType.RESET_PASSWORD.value,
+        }
+
+    user = await set_password(data, read_token, success_password_validator, crud)
+
+    assert user.hashed_password == "new_hashed_password"
+
+
+@pytest.mark.anyio()
+async def test_set_password_user_not_found() -> None:
+    data = SetPasswordData(
+        token="test-token",
+        password="new_password",
+        password_hasher=get_test_password,
+    )
+    crud = UserCRUD()
+
+    def read_token(_: str) -> dict[str, str]:
+        return {
+            "sub": "6d9c79d6-9641-4746-92d9-2cc9ebdca941",
+            "fingerprint": "test-fingerprint",
+            "type": TokenType.RESET_PASSWORD.value,
+        }
+
+    with pytest.raises(InvalidResetPasswordTokenError):
+        await set_password(data, read_token, success_password_validator, crud)
+
+
+@pytest.mark.anyio()
+async def test_set_password_user_not_confirmed() -> None:
+    data = SetPasswordData(
+        token="test-token",
+        password="new_password",
+        password_hasher=get_test_password,
+    )
+    crud = UserCRUD(
+        existing_user=User(
+            id=UUID("6d9c79d6-9641-4746-92d9-2cc9ebdca941"), confirmed_email=False
+        )
+    )
+
+    def read_token(_: str) -> dict[str, str]:
+        return {
+            "sub": "6d9c79d6-9641-4746-92d9-2cc9ebdca941",
+            "fingerprint": "test-fingerprint",
+            "type": TokenType.RESET_PASSWORD.value,
+        }
+
+    with pytest.raises(InvalidResetPasswordTokenError):
+        await set_password(data, read_token, success_password_validator, crud)
+
+
+@pytest.mark.anyio()
+async def test_set_password_invalid_fingerprint() -> None:
+    data = SetPasswordData(
+        token="test-token",
+        password="new_password",
+        password_hasher=get_test_password,
+    )
+    crud = UserCRUD(
+        existing_user=User(
+            id=UUID("6d9c79d6-9641-4746-92d9-2cc9ebdca941"), confirmed_email=True
+        )
+    )
+
+    def read_token(_: str) -> dict[str, str]:
+        return {
+            "sub": "6d9c79d6-9641-4746-92d9-2cc9ebdca941",
+            "fingerprint": "test-fingerprint",
+            "type": TokenType.RESET_PASSWORD.value,
+        }
+
+    def failure_validator(*_: str) -> tuple[bool, None]:
+        return False, None
+
+    with pytest.raises(InvalidResetPasswordTokenError):
+        await set_password(data, read_token, failure_validator, crud)

@@ -14,6 +14,7 @@ from backend.libs.security.token import InvalidTokenError
 from backend.services.user.exceptions import (
     InvalidCredentialsError,
     InvalidEmailConfirmationTokenError,
+    InvalidResetPasswordTokenError,
     UserAlreadyConfirmedError,
     UserAlreadyExistsError,
     UserNotConfirmedError,
@@ -22,6 +23,7 @@ from backend.services.user.exceptions import (
 from backend.services.user.models import User
 from backend.services.user.schemas import (
     Credentials,
+    SetPasswordData,
     UserCreateData,
     UserFilters,
     UserUpdateData,
@@ -135,12 +137,11 @@ def read_email_confirmation_token(
     try:
         data = token_reader(token)
     except InvalidTokenError as exc:
-        logger.debug("The %r token is invalid", token)
+        logger.debug("The token is invalid")
         raise InvalidEmailConfirmationTokenError from exc
     if data["type"] != TokenType.EMAIL_CONFIRMATION.value:
         logger.debug(
-            "The %r token is not an email confirmation token, actual type: %r",
-            token,
+            "The token is not an email confirmation token, actual type: %r",
             data["type"],
         )
         raise InvalidEmailConfirmationTokenError
@@ -150,10 +151,15 @@ def read_email_confirmation_token(
 async def confirm_email(
     token: str, token_reader: TokenReader, crud: UserCRUDProtocol
 ) -> User:
-    data = read_email_confirmation_token(token, token_reader)
+    token_data = read_email_confirmation_token(token, token_reader)
     try:
-        user = await crud.read_one(UserFilters(id=data.id, email=data.email))
+        user = await crud.read_one(
+            UserFilters(id=token_data.id, email=token_data.email)
+        )
     except NoObjectFoundError as exc:
+        logger.debug(
+            "User with id %r and email %r not found", token_data.id, token_data.email
+        )
         raise InvalidEmailConfirmationTokenError from exc
     if user.confirmed_email:
         raise UserAlreadyConfirmedError(email=user.email)
@@ -238,4 +244,51 @@ def create_reset_password_token(
             "fingerprint": password_hasher(user_password),
             "type": TokenType.RESET_PASSWORD.value,
         }
+    )
+
+
+@dataclass
+class ResetPasswordTokenData:
+    id: UUID
+    fingerprint: str
+
+
+def read_reset_password_token(
+    token: str, token_reader: TokenReader
+) -> ResetPasswordTokenData:
+    try:
+        data = token_reader(token)
+    except InvalidTokenError as exc:
+        logger.debug("The token is invalid")
+        raise InvalidResetPasswordTokenError from exc
+    if data["type"] != TokenType.RESET_PASSWORD.value:
+        logger.debug(
+            "The token is not a reset password token, actual type: %r",
+            data["type"],
+        )
+        raise InvalidResetPasswordTokenError
+    return ResetPasswordTokenData(id=UUID(data["sub"]), fingerprint=data["fingerprint"])
+
+
+async def set_password(
+    data: SetPasswordData,
+    token_reader: TokenReader,
+    password_validator: PasswordValidator,
+    crud: UserCRUDProtocol,
+) -> User:
+    token_data = read_reset_password_token(data.token, token_reader)
+    try:
+        user = await crud.read_one(UserFilters(id=token_data.id))
+    except NoObjectFoundError as exc:
+        logger.debug("User with id %r not found", token_data.id)
+        raise InvalidResetPasswordTokenError from exc
+    if not user.confirmed_email:
+        logger.debug("User %r not confirmed", user.email)
+        raise InvalidResetPasswordTokenError
+    is_valid, _ = password_validator(user.hashed_password, token_data.fingerprint)
+    if not is_valid:
+        logger.debug("The token has invalid fingerprint")
+        raise InvalidResetPasswordTokenError
+    return await crud.update_and_refresh(
+        user, UserUpdateData(hashed_password=data.hashed_password)
     )
