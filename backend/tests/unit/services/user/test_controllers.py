@@ -45,6 +45,10 @@ from backend.services.user.schemas import (
     UserFilters,
     UserUpdateData,
 )
+from tests.unit.helpers.user import (
+    create_confirmed_user as create_confirmed_user_helper,
+)
+from tests.unit.helpers.user import create_user as create_user_helper
 from tests.unit.stubs.crud.base import CRUDStub
 
 
@@ -55,7 +59,7 @@ class UserCRUD(  # pylint: disable=abstract-method
         self.existing_user = existing_user
 
     async def create_and_refresh(self, data: UserCreateData) -> User:
-        return User(**data.model_dump())
+        return create_user_helper(**data.model_dump())
 
     async def read_one(self, filters: UserFilters) -> User:
         if not self.existing_user:
@@ -69,7 +73,7 @@ class UserCRUD(  # pylint: disable=abstract-method
         raise NoObjectFoundError
 
     async def update_and_refresh(self, obj: User, data: UserUpdateData) -> User:
-        return User(**data.model_dump(exclude_unset=True))
+        return create_user_helper(**data.model_dump(exclude_unset=True))
 
     async def delete(self, obj: User) -> None:
         pass
@@ -100,7 +104,7 @@ async def test_create_user_already_exists() -> None:
         password="plain_password",
         password_hasher=get_test_password,
     )
-    crud = UserCRUD(existing_user=User(email="test@email.com"))
+    crud = UserCRUD(existing_user=create_user_helper(email="test@email.com"))
 
     with pytest.raises(UserAlreadyExistsError):
         await create_user(data, crud)
@@ -109,7 +113,7 @@ async def test_create_user_already_exists() -> None:
 @pytest.mark.anyio()
 async def test_get_user() -> None:
     filters = UserFilters(email="test@email.com")
-    crud = UserCRUD(existing_user=User(email="test@email.com"))
+    crud = UserCRUD(existing_user=create_user_helper(email="test@email.com"))
 
     user = await get_user(filters, crud)
 
@@ -128,7 +132,7 @@ async def test_get_user_not_found() -> None:
 @pytest.mark.anyio()
 async def test_get_confirmed_user() -> None:
     filters = UserFilters(email="test@email.com")
-    crud = UserCRUD(existing_user=User(email="test@email.com", confirmed_email=True))
+    crud = UserCRUD(existing_user=create_confirmed_user_helper(email="test@email.com"))
 
     user = await get_confirmed_user(filters, crud)
 
@@ -147,7 +151,7 @@ async def test_get_not_confirmed_user_not_found() -> None:
 @pytest.mark.anyio()
 async def test_get_not_confirmed_user() -> None:
     filters = UserFilters(email="test@email.com")
-    crud = UserCRUD(existing_user=User(email="test@email.com", confirmed_email=False))
+    crud = UserCRUD(existing_user=create_user_helper(email="test@email.com"))
 
     with pytest.raises(UserNotConfirmedError):
         await get_confirmed_user(filters, crud)
@@ -156,7 +160,7 @@ async def test_get_not_confirmed_user() -> None:
 @pytest.mark.anyio()
 async def test_update_user() -> None:
     data = UserUpdateData(confirmed_email=True)
-    user = User(confirmed_email=False)
+    user = create_user_helper(confirmed_email=False)
     crud = UserCRUD()
 
     updated_user = await update_user(user, data, crud)
@@ -167,7 +171,7 @@ async def test_update_user() -> None:
 @pytest.mark.anyio()
 async def test_update_user_email() -> None:
     data = UserUpdateData(email="updated@email.com")
-    user = User(email="test@email.com")
+    user = create_user_helper(email="test@email.com")
     crud = UserCRUD()
 
     updated_user = await update_user(user, data, crud)
@@ -179,7 +183,7 @@ async def test_update_user_email() -> None:
 @pytest.mark.anyio()
 async def test_update_user_email_the_same_email_provided() -> None:
     data = UserUpdateData(email="test@email.com")
-    user = User(email="test@email.com")
+    user = create_user_helper(email="test@email.com")
     crud = UserCRUD()
 
     updated_user = await update_user(user, data, crud)
@@ -191,8 +195,8 @@ async def test_update_user_email_the_same_email_provided() -> None:
 @pytest.mark.anyio()
 async def test_update_user_email_already_exists() -> None:
     data = UserUpdateData(email="updated@email.com")
-    user = User(email="test@email.com")
-    crud = UserCRUD(existing_user=User(email="updated@email.com"))
+    user = create_user_helper(email="test@email.com")
+    crud = UserCRUD(existing_user=create_user_helper(email="updated@email.com"))
 
     with pytest.raises(UserAlreadyExistsError):
         await update_user(user, data, crud)
@@ -200,7 +204,7 @@ async def test_update_user_email_already_exists() -> None:
 
 @pytest.mark.anyio()
 async def test_delete_user() -> None:
-    user = User()
+    user = create_user_helper()
     crud = UserCRUD()
 
     await delete_user(user, crud)
@@ -291,7 +295,7 @@ def test_read_email_confirmation_token_invalid_token_type() -> None:
 async def test_confirm_email() -> None:
     token = "test-token"
     crud = UserCRUD(
-        existing_user=User(
+        existing_user=create_user_helper(
             id=UUID("6d9c79d6-9641-4746-92d9-2cc9ebdca941"),
             email="test@email.com",
             confirmed_email=False,
@@ -314,10 +318,8 @@ async def test_confirm_email() -> None:
 async def test_confirm_email_user_id_not_found() -> None:
     token = "test-token"
     crud = UserCRUD(
-        existing_user=User(
-            id=UUID("6d9c79d6-9641-4746-92d9-2cc9ebdca941"),
-            email="test@email.com",
-            confirmed_email=False,
+        existing_user=create_user_helper(
+            id=UUID("6d9c79d6-9641-4746-92d9-2cc9ebdca941"), email="test@email.com"
         )
     )
 
@@ -336,10 +338,9 @@ async def test_confirm_email_user_id_not_found() -> None:
 async def test_confirm_email_user_email_not_found() -> None:
     token = "test-token"
     crud = UserCRUD(
-        existing_user=User(
+        existing_user=create_user_helper(
             id=UUID("6d9c79d6-9641-4746-92d9-2cc9ebdca941"),
             email="test@email.com",
-            confirmed_email=False,
         )
     )
 
@@ -358,10 +359,8 @@ async def test_confirm_email_user_email_not_found() -> None:
 async def test_confirm_email_user_already_confirmed() -> None:
     token = "test-token"
     crud = UserCRUD(
-        existing_user=User(
-            id=UUID("6d9c79d6-9641-4746-92d9-2cc9ebdca941"),
-            email="test@email.com",
-            confirmed_email=True,
+        existing_user=create_confirmed_user_helper(
+            id=UUID("6d9c79d6-9641-4746-92d9-2cc9ebdca941"), email="test@email.com"
         )
     )
 
@@ -385,10 +384,8 @@ def success_password_validator(*_: str) -> tuple[bool, None]:
 async def test_success_authentication_without_password_hash_update() -> None:
     credentials = Credentials(email="test@email.com", password="plain_password")
     crud = UserCRUD(
-        existing_user=User(
-            email="test@email.com",
-            hashed_password="hashed_password",
-            confirmed_email=True,
+        existing_user=create_confirmed_user_helper(
+            email="test@email.com", hashed_password="hashed_password"
         )
     )
 
@@ -403,10 +400,8 @@ async def test_success_authentication_without_password_hash_update() -> None:
 async def test_success_authentication_with_password_hash_update() -> None:
     credentials = Credentials(email="test@email.com", password="plain_password")
     crud = UserCRUD(
-        existing_user=User(
-            email="test@email.com",
-            hashed_password="hashed_password",
-            confirmed_email=True,
+        existing_user=create_confirmed_user_helper(
+            email="test@email.com", hashed_password="hashed_password"
         )
     )
 
@@ -436,7 +431,7 @@ async def test_failure_authentication_user_not_found() -> None:
     ("user", "hasher_called"),
     [
         (
-            User(email="test@email.com", confirmed_email=True),
+            create_confirmed_user_helper(email="test@email.com"),
             False,
         ),
         (None, True),
@@ -464,7 +459,7 @@ async def test_authentication_calling_password_hasher(
 @pytest.mark.anyio()
 async def test_failure_authentication_invalid_password() -> None:
     credentials = Credentials(email="test@email.com", password="plain_password")
-    crud = UserCRUD(existing_user=User(email="test@email.com", confirmed_email=True))
+    crud = UserCRUD(existing_user=create_confirmed_user_helper(email="test@email.com"))
 
     def failure_validator(*_: str) -> tuple[bool, None]:
         return False, None
@@ -476,7 +471,7 @@ async def test_failure_authentication_invalid_password() -> None:
 @pytest.mark.anyio()
 async def test_failure_authentication_user_not_confirmed() -> None:
     credentials = Credentials(email="test@email.com", password="plain_password")
-    crud = UserCRUD(existing_user=User(email="test@email.com", confirmed_email=False))
+    crud = UserCRUD(existing_user=create_user_helper(email="test@email.com"))
 
     with pytest.raises(UserNotConfirmedError):
         await authenticate(
@@ -488,8 +483,8 @@ async def test_failure_authentication_user_not_confirmed() -> None:
 async def test_update_last_login_when_user_log_in() -> None:
     credentials = Credentials(email="test@email.com", password="plain_password")
     crud = UserCRUD(
-        existing_user=User(
-            email="test@email.com", confirmed_email=True, last_login=None
+        existing_user=create_confirmed_user_helper(
+            email="test@email.com", last_login=None
         )
     )
 
@@ -620,8 +615,8 @@ async def test_set_password() -> None:
         password_hasher=hash_password,
     )
     crud = UserCRUD(
-        existing_user=User(
-            id=UUID("6d9c79d6-9641-4746-92d9-2cc9ebdca941"), confirmed_email=True
+        existing_user=create_confirmed_user_helper(
+            id=UUID("6d9c79d6-9641-4746-92d9-2cc9ebdca941")
         )
     )
 
@@ -665,8 +660,8 @@ async def test_set_password_user_not_confirmed() -> None:
         password_hasher=get_test_password,
     )
     crud = UserCRUD(
-        existing_user=User(
-            id=UUID("6d9c79d6-9641-4746-92d9-2cc9ebdca941"), confirmed_email=False
+        existing_user=create_user_helper(
+            id=UUID("6d9c79d6-9641-4746-92d9-2cc9ebdca941")
         )
     )
 
@@ -689,8 +684,8 @@ async def test_set_password_invalid_fingerprint() -> None:
         password_hasher=get_test_password,
     )
     crud = UserCRUD(
-        existing_user=User(
-            id=UUID("6d9c79d6-9641-4746-92d9-2cc9ebdca941"), confirmed_email=True
+        existing_user=create_confirmed_user_helper(
+            id=UUID("6d9c79d6-9641-4746-92d9-2cc9ebdca941")
         )
     )
 
