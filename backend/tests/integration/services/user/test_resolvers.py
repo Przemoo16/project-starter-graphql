@@ -277,3 +277,73 @@ async def test_login_user_not_confirmed(
     data = response.json()["data"]["login"]["problems"][0]
     assert "message" in data
     assert data["username"] == "test@email.com"
+
+
+@pytest.mark.anyio()
+async def test_reset_password(async_client: AsyncClient, session: AsyncSession) -> None:
+    await create_user(
+        session,
+        email="test@email.com",
+        confirmed_email=True,
+    )
+    payload = {
+        "query": """
+            mutation {
+              resetPassword(email: "test@email.com") {
+                message
+                email
+              }
+            }
+        """
+    }
+
+    response = await async_client.post("/graphql", json=payload)
+
+    data = response.json()["data"]["resetPassword"]
+    assert "message" in data
+    assert data["email"] == "test@email.com"
+
+
+@pytest.mark.anyio()
+async def test_reset_password_user_not_exists(async_client: AsyncClient) -> None:
+    payload = {
+        "query": """
+            mutation {
+              resetPassword(email: "test@email.com") {
+                message
+                email
+              }
+            }
+        """
+    }
+
+    response = await async_client.post("/graphql", json=payload)
+
+    data = response.json()["data"]["resetPassword"]
+    assert data
+
+
+@pytest.mark.anyio()
+async def test_reset_password_user_not_confirmed(
+    async_client: AsyncClient, session: AsyncSession
+) -> None:
+    await create_user(
+        session,
+        email="test@email.com",
+        confirmed_email=False,
+    )
+    payload = {
+        "query": """
+            mutation {
+              resetPassword(email: "test@email.com") {
+                message
+                email
+              }
+            }
+        """
+    }
+
+    response = await async_client.post("/graphql", json=payload)
+
+    data = response.json()["data"]["resetPassword"]
+    assert data

@@ -112,3 +112,9 @@ class LoginFailure:
 LoginResponse = Annotated[
     LoginSuccess | LoginFailure, strawberry.union("LoginResponse")
 ]
+
+
+@strawberry.type
+class ResetPasswordResponse:
+    message: str = "If provided valid email, the email to reset password has been sent"
+    email: str
