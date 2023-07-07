@@ -1,6 +1,5 @@
 from collections.abc import Mapping
 from contextlib import suppress
-from typing import Any
 from uuid import UUID
 
 import pytest
@@ -19,11 +18,7 @@ from backend.services.user.models import User
 from backend.services.user.schemas import (
     Credentials,
 )
-from tests.unit.helpers.user import UserCRUD
-from tests.unit.helpers.user import (
-    create_confirmed_user as create_confirmed_user_helper,
-)
-from tests.unit.helpers.user import create_user as create_user_helper
+from tests.unit.helpers.user import UserCRUD, create_confirmed_user, create_user
 
 
 def success_password_validator(*_: str) -> tuple[bool, None]:
@@ -38,9 +33,7 @@ def get_test_password(_: str) -> str:
 async def test_update_last_login_when_user_log_in() -> None:
     credentials = Credentials(email="test@email.com", password="plain_password")
     crud = UserCRUD(
-        existing_user=create_confirmed_user_helper(
-            email="test@email.com", last_login=None
-        )
+        existing_user=create_confirmed_user(email="test@email.com", last_login=None)
     )
 
     user = await login(credentials, success_password_validator, get_test_password, crud)
@@ -52,7 +45,7 @@ async def test_update_last_login_when_user_log_in() -> None:
 async def test_success_authentication_without_password_hash_update() -> None:
     credentials = Credentials(email="test@email.com", password="plain_password")
     crud = UserCRUD(
-        existing_user=create_confirmed_user_helper(
+        existing_user=create_confirmed_user(
             email="test@email.com", hashed_password="hashed_password"
         )
     )
@@ -68,7 +61,7 @@ async def test_success_authentication_without_password_hash_update() -> None:
 async def test_success_authentication_with_password_hash_update() -> None:
     credentials = Credentials(email="test@email.com", password="plain_password")
     crud = UserCRUD(
-        existing_user=create_confirmed_user_helper(
+        existing_user=create_confirmed_user(
             email="test@email.com", hashed_password="hashed_password"
         )
     )
@@ -99,7 +92,7 @@ async def test_failure_authentication_user_not_found() -> None:
     ("user", "hasher_called"),
     [
         (
-            create_confirmed_user_helper(email="test@email.com"),
+            create_confirmed_user(email="test@email.com"),
             False,
         ),
         (None, True),
@@ -127,7 +120,7 @@ async def test_authentication_calling_password_hasher(
 @pytest.mark.anyio()
 async def test_failure_authentication_invalid_password() -> None:
     credentials = Credentials(email="test@email.com", password="plain_password")
-    crud = UserCRUD(existing_user=create_confirmed_user_helper(email="test@email.com"))
+    crud = UserCRUD(existing_user=create_confirmed_user(email="test@email.com"))
 
     def failure_validator(*_: str) -> tuple[bool, None]:
         return False, None
@@ -139,7 +132,7 @@ async def test_failure_authentication_invalid_password() -> None:
 @pytest.mark.anyio()
 async def test_failure_authentication_user_not_confirmed() -> None:
     credentials = Credentials(email="test@email.com", password="plain_password")
-    crud = UserCRUD(existing_user=create_user_helper(email="test@email.com"))
+    crud = UserCRUD(existing_user=create_user(email="test@email.com"))
 
     with pytest.raises(UserNotConfirmedError):
         await authenticate(
@@ -150,7 +143,7 @@ async def test_failure_authentication_user_not_confirmed() -> None:
 def test_create_access_token() -> None:
     user_id = UUID("6d9c79d6-9641-4746-92d9-2cc9ebdca941")
 
-    def create_token(payload: Mapping[str, Any]) -> str:
+    def create_token(payload: Mapping[str, str]) -> str:
         return f"sub:{payload['sub']}-type:{payload['type']}"
 
     token = create_access_token(user_id, create_token)
@@ -161,7 +154,7 @@ def test_create_access_token() -> None:
 def test_create_refresh_token() -> None:
     user_id = UUID("6d9c79d6-9641-4746-92d9-2cc9ebdca941")
 
-    def create_token(payload: Mapping[str, Any]) -> str:
+    def create_token(payload: Mapping[str, str]) -> str:
         return f"sub:{payload['sub']}-type:{payload['type']}"
 
     token = create_refresh_token(user_id, create_token)
