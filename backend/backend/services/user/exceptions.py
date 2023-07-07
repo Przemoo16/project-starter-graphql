@@ -9,6 +9,10 @@ class UserNotFoundError(Exception):
     pass
 
 
+class UserNotConfirmedError(Exception):
+    pass
+
+
 class InvalidEmailConfirmationTokenError(Exception):
     pass
 
@@ -19,10 +23,6 @@ class UserAlreadyConfirmedError(Exception):
 
 
 class InvalidCredentialsError(Exception):
-    pass
-
-
-class UserNotConfirmedError(Exception):
     pass
 
 
