@@ -14,6 +14,11 @@ from backend.libs.security.token import (
     create_paseto_token_public_v4,
     read_paseto_token_public_v4,
 )
+from backend.services.user.controllers.auth import (
+    create_access_token,
+    create_refresh_token,
+    login,
+)
 from backend.services.user.controllers.user import (
     create_user,
     get_confirmed_user,
@@ -41,9 +46,6 @@ from backend.services.user.tasks import (
 )
 from backend.services.user.tmp_controllers import (
     confirm_email,
-    create_access_token,
-    create_refresh_token,
-    login,
     set_password,
 )
 from backend.services.user.types import (
