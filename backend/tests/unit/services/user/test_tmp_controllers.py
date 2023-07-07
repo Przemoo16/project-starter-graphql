@@ -5,10 +5,21 @@ from uuid import UUID
 
 import pytest
 
-from backend.libs.db.crud import NoObjectFoundError
 from backend.libs.email.message import HTMLMessage
 from backend.libs.security.token import InvalidTokenError
-from backend.services.user.controllers import (
+from backend.services.user.exceptions import (
+    InvalidCredentialsError,
+    InvalidEmailConfirmationTokenError,
+    InvalidResetPasswordTokenError,
+    UserAlreadyConfirmedError,
+    UserNotConfirmedError,
+)
+from backend.services.user.models import User
+from backend.services.user.schemas import (
+    Credentials,
+    SetPasswordData,
+)
+from backend.services.user.tmp_controllers import (
     TokenType,
     authenticate,
     confirm_email,
@@ -16,198 +27,22 @@ from backend.services.user.controllers import (
     create_email_confirmation_token,
     create_refresh_token,
     create_reset_password_token,
-    create_user,
-    delete_user,
-    get_confirmed_user,
-    get_user,
     login,
     read_email_confirmation_token,
     read_reset_password_token,
     send_confirmation_email,
     send_reset_password_email,
     set_password,
-    update_user,
 )
-from backend.services.user.exceptions import (
-    InvalidCredentialsError,
-    InvalidEmailConfirmationTokenError,
-    InvalidResetPasswordTokenError,
-    UserAlreadyConfirmedError,
-    UserAlreadyExistsError,
-    UserNotConfirmedError,
-    UserNotFoundError,
-)
-from backend.services.user.models import User
-from backend.services.user.schemas import (
-    Credentials,
-    SetPasswordData,
-    UserCreateData,
-    UserFilters,
-    UserUpdateData,
-)
+from tests.unit.helpers.user import UserCRUD
 from tests.unit.helpers.user import (
     create_confirmed_user as create_confirmed_user_helper,
 )
 from tests.unit.helpers.user import create_user as create_user_helper
-from tests.unit.stubs.crud.base import CRUDStub
-
-
-class UserCRUD(  # pylint: disable=abstract-method
-    CRUDStub[User, UserCreateData, UserUpdateData, UserFilters]
-):
-    def __init__(self, existing_user: User | None = None):
-        self.existing_user = existing_user
-
-    async def create_and_refresh(self, data: UserCreateData) -> User:
-        return create_user_helper(**data.model_dump())
-
-    async def read_one(self, filters: UserFilters) -> User:
-        if not self.existing_user:
-            raise NoObjectFoundError
-        filters_dict = filters.model_dump(exclude_unset=True)
-        if all(
-            getattr(self.existing_user, field) == value
-            for field, value in filters_dict.items()
-        ):
-            return self.existing_user
-        raise NoObjectFoundError
-
-    async def update_and_refresh(self, obj: User, data: UserUpdateData) -> User:
-        return create_user_helper(**data.model_dump(exclude_unset=True))
-
-    async def delete(self, obj: User) -> None:
-        pass
 
 
 def get_test_password(_: str) -> str:
     return "hashed_password"
-
-
-@pytest.mark.anyio()
-async def test_create_user() -> None:
-    data = UserCreateData(
-        email="test@email.com",
-        password="plain_password",
-        password_hasher=get_test_password,
-    )
-    crud = UserCRUD()
-
-    user = await create_user(data, crud)
-
-    assert user.email == "test@email.com"
-
-
-@pytest.mark.anyio()
-async def test_create_user_already_exists() -> None:
-    data = UserCreateData(
-        email="test@email.com",
-        password="plain_password",
-        password_hasher=get_test_password,
-    )
-    crud = UserCRUD(existing_user=create_user_helper(email="test@email.com"))
-
-    with pytest.raises(UserAlreadyExistsError):
-        await create_user(data, crud)
-
-
-@pytest.mark.anyio()
-async def test_get_user() -> None:
-    filters = UserFilters(email="test@email.com")
-    crud = UserCRUD(existing_user=create_user_helper(email="test@email.com"))
-
-    user = await get_user(filters, crud)
-
-    assert user
-
-
-@pytest.mark.anyio()
-async def test_get_user_not_found() -> None:
-    filters = UserFilters(email="test@email.com")
-    crud = UserCRUD()
-
-    with pytest.raises(UserNotFoundError):
-        await get_user(filters, crud)
-
-
-@pytest.mark.anyio()
-async def test_get_confirmed_user() -> None:
-    filters = UserFilters(email="test@email.com")
-    crud = UserCRUD(existing_user=create_confirmed_user_helper(email="test@email.com"))
-
-    user = await get_confirmed_user(filters, crud)
-
-    assert user
-
-
-@pytest.mark.anyio()
-async def test_get_not_confirmed_user_not_found() -> None:
-    filters = UserFilters(email="test@email.com")
-    crud = UserCRUD()
-
-    with pytest.raises(UserNotFoundError):
-        await get_confirmed_user(filters, crud)
-
-
-@pytest.mark.anyio()
-async def test_get_not_confirmed_user() -> None:
-    filters = UserFilters(email="test@email.com")
-    crud = UserCRUD(existing_user=create_user_helper(email="test@email.com"))
-
-    with pytest.raises(UserNotConfirmedError):
-        await get_confirmed_user(filters, crud)
-
-
-@pytest.mark.anyio()
-async def test_update_user() -> None:
-    data = UserUpdateData(confirmed_email=True)
-    user = create_user_helper(confirmed_email=False)
-    crud = UserCRUD()
-
-    updated_user = await update_user(user, data, crud)
-
-    assert updated_user.confirmed_email is True
-
-
-@pytest.mark.anyio()
-async def test_update_user_email() -> None:
-    data = UserUpdateData(email="updated@email.com")
-    user = create_user_helper(email="test@email.com")
-    crud = UserCRUD()
-
-    updated_user = await update_user(user, data, crud)
-
-    assert updated_user.email == "updated@email.com"
-    assert updated_user.confirmed_email is False
-
-
-@pytest.mark.anyio()
-async def test_update_user_email_the_same_email_provided() -> None:
-    data = UserUpdateData(email="test@email.com")
-    user = create_user_helper(email="test@email.com")
-    crud = UserCRUD()
-
-    updated_user = await update_user(user, data, crud)
-
-    assert updated_user.email == "test@email.com"
-    assert updated_user.confirmed_email is not False
-
-
-@pytest.mark.anyio()
-async def test_update_user_email_already_exists() -> None:
-    data = UserUpdateData(email="updated@email.com")
-    user = create_user_helper(email="test@email.com")
-    crud = UserCRUD(existing_user=create_user_helper(email="updated@email.com"))
-
-    with pytest.raises(UserAlreadyExistsError):
-        await update_user(user, data, crud)
-
-
-@pytest.mark.anyio()
-async def test_delete_user() -> None:
-    user = create_user_helper()
-    crud = UserCRUD()
-
-    await delete_user(user, crud)
 
 
 def test_send_confirmation_email() -> None:

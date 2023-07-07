@@ -14,14 +14,9 @@ from backend.libs.security.token import (
     create_paseto_token_public_v4,
     read_paseto_token_public_v4,
 )
-from backend.services.user.controllers import (
-    confirm_email,
-    create_access_token,
-    create_refresh_token,
+from backend.services.user.controllers.user import (
     create_user,
     get_confirmed_user,
-    login,
-    set_password,
 )
 from backend.services.user.exceptions import (
     InvalidCredentialsError,
@@ -43,6 +38,13 @@ from backend.services.user.schemas import (
 from backend.services.user.tasks import (
     send_confirmation_email_task,
     send_reset_password_email_task,
+)
+from backend.services.user.tmp_controllers import (
+    confirm_email,
+    create_access_token,
+    create_refresh_token,
+    login,
+    set_password,
 )
 from backend.services.user.types import (
     ConfirmEmailFailure,

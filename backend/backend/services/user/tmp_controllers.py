@@ -8,9 +8,10 @@ from gettext import gettext as _
 from typing import Any, Protocol
 from uuid import UUID
 
-from backend.libs.db.crud import CRUDProtocol, NoObjectFoundError
+from backend.libs.db.crud import NoObjectFoundError
 from backend.libs.email.message import HTMLMessage
 from backend.libs.security.token import InvalidTokenError
+from backend.services.user.crud import UserCRUDProtocol
 from backend.services.user.exceptions import (
     InvalidCredentialsError,
     InvalidEmailConfirmationTokenError,
@@ -31,7 +32,6 @@ from backend.services.user.schemas import (
 
 logger = logging.getLogger(__name__)
 
-UserCRUDProtocol = CRUDProtocol[User, UserCreateData, UserUpdateData, UserFilters]
 PasswordValidator = Callable[[str, str], tuple[bool, str | None]]
 PasswordHasher = Callable[[str], str]
 
