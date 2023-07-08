@@ -15,7 +15,7 @@ from pydantic import (
 
 from backend.config.settings import get_settings
 
-settings = get_settings()
+user_settings = get_settings().user
 
 PasswordHasher = Callable[[str], str]
 
@@ -24,7 +24,7 @@ class UserCreateData(BaseModel):
     email: EmailStr
     password_hasher: PasswordHasher = Field(exclude=True)
     hashed_password: str = Field(
-        min_length=settings.user.password_min_length, alias="password"
+        min_length=user_settings.password_min_length, alias="password"
     )
 
     @field_validator("hashed_password", mode="after")
@@ -40,7 +40,7 @@ class UserCreateData(BaseModel):
 class UserUpdateData(BaseModel):
     email: EmailStr | None = None
     password: SecretStr | None = Field(
-        default=None, min_length=settings.user.password_min_length, exclude=True
+        default=None, min_length=user_settings.password_min_length, exclude=True
     )
     password_hasher: PasswordHasher | None = Field(default=None, exclude=True)
     hashed_password: str | None = None
@@ -79,7 +79,7 @@ class SetPasswordData(BaseModel):
     token: str
     password_hasher: PasswordHasher = Field(exclude=True)
     hashed_password: str = Field(
-        min_length=settings.user.password_min_length, alias="password"
+        min_length=user_settings.password_min_length, alias="password"
     )
 
     @field_validator("hashed_password", mode="after")
