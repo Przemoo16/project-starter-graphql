@@ -6,15 +6,15 @@ import pytest
 
 from backend.libs.email.message import HTMLMessage
 from backend.libs.security.token import InvalidTokenError
-from backend.services.user.controllers.email import (
+from backend.services.user.exceptions import (
+    InvalidEmailConfirmationTokenError,
+    UserAlreadyConfirmedError,
+)
+from backend.services.user.operations.email import (
     confirm_email,
     create_email_confirmation_token,
     read_email_confirmation_token,
     send_confirmation_email,
-)
-from backend.services.user.exceptions import (
-    InvalidEmailConfirmationTokenError,
-    UserAlreadyConfirmedError,
 )
 from tests.unit.helpers.user import UserCRUD, create_confirmed_user, create_user
 

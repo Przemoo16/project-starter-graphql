@@ -14,17 +14,6 @@ from backend.libs.security.token import (
     create_paseto_token_public_v4,
     read_paseto_token_public_v4,
 )
-from backend.services.user.controllers.auth import (
-    create_access_token,
-    create_refresh_token,
-    login,
-)
-from backend.services.user.controllers.email import confirm_email
-from backend.services.user.controllers.password import set_password
-from backend.services.user.controllers.user import (
-    create_user,
-    get_confirmed_user,
-)
 from backend.services.user.exceptions import (
     InvalidCredentialsError,
     InvalidEmailConfirmationTokenError,
@@ -35,6 +24,17 @@ from backend.services.user.exceptions import (
     UserNotFoundError,
 )
 from backend.services.user.models import User
+from backend.services.user.operations.auth import (
+    create_access_token,
+    create_refresh_token,
+    login,
+)
+from backend.services.user.operations.email import confirm_email
+from backend.services.user.operations.password import set_password
+from backend.services.user.operations.user import (
+    create_user,
+    get_confirmed_user,
+)
 from backend.services.user.schemas import (
     Credentials,
     SetPasswordData,

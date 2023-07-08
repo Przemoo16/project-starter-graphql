@@ -4,17 +4,17 @@ from uuid import UUID
 
 import pytest
 
-from backend.services.user.controllers.auth import (
-    authenticate,
-    create_access_token,
-    create_refresh_token,
-    login,
-)
 from backend.services.user.exceptions import (
     InvalidCredentialsError,
     UserNotConfirmedError,
 )
 from backend.services.user.models import User
+from backend.services.user.operations.auth import (
+    authenticate,
+    create_access_token,
+    create_refresh_token,
+    login,
+)
 from backend.services.user.schemas import (
     Credentials,
 )

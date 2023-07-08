@@ -13,15 +13,15 @@ from backend.libs.security.password import hash_password
 from backend.libs.security.token import (
     create_paseto_token_public_v4,
 )
-from backend.services.user.controllers.email import (
+from backend.services.user.jinja import load_template
+from backend.services.user.operations.email import (
     create_email_confirmation_token,
     send_confirmation_email,
 )
-from backend.services.user.controllers.password import (
+from backend.services.user.operations.password import (
     create_reset_password_token,
     send_reset_password_email,
 )
-from backend.services.user.jinja import load_template
 
 logger = logging.getLogger(__name__)
 

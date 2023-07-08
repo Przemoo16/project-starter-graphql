@@ -6,14 +6,14 @@ import pytest
 
 from backend.libs.email.message import HTMLMessage
 from backend.libs.security.token import InvalidTokenError
-from backend.services.user.controllers.password import (
+from backend.services.user.exceptions import (
+    InvalidResetPasswordTokenError,
+)
+from backend.services.user.operations.password import (
     create_reset_password_token,
     read_reset_password_token,
     send_reset_password_email,
     set_password,
-)
-from backend.services.user.exceptions import (
-    InvalidResetPasswordTokenError,
 )
 from backend.services.user.schemas import (
     SetPasswordData,
