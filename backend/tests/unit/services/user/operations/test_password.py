@@ -13,10 +13,10 @@ from backend.services.user.exceptions import (
 from backend.services.user.operations.password import (
     create_reset_password_token,
     read_reset_password_token,
+    reset_password,
     send_reset_password_email,
-    set_password,
 )
-from backend.services.user.schemas import SetPasswordData
+from backend.services.user.schemas import ResetPasswordData
 from tests.unit.helpers.user import UserCRUD, create_confirmed_user, create_user
 
 
@@ -118,11 +118,11 @@ def test_read_reset_password_token_invalid_token_type() -> None:
 
 
 @pytest.mark.anyio()
-async def test_set_password() -> None:
+async def test_reset_password() -> None:
     def hash_password(_: str) -> str:
         return "new_hashed_password"
 
-    data = SetPasswordData(
+    data = ResetPasswordData(
         token="test-token",
         password="new_password",
         password_hasher=hash_password,
@@ -140,14 +140,14 @@ async def test_set_password() -> None:
             "type": "reset-password",
         }
 
-    user = await set_password(data, read_token, success_password_validator, crud)
+    user = await reset_password(data, read_token, success_password_validator, crud)
 
     assert user.hashed_password == "new_hashed_password"
 
 
 @pytest.mark.anyio()
-async def test_set_password_user_not_found() -> None:
-    data = SetPasswordData(
+async def test_reset_password_user_not_found() -> None:
+    data = ResetPasswordData(
         token="test-token",
         password="new_password",
         password_hasher=get_test_password,
@@ -162,12 +162,12 @@ async def test_set_password_user_not_found() -> None:
         }
 
     with pytest.raises(InvalidResetPasswordTokenError):
-        await set_password(data, read_token, success_password_validator, crud)
+        await reset_password(data, read_token, success_password_validator, crud)
 
 
 @pytest.mark.anyio()
-async def test_set_password_invalid_fingerprint() -> None:
-    data = SetPasswordData(
+async def test_reset_password_invalid_fingerprint() -> None:
+    data = ResetPasswordData(
         token="test-token",
         password="new_password",
         password_hasher=get_test_password,
@@ -189,12 +189,12 @@ async def test_set_password_invalid_fingerprint() -> None:
         return False, None
 
     with pytest.raises(InvalidResetPasswordTokenError):
-        await set_password(data, read_token, failure_validator, crud)
+        await reset_password(data, read_token, failure_validator, crud)
 
 
 @pytest.mark.anyio()
-async def test_set_password_user_not_confirmed() -> None:
-    data = SetPasswordData(
+async def test_reset_password_user_not_confirmed() -> None:
+    data = ResetPasswordData(
         token="test-token",
         password="new_password",
         password_hasher=get_test_password,
@@ -211,4 +211,4 @@ async def test_set_password_user_not_confirmed() -> None:
         }
 
     with pytest.raises(UserNotConfirmedError):
-        await set_password(data, read_token, success_password_validator, crud)
+        await reset_password(data, read_token, success_password_validator, crud)

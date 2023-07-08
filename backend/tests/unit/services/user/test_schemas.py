@@ -4,7 +4,7 @@ import pytest
 from pydantic import ValidationError
 
 from backend.services.user.schemas import (
-    SetPasswordData,
+    ResetPasswordData,
     UserCreateData,
     UserUpdateData,
 )
@@ -36,7 +36,7 @@ def test_schema_invalid_email(
     [
         (UserCreateData, {"email": "test@email.com"}),
         (UserUpdateData, {}),
-        (SetPasswordData, {"token": "test-token"}),
+        (ResetPasswordData, {"token": "test-token"}),
     ],
 )
 def test_schema_password_too_short(
@@ -54,7 +54,7 @@ def test_schema_password_too_short(
     [
         (UserCreateData, {"email": "test@email.com"}),
         (UserUpdateData, {}),
-        (SetPasswordData, {"token": "test-token"}),
+        (ResetPasswordData, {"token": "test-token"}),
     ],
 )
 def test_schema_does_not_export_password_related_fields(
@@ -74,7 +74,7 @@ def test_schema_does_not_export_password_related_fields(
     [
         (UserCreateData, {"email": "test@email.com"}),
         (UserUpdateData, {}),
-        (SetPasswordData, {"token": "test-token"}),
+        (ResetPasswordData, {"token": "test-token"}),
     ],
 )
 def test_schema_hashes_password(

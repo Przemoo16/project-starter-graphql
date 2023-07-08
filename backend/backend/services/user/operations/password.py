@@ -14,7 +14,7 @@ from backend.services.user.exceptions import (
     UserNotConfirmedError,
 )
 from backend.services.user.models import User
-from backend.services.user.schemas import SetPasswordData, UserFilters, UserUpdateData
+from backend.services.user.schemas import ResetPasswordData, UserFilters, UserUpdateData
 
 logger = logging.getLogger(__name__)
 
@@ -89,8 +89,8 @@ def read_reset_password_token(
     )
 
 
-async def set_password(
-    data: SetPasswordData,
+async def reset_password(
+    data: ResetPasswordData,
     token_reader: TokenReader,
     password_validator: PasswordValidator,
     crud: UserCRUDProtocol,
