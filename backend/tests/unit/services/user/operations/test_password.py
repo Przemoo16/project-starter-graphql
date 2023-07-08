@@ -8,6 +8,7 @@ from backend.libs.email.message import HTMLMessage
 from backend.libs.security.token import InvalidTokenError
 from backend.services.user.exceptions import (
     InvalidResetPasswordTokenError,
+    UserNotConfirmedError,
 )
 from backend.services.user.operations.password import (
     create_reset_password_token,
@@ -15,9 +16,7 @@ from backend.services.user.operations.password import (
     send_reset_password_email,
     set_password,
 )
-from backend.services.user.schemas import (
-    SetPasswordData,
-)
+from backend.services.user.schemas import SetPasswordData
 from tests.unit.helpers.user import UserCRUD, create_confirmed_user, create_user
 
 
@@ -211,5 +210,5 @@ async def test_set_password_user_not_confirmed() -> None:
             "type": "reset-password",
         }
 
-    with pytest.raises(InvalidResetPasswordTokenError):
+    with pytest.raises(UserNotConfirmedError):
         await set_password(data, read_token, success_password_validator, crud)

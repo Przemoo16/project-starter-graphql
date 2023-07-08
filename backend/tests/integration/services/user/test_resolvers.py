@@ -70,7 +70,6 @@ async def test_create_user_already_exists(
                   problems {
                     ... on UserAlreadyExists {
                       message
-                      email
                     }
                   }
                 }
@@ -83,7 +82,6 @@ async def test_create_user_already_exists(
 
     data = response.json()["data"]["createUser"]["problems"][0]
     assert "message" in data
-    assert data["email"] == "test@email.com"
 
 
 @pytest.mark.anyio()
@@ -154,7 +152,6 @@ async def test_confirm_email_already_confirmed(
                   problems {{
                     ... on UserAlreadyConfirmed {{
                       message
-                      email
                     }}
                   }}
                 }}
@@ -167,7 +164,6 @@ async def test_confirm_email_already_confirmed(
 
     data = response.json()["data"]["confirmEmail"]["problems"][0]
     assert "message" in data
-    assert data["email"] == "test@email.com"
 
 
 @pytest.mark.anyio()
@@ -212,7 +208,6 @@ async def test_login_invalid_credentials(
                   problems {
                     ... on InvalidCredentials {
                       message
-                      username
                     }
                   }
                 }
@@ -225,7 +220,6 @@ async def test_login_invalid_credentials(
 
     data = response.json()["data"]["login"]["problems"][0]
     assert "message" in data
-    assert data["username"] == "test@email.com"
 
 
 @pytest.mark.anyio()
@@ -243,7 +237,6 @@ async def test_login_user_not_confirmed(
                   problems {
                     ... on UserNotConfirmed {
                       message
-                      email
                     }
                   }
                 }
@@ -256,7 +249,6 @@ async def test_login_user_not_confirmed(
 
     data = response.json()["data"]["login"]["problems"][0]
     assert "message" in data
-    assert data["email"] == "test@email.com"
 
 
 @pytest.mark.anyio()
@@ -267,7 +259,6 @@ async def test_reset_password(session: AsyncSession, async_client: AsyncClient) 
             mutation {
               resetPassword(email: "test@email.com") {
                 message
-                email
               }
             }
         """
@@ -277,7 +268,6 @@ async def test_reset_password(session: AsyncSession, async_client: AsyncClient) 
 
     data = response.json()["data"]["resetPassword"]
     assert "message" in data
-    assert data["email"] == "test@email.com"
 
 
 @pytest.mark.anyio()
@@ -287,7 +277,6 @@ async def test_reset_password_user_not_exists(async_client: AsyncClient) -> None
             mutation {
               resetPassword(email: "test@email.com") {
                 message
-                email
               }
             }
         """
@@ -309,7 +298,6 @@ async def test_reset_password_user_not_confirmed(
             mutation {
               resetPassword(email: "test@email.com") {
                 message
-                email
               }
             }
         """
@@ -389,6 +377,34 @@ async def test_set_password_invalid_token(async_client: AsyncClient) -> None:
                 }
               }
             }
+        """
+    }
+
+    response = await async_client.post("/graphql", json=payload)
+
+    data = response.json()["data"]["setPassword"]["problems"][0]
+    assert "message" in data
+
+
+@pytest.mark.anyio()
+async def test_set_password_user_not_confirmed(
+    session: AsyncSession, auth_private_key: str, async_client: AsyncClient
+) -> None:
+    user = await create_user(session)
+    token = create_reset_password_token(auth_private_key, user.id, user.hashed_password)
+    payload = {
+        "query": f"""
+            mutation {{
+              setPassword(input: {{token: "{token}", password: "new_password"}}) {{
+                ... on SetPasswordFailure {{
+                  problems {{
+                    ... on InvalidResetPasswordToken {{
+                      message
+                    }}
+                  }}
+                }}
+              }}
+            }}
         """
     }
 

@@ -11,11 +11,7 @@ from backend.services.user.exceptions import (
     UserNotConfirmedError,
 )
 from backend.services.user.models import User
-from backend.services.user.schemas import (
-    Credentials,
-    UserFilters,
-    UserUpdateData,
-)
+from backend.services.user.schemas import Credentials, UserFilters, UserUpdateData
 
 logger = logging.getLogger(__name__)
 

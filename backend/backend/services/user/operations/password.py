@@ -11,13 +11,10 @@ from backend.libs.security.token import InvalidTokenError
 from backend.services.user.crud import UserCRUDProtocol
 from backend.services.user.exceptions import (
     InvalidResetPasswordTokenError,
+    UserNotConfirmedError,
 )
 from backend.services.user.models import User
-from backend.services.user.schemas import (
-    SetPasswordData,
-    UserFilters,
-    UserUpdateData,
-)
+from backend.services.user.schemas import SetPasswordData, UserFilters, UserUpdateData
 
 logger = logging.getLogger(__name__)
 
@@ -110,7 +107,7 @@ async def set_password(
         raise InvalidResetPasswordTokenError
     if not user.confirmed_email:
         logger.info("User %r not confirmed", user.email)
-        raise InvalidResetPasswordTokenError
+        raise UserNotConfirmedError
     return await crud.update_and_refresh(
         user, UserUpdateData(hashed_password=data.hashed_password)
     )

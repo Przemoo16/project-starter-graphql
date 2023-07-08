@@ -12,11 +12,7 @@ from backend.services.user.operations.user import (
     get_user,
     update_user,
 )
-from backend.services.user.schemas import (
-    UserCreateData,
-    UserFilters,
-    UserUpdateData,
-)
+from backend.services.user.schemas import UserCreateData, UserFilters, UserUpdateData
 from tests.unit.helpers.user import UserCRUD
 from tests.unit.helpers.user import (
     create_confirmed_user as create_confirmed_user_helper,
