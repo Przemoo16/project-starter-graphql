@@ -7,18 +7,18 @@ from backend.libs.api.types import InvalidInput, Problem
 
 
 @strawberry.type
-class ResetPasswordResponse:
+class RecoverPasswordResponse:
     message: str = "If provided valid email, the email to reset password has been sent"
 
 
 @strawberry.input
-class SetPasswordInput:
+class ResetPasswordInput:
     token: str
     password: str
 
 
 @strawberry.type
-class SetPasswordSuccess:
+class ResetPasswordSuccess:
     message: str = "New password has been set"
 
 
@@ -27,16 +27,17 @@ class InvalidResetPasswordToken(Problem):
     message: str = "Provided token is invalid"
 
 
-SetPasswordProblem = Annotated[
-    InvalidInput | InvalidResetPasswordToken, strawberry.union("SetPasswordProblem")
+ResetPasswordProblem = Annotated[
+    InvalidInput | InvalidResetPasswordToken, strawberry.union("ResetPasswordProblem")
 ]
 
 
 @strawberry.type
-class SetPasswordFailure:
-    problems: Sequence[SetPasswordProblem]
+class ResetPasswordFailure:
+    problems: Sequence[ResetPasswordProblem]
 
 
-SetPasswordResponse = Annotated[
-    SetPasswordSuccess | SetPasswordFailure, strawberry.union("SetPasswordResponse")
+ResetPasswordResponse = Annotated[
+    ResetPasswordSuccess | ResetPasswordFailure,
+    strawberry.union("ResetPasswordResponse"),
 ]

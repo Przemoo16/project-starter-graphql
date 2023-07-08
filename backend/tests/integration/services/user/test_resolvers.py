@@ -252,12 +252,14 @@ async def test_login_user_not_confirmed(
 
 
 @pytest.mark.anyio()
-async def test_reset_password(session: AsyncSession, async_client: AsyncClient) -> None:
+async def test_recover_password(
+    session: AsyncSession, async_client: AsyncClient
+) -> None:
     await create_confirmed_user(session, email="test@email.com")
     payload = {
         "query": """
             mutation {
-              resetPassword(email: "test@email.com") {
+              recoverPassword(email: "test@email.com") {
                 message
               }
             }
@@ -266,16 +268,16 @@ async def test_reset_password(session: AsyncSession, async_client: AsyncClient) 
 
     response = await async_client.post("/graphql", json=payload)
 
-    data = response.json()["data"]["resetPassword"]
+    data = response.json()["data"]["recoverPassword"]
     assert "message" in data
 
 
 @pytest.mark.anyio()
-async def test_reset_password_user_not_exists(async_client: AsyncClient) -> None:
+async def test_recover_password_user_not_exists(async_client: AsyncClient) -> None:
     payload = {
         "query": """
             mutation {
-              resetPassword(email: "test@email.com") {
+              recoverPassword(email: "test@email.com") {
                 message
               }
             }
@@ -284,19 +286,19 @@ async def test_reset_password_user_not_exists(async_client: AsyncClient) -> None
 
     response = await async_client.post("/graphql", json=payload)
 
-    data = response.json()["data"]["resetPassword"]
+    data = response.json()["data"]["recoverPassword"]
     assert data
 
 
 @pytest.mark.anyio()
-async def test_reset_password_user_not_confirmed(
+async def test_recover_password_user_not_confirmed(
     session: AsyncSession, async_client: AsyncClient
 ) -> None:
     await create_user(session, email="test@email.com")
     payload = {
         "query": """
             mutation {
-              resetPassword(email: "test@email.com") {
+              recoverPassword(email: "test@email.com") {
                 message
               }
             }
@@ -305,12 +307,12 @@ async def test_reset_password_user_not_confirmed(
 
     response = await async_client.post("/graphql", json=payload)
 
-    data = response.json()["data"]["resetPassword"]
+    data = response.json()["data"]["recoverPassword"]
     assert data
 
 
 @pytest.mark.anyio()
-async def test_set_password(
+async def test_reset_password(
     session: AsyncSession, auth_private_key: str, async_client: AsyncClient
 ) -> None:
     user = await create_confirmed_user(session)
@@ -318,8 +320,8 @@ async def test_set_password(
     payload = {
         "query": f"""
             mutation {{
-              setPassword(input: {{token: "{token}", password: "new_password"}}) {{
-                ... on SetPasswordSuccess {{
+              resetPassword(input: {{token: "{token}", password: "new_password"}}) {{
+                ... on ResetPasswordSuccess {{
                   message
                 }}
               }}
@@ -329,12 +331,12 @@ async def test_set_password(
 
     response = await async_client.post("/graphql", json=payload)
 
-    data = response.json()["data"]["setPassword"]
+    data = response.json()["data"]["resetPassword"]
     assert "message" in data
 
 
 @pytest.mark.anyio()
-async def test_set_password_invalid_input(
+async def test_reset_password_invalid_input(
     auth_private_key: str, async_client: AsyncClient
 ) -> None:
     token = create_reset_password_token(
@@ -345,8 +347,8 @@ async def test_set_password_invalid_input(
     payload = {
         "query": f"""
             mutation {{
-              setPassword(input: {{token: "{token}", password: "p"}}) {{
-                ... on SetPasswordFailure {{
+              resetPassword(input: {{token: "{token}", password: "p"}}) {{
+                ... on ResetPasswordFailure {{
                   problems {{
                     __typename
                   }}
@@ -358,17 +360,17 @@ async def test_set_password_invalid_input(
 
     response = await async_client.post("/graphql", json=payload)
 
-    data = response.json()["data"]["setPassword"]["problems"][0]
+    data = response.json()["data"]["resetPassword"]["problems"][0]
     assert data["__typename"] == "InvalidInput"
 
 
 @pytest.mark.anyio()
-async def test_set_password_invalid_token(async_client: AsyncClient) -> None:
+async def test_reset_password_invalid_token(async_client: AsyncClient) -> None:
     payload = {
         "query": """
             mutation {
-              setPassword(input: {token: "invalid-token", password: "new_password"}) {
-                ... on SetPasswordFailure {
+              resetPassword(input: {token: "invalid-token", password: "new_password"}) {
+                ... on ResetPasswordFailure {
                   problems {
                     ... on InvalidResetPasswordToken {
                       message
@@ -382,12 +384,12 @@ async def test_set_password_invalid_token(async_client: AsyncClient) -> None:
 
     response = await async_client.post("/graphql", json=payload)
 
-    data = response.json()["data"]["setPassword"]["problems"][0]
+    data = response.json()["data"]["resetPassword"]["problems"][0]
     assert "message" in data
 
 
 @pytest.mark.anyio()
-async def test_set_password_user_not_confirmed(
+async def test_reset_password_user_not_confirmed(
     session: AsyncSession, auth_private_key: str, async_client: AsyncClient
 ) -> None:
     user = await create_user(session)
@@ -395,8 +397,8 @@ async def test_set_password_user_not_confirmed(
     payload = {
         "query": f"""
             mutation {{
-              setPassword(input: {{token: "{token}", password: "new_password"}}) {{
-                ... on SetPasswordFailure {{
+              resetPassword(input: {{token: "{token}", password: "new_password"}}) {{
+                ... on ResetPasswordFailure {{
                   problems {{
                     ... on InvalidResetPasswordToken {{
                       message
@@ -410,5 +412,5 @@ async def test_set_password_user_not_confirmed(
 
     response = await async_client.post("/graphql", json=payload)
 
-    data = response.json()["data"]["setPassword"]["problems"][0]
+    data = response.json()["data"]["resetPassword"]["problems"][0]
     assert "message" in data

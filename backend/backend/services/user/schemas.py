@@ -73,7 +73,7 @@ class Credentials:
     password: str
 
 
-class SetPasswordData(BaseModel):
+class ResetPasswordData(BaseModel):
     token: str
     password_hasher: PasswordHasher = Field(exclude=True)
     hashed_password: str = Field(
