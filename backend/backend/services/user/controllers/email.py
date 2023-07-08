@@ -24,12 +24,13 @@ logger = logging.getLogger(__name__)
 TokenCreator = Callable[[Mapping[str, Any]], str]
 TokenReader = Callable[[str], dict[str, Any]]
 
-EMAIL_CONFIRMATION_TOKEN_TYPE = "email-confirmation"  # nosec
-
 
 class TemplateLoader(Protocol):
     def __call__(self, name: str, **kwargs: Any) -> str:
         ...
+
+
+EMAIL_CONFIRMATION_TOKEN_TYPE = "email-confirmation"  # nosec
 
 
 @dataclass

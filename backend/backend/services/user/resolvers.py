@@ -20,6 +20,7 @@ from backend.services.user.controllers.auth import (
     login,
 )
 from backend.services.user.controllers.email import confirm_email
+from backend.services.user.controllers.password import set_password
 from backend.services.user.controllers.user import (
     create_user,
     get_confirmed_user,
@@ -44,9 +45,6 @@ from backend.services.user.schemas import (
 from backend.services.user.tasks import (
     send_confirmation_email_task,
     send_reset_password_email_task,
-)
-from backend.services.user.tmp_controllers import (
-    set_password,
 )
 from backend.services.user.types import (
     ConfirmEmailFailure,
