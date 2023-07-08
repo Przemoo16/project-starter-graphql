@@ -179,6 +179,5 @@ async def test_confirm_email_user_already_confirmed() -> None:
             "type": "email-confirmation",
         }
 
-    with pytest.raises(UserAlreadyConfirmedError) as exc_info:
+    with pytest.raises(UserAlreadyConfirmedError):
         await confirm_email(token, read_token, crud)
-    assert exc_info.value.email == "test@email.com"

@@ -1,19 +1,19 @@
 import strawberry
 
-from backend.services.user.resolvers import (
-    confirm_email_resolver,
-    create_user_resolver,
-    login_resolver,
+from backend.services.user.resolvers.auth import login_resolver
+from backend.services.user.resolvers.email import confirm_email_resolver
+from backend.services.user.resolvers.password import (
     reset_password_resolver,
     set_password_resolver,
 )
-from backend.services.user.types import (
-    ConfirmEmailResponse,
-    CreateUserResponse,
-    LoginResponse,
+from backend.services.user.resolvers.user import create_user_resolver
+from backend.services.user.types.auth import LoginResponse
+from backend.services.user.types.email import ConfirmEmailResponse
+from backend.services.user.types.password import (
     ResetPasswordResponse,
     SetPasswordResponse,
 )
+from backend.services.user.types.user import CreateUserResponse
 
 
 @strawberry.type

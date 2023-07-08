@@ -9,11 +9,7 @@ from backend.services.user.exceptions import (
     UserNotFoundError,
 )
 from backend.services.user.models import User
-from backend.services.user.schemas import (
-    UserCreateData,
-    UserFilters,
-    UserUpdateData,
-)
+from backend.services.user.schemas import UserCreateData, UserFilters, UserUpdateData
 
 logger = logging.getLogger(__name__)
 

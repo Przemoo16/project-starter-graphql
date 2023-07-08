@@ -14,10 +14,7 @@ from backend.services.user.exceptions import (
     UserAlreadyConfirmedError,
 )
 from backend.services.user.models import User
-from backend.services.user.schemas import (
-    UserFilters,
-    UserUpdateData,
-)
+from backend.services.user.schemas import UserFilters, UserUpdateData
 
 logger = logging.getLogger(__name__)
 
@@ -103,5 +100,5 @@ async def confirm_email(
         )
         raise InvalidEmailConfirmationTokenError from exc
     if user.confirmed_email:
-        raise UserAlreadyConfirmedError(email=user.email)
+        raise UserAlreadyConfirmedError
     return await crud.update_and_refresh(user, UserUpdateData(confirmed_email=True))

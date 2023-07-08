@@ -15,9 +15,7 @@ from backend.services.user.operations.auth import (
     create_refresh_token,
     login,
 )
-from backend.services.user.schemas import (
-    Credentials,
-)
+from backend.services.user.schemas import Credentials
 from tests.unit.helpers.user import UserCRUD, create_confirmed_user, create_user
 
 

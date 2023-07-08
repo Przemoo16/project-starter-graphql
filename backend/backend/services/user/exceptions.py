@@ -1,6 +1,3 @@
-from dataclasses import dataclass
-
-
 class UserAlreadyExistsError(Exception):
     pass
 
@@ -17,9 +14,8 @@ class InvalidEmailConfirmationTokenError(Exception):
     pass
 
 
-@dataclass
 class UserAlreadyConfirmedError(Exception):
-    email: str
+    pass
 
 
 class InvalidCredentialsError(Exception):
