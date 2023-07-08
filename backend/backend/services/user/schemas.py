@@ -20,6 +20,11 @@ user_settings = get_settings().user
 PasswordHasher = Callable[[str], str]
 
 
+def hash_password(password: str, info: FieldValidationInfo) -> str:
+    password_hasher: PasswordHasher = info.data["password_hasher"]
+    return password_hasher(password)
+
+
 class UserCreateData(BaseModel):
     email: EmailStr
     password_hasher: PasswordHasher = Field(exclude=True)
@@ -27,14 +32,7 @@ class UserCreateData(BaseModel):
         min_length=user_settings.password_min_length, alias="password"
     )
 
-    @field_validator("hashed_password", mode="after")
-    def hash_password(  # pylint: disable=no-self-argument
-        cls,  # noqa: N805
-        plain_password: str,
-        info: FieldValidationInfo,
-    ) -> str:
-        password_hasher: PasswordHasher = info.data["password_hasher"]
-        return password_hasher(plain_password)
+    hash_password = field_validator("hashed_password", mode="after")(hash_password)
 
 
 class UserUpdateData(BaseModel):
@@ -82,11 +80,4 @@ class SetPasswordData(BaseModel):
         min_length=user_settings.password_min_length, alias="password"
     )
 
-    @field_validator("hashed_password", mode="after")
-    def hash_password(  # pylint: disable=no-self-argument
-        cls,  # noqa: N805
-        plain_password: str,
-        info: FieldValidationInfo,
-    ) -> str:
-        password_hasher: PasswordHasher = info.data["password_hasher"]
-        return password_hasher(plain_password)
+    hash_password = field_validator("hashed_password", mode="after")(hash_password)
