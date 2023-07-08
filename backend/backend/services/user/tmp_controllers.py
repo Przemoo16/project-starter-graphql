@@ -11,9 +11,7 @@ from backend.libs.email.message import HTMLMessage
 from backend.libs.security.token import InvalidTokenError
 from backend.services.user.crud import UserCRUDProtocol
 from backend.services.user.exceptions import (
-    InvalidEmailConfirmationTokenError,
     InvalidResetPasswordTokenError,
-    UserAlreadyConfirmedError,
 )
 from backend.services.user.models import User
 from backend.services.user.schemas import (
@@ -33,84 +31,13 @@ class TemplateLoader(Protocol):
         ...
 
 
-def send_confirmation_email(
-    url_template: str,
-    token: str,
-    template_loader: TemplateLoader,
-    send_email_func: Callable[[HTMLMessage], None],
-) -> None:
-    link = url_template.format(token=token)
-    subject = _("Confirm email")
-    html_message = template_loader("email-confirmation.html", link=link)
-    plain_message = _("Click the link to confirm your email: {link}").format(link=link)
-    send_email_func(
-        HTMLMessage(
-            subject=subject, html_message=html_message, plain_message=plain_message
-        )
-    )
-
-
 TokenCreator = Callable[[Mapping[str, Any]], str]
 TokenReader = Callable[[str], dict[str, Any]]
 
 
 @unique
 class TokenType(Enum):
-    EMAIL_CONFIRMATION = "email-confirmation"
     RESET_PASSWORD = "reset-password"  # nosec
-
-
-@dataclass
-class ConfirmationEmailTokenData:
-    id: UUID
-    email: str
-
-
-def create_email_confirmation_token(
-    user_id: UUID, user_email: str, token_creator: TokenCreator
-) -> str:
-    return token_creator(
-        {
-            "sub": str(user_id),
-            "email": user_email,
-            "type": TokenType.EMAIL_CONFIRMATION.value,
-        }
-    )
-
-
-def read_email_confirmation_token(
-    token: str, token_reader: TokenReader
-) -> ConfirmationEmailTokenData:
-    try:
-        data = token_reader(token)
-    except InvalidTokenError as exc:
-        logger.debug("The token is invalid")
-        raise InvalidEmailConfirmationTokenError from exc
-    if data["type"] != TokenType.EMAIL_CONFIRMATION.value:
-        logger.debug(
-            "The token is not an email confirmation token, actual type: %r",
-            data["type"],
-        )
-        raise InvalidEmailConfirmationTokenError
-    return ConfirmationEmailTokenData(id=UUID(data["sub"]), email=data["email"])
-
-
-async def confirm_email(
-    token: str, token_reader: TokenReader, crud: UserCRUDProtocol
-) -> User:
-    token_data = read_email_confirmation_token(token, token_reader)
-    try:
-        user = await crud.read_one(
-            UserFilters(id=token_data.id, email=token_data.email)
-        )
-    except NoObjectFoundError as exc:
-        logger.debug(
-            "User with id %r and email %r not found", token_data.id, token_data.email
-        )
-        raise InvalidEmailConfirmationTokenError from exc
-    if user.confirmed_email:
-        raise UserAlreadyConfirmedError(email=user.email)
-    return await crud.update_and_refresh(user, UserUpdateData(confirmed_email=True))
 
 
 def send_reset_password_email(

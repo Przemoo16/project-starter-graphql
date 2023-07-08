@@ -13,11 +13,13 @@ from backend.libs.security.password import hash_password
 from backend.libs.security.token import (
     create_paseto_token_public_v4,
 )
+from backend.services.user.controllers.email import (
+    create_email_confirmation_token,
+    send_confirmation_email,
+)
 from backend.services.user.jinja import load_template
 from backend.services.user.tmp_controllers import (
-    create_email_confirmation_token,
     create_reset_password_token,
-    send_confirmation_email,
     send_reset_password_email,
 )
 

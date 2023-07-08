@@ -50,13 +50,13 @@ async def authenticate(
     except NoObjectFoundError as exc:
         # Run the password hasher to mitigate timing attack
         password_hasher(credentials.password)
-        logger.debug("User %r not found", credentials.email)
+        logger.info("User %r not found", credentials.email)
         raise InvalidCredentialsError from exc
     is_valid, updated_password_hash = password_validator(
         credentials.password, user.hashed_password
     )
     if not is_valid:
-        logger.debug("Invalid password for the user %r", user.email)
+        logger.info("Invalid password for the user %r", user.email)
         raise InvalidCredentialsError
     if not user.confirmed_email:
         raise UserNotConfirmedError
