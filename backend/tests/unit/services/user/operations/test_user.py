@@ -1,16 +1,16 @@
 import pytest
 
-from backend.services.user.controllers.user import (
+from backend.services.user.exceptions import (
+    UserAlreadyExistsError,
+    UserNotConfirmedError,
+    UserNotFoundError,
+)
+from backend.services.user.operations.user import (
     create_user,
     delete_user,
     get_confirmed_user,
     get_user,
     update_user,
-)
-from backend.services.user.exceptions import (
-    UserAlreadyExistsError,
-    UserNotConfirmedError,
-    UserNotFoundError,
 )
 from backend.services.user.schemas import (
     UserCreateData,
