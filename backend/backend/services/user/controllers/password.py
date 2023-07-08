@@ -1,7 +1,6 @@
 import logging
 from collections.abc import Callable, Mapping
 from dataclasses import dataclass
-from enum import Enum, unique
 from gettext import gettext as _
 from typing import Any, Protocol
 from uuid import UUID
@@ -24,6 +23,8 @@ logger = logging.getLogger(__name__)
 
 PasswordValidator = Callable[[str, str], tuple[bool, str | None]]
 PasswordHasher = Callable[[str], str]
+TokenCreator = Callable[[Mapping[str, Any]], str]
+TokenReader = Callable[[str], dict[str, Any]]
 
 
 class TemplateLoader(Protocol):
@@ -31,13 +32,28 @@ class TemplateLoader(Protocol):
         ...
 
 
-TokenCreator = Callable[[Mapping[str, Any]], str]
-TokenReader = Callable[[str], dict[str, Any]]
+RESET_PASSWORD_TOKEN_TYPE = "reset-password"  # nosec
 
 
-@unique
-class TokenType(Enum):
-    RESET_PASSWORD = "reset-password"  # nosec
+@dataclass
+class ResetPasswordTokenData:
+    user_id: UUID
+    fingerprint: str
+
+
+def create_reset_password_token(
+    user_id: UUID,
+    user_password: str,
+    password_hasher: PasswordHasher,
+    token_creator: TokenCreator,
+) -> str:
+    return token_creator(
+        {
+            "sub": str(user_id),
+            "fingerprint": password_hasher(user_password),
+            "type": RESET_PASSWORD_TOKEN_TYPE,
+        }
+    )
 
 
 def send_reset_password_email(
@@ -57,42 +73,23 @@ def send_reset_password_email(
     )
 
 
-def create_reset_password_token(
-    user_id: UUID,
-    user_password: str,
-    password_hasher: PasswordHasher,
-    token_creator: TokenCreator,
-) -> str:
-    return token_creator(
-        {
-            "sub": str(user_id),
-            "fingerprint": password_hasher(user_password),
-            "type": TokenType.RESET_PASSWORD.value,
-        }
-    )
-
-
-@dataclass
-class ResetPasswordTokenData:
-    id: UUID
-    fingerprint: str
-
-
 def read_reset_password_token(
     token: str, token_reader: TokenReader
 ) -> ResetPasswordTokenData:
     try:
         data = token_reader(token)
     except InvalidTokenError as exc:
-        logger.debug("The token is invalid")
+        logger.info("The token is invalid")
         raise InvalidResetPasswordTokenError from exc
-    if data["type"] != TokenType.RESET_PASSWORD.value:
-        logger.debug(
+    if data["type"] != RESET_PASSWORD_TOKEN_TYPE:
+        logger.info(
             "The token is not a reset password token, actual type: %r",
             data["type"],
         )
         raise InvalidResetPasswordTokenError
-    return ResetPasswordTokenData(id=UUID(data["sub"]), fingerprint=data["fingerprint"])
+    return ResetPasswordTokenData(
+        user_id=UUID(data["sub"]), fingerprint=data["fingerprint"]
+    )
 
 
 async def set_password(
@@ -103,16 +100,16 @@ async def set_password(
 ) -> User:
     token_data = read_reset_password_token(data.token, token_reader)
     try:
-        user = await crud.read_one(UserFilters(id=token_data.id))
+        user = await crud.read_one(UserFilters(id=token_data.user_id))
     except NoObjectFoundError as exc:
-        logger.debug("User with id %r not found", token_data.id)
+        logger.info("User with id %r not found", token_data.user_id)
         raise InvalidResetPasswordTokenError from exc
-    if not user.confirmed_email:
-        logger.debug("User %r not confirmed", user.email)
-        raise InvalidResetPasswordTokenError
     is_valid, _ = password_validator(user.hashed_password, token_data.fingerprint)
     if not is_valid:
-        logger.debug("The token has invalid fingerprint")
+        logger.info("The token has invalid fingerprint")
+        raise InvalidResetPasswordTokenError
+    if not user.confirmed_email:
+        logger.info("User %r not confirmed", user.email)
         raise InvalidResetPasswordTokenError
     return await crud.update_and_refresh(
         user, UserUpdateData(hashed_password=data.hashed_password)

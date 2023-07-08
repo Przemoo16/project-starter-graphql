@@ -17,11 +17,11 @@ from backend.services.user.controllers.email import (
     create_email_confirmation_token,
     send_confirmation_email,
 )
-from backend.services.user.jinja import load_template
-from backend.services.user.tmp_controllers import (
+from backend.services.user.controllers.password import (
     create_reset_password_token,
     send_reset_password_email,
 )
+from backend.services.user.jinja import load_template
 
 logger = logging.getLogger(__name__)
 
@@ -42,7 +42,6 @@ def send_confirmation_email_task(user_id: UUID, user_email: str) -> None:
             password=settings.email.smtp_password.get_secret_value(),
         ),
     )
-
     token = create_email_confirmation_token(
         user_id=user_id,
         user_email=user_email,
@@ -79,7 +78,6 @@ def send_reset_password_email_task(
             password=settings.email.smtp_password.get_secret_value(),
         ),
     )
-
     token = create_reset_password_token(
         user_id=user_id,
         user_password=user_password,
