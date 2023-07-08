@@ -75,7 +75,7 @@ logger = logging.getLogger(__name__)
 
 UserCRUD = CRUD[User, UserCreateData, UserUpdateData, UserFilters]
 
-settings = get_settings().user
+user_settings = get_settings().user
 
 
 async def create_user_resolver(
@@ -105,7 +105,7 @@ async def confirm_email_resolver(info: Info, token: str) -> ConfirmEmailResponse
     try:
         user = await confirm_email(
             token,
-            partial(read_paseto_token_public_v4, key=settings.auth_public_key),
+            partial(read_paseto_token_public_v4, key=user_settings.auth_public_key),
             crud,
         )
     except InvalidEmailConfirmationTokenError:
@@ -137,16 +137,16 @@ async def login_resolver(
             user_id=user.id,
             token_creator=partial(
                 create_paseto_token_public_v4,
-                expiration=int(settings.access_token_lifetime.total_seconds()),
-                key=settings.auth_private_key.get_secret_value(),
+                expiration=int(user_settings.access_token_lifetime.total_seconds()),
+                key=user_settings.auth_private_key.get_secret_value(),
             ),
         ),
         refresh_token=create_refresh_token(
             user_id=user.id,
             token_creator=partial(
                 create_paseto_token_public_v4,
-                expiration=int(settings.refresh_token_lifetime.total_seconds()),
-                key=settings.auth_private_key.get_secret_value(),
+                expiration=int(user_settings.refresh_token_lifetime.total_seconds()),
+                key=user_settings.auth_private_key.get_secret_value(),
             ),
         ),
         token_type="Bearer",  # nosec
@@ -183,7 +183,7 @@ async def set_password_resolver(
     try:
         await set_password(
             set_password_data,
-            partial(read_paseto_token_public_v4, key=settings.auth_public_key),
+            partial(read_paseto_token_public_v4, key=user_settings.auth_public_key),
             verify_and_update_password,
             crud,
         )

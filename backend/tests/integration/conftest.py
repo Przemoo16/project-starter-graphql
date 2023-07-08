@@ -14,12 +14,14 @@ from backend.models import Base
 
 __all__ = ["Base"]
 
-settings = get_settings()
+_settings = get_settings()
+db_settings = _settings.db
+user_settings = _settings.user
 
 
 @pytest.fixture(name="engine", scope="session")
 async def engine_fixture() -> AsyncGenerator[AsyncEngine, None]:
-    engine = create_async_engine(settings.db.url)
+    engine = create_async_engine(db_settings.url)
     yield engine
     await dispose_async_engine(engine)
 
@@ -70,4 +72,4 @@ async def async_client_fixture(app: FastAPI) -> AsyncGenerator[AsyncClient, None
 
 @pytest.fixture(name="auth_private_key", scope="session")
 def auth_private_key_fixture() -> str:
-    return settings.user.auth_private_key.get_secret_value()
+    return user_settings.auth_private_key.get_secret_value()
