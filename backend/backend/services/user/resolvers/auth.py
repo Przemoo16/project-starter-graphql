@@ -14,6 +14,7 @@ from backend.services.user.exceptions import (
 )
 from backend.services.user.models import User
 from backend.services.user.operations.auth import (
+    authenticate,
     create_access_token,
     create_refresh_token,
     login,
@@ -39,27 +40,32 @@ async def login_resolver(
         email=credentials_input.username, password=credentials_input.password
     )
     try:
-        user = await login(credentials, verify_and_update_password, hash_password, crud)
+        user = await authenticate(
+            credentials, verify_and_update_password, hash_password, crud
+        )
     except InvalidCredentialsError:
         return LoginFailure(problems=[InvalidCredentials()])
     except UserNotConfirmedError:
         return LoginFailure(problems=[UserNotConfirmed()])
+    logged_user = await login(user, crud)
+    access_token = create_access_token(
+        user_id=logged_user.id,
+        token_creator=partial(
+            create_paseto_token_public_v4,
+            expiration=int(user_settings.access_token_lifetime.total_seconds()),
+            key=user_settings.auth_private_key.get_secret_value(),
+        ),
+    )
+    refresh_token = create_refresh_token(
+        user_id=logged_user.id,
+        token_creator=partial(
+            create_paseto_token_public_v4,
+            expiration=int(user_settings.refresh_token_lifetime.total_seconds()),
+            key=user_settings.auth_private_key.get_secret_value(),
+        ),
+    )
     return LoginSuccess(
-        access_token=create_access_token(
-            user_id=user.id,
-            token_creator=partial(
-                create_paseto_token_public_v4,
-                expiration=int(user_settings.access_token_lifetime.total_seconds()),
-                key=user_settings.auth_private_key.get_secret_value(),
-            ),
-        ),
-        refresh_token=create_refresh_token(
-            user_id=user.id,
-            token_creator=partial(
-                create_paseto_token_public_v4,
-                expiration=int(user_settings.refresh_token_lifetime.total_seconds()),
-                key=user_settings.auth_private_key.get_secret_value(),
-            ),
-        ),
+        access_token=access_token,
+        refresh_token=refresh_token,
         token_type="Bearer",  # nosec
     )

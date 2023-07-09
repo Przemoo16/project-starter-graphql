@@ -168,8 +168,11 @@ async def test_confirm_email_already_confirmed(
 
 @pytest.mark.anyio()
 async def test_login(session: AsyncSession, async_client: AsyncClient) -> None:
-    await create_confirmed_user(
-        session, email="test@email.com", hashed_password=hash_password("plain_password")
+    user = await create_confirmed_user(
+        session,
+        email="test@email.com",
+        hashed_password=hash_password("plain_password"),
+        last_login=None,
     )
     payload = {
         "query": """
@@ -191,6 +194,7 @@ async def test_login(session: AsyncSession, async_client: AsyncClient) -> None:
     assert "accessToken" in data
     assert "refreshToken" in data
     assert data["tokenType"] == "Bearer"
+    assert user.last_login
 
 
 @pytest.mark.anyio()

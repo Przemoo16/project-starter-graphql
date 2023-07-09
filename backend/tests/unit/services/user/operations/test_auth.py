@@ -29,14 +29,12 @@ def get_test_password(_: str) -> str:
 
 @pytest.mark.anyio()
 async def test_update_last_login_when_user_log_in() -> None:
-    credentials = Credentials(email="test@email.com", password="plain_password")
-    crud = UserCRUD(
-        existing_user=create_confirmed_user(email="test@email.com", last_login=None)
-    )
+    user = create_user(last_login=False)
+    crud = UserCRUD()
 
-    user = await login(credentials, success_password_validator, get_test_password, crud)
+    logged_user = await login(user, crud)
 
-    assert user.last_login
+    assert logged_user.last_login
 
 
 @pytest.mark.anyio()
