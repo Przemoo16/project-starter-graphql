@@ -77,46 +77,6 @@ def test_send_reset_password_email() -> None:
     assert "http://test/test-token" in message_result["plain_message"]
 
 
-def test_read_reset_password_token() -> None:
-    token = "test-token"
-
-    def read_token(_: str) -> dict[str, str]:
-        return {
-            "sub": "6d9c79d6-9641-4746-92d9-2cc9ebdca941",
-            "fingerprint": "test-fingerprint",
-            "type": "reset-password",
-        }
-
-    data = read_reset_password_token(token, read_token)
-
-    assert data.user_id == UUID("6d9c79d6-9641-4746-92d9-2cc9ebdca941")
-    assert data.fingerprint == "test-fingerprint"
-
-
-def test_read_reset_password_token_invalid_token() -> None:
-    token = "test-token"
-
-    def read_token(_: str) -> dict[str, str]:
-        raise InvalidTokenError
-
-    with pytest.raises(InvalidResetPasswordTokenError):
-        read_reset_password_token(token, read_token)
-
-
-def test_read_reset_password_token_invalid_token_type() -> None:
-    token = "test-token"
-
-    def read_token(_: str) -> dict[str, str]:
-        return {
-            "sub": "6d9c79d6-9641-4746-92d9-2cc9ebdca941",
-            "fingerprint": "test-fingerprint",
-            "type": "invalid-type",
-        }
-
-    with pytest.raises(InvalidResetPasswordTokenError):
-        read_reset_password_token(token, read_token)
-
-
 @pytest.mark.anyio()
 async def test_reset_password() -> None:
     def hash_password(_: str) -> str:
@@ -212,3 +172,43 @@ async def test_reset_password_user_not_confirmed() -> None:
 
     with pytest.raises(UserNotConfirmedError):
         await reset_password(data, read_token, success_password_validator, crud)
+
+
+def test_read_reset_password_token() -> None:
+    token = "test-token"
+
+    def read_token(_: str) -> dict[str, str]:
+        return {
+            "sub": "6d9c79d6-9641-4746-92d9-2cc9ebdca941",
+            "fingerprint": "test-fingerprint",
+            "type": "reset-password",
+        }
+
+    data = read_reset_password_token(token, read_token)
+
+    assert data.user_id == UUID("6d9c79d6-9641-4746-92d9-2cc9ebdca941")
+    assert data.fingerprint == "test-fingerprint"
+
+
+def test_read_reset_password_token_invalid_token() -> None:
+    token = "test-token"
+
+    def read_token(_: str) -> dict[str, str]:
+        raise InvalidTokenError
+
+    with pytest.raises(InvalidResetPasswordTokenError):
+        read_reset_password_token(token, read_token)
+
+
+def test_read_reset_password_token_invalid_token_type() -> None:
+    token = "test-token"
+
+    def read_token(_: str) -> dict[str, str]:
+        return {
+            "sub": "6d9c79d6-9641-4746-92d9-2cc9ebdca941",
+            "fingerprint": "test-fingerprint",
+            "type": "invalid-type",
+        }
+
+    with pytest.raises(InvalidResetPasswordTokenError):
+        read_reset_password_token(token, read_token)

@@ -57,35 +57,16 @@ def send_reset_password_email(
     url_template: str,
     token: str,
     template_loader: TemplateLoader,
-    send_email_func: Callable[[HTMLMessage], None],
+    email_sender: Callable[[HTMLMessage], None],
 ) -> None:
     link = url_template.format(token=token)
     subject = _("Reset password")
     html_message = template_loader("reset-password.html", link=link)
     plain_message = _("Click the link to reset your password: {link}").format(link=link)
-    send_email_func(
+    email_sender(
         HTMLMessage(
             subject=subject, html_message=html_message, plain_message=plain_message
         )
-    )
-
-
-def read_reset_password_token(
-    token: str, token_reader: TokenReader
-) -> ResetPasswordTokenData:
-    try:
-        data = token_reader(token)
-    except InvalidTokenError as exc:
-        logger.info("The token is invalid")
-        raise InvalidResetPasswordTokenError from exc
-    if data["type"] != RESET_PASSWORD_TOKEN_TYPE:
-        logger.info(
-            "The token is not a reset password token, actual type: %r",
-            data["type"],
-        )
-        raise InvalidResetPasswordTokenError
-    return ResetPasswordTokenData(
-        user_id=UUID(data["sub"]), fingerprint=data["fingerprint"]
     )
 
 
@@ -110,4 +91,23 @@ async def reset_password(
         raise UserNotConfirmedError
     return await crud.update_and_refresh(
         user, UserUpdateData(hashed_password=data.hashed_password)
+    )
+
+
+def read_reset_password_token(
+    token: str, token_reader: TokenReader
+) -> ResetPasswordTokenData:
+    try:
+        data = token_reader(token)
+    except InvalidTokenError as exc:
+        logger.info("The token is invalid")
+        raise InvalidResetPasswordTokenError from exc
+    if data["type"] != RESET_PASSWORD_TOKEN_TYPE:
+        logger.info(
+            "The token is not a reset password token, actual type: %r",
+            data["type"],
+        )
+        raise InvalidResetPasswordTokenError
+    return ResetPasswordTokenData(
+        user_id=UUID(data["sub"]), fingerprint=data["fingerprint"]
     )

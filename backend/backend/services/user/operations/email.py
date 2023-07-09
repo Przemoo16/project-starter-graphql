@@ -52,35 +52,16 @@ def send_confirmation_email(
     url_template: str,
     token: str,
     template_loader: TemplateLoader,
-    send_email_func: Callable[[HTMLMessage], None],
+    email_sender: Callable[[HTMLMessage], None],
 ) -> None:
     link = url_template.format(token=token)
     subject = _("Confirm email")
     html_message = template_loader("email-confirmation.html", link=link)
     plain_message = _("Click the link to confirm your email: {link}").format(link=link)
-    send_email_func(
+    email_sender(
         HTMLMessage(
             subject=subject, html_message=html_message, plain_message=plain_message
         )
-    )
-
-
-def read_email_confirmation_token(
-    token: str, token_reader: TokenReader
-) -> ConfirmationEmailTokenData:
-    try:
-        data = token_reader(token)
-    except InvalidTokenError as exc:
-        logger.info("The token is invalid")
-        raise InvalidEmailConfirmationTokenError from exc
-    if data["type"] != EMAIL_CONFIRMATION_TOKEN_TYPE:
-        logger.info(
-            "The token is not an email confirmation token, actual type: %r",
-            data["type"],
-        )
-        raise InvalidEmailConfirmationTokenError
-    return ConfirmationEmailTokenData(
-        user_id=UUID(data["sub"]), user_email=data["email"]
     )
 
 
@@ -102,3 +83,22 @@ async def confirm_email(
     if user.confirmed_email:
         raise UserAlreadyConfirmedError
     return await crud.update_and_refresh(user, UserUpdateData(confirmed_email=True))
+
+
+def read_email_confirmation_token(
+    token: str, token_reader: TokenReader
+) -> ConfirmationEmailTokenData:
+    try:
+        data = token_reader(token)
+    except InvalidTokenError as exc:
+        logger.info("The token is invalid")
+        raise InvalidEmailConfirmationTokenError from exc
+    if data["type"] != EMAIL_CONFIRMATION_TOKEN_TYPE:
+        logger.info(
+            "The token is not an email confirmation token, actual type: %r",
+            data["type"],
+        )
+        raise InvalidEmailConfirmationTokenError
+    return ConfirmationEmailTokenData(
+        user_id=UUID(data["sub"]), user_email=data["email"]
+    )

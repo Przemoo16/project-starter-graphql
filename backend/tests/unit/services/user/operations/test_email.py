@@ -60,46 +60,6 @@ def test_send_confirmation_email() -> None:
     assert "http://test/test-token" in message_result["plain_message"]
 
 
-def test_read_email_confirmation_token() -> None:
-    token = "test-token"
-
-    def read_token(_: str) -> dict[str, str]:
-        return {
-            "sub": "6d9c79d6-9641-4746-92d9-2cc9ebdca941",
-            "email": "test@email.com",
-            "type": "email-confirmation",
-        }
-
-    data = read_email_confirmation_token(token, read_token)
-
-    assert data.user_id == UUID("6d9c79d6-9641-4746-92d9-2cc9ebdca941")
-    assert data.user_email == "test@email.com"
-
-
-def test_read_email_confirmation_token_invalid_token() -> None:
-    token = "test-token"
-
-    def read_token(_: str) -> dict[str, str]:
-        raise InvalidTokenError
-
-    with pytest.raises(InvalidEmailConfirmationTokenError):
-        read_email_confirmation_token(token, read_token)
-
-
-def test_read_email_confirmation_token_invalid_token_type() -> None:
-    token = "test-token"
-
-    def read_token(_: str) -> dict[str, str]:
-        return {
-            "sub": "6d9c79d6-9641-4746-92d9-2cc9ebdca941",
-            "email": "test@email.com",
-            "type": "invalid-type",
-        }
-
-    with pytest.raises(InvalidEmailConfirmationTokenError):
-        read_email_confirmation_token(token, read_token)
-
-
 @pytest.mark.anyio()
 async def test_confirm_email() -> None:
     token = "test-token"
@@ -181,3 +141,43 @@ async def test_confirm_email_user_already_confirmed() -> None:
 
     with pytest.raises(UserAlreadyConfirmedError):
         await confirm_email(token, read_token, crud)
+
+
+def test_read_email_confirmation_token() -> None:
+    token = "test-token"
+
+    def read_token(_: str) -> dict[str, str]:
+        return {
+            "sub": "6d9c79d6-9641-4746-92d9-2cc9ebdca941",
+            "email": "test@email.com",
+            "type": "email-confirmation",
+        }
+
+    data = read_email_confirmation_token(token, read_token)
+
+    assert data.user_id == UUID("6d9c79d6-9641-4746-92d9-2cc9ebdca941")
+    assert data.user_email == "test@email.com"
+
+
+def test_read_email_confirmation_token_invalid_token() -> None:
+    token = "test-token"
+
+    def read_token(_: str) -> dict[str, str]:
+        raise InvalidTokenError
+
+    with pytest.raises(InvalidEmailConfirmationTokenError):
+        read_email_confirmation_token(token, read_token)
+
+
+def test_read_email_confirmation_token_invalid_token_type() -> None:
+    token = "test-token"
+
+    def read_token(_: str) -> dict[str, str]:
+        return {
+            "sub": "6d9c79d6-9641-4746-92d9-2cc9ebdca941",
+            "email": "test@email.com",
+            "type": "invalid-type",
+        }
+
+    with pytest.raises(InvalidEmailConfirmationTokenError):
+        read_email_confirmation_token(token, read_token)

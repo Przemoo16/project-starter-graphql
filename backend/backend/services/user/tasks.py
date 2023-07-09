@@ -32,7 +32,7 @@ user_settings = _settings.user
 
 @celery_app.task  # type: ignore[misc]
 def send_confirmation_email_task(user_id: UUID, user_email: str) -> None:
-    send_email_func = partial(
+    email_sender = partial(
         send_html_email,
         participants=EmailParticipants(
             sender=email_settings.sender, receiver=user_email
@@ -59,7 +59,7 @@ def send_confirmation_email_task(user_id: UUID, user_email: str) -> None:
         url_template=user_settings.email_confirmation_url_template,
         token=token,
         template_loader=load_template,
-        send_email_func=send_email_func,
+        email_sender=email_sender,
     )
     logger.info("Sent confirmation email to %r", user_email)
 
@@ -68,7 +68,7 @@ def send_confirmation_email_task(user_id: UUID, user_email: str) -> None:
 def send_reset_password_email_task(
     user_id: UUID, user_email: str, user_password: str
 ) -> None:
-    send_email_func = partial(
+    email_sender = partial(
         send_html_email,
         participants=EmailParticipants(
             sender=email_settings.sender, receiver=user_email
@@ -96,6 +96,6 @@ def send_reset_password_email_task(
         url_template=user_settings.reset_password_url_template,
         token=token,
         template_loader=load_template,
-        send_email_func=send_email_func,
+        email_sender=email_sender,
     )
     logger.info("Sent reset password email to %r", user_email)
