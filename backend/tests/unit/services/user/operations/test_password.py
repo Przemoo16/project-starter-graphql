@@ -200,7 +200,7 @@ async def test_reset_password_user_not_confirmed() -> None:
             "type": "reset-password",
         }
 
-    with pytest.raises(UserNotConfirmedError):
+    with pytest.raises(InvalidResetPasswordTokenError):
         await reset_password(data, read_token, success_password_validator, crud)
 
 
