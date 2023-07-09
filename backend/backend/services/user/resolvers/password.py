@@ -70,6 +70,6 @@ async def reset_password_resolver(
             verify_and_update_password,
             crud,
         )
-    except (InvalidResetPasswordTokenError, UserNotConfirmedError):
+    except InvalidResetPasswordTokenError:
         return ResetPasswordFailure(problems=[InvalidResetPasswordToken()])
     return ResetPasswordSuccess()

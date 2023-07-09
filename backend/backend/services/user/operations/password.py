@@ -101,7 +101,7 @@ async def reset_password(
         raise InvalidResetPasswordTokenError
     if not user.confirmed_email:
         logger.info("User %r not confirmed", user.email)
-        raise UserNotConfirmedError
+        raise InvalidResetPasswordTokenError
     return await crud.update_and_refresh(
         user, UserUpdateData(hashed_password=data.hashed_password)
     )
