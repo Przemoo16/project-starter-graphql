@@ -2,21 +2,17 @@ import pytest
 
 from backend.services.user.exceptions import (
     UserAlreadyExistsError,
-    UserNotConfirmedError,
     UserNotFoundError,
 )
+from backend.services.user.models import User
 from backend.services.user.operations.user import (
     create_user,
     delete_user,
-    get_confirmed_user,
     get_user,
     update_user,
 )
 from backend.services.user.schemas import UserCreateData, UserFilters, UserUpdateData
 from tests.unit.helpers.user import UserCRUD
-from tests.unit.helpers.user import (
-    create_confirmed_user as create_confirmed_user_helper,
-)
 from tests.unit.helpers.user import create_user as create_user_helper
 
 
@@ -71,34 +67,6 @@ async def test_get_user_not_found() -> None:
 
 
 @pytest.mark.anyio()
-async def test_get_confirmed_user() -> None:
-    filters = UserFilters(email="test@email.com")
-    crud = UserCRUD(existing_user=create_confirmed_user_helper(email="test@email.com"))
-
-    user = await get_confirmed_user(filters, crud)
-
-    assert user
-
-
-@pytest.mark.anyio()
-async def test_get_confirmed_user_not_found() -> None:
-    filters = UserFilters(email="test@email.com")
-    crud = UserCRUD()
-
-    with pytest.raises(UserNotFoundError):
-        await get_confirmed_user(filters, crud)
-
-
-@pytest.mark.anyio()
-async def test_get_not_confirmed_user() -> None:
-    filters = UserFilters(email="test@email.com")
-    crud = UserCRUD(existing_user=create_user_helper(email="test@email.com"))
-
-    with pytest.raises(UserNotConfirmedError):
-        await get_confirmed_user(filters, crud)
-
-
-@pytest.mark.anyio()
 async def test_update_user() -> None:
     data = UserUpdateData(confirmed_email=True)
     user = create_user_helper(confirmed_email=False)
@@ -130,7 +98,7 @@ async def test_update_user_email_the_same_email_provided() -> None:
     updated_user = await update_user(user, data, crud)
 
     assert updated_user.email == "test@email.com"
-    assert updated_user.confirmed_email is not False
+    assert updated_user.confirmed_email is True
 
 
 @pytest.mark.anyio()
@@ -141,6 +109,38 @@ async def test_update_user_email_already_exists() -> None:
 
     with pytest.raises(UserAlreadyExistsError):
         await update_user(user, data, crud)
+
+
+@pytest.mark.anyio()
+async def test_update_user_email_callback_called() -> None:
+    data = UserUpdateData(email="updated@email.com")
+    user = create_user_helper(email="test@email.com")
+    crud = UserCRUD()
+    callback_called = False
+
+    def callback(_: User) -> None:
+        nonlocal callback_called
+        callback_called = True
+
+    await update_user(user, data, crud, callback)
+
+    assert callback_called
+
+
+@pytest.mark.anyio()
+async def test_update_user_email_callback_not_called() -> None:
+    data = UserUpdateData(confirmed_email=True)
+    user = create_user_helper()
+    crud = UserCRUD()
+    callback_called = False
+
+    def callback(_: User) -> None:
+        nonlocal callback_called
+        callback_called = True
+
+    await update_user(user, data, crud, callback)
+
+    assert not callback_called
 
 
 @pytest.mark.anyio()

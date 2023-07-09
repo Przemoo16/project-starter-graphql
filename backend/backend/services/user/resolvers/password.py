@@ -17,9 +17,11 @@ from backend.services.user.exceptions import (
     UserNotFoundError,
 )
 from backend.services.user.models import User
-from backend.services.user.operations.password import reset_password
-from backend.services.user.operations.user import get_confirmed_user
-from backend.services.user.schemas import ResetPasswordData, UserFilters
+from backend.services.user.operations.password import (
+    get_user_to_recover_password,
+    reset_password,
+)
+from backend.services.user.schemas import ResetPasswordData
 from backend.services.user.tasks import send_reset_password_email_task
 from backend.services.user.types.password import (
     InvalidResetPasswordToken,
@@ -38,11 +40,9 @@ user_settings = get_settings().user
 async def recover_password_resolver(info: Info, email: str) -> RecoverPasswordResponse:
     crud = UserCRUD(model=User, session=info.context.session)
     try:
-        user = await get_confirmed_user(UserFilters(email=email), crud)
-    except UserNotFoundError:
-        logger.debug("Message has not been sent because user not found")
-    except UserNotConfirmedError:
-        logger.debug("Message has not been sent because user not confirmed")
+        user = await get_user_to_recover_password(email, crud)
+    except (UserNotFoundError, UserNotConfirmedError):
+        pass
     else:
         send_reset_password_email_task.delay(
             user_id=user.id, user_email=user.email, user_password=user.hashed_password

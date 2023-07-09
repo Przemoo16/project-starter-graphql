@@ -81,6 +81,7 @@ async def confirm_email(
         )
         raise InvalidEmailConfirmationTokenError from exc
     if user.confirmed_email:
+        logger.info("User %r already confirmed", user.email)
         raise UserAlreadyConfirmedError
     return await crud.update_and_refresh(user, UserUpdateData(confirmed_email=True))
 

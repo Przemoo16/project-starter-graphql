@@ -12,6 +12,7 @@ from backend.services.user.crud import UserCRUDProtocol
 from backend.services.user.exceptions import (
     InvalidResetPasswordTokenError,
     UserNotConfirmedError,
+    UserNotFoundError,
 )
 from backend.services.user.models import User
 from backend.services.user.schemas import ResetPasswordData, UserFilters, UserUpdateData
@@ -36,6 +37,18 @@ RESET_PASSWORD_TOKEN_TYPE = "reset-password"  # nosec
 class ResetPasswordTokenData:
     user_id: UUID
     fingerprint: str
+
+
+async def get_user_to_recover_password(email: str, crud: UserCRUDProtocol) -> User:
+    try:
+        user = await crud.read_one(UserFilters(email=email))
+    except NoObjectFoundError as exc:
+        logger.info("User %r not found", email)
+        raise UserNotFoundError from exc
+    if not user.confirmed_email:
+        logger.info("User %r not confirmed", user.email)
+        raise UserNotConfirmedError
+    return user
 
 
 def create_reset_password_token(

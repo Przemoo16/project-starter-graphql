@@ -23,13 +23,7 @@ ACCESS_TOKEN_TYPE = "access"  # nosec
 REFRESH_TOKEN_TYPE = "refresh"  # nosec
 
 
-async def login(
-    credentials: Credentials,
-    password_validator: PasswordValidator,
-    password_hasher: PasswordHasher,
-    crud: UserCRUDProtocol,
-) -> User:
-    user = await authenticate(credentials, password_validator, password_hasher, crud)
+async def login(user: User, crud: UserCRUDProtocol) -> User:
     return await crud.update_and_refresh(
         user, UserUpdateData(last_login=datetime.utcnow())
     )
@@ -55,6 +49,7 @@ async def authenticate(
         logger.info("Invalid password for the user %r", user.email)
         raise InvalidCredentialsError
     if not user.confirmed_email:
+        logger.info("User %r not confirmed", user.email)
         raise UserNotConfirmedError
     if updated_password_hash:
         user = await crud.update_and_refresh(

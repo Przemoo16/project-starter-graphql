@@ -45,7 +45,10 @@ class UserCRUD(  # pylint: disable=abstract-method
         raise NoObjectFoundError
 
     async def update_and_refresh(self, obj: User, data: UserUpdateData) -> User:
-        return create_user(**data.model_dump(exclude_unset=True))
+        data_dict = data.model_dump(exclude_unset=True)
+        for field, value in data_dict.items():
+            setattr(obj, field, value)
+        return obj
 
     async def delete(self, obj: User) -> None:
         pass
