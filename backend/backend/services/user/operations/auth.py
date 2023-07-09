@@ -23,9 +23,18 @@ ACCESS_TOKEN_TYPE = "access"  # nosec
 REFRESH_TOKEN_TYPE = "refresh"  # nosec
 
 
-async def login(user: User, crud: UserCRUDProtocol) -> User:
-    return await crud.update_and_refresh(
+async def login(
+    user: User,
+    access_token_creator: TokenCreator,
+    refresh_token_creator: TokenCreator,
+    crud: UserCRUDProtocol,
+) -> tuple[str, str]:
+    updated_user = await crud.update_and_refresh(
         user, UserUpdateData(last_login=datetime.utcnow())
+    )
+    return (
+        create_access_token(updated_user.id, access_token_creator),
+        create_refresh_token(updated_user.id, refresh_token_creator),
     )
 
 

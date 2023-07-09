@@ -13,12 +13,7 @@ from backend.services.user.exceptions import (
     UserNotConfirmedError,
 )
 from backend.services.user.models import User
-from backend.services.user.operations.auth import (
-    authenticate,
-    create_access_token,
-    create_refresh_token,
-    login,
-)
+from backend.services.user.operations.auth import authenticate, login
 from backend.services.user.schemas import Credentials
 from backend.services.user.types.auth import (
     InvalidCredentials,
@@ -47,22 +42,19 @@ async def login_resolver(
         return LoginFailure(problems=[InvalidCredentials()])
     except UserNotConfirmedError:
         return LoginFailure(problems=[UserNotConfirmed()])
-    logged_user = await login(user, crud)
-    access_token = create_access_token(
-        user_id=logged_user.id,
-        token_creator=partial(
+    access_token, refresh_token = await login(
+        user=user,
+        access_token_creator=partial(
             create_paseto_token_public_v4,
             expiration=int(user_settings.access_token_lifetime.total_seconds()),
             key=user_settings.auth_private_key.get_secret_value(),
         ),
-    )
-    refresh_token = create_refresh_token(
-        user_id=logged_user.id,
-        token_creator=partial(
+        refresh_token_creator=partial(
             create_paseto_token_public_v4,
             expiration=int(user_settings.refresh_token_lifetime.total_seconds()),
             key=user_settings.auth_private_key.get_secret_value(),
         ),
+        crud=crud,
     )
     return LoginSuccess(
         access_token=access_token,

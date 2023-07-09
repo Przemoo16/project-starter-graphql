@@ -11,11 +11,8 @@ from tests.integration.helpers.user import (
 
 @pytest.mark.anyio()
 async def test_login(session: AsyncSession, async_client: AsyncClient) -> None:
-    user = await create_confirmed_user(
-        session,
-        email="test@email.com",
-        hashed_password=hash_password("plain_password"),
-        last_login=None,
+    await create_confirmed_user(
+        session, email="test@email.com", hashed_password=hash_password("plain_password")
     )
     payload = {
         "query": """
@@ -37,7 +34,6 @@ async def test_login(session: AsyncSession, async_client: AsyncClient) -> None:
     assert "accessToken" in data
     assert "refreshToken" in data
     assert data["tokenType"] == "Bearer"
-    assert user.last_login
 
 
 @pytest.mark.anyio()

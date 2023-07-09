@@ -28,13 +28,38 @@ def get_test_password(_: str) -> str:
 
 
 @pytest.mark.anyio()
-async def test_update_last_login_when_user_log_in() -> None:
+async def test_login() -> None:
+    user = create_user()
+    crud = UserCRUD()
+
+    def create_test_access_token(_: Mapping[str, str]) -> str:
+        return "access-token"
+
+    def create_test_refresh_token(_: Mapping[str, str]) -> str:
+        return "refresh-token"
+
+    access_token, refresh_token = await login(
+        user, create_test_access_token, create_test_refresh_token, crud
+    )
+
+    assert access_token == "access-token"
+    assert refresh_token == "refresh-token"
+
+
+@pytest.mark.anyio()
+async def test_login_update_last_login() -> None:
     user = create_user(last_login=False)
     crud = UserCRUD()
 
-    logged_user = await login(user, crud)
+    def create_test_access_token(_: Mapping[str, str]) -> str:
+        return "access-token"
 
-    assert logged_user.last_login
+    def create_test_refresh_token(_: Mapping[str, str]) -> str:
+        return "refresh-token"
+
+    await login(user, create_test_access_token, create_test_refresh_token, crud)
+
+    assert user.last_login
 
 
 @pytest.mark.anyio()
