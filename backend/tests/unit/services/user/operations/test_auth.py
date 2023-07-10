@@ -11,6 +11,8 @@ from backend.services.user.exceptions import (
 )
 from backend.services.user.models import User
 from backend.services.user.operations.auth import (
+    AuthData,
+    TokensCreationData,
     authenticate,
     create_access_token,
     create_refresh_token,
@@ -30,8 +32,8 @@ def get_test_password(_: str) -> str:
 
 @pytest.mark.anyio()
 async def test_login() -> None:
-    user = create_user()
-    crud = UserCRUD()
+    user = create_confirmed_user(email="test@email.com")
+    crud = UserCRUD(existing_user=user)
 
     def create_test_access_token(_: Mapping[str, str]) -> str:
         return "access-token"
@@ -39,9 +41,18 @@ async def test_login() -> None:
     def create_test_refresh_token(_: Mapping[str, str]) -> str:
         return "refresh-token"
 
-    access_token, refresh_token = await login(
-        user, create_test_access_token, create_test_refresh_token, crud
+    auth_data = AuthData(
+        credentials=Credentials(email="test@email.com", password="plain_password"),
+        password_validator=success_password_validator,
+        password_hasher=get_test_password,
     )
+
+    tokens_data = TokensCreationData(
+        access_token_creator=create_test_access_token,
+        refresh_token_creator=create_test_refresh_token,
+    )
+
+    access_token, refresh_token = await login(auth_data, tokens_data, crud)
 
     assert access_token == "access-token"
     assert refresh_token == "refresh-token"
@@ -49,8 +60,8 @@ async def test_login() -> None:
 
 @pytest.mark.anyio()
 async def test_login_update_last_login() -> None:
-    user = create_user(last_login=False)
-    crud = UserCRUD()
+    user = create_confirmed_user(email="test@email.com", last_login=False)
+    crud = UserCRUD(existing_user=user)
 
     def create_test_access_token(_: Mapping[str, str]) -> str:
         return "access-token"
@@ -58,7 +69,18 @@ async def test_login_update_last_login() -> None:
     def create_test_refresh_token(_: Mapping[str, str]) -> str:
         return "refresh-token"
 
-    await login(user, create_test_access_token, create_test_refresh_token, crud)
+    auth_data = AuthData(
+        credentials=Credentials(email="test@email.com", password="plain_password"),
+        password_validator=success_password_validator,
+        password_hasher=get_test_password,
+    )
+
+    tokens_data = TokensCreationData(
+        access_token_creator=create_test_access_token,
+        refresh_token_creator=create_test_refresh_token,
+    )
+
+    await login(auth_data, tokens_data, crud)
 
     assert user.last_login
 
