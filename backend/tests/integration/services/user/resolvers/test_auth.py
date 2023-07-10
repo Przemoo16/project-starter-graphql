@@ -37,7 +37,31 @@ async def test_login(session: AsyncSession, async_client: AsyncClient) -> None:
 
 
 @pytest.mark.anyio()
-async def test_login_invalid_credentials(
+async def test_login_user_not_found(async_client: AsyncClient) -> None:
+    payload = {
+        "query": """
+            mutation {
+              login(input: {username: "test@email.com", password: "plain_password"}) {
+                ... on LoginFailure {
+                  problems {
+                    ... on InvalidCredentials {
+                      message
+                    }
+                  }
+                }
+              }
+            }
+        """
+    }
+
+    response = await async_client.post("/graphql", json=payload)
+
+    data = response.json()["data"]["login"]["problems"][0]
+    assert "message" in data
+
+
+@pytest.mark.anyio()
+async def test_login_invalid_password(
     session: AsyncSession, async_client: AsyncClient
 ) -> None:
     await create_confirmed_user(
