@@ -32,9 +32,40 @@ EMAIL_CONFIRMATION_TOKEN_TYPE = "email-confirmation"  # nosec
 
 
 @dataclass
-class ConfirmationEmailTokenData:
+class ConfirmationTokenData:
     user_id: UUID
     user_email: str
+    token_creator: TokenCreator
+
+
+@dataclass
+class ConfirmationEmailData:
+    url_template: str
+    template_loader: TemplateLoader
+    email_sender: Callable[[HTMLMessage], None]
+
+
+@dataclass
+class ConfirmationTokenPayload:
+    user_id: UUID
+    user_email: str
+
+
+def send_email_confirmation_token(
+    token_data: ConfirmationTokenData, email_data: ConfirmationEmailData
+) -> None:
+    token = create_email_confirmation_token(
+        token_data.user_id, token_data.user_email, token_data.token_creator
+    )
+    link = email_data.url_template.format(token=token)
+    subject = _("Confirm email")
+    html_message = email_data.template_loader("email-confirmation.html", link=link)
+    plain_message = _("Click the link to confirm your email: {link}").format(link=link)
+    email_data.email_sender(
+        HTMLMessage(
+            subject=subject, html_message=html_message, plain_message=plain_message
+        )
+    )
 
 
 def create_email_confirmation_token(
@@ -49,36 +80,19 @@ def create_email_confirmation_token(
     )
 
 
-def send_confirmation_email(
-    url_template: str,
-    token: str,
-    template_loader: TemplateLoader,
-    email_sender: Callable[[HTMLMessage], None],
-) -> None:
-    link = url_template.format(token=token)
-    subject = _("Confirm email")
-    html_message = template_loader("email-confirmation.html", link=link)
-    plain_message = _("Click the link to confirm your email: {link}").format(link=link)
-    email_sender(
-        HTMLMessage(
-            subject=subject, html_message=html_message, plain_message=plain_message
-        )
-    )
-
-
 async def confirm_email(
     token: str, token_reader: TokenReader, crud: UserCRUDProtocol
 ) -> User:
-    token_data = read_email_confirmation_token(token, token_reader)
+    token_payload = read_email_confirmation_token(token, token_reader)
     try:
         user = await crud.read_one(
-            UserFilters(id=token_data.user_id, email=token_data.user_email)
+            UserFilters(id=token_payload.user_id, email=token_payload.user_email)
         )
     except NoObjectFoundError as exc:
         logger.info(
             "User with id %r and email %r not found",
-            token_data.user_id,
-            token_data.user_email,
+            token_payload.user_id,
+            token_payload.user_email,
         )
         raise UserNotFoundError from exc
     if user.confirmed_email:
@@ -89,7 +103,7 @@ async def confirm_email(
 
 def read_email_confirmation_token(
     token: str, token_reader: TokenReader
-) -> ConfirmationEmailTokenData:
+) -> ConfirmationTokenPayload:
     try:
         data = token_reader(token)
     except InvalidTokenError as exc:
@@ -101,6 +115,4 @@ def read_email_confirmation_token(
             data["type"],
         )
         raise InvalidEmailConfirmationTokenError
-    return ConfirmationEmailTokenData(
-        user_id=UUID(data["sub"]), user_email=data["email"]
-    )
+    return ConfirmationTokenPayload(user_id=UUID(data["sub"]), user_email=data["email"])

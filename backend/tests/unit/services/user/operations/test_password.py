@@ -14,11 +14,13 @@ from backend.services.user.exceptions import (
 )
 from backend.services.user.models import User
 from backend.services.user.operations.password import (
+    ResetPasswordEmailData,
+    ResetPasswordTokenData,
     create_reset_password_token,
     read_reset_password_token,
     recover_password,
     reset_password,
-    send_reset_password_email,
+    send_reset_password_token,
 )
 from backend.services.user.schemas import ResetPasswordData
 from tests.unit.helpers.user import UserCRUD, create_confirmed_user, create_user
@@ -77,6 +79,42 @@ async def test_recover_password_user_not_confirmed() -> None:
     assert not callback_called
 
 
+def test_send_reset_password_token() -> None:
+    message_result = {}
+
+    def load_template(name: str, **kwargs: Any) -> str:
+        return f"{name} {kwargs}"
+
+    def send_email(message: HTMLMessage) -> None:
+        nonlocal message_result
+        message_result = {
+            "subject": message.subject,
+            "html_message": message.html_message,
+            "plain_message": message.plain_message,
+        }
+
+    token_data = ResetPasswordTokenData(
+        user_id=UUID("6d9c79d6-9641-4746-92d9-2cc9ebdca941"),
+        user_password="hashed_password",
+        password_hasher=get_test_password,
+        token_creator=lambda _: "test-token",
+    )
+    email_data = ResetPasswordEmailData(
+        url_template="http://test/{token}",
+        template_loader=load_template,
+        email_sender=send_email,
+    )
+
+    send_reset_password_token(token_data, email_data)
+
+    assert message_result["subject"]
+    assert (
+        message_result["html_message"]
+        == "reset-password.html {'link': 'http://test/test-token'}"
+    )
+    assert "http://test/test-token" in message_result["plain_message"]
+
+
 def test_create_reset_password_token() -> None:
     user_id = UUID("6d9c79d6-9641-4746-92d9-2cc9ebdca941")
     user_password = "hashed_password"
@@ -98,32 +136,6 @@ def test_create_reset_password_token() -> None:
         "sub:6d9c79d6-9641-4746-92d9-2cc9ebdca941-"
         "fingerprint:again_hashed_password-type:reset-password"
     )
-
-
-def test_send_reset_password_email() -> None:
-    url_template = "http://test/{token}"
-    token = "test-token"
-    message_result = {}
-
-    def load_template(name: str, **kwargs: Any) -> str:
-        return f"{name} {kwargs}"
-
-    def send_email(message: HTMLMessage) -> None:
-        nonlocal message_result
-        message_result = {
-            "subject": message.subject,
-            "html_message": message.html_message,
-            "plain_message": message.plain_message,
-        }
-
-    send_reset_password_email(url_template, token, load_template, send_email)
-
-    assert message_result["subject"]
-    assert (
-        message_result["html_message"]
-        == "reset-password.html {'link': 'http://test/test-token'}"
-    )
-    assert "http://test/test-token" in message_result["plain_message"]
 
 
 @pytest.mark.anyio()
@@ -233,10 +245,10 @@ def test_read_reset_password_token() -> None:
             "type": "reset-password",
         }
 
-    data = read_reset_password_token(token, read_token)
+    payload = read_reset_password_token(token, read_token)
 
-    assert data.user_id == UUID("6d9c79d6-9641-4746-92d9-2cc9ebdca941")
-    assert data.fingerprint == "test-fingerprint"
+    assert payload.user_id == UUID("6d9c79d6-9641-4746-92d9-2cc9ebdca941")
+    assert payload.fingerprint == "test-fingerprint"
 
 
 def test_read_reset_password_token_invalid_token() -> None:

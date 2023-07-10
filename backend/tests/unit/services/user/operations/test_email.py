@@ -12,12 +12,49 @@ from backend.services.user.exceptions import (
     UserNotFoundError,
 )
 from backend.services.user.operations.email import (
+    ConfirmationEmailData,
+    ConfirmationTokenData,
     confirm_email,
     create_email_confirmation_token,
     read_email_confirmation_token,
-    send_confirmation_email,
+    send_email_confirmation_token,
 )
 from tests.unit.helpers.user import UserCRUD, create_confirmed_user, create_user
+
+
+def test_send_email_confirmation_token() -> None:
+    message_result = {}
+
+    def load_template(name: str, **kwargs: Any) -> str:
+        return f"{name} {kwargs}"
+
+    def send_email(message: HTMLMessage) -> None:
+        nonlocal message_result
+        message_result = {
+            "subject": message.subject,
+            "html_message": message.html_message,
+            "plain_message": message.plain_message,
+        }
+
+    token_data = ConfirmationTokenData(
+        user_id=UUID("6d9c79d6-9641-4746-92d9-2cc9ebdca941"),
+        user_email="test@email.com",
+        token_creator=lambda _: "test-token",
+    )
+    email_data = ConfirmationEmailData(
+        url_template="http://test/{token}",
+        template_loader=load_template,
+        email_sender=send_email,
+    )
+
+    send_email_confirmation_token(token_data, email_data)
+
+    assert message_result["subject"]
+    assert (
+        message_result["html_message"]
+        == "email-confirmation.html {'link': 'http://test/test-token'}"
+    )
+    assert "http://test/test-token" in message_result["plain_message"]
 
 
 def test_create_email_confirmation_token() -> None:
@@ -33,32 +70,6 @@ def test_create_email_confirmation_token() -> None:
         "sub:6d9c79d6-9641-4746-92d9-2cc9ebdca941-email:test@email.com-"
         "type:email-confirmation"
     )
-
-
-def test_send_confirmation_email() -> None:
-    url_template = "http://test/{token}"
-    token = "test-token"
-    message_result = {}
-
-    def load_template(name: str, **kwargs: Any) -> str:
-        return f"{name} {kwargs}"
-
-    def send_email(message: HTMLMessage) -> None:
-        nonlocal message_result
-        message_result = {
-            "subject": message.subject,
-            "html_message": message.html_message,
-            "plain_message": message.plain_message,
-        }
-
-    send_confirmation_email(url_template, token, load_template, send_email)
-
-    assert message_result["subject"]
-    assert (
-        message_result["html_message"]
-        == "email-confirmation.html {'link': 'http://test/test-token'}"
-    )
-    assert "http://test/test-token" in message_result["plain_message"]
 
 
 @pytest.mark.anyio()
@@ -154,10 +165,10 @@ def test_read_email_confirmation_token() -> None:
             "type": "email-confirmation",
         }
 
-    data = read_email_confirmation_token(token, read_token)
+    payload = read_email_confirmation_token(token, read_token)
 
-    assert data.user_id == UUID("6d9c79d6-9641-4746-92d9-2cc9ebdca941")
-    assert data.user_email == "test@email.com"
+    assert payload.user_id == UUID("6d9c79d6-9641-4746-92d9-2cc9ebdca941")
+    assert payload.user_email == "test@email.com"
 
 
 def test_read_email_confirmation_token_invalid_token() -> None:
