@@ -33,45 +33,6 @@ async def test_recover_password(
 
 
 @pytest.mark.anyio()
-async def test_recover_password_user_not_found(async_client: AsyncClient) -> None:
-    payload = {
-        "query": """
-            mutation {
-              recoverPassword(email: "test@email.com") {
-                message
-              }
-            }
-        """
-    }
-
-    response = await async_client.post("/graphql", json=payload)
-
-    data = response.json()["data"]["recoverPassword"]
-    assert data
-
-
-@pytest.mark.anyio()
-async def test_recover_password_user_not_confirmed(
-    session: AsyncSession, async_client: AsyncClient
-) -> None:
-    await create_user(session, email="test@email.com")
-    payload = {
-        "query": """
-            mutation {
-              recoverPassword(email: "test@email.com") {
-                message
-              }
-            }
-        """
-    }
-
-    response = await async_client.post("/graphql", json=payload)
-
-    data = response.json()["data"]["recoverPassword"]
-    assert data
-
-
-@pytest.mark.anyio()
 async def test_reset_password(
     session: AsyncSession, auth_private_key: str, async_client: AsyncClient
 ) -> None:

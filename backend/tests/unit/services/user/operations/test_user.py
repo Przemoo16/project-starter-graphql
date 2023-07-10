@@ -1,3 +1,5 @@
+from contextlib import suppress
+
 import pytest
 
 from backend.services.user.exceptions import (
@@ -45,6 +47,45 @@ async def test_create_user_already_exists() -> None:
 
     with pytest.raises(UserAlreadyExistsError):
         await create_user(data, crud)
+
+
+@pytest.mark.anyio()
+async def test_create_user_callback_called() -> None:
+    data = UserCreateData(
+        email="test@email.com",
+        password="plain_password",
+        password_hasher=get_test_password,
+    )
+    crud = UserCRUD()
+    callback_called = False
+
+    def callback(_: User) -> None:
+        nonlocal callback_called
+        callback_called = True
+
+    await create_user(data, crud, callback)
+
+    assert callback_called
+
+
+@pytest.mark.anyio()
+async def test_create_user_callback_not_called() -> None:
+    data = UserCreateData(
+        email="test@email.com",
+        password="plain_password",
+        password_hasher=get_test_password,
+    )
+    crud = UserCRUD(existing_user=create_user_helper(email="test@email.com"))
+    callback_called = False
+
+    def callback(_: User) -> None:
+        nonlocal callback_called
+        callback_called = True
+
+    with suppress(UserAlreadyExistsError):
+        await create_user(data, crud, callback)
+
+    assert not callback_called
 
 
 @pytest.mark.anyio()

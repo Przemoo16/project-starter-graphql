@@ -12,10 +12,11 @@ from backend.services.user.exceptions import (
     UserNotConfirmedError,
     UserNotFoundError,
 )
+from backend.services.user.models import User
 from backend.services.user.operations.password import (
     create_reset_password_token,
-    get_user_to_recover_password,
     read_reset_password_token,
+    recover_password,
     reset_password,
     send_reset_password_email,
 )
@@ -32,31 +33,48 @@ def get_test_password(_: str) -> str:
 
 
 @pytest.mark.anyio()
-async def test_get_user_to_recover_password() -> None:
+async def test_recover_password() -> None:
     email = "test@email.com"
     crud = UserCRUD(existing_user=create_confirmed_user(email="test@email.com"))
+    callback_called = False
 
-    user = await get_user_to_recover_password(email, crud)
+    def callback(_: User) -> None:
+        nonlocal callback_called
+        callback_called = True
 
-    assert user
+    await recover_password(email, crud, callback)
+
+    assert callback_called
 
 
 @pytest.mark.anyio()
-async def test_get_user_to_recover_password_user_not_found() -> None:
+async def test_recover_password_user_not_found() -> None:
     email = "test@email.com"
     crud = UserCRUD()
+    callback_called = False
 
-    with pytest.raises(UserNotFoundError):
-        await get_user_to_recover_password(email, crud)
+    def callback(_: User) -> None:
+        nonlocal callback_called
+        callback_called = True
+
+    await recover_password(email, crud, callback)
+
+    assert not callback_called
 
 
 @pytest.mark.anyio()
-async def test_get_user_to_recover_password_user_not_confirmed() -> None:
+async def test_recover_password_user_not_confirmed() -> None:
     email = "test@email.com"
     crud = UserCRUD(existing_user=create_user(email="test@email.com"))
+    callback_called = False
 
-    with pytest.raises(UserNotConfirmedError):
-        await get_user_to_recover_password(email, crud)
+    def callback(_: User) -> None:
+        nonlocal callback_called
+        callback_called = True
+
+    await recover_password(email, crud, callback)
+
+    assert not callback_called
 
 
 def test_create_reset_password_token() -> None:
