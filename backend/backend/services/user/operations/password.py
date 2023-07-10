@@ -11,6 +11,7 @@ from backend.libs.security.token import InvalidTokenError
 from backend.services.user.crud import UserCRUDProtocol
 from backend.services.user.exceptions import (
     InvalidResetPasswordTokenError,
+    InvalidResetPasswordTokenFingerprintError,
     UserNotConfirmedError,
     UserNotFoundError,
 )
@@ -94,14 +95,14 @@ async def reset_password(
         user = await crud.read_one(UserFilters(id=token_data.user_id))
     except NoObjectFoundError as exc:
         logger.info("User with id %r not found", token_data.user_id)
-        raise InvalidResetPasswordTokenError from exc
+        raise UserNotFoundError from exc
     is_valid, _ = password_validator(user.hashed_password, token_data.fingerprint)
     if not is_valid:
         logger.info("The token has invalid fingerprint")
-        raise InvalidResetPasswordTokenError
+        raise InvalidResetPasswordTokenFingerprintError
     if not user.confirmed_email:
         logger.info("User %r not confirmed", user.email)
-        raise InvalidResetPasswordTokenError
+        raise UserNotConfirmedError
     return await crud.update_and_refresh(
         user, UserUpdateData(hashed_password=data.hashed_password)
     )

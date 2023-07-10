@@ -8,6 +8,7 @@ from backend.libs.email.message import HTMLMessage
 from backend.libs.security.token import InvalidTokenError
 from backend.services.user.exceptions import (
     InvalidResetPasswordTokenError,
+    InvalidResetPasswordTokenFingerprintError,
     UserNotConfirmedError,
     UserNotFoundError,
 )
@@ -151,7 +152,7 @@ async def test_reset_password_user_not_found() -> None:
             "type": "reset-password",
         }
 
-    with pytest.raises(InvalidResetPasswordTokenError):
+    with pytest.raises(UserNotFoundError):
         await reset_password(data, read_token, success_password_validator, crud)
 
 
@@ -178,7 +179,7 @@ async def test_reset_password_invalid_fingerprint() -> None:
     def failure_validator(*_: str) -> tuple[bool, None]:
         return False, None
 
-    with pytest.raises(InvalidResetPasswordTokenError):
+    with pytest.raises(InvalidResetPasswordTokenFingerprintError):
         await reset_password(data, read_token, failure_validator, crud)
 
 
@@ -200,7 +201,7 @@ async def test_reset_password_user_not_confirmed() -> None:
             "type": "reset-password",
         }
 
-    with pytest.raises(InvalidResetPasswordTokenError):
+    with pytest.raises(UserNotConfirmedError):
         await reset_password(data, read_token, success_password_validator, crud)
 
 

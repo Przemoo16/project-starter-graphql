@@ -12,6 +12,7 @@ from backend.services.user.crud import UserCRUDProtocol
 from backend.services.user.exceptions import (
     InvalidEmailConfirmationTokenError,
     UserAlreadyConfirmedError,
+    UserNotFoundError,
 )
 from backend.services.user.models import User
 from backend.services.user.schemas import UserFilters, UserUpdateData
@@ -79,7 +80,7 @@ async def confirm_email(
             token_data.user_id,
             token_data.user_email,
         )
-        raise InvalidEmailConfirmationTokenError from exc
+        raise UserNotFoundError from exc
     if user.confirmed_email:
         logger.info("User %r already confirmed", user.email)
         raise UserAlreadyConfirmedError

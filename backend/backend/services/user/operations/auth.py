@@ -7,8 +7,9 @@ from uuid import UUID
 from backend.libs.db.crud import NoObjectFoundError
 from backend.services.user.crud import UserCRUDProtocol
 from backend.services.user.exceptions import (
-    InvalidCredentialsError,
+    InvalidPasswordError,
     UserNotConfirmedError,
+    UserNotFoundError,
 )
 from backend.services.user.models import User
 from backend.services.user.schemas import Credentials, UserFilters, UserUpdateData
@@ -50,13 +51,13 @@ async def authenticate(
         # Run the password hasher to mitigate timing attack
         password_hasher(credentials.password)
         logger.info("User %r not found", credentials.email)
-        raise InvalidCredentialsError from exc
+        raise UserNotFoundError from exc
     is_valid, updated_password_hash = password_validator(
         credentials.password, user.hashed_password
     )
     if not is_valid:
         logger.info("Invalid password for the user %r", user.email)
-        raise InvalidCredentialsError
+        raise InvalidPasswordError
     if not user.confirmed_email:
         logger.info("User %r not confirmed", user.email)
         raise UserNotConfirmedError

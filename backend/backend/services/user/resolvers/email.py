@@ -7,6 +7,7 @@ from backend.services.user.crud import UserCRUD
 from backend.services.user.exceptions import (
     InvalidEmailConfirmationTokenError,
     UserAlreadyConfirmedError,
+    UserNotFoundError,
 )
 from backend.services.user.models import User
 from backend.services.user.operations.email import confirm_email
@@ -29,7 +30,7 @@ async def confirm_email_resolver(info: Info, token: str) -> ConfirmEmailResponse
             partial(read_paseto_token_public_v4, key=user_settings.auth_public_key),
             crud,
         )
-    except InvalidEmailConfirmationTokenError:
+    except (InvalidEmailConfirmationTokenError, UserNotFoundError):
         return ConfirmEmailFailure(problems=[InvalidEmailConfirmationToken()])
     except UserAlreadyConfirmedError:
         return ConfirmEmailFailure(problems=[UserAlreadyConfirmed()])

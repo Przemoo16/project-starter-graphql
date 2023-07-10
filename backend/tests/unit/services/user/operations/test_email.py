@@ -9,6 +9,7 @@ from backend.libs.security.token import InvalidTokenError
 from backend.services.user.exceptions import (
     InvalidEmailConfirmationTokenError,
     UserAlreadyConfirmedError,
+    UserNotFoundError,
 )
 from backend.services.user.operations.email import (
     confirm_email,
@@ -99,7 +100,7 @@ async def test_confirm_email_user_id_not_found() -> None:
             "type": "email-confirmation",
         }
 
-    with pytest.raises(InvalidEmailConfirmationTokenError):
+    with pytest.raises(UserNotFoundError):
         await confirm_email(token, read_token, crud)
 
 
@@ -119,7 +120,7 @@ async def test_confirm_email_user_email_not_found() -> None:
             "type": "email-confirmation",
         }
 
-    with pytest.raises(InvalidEmailConfirmationTokenError):
+    with pytest.raises(UserNotFoundError):
         await confirm_email(token, read_token, crud)
 
 

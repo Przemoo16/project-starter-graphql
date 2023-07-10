@@ -64,6 +64,35 @@ async def test_confirm_email_invalid_token(async_client: AsyncClient) -> None:
 
 
 @pytest.mark.anyio()
+async def test_confirm_email_user_not_found(
+    auth_private_key: str, async_client: AsyncClient
+) -> None:
+    token = create_email_confirmation_token(
+        auth_private_key, UUID("6d9c79d6-9641-4746-92d9-2cc9ebdca941"), "test@email.com"
+    )
+    payload = {
+        "query": f"""
+            mutation {{
+              confirmEmail(token: "{token}") {{
+                ... on ConfirmEmailFailure {{
+                  problems {{
+                    ... on InvalidEmailConfirmationToken {{
+                      message
+                    }}
+                  }}
+                }}
+              }}
+            }}
+        """
+    }
+
+    response = await async_client.post("/graphql", json=payload)
+
+    data = response.json()["data"]["confirmEmail"]["problems"][0]
+    assert "message" in data
+
+
+@pytest.mark.anyio()
 async def test_confirm_email_user_already_confirmed(
     session: AsyncSession, auth_private_key: str, async_client: AsyncClient
 ) -> None:

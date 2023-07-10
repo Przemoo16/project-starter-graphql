@@ -13,6 +13,7 @@ from backend.libs.security.token import read_paseto_token_public_v4
 from backend.services.user.crud import UserCRUD
 from backend.services.user.exceptions import (
     InvalidResetPasswordTokenError,
+    InvalidResetPasswordTokenFingerprintError,
     UserNotConfirmedError,
     UserNotFoundError,
 )
@@ -70,6 +71,11 @@ async def reset_password_resolver(
             verify_and_update_password,
             crud,
         )
-    except InvalidResetPasswordTokenError:
+    except (
+        InvalidResetPasswordTokenError,
+        UserNotFoundError,
+        InvalidResetPasswordTokenFingerprintError,
+        UserNotConfirmedError,
+    ):
         return ResetPasswordFailure(problems=[InvalidResetPasswordToken()])
     return ResetPasswordSuccess()

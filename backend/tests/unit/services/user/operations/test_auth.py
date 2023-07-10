@@ -5,8 +5,9 @@ from uuid import UUID
 import pytest
 
 from backend.services.user.exceptions import (
-    InvalidCredentialsError,
+    InvalidPasswordError,
     UserNotConfirmedError,
+    UserNotFoundError,
 )
 from backend.services.user.models import User
 from backend.services.user.operations.auth import (
@@ -102,7 +103,7 @@ async def test_failure_authentication_user_not_found() -> None:
     credentials = Credentials(email="test@email.com", password="plain_password")
     crud = UserCRUD()
 
-    with pytest.raises(InvalidCredentialsError):
+    with pytest.raises(UserNotFoundError):
         await authenticate(
             credentials, success_password_validator, get_test_password, crud
         )
@@ -132,7 +133,7 @@ async def test_authentication_calling_password_hasher(
         hash_function_called = True
         return "hashed_password"
 
-    with suppress(InvalidCredentialsError):
+    with suppress(UserNotFoundError):
         await authenticate(credentials, success_password_validator, hash_password, crud)
 
     assert hash_function_called == hasher_called
@@ -146,7 +147,7 @@ async def test_failure_authentication_invalid_password() -> None:
     def failure_validator(*_: str) -> tuple[bool, None]:
         return False, None
 
-    with pytest.raises(InvalidCredentialsError):
+    with pytest.raises(InvalidPasswordError):
         await authenticate(credentials, failure_validator, get_test_password, crud)
 
 

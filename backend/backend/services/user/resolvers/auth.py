@@ -9,8 +9,9 @@ from backend.libs.security.password import hash_password, verify_and_update_pass
 from backend.libs.security.token import create_paseto_token_public_v4
 from backend.services.user.crud import UserCRUD
 from backend.services.user.exceptions import (
-    InvalidCredentialsError,
+    InvalidPasswordError,
     UserNotConfirmedError,
+    UserNotFoundError,
 )
 from backend.services.user.models import User
 from backend.services.user.operations.auth import authenticate, login
@@ -38,7 +39,7 @@ async def login_resolver(
         user = await authenticate(
             credentials, verify_and_update_password, hash_password, crud
         )
-    except InvalidCredentialsError:
+    except (UserNotFoundError, InvalidPasswordError):
         return LoginFailure(problems=[InvalidCredentials()])
     except UserNotConfirmedError:
         return LoginFailure(problems=[UserNotConfirmed()])

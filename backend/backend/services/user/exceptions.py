@@ -18,9 +18,13 @@ class UserAlreadyConfirmedError(Exception):
     pass
 
 
-class InvalidCredentialsError(Exception):
+class InvalidPasswordError(Exception):
     pass
 
 
 class InvalidResetPasswordTokenError(Exception):
+    pass
+
+
+class InvalidResetPasswordTokenFingerprintError(Exception):
     pass

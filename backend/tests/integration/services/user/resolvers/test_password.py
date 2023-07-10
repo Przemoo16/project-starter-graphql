@@ -149,7 +149,38 @@ async def test_reset_password_invalid_token(async_client: AsyncClient) -> None:
 
 
 @pytest.mark.anyio()
-async def test_reset_password_cannot_use_same_token_twice(
+async def test_reset_password_user_not_found(
+    auth_private_key: str, async_client: AsyncClient
+) -> None:
+    token = create_reset_password_token(
+        auth_private_key,
+        UUID("6d9c79d6-9641-4746-92d9-2cc9ebdca941"),
+        "hashed_password",
+    )
+    payload = {
+        "query": f"""
+            mutation {{
+              resetPassword(input: {{token: "{token}", password: "new_password"}}) {{
+                ... on ResetPasswordFailure {{
+                  problems {{
+                    ... on InvalidResetPasswordToken {{
+                      message
+                    }}
+                  }}
+                }}
+              }}
+            }}
+        """
+    }
+
+    response = await async_client.post("/graphql", json=payload)
+
+    data = response.json()["data"]["resetPassword"]["problems"][0]
+    assert "message" in data
+
+
+@pytest.mark.anyio()
+async def test_reset_password_invalid_fingerprint_same_token_used_twice(
     session: AsyncSession, auth_private_key: str, async_client: AsyncClient
 ) -> None:
     user = await create_confirmed_user(session)
@@ -160,7 +191,9 @@ async def test_reset_password_cannot_use_same_token_twice(
               resetPassword(input: {{token: "{token}", password: "new_password"}}) {{
                 ... on ResetPasswordFailure {{
                   problems {{
-                    __typename
+                    ... on InvalidResetPasswordToken {{
+                      message
+                    }}
                   }}
                 }}
               }}
@@ -172,4 +205,32 @@ async def test_reset_password_cannot_use_same_token_twice(
     response = await async_client.post("/graphql", json=payload)
 
     data = response.json()["data"]["resetPassword"]["problems"][0]
-    assert data["__typename"] == "InvalidResetPasswordToken"
+    assert "message" in data
+
+
+@pytest.mark.anyio()
+async def test_reset_password_user_not_confirmed(
+    session: AsyncSession, auth_private_key: str, async_client: AsyncClient
+) -> None:
+    user = await create_user(session)
+    token = create_reset_password_token(auth_private_key, user.id, user.hashed_password)
+    payload = {
+        "query": f"""
+            mutation {{
+              resetPassword(input: {{token: "{token}", password: "new_password"}}) {{
+                ... on ResetPasswordFailure {{
+                  problems {{
+                    ... on InvalidResetPasswordToken {{
+                      message
+                    }}
+                  }}
+                }}
+              }}
+            }}
+        """
+    }
+
+    response = await async_client.post("/graphql", json=payload)
+
+    data = response.json()["data"]["resetPassword"]["problems"][0]
+    assert "message" in data
