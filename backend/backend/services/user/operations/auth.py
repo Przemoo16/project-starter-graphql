@@ -1,5 +1,6 @@
 import logging
 from collections.abc import Callable, Mapping
+from dataclasses import dataclass
 from datetime import datetime
 from typing import Any
 from uuid import UUID
@@ -24,18 +25,34 @@ ACCESS_TOKEN_TYPE = "access"  # nosec
 REFRESH_TOKEN_TYPE = "refresh"  # nosec
 
 
+@dataclass
+class AuthData:
+    credentials: Credentials
+    password_validator: PasswordValidator
+    password_hasher: PasswordHasher
+
+
+@dataclass
+class TokensCreationData:
+    access_token_creator: TokenCreator
+    refresh_token_creator: TokenCreator
+
+
 async def login(
-    user: User,
-    access_token_creator: TokenCreator,
-    refresh_token_creator: TokenCreator,
-    crud: UserCRUDProtocol,
+    auth_data: AuthData, tokens_data: TokensCreationData, crud: UserCRUDProtocol
 ) -> tuple[str, str]:
+    user = await authenticate(
+        auth_data.credentials,
+        auth_data.password_validator,
+        auth_data.password_hasher,
+        crud,
+    )
     updated_user = await crud.update_and_refresh(
         user, UserUpdateData(last_login=datetime.utcnow())
     )
     return (
-        create_access_token(updated_user.id, access_token_creator),
-        create_refresh_token(updated_user.id, refresh_token_creator),
+        create_access_token(updated_user.id, tokens_data.access_token_creator),
+        create_refresh_token(updated_user.id, tokens_data.refresh_token_creator),
     )
 
 

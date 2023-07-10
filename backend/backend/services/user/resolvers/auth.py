@@ -14,7 +14,7 @@ from backend.services.user.exceptions import (
     UserNotFoundError,
 )
 from backend.services.user.models import User
-from backend.services.user.operations.auth import authenticate, login
+from backend.services.user.operations.auth import AuthData, TokensCreationData, login
 from backend.services.user.schemas import Credentials
 from backend.services.user.types.auth import (
     InvalidCredentials,
@@ -35,16 +35,12 @@ async def login_resolver(
     credentials = Credentials(
         email=credentials_input.username, password=credentials_input.password
     )
-    try:
-        user = await authenticate(
-            credentials, verify_and_update_password, hash_password, crud
-        )
-    except (UserNotFoundError, InvalidPasswordError):
-        return LoginFailure(problems=[InvalidCredentials()])
-    except UserNotConfirmedError:
-        return LoginFailure(problems=[UserNotConfirmed()])
-    access_token, refresh_token = await login(
-        user=user,
+    auth_data = AuthData(
+        credentials=credentials,
+        password_validator=verify_and_update_password,
+        password_hasher=hash_password,
+    )
+    tokens_data = TokensCreationData(
         access_token_creator=partial(
             create_paseto_token_public_v4,
             expiration=int(user_settings.access_token_lifetime.total_seconds()),
@@ -55,8 +51,14 @@ async def login_resolver(
             expiration=int(user_settings.refresh_token_lifetime.total_seconds()),
             key=user_settings.auth_private_key.get_secret_value(),
         ),
-        crud=crud,
     )
+    try:
+        access_token, refresh_token = await login(auth_data, tokens_data, crud)
+    except (UserNotFoundError, InvalidPasswordError):
+        return LoginFailure(problems=[InvalidCredentials()])
+    except UserNotConfirmedError:
+        return LoginFailure(problems=[UserNotConfirmed()])
+
     return LoginSuccess(
         access_token=access_token,
         refresh_token=refresh_token,
