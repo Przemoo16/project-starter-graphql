@@ -19,7 +19,7 @@ from backend.services.user.exceptions import (
 )
 from backend.services.user.models import User
 from backend.services.user.operations.password import (
-    get_user_to_recover_password,
+    recover_password,
     reset_password,
 )
 from backend.services.user.schemas import ResetPasswordData
@@ -40,14 +40,13 @@ user_settings = get_settings().user
 
 async def recover_password_resolver(info: Info, email: str) -> RecoverPasswordResponse:
     crud = UserCRUD(model=User, session=info.context.session)
-    try:
-        user = await get_user_to_recover_password(email, crud)
-    except (UserNotFoundError, UserNotConfirmedError):
-        pass
-    else:
+
+    def send_recovery_email(user: User) -> None:
         send_reset_password_email_task.delay(
             user_id=user.id, user_email=user.email, user_password=user.hashed_password
         )
+
+    await recover_password(email, crud, send_recovery_email)
     return RecoverPasswordResponse()
 
 

@@ -58,7 +58,6 @@ async def login_resolver(
         return LoginFailure(problems=[InvalidCredentials()])
     except UserNotConfirmedError:
         return LoginFailure(problems=[UserNotConfirmed()])
-
     return LoginSuccess(
         access_token=access_token,
         refresh_token=refresh_token,

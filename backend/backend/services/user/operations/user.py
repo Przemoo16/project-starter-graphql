@@ -14,11 +14,17 @@ from backend.services.user.schemas import UserCreateData, UserFilters, UserUpdat
 logger = logging.getLogger(__name__)
 
 
-async def create_user(data: UserCreateData, crud: UserCRUDProtocol) -> User:
+async def create_user(
+    data: UserCreateData,
+    crud: UserCRUDProtocol,
+    success_callback: Callable[[User], None] = lambda _: None,
+) -> User:
     try:
         await crud.read_one(UserFilters(email=data.email))
     except NoObjectFoundError:
-        return await crud.create_and_refresh(data)
+        user = await crud.create_and_refresh(data)
+        success_callback(user)
+        return user
     logger.info("User %r already exists", data.email)
     raise UserAlreadyExistsError
 

@@ -40,16 +40,20 @@ class ResetPasswordTokenData:
     fingerprint: str
 
 
-async def get_user_to_recover_password(email: str, crud: UserCRUDProtocol) -> User:
+async def recover_password(
+    email: str,
+    crud: UserCRUDProtocol,
+    success_callback: Callable[[User], None] = lambda _: None,
+) -> None:
     try:
         user = await crud.read_one(UserFilters(email=email))
-    except NoObjectFoundError as exc:
+    except NoObjectFoundError:
         logger.info("User %r not found", email)
-        raise UserNotFoundError from exc
+        return
     if not user.confirmed_email:
         logger.info("User %r not confirmed", user.email)
-        raise UserNotConfirmedError
-    return user
+        return
+    success_callback(user)
 
 
 def create_reset_password_token(

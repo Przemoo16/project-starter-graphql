@@ -32,12 +32,13 @@ async def create_user_resolver(
         )
     except ValidationError as exc:
         return CreateUserFailure(problems=from_pydantic_error(exc))
+
+    def send_confirmation_email(user: User) -> None:
+        send_confirmation_email_task.delay(user_id=user.id, user_email=user.email)
+
     crud = UserCRUD(model=User, session=info.context.session)
     try:
-        created_user = await create_user(user_data, crud)
+        created_user = await create_user(user_data, crud, send_confirmation_email)
     except UserAlreadyExistsError:
         return CreateUserFailure(problems=[UserAlreadyExists()])
-    send_confirmation_email_task.delay(
-        user_id=created_user.id, user_email=created_user.email
-    )
     return CreateUserSuccess(id=created_user.id, email=created_user.email)
