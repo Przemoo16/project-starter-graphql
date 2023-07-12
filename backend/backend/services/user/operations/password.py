@@ -37,6 +37,21 @@ RESET_PASSWORD_TOKEN_TYPE = "reset-password"  # nosec
 @dataclass
 class ResetPasswordTokenData:
     user_id: UUID
+    user_password: str
+    password_hasher: PasswordHasher
+    token_creator: TokenCreator
+
+
+@dataclass
+class ResetPasswordEmailData:
+    url_template: str
+    template_loader: TemplateLoader
+    email_sender: Callable[[HTMLMessage], None]
+
+
+@dataclass
+class ResetPasswordTokenPayload:
+    user_id: UUID
     fingerprint: str
 
 
@@ -56,6 +71,26 @@ async def recover_password(
     success_callback(user)
 
 
+def send_reset_password_token(
+    token_data: ResetPasswordTokenData, email_data: ResetPasswordEmailData
+) -> None:
+    token = create_reset_password_token(
+        token_data.user_id,
+        token_data.user_password,
+        token_data.password_hasher,
+        token_data.token_creator,
+    )
+    link = email_data.url_template.format(token=token)
+    subject = _("Reset password")
+    html_message = email_data.template_loader("reset-password.html", link=link)
+    plain_message = _("Click the link to reset your password: {link}").format(link=link)
+    email_data.email_sender(
+        HTMLMessage(
+            subject=subject, html_message=html_message, plain_message=plain_message
+        )
+    )
+
+
 def create_reset_password_token(
     user_id: UUID,
     user_password: str,
@@ -71,36 +106,19 @@ def create_reset_password_token(
     )
 
 
-def send_reset_password_email(
-    url_template: str,
-    token: str,
-    template_loader: TemplateLoader,
-    email_sender: Callable[[HTMLMessage], None],
-) -> None:
-    link = url_template.format(token=token)
-    subject = _("Reset password")
-    html_message = template_loader("reset-password.html", link=link)
-    plain_message = _("Click the link to reset your password: {link}").format(link=link)
-    email_sender(
-        HTMLMessage(
-            subject=subject, html_message=html_message, plain_message=plain_message
-        )
-    )
-
-
 async def reset_password(
     data: ResetPasswordData,
     token_reader: TokenReader,
     password_validator: PasswordValidator,
     crud: UserCRUDProtocol,
 ) -> User:
-    token_data = read_reset_password_token(data.token, token_reader)
+    token_payload = read_reset_password_token(data.token, token_reader)
     try:
-        user = await crud.read_one(UserFilters(id=token_data.user_id))
+        user = await crud.read_one(UserFilters(id=token_payload.user_id))
     except NoObjectFoundError as exc:
-        logger.info("User with id %r not found", token_data.user_id)
+        logger.info("User with id %r not found", token_payload.user_id)
         raise UserNotFoundError from exc
-    is_valid, _ = password_validator(user.hashed_password, token_data.fingerprint)
+    is_valid, _ = password_validator(user.hashed_password, token_payload.fingerprint)
     if not is_valid:
         logger.info("The token has invalid fingerprint")
         raise InvalidResetPasswordTokenFingerprintError
@@ -114,7 +132,7 @@ async def reset_password(
 
 def read_reset_password_token(
     token: str, token_reader: TokenReader
-) -> ResetPasswordTokenData:
+) -> ResetPasswordTokenPayload:
     try:
         data = token_reader(token)
     except InvalidTokenError as exc:
@@ -126,6 +144,6 @@ def read_reset_password_token(
             data["type"],
         )
         raise InvalidResetPasswordTokenError
-    return ResetPasswordTokenData(
+    return ResetPasswordTokenPayload(
         user_id=UUID(data["sub"]), fingerprint=data["fingerprint"]
     )

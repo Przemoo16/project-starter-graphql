@@ -35,12 +35,6 @@ async def test_login() -> None:
     user = create_confirmed_user(email="test@email.com")
     crud = UserCRUD(existing_user=user)
 
-    def create_test_access_token(_: Mapping[str, str]) -> str:
-        return "access-token"
-
-    def create_test_refresh_token(_: Mapping[str, str]) -> str:
-        return "refresh-token"
-
     auth_data = AuthData(
         credentials=Credentials(email="test@email.com", password="plain_password"),
         password_validator=success_password_validator,
@@ -48,8 +42,8 @@ async def test_login() -> None:
     )
 
     tokens_data = TokensCreationData(
-        access_token_creator=create_test_access_token,
-        refresh_token_creator=create_test_refresh_token,
+        access_token_creator=lambda _: "access-token",
+        refresh_token_creator=lambda _: "refresh-token",
     )
 
     access_token, refresh_token = await login(auth_data, tokens_data, crud)
@@ -63,12 +57,6 @@ async def test_login_update_last_login() -> None:
     user = create_confirmed_user(email="test@email.com", last_login=False)
     crud = UserCRUD(existing_user=user)
 
-    def create_test_access_token(_: Mapping[str, str]) -> str:
-        return "access-token"
-
-    def create_test_refresh_token(_: Mapping[str, str]) -> str:
-        return "refresh-token"
-
     auth_data = AuthData(
         credentials=Credentials(email="test@email.com", password="plain_password"),
         password_validator=success_password_validator,
@@ -76,8 +64,8 @@ async def test_login_update_last_login() -> None:
     )
 
     tokens_data = TokensCreationData(
-        access_token_creator=create_test_access_token,
-        refresh_token_creator=create_test_refresh_token,
+        access_token_creator=lambda _: "access-token",
+        refresh_token_creator=lambda _: "refresh-token",
     )
 
     await login(auth_data, tokens_data, crud)
