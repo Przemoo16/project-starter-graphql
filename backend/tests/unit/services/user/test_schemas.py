@@ -1,3 +1,4 @@
+from collections.abc import Mapping
 from typing import Any
 
 import pytest
@@ -22,7 +23,7 @@ def get_test_password(_: str) -> str:
     ],
 )
 def test_schema_invalid_email(
-    schema: type[UserCreateData] | type[UserUpdateData], params: dict[str, Any]
+    schema: type[UserCreateData] | type[UserUpdateData], params: Mapping[str, Any]
 ) -> None:
     email = "invalid_email"
 
@@ -40,7 +41,7 @@ def test_schema_invalid_email(
     ],
 )
 def test_schema_password_too_short(
-    schema: type[UserCreateData] | type[UserUpdateData], params: dict[str, Any]
+    schema: type[UserCreateData] | type[UserUpdateData], params: Mapping[str, Any]
 ) -> None:
     password = "p"
 
@@ -58,7 +59,7 @@ def test_schema_password_too_short(
     ],
 )
 def test_schema_does_not_export_password_related_fields(
-    schema: type[UserCreateData] | type[UserUpdateData], params: dict[str, Any]
+    schema: type[UserCreateData] | type[UserUpdateData], params: Mapping[str, Any]
 ) -> None:
     password = "plain_password"
 
@@ -78,7 +79,7 @@ def test_schema_does_not_export_password_related_fields(
     ],
 )
 def test_schema_hashes_password(
-    schema: type[UserCreateData] | type[UserUpdateData], params: dict[str, Any]
+    schema: type[UserCreateData] | type[UserUpdateData], params: Mapping[str, Any]
 ) -> None:
     password = "plain_password"
 

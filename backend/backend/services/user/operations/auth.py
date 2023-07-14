@@ -6,9 +6,12 @@ from typing import Any
 from uuid import UUID
 
 from backend.libs.db.crud import NoObjectFoundError
+from backend.libs.security.token import InvalidTokenError
 from backend.services.user.crud import UserCRUDProtocol
 from backend.services.user.exceptions import (
+    InvalidAccessTokenError,
     InvalidPasswordError,
+    InvalidRefreshTokenError,
     UserNotConfirmedError,
     UserNotFoundError,
 )
@@ -20,6 +23,7 @@ logger = logging.getLogger(__name__)
 PasswordValidator = Callable[[str, str], tuple[bool, str | None]]
 PasswordHasher = Callable[[str], str]
 TokenCreator = Callable[[Mapping[str, Any]], str]
+TokenReader = Callable[[str], dict[str, Any]]
 
 ACCESS_TOKEN_TYPE = "access"  # nosec
 REFRESH_TOKEN_TYPE = "refresh"  # nosec
@@ -36,6 +40,16 @@ class AuthData:
 class TokensCreationData:
     access_token_creator: TokenCreator
     refresh_token_creator: TokenCreator
+
+
+@dataclass
+class AccessTokenPayload:
+    user_id: UUID
+
+
+@dataclass
+class RefreshTokenPayload:
+    user_id: UUID
 
 
 async def login(
@@ -92,3 +106,33 @@ def create_access_token(user_id: UUID, token_creator: TokenCreator) -> str:
 
 def create_refresh_token(user_id: UUID, token_creator: TokenCreator) -> str:
     return token_creator({"sub": str(user_id), "type": REFRESH_TOKEN_TYPE})
+
+
+def read_access_token(token: str, token_reader: TokenReader) -> AccessTokenPayload:
+    try:
+        data = token_reader(token)
+    except InvalidTokenError as exc:
+        logger.info("The token is invalid")
+        raise InvalidAccessTokenError from exc
+    if data["type"] != ACCESS_TOKEN_TYPE:
+        logger.info(
+            "The token is not an access token, actual type: %r",
+            data["type"],
+        )
+        raise InvalidAccessTokenError
+    return AccessTokenPayload(user_id=UUID(data["sub"]))
+
+
+def read_refresh_token(token: str, token_reader: TokenReader) -> RefreshTokenPayload:
+    try:
+        data = token_reader(token)
+    except InvalidTokenError as exc:
+        logger.info("The token is invalid")
+        raise InvalidRefreshTokenError from exc
+    if data["type"] != REFRESH_TOKEN_TYPE:
+        logger.info(
+            "The token is not a refresh token, actual type: %r",
+            data["type"],
+        )
+        raise InvalidRefreshTokenError
+    return RefreshTokenPayload(user_id=UUID(data["sub"]))

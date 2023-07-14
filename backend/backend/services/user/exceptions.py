@@ -28,3 +28,11 @@ class InvalidResetPasswordTokenError(Exception):
 
 class InvalidResetPasswordTokenFingerprintError(Exception):
     pass
+
+
+class InvalidAccessTokenError(Exception):
+    pass
+
+
+class InvalidRefreshTokenError(Exception):
+    pass
