@@ -4,8 +4,11 @@ from uuid import UUID
 
 import pytest
 
+from backend.libs.security.token import InvalidTokenError
 from backend.services.user.exceptions import (
+    InvalidAccessTokenError,
     InvalidPasswordError,
+    InvalidRefreshTokenError,
     UserNotConfirmedError,
     UserNotFoundError,
 )
@@ -17,6 +20,8 @@ from backend.services.user.operations.auth import (
     create_access_token,
     create_refresh_token,
     login,
+    read_access_token,
+    read_refresh_token,
 )
 from backend.services.user.schemas import Credentials
 from tests.unit.helpers.user import UserCRUD, create_confirmed_user, create_user
@@ -192,3 +197,77 @@ def test_create_refresh_token() -> None:
     token = create_refresh_token(user_id, create_token)
 
     assert token == "sub:6d9c79d6-9641-4746-92d9-2cc9ebdca941-type:refresh"
+
+
+def test_read_access_token() -> None:
+    token = "test-token"
+
+    def read_token(_: str) -> dict[str, str]:
+        return {
+            "sub": "6d9c79d6-9641-4746-92d9-2cc9ebdca941",
+            "type": "access",
+        }
+
+    payload = read_access_token(token, read_token)
+
+    assert payload.user_id == UUID("6d9c79d6-9641-4746-92d9-2cc9ebdca941")
+
+
+def test_read_access_token_invalid_token() -> None:
+    token = "test-token"
+
+    def read_token(_: str) -> dict[str, str]:
+        raise InvalidTokenError
+
+    with pytest.raises(InvalidAccessTokenError):
+        read_access_token(token, read_token)
+
+
+def test_read_access_token_invalid_token_type() -> None:
+    token = "test-token"
+
+    def read_token(_: str) -> dict[str, str]:
+        return {
+            "sub": "6d9c79d6-9641-4746-92d9-2cc9ebdca941",
+            "type": "invalid-type",
+        }
+
+    with pytest.raises(InvalidAccessTokenError):
+        read_access_token(token, read_token)
+
+
+def test_read_refresh_token() -> None:
+    token = "test-token"
+
+    def read_token(_: str) -> dict[str, str]:
+        return {
+            "sub": "6d9c79d6-9641-4746-92d9-2cc9ebdca941",
+            "type": "refresh",
+        }
+
+    payload = read_refresh_token(token, read_token)
+
+    assert payload.user_id == UUID("6d9c79d6-9641-4746-92d9-2cc9ebdca941")
+
+
+def test_read_refresh_token_invalid_token() -> None:
+    token = "test-token"
+
+    def read_token(_: str) -> dict[str, str]:
+        raise InvalidTokenError
+
+    with pytest.raises(InvalidRefreshTokenError):
+        read_refresh_token(token, read_token)
+
+
+def test_read_refresh_token_invalid_token_type() -> None:
+    token = "test-token"
+
+    def read_token(_: str) -> dict[str, str]:
+        return {
+            "sub": "6d9c79d6-9641-4746-92d9-2cc9ebdca941",
+            "type": "invalid-type",
+        }
+
+    with pytest.raises(InvalidRefreshTokenError):
+        read_refresh_token(token, read_token)
