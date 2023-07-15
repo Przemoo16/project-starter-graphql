@@ -122,7 +122,7 @@ def test_create_reset_password_token() -> None:
     def hash_password(_: str) -> str:
         return "again_hashed_password"
 
-    def create_token(payload: Mapping[str, str]) -> str:
+    def create_token(payload: Mapping[str, Any]) -> str:
         return (
             f"sub:{payload['sub']}-fingerprint:{payload['fingerprint']}-"
             f"type:{payload['type']}"

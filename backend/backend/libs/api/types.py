@@ -1,5 +1,3 @@
-from collections.abc import Sequence
-
 import strawberry
 from pydantic import ValidationError
 
@@ -12,7 +10,7 @@ class Problem:
 @strawberry.type
 class InvalidInput(Problem):
     message: str
-    path: Sequence[str]
+    path: list[str]
 
 
 def from_pydantic_error(exc: ValidationError) -> list[InvalidInput]:

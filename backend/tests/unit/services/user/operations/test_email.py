@@ -61,7 +61,7 @@ def test_create_email_confirmation_token() -> None:
     user_id = UUID("6d9c79d6-9641-4746-92d9-2cc9ebdca941")
     user_email = "test@email.com"
 
-    def create_token(payload: Mapping[str, str]) -> str:
+    def create_token(payload: Mapping[str, Any]) -> str:
         return f"sub:{payload['sub']}-email:{payload['email']}-type:{payload['type']}"
 
     token = create_email_confirmation_token(user_id, user_email, create_token)
