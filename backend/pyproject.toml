@@ -83,6 +83,13 @@ addopts = [
 ]
 xfail_strict = true
 
+[tool.coverage.run]
+# Fixes the problem with missing coverage lines after await
+# https://github.com/nedbat/coveragepy/issues/1082
+concurrency = [
+    "greenlet"
+]
+
 [tool.coverage.report]
 omit = [
    "*/__init__.py"

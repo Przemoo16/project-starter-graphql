@@ -80,14 +80,11 @@ def send_reset_password_token(
         token_data.password_hasher,
         token_data.token_creator,
     )
-    link = email_data.url_template.format(token=token)
-    subject = _("Reset password")
-    html_message = email_data.template_loader("reset-password.html", link=link)
-    plain_message = _("Click the link to reset your password: {link}").format(link=link)
-    email_data.email_sender(
-        HTMLMessage(
-            subject=subject, html_message=html_message, plain_message=plain_message
-        )
+    send_reset_password_email(
+        token,
+        email_data.url_template,
+        email_data.template_loader,
+        email_data.email_sender,
     )
 
 
@@ -106,6 +103,23 @@ def create_reset_password_token(
     )
 
 
+def send_reset_password_email(
+    token: str,
+    url_template: str,
+    template_loader: TemplateLoader,
+    email_sender: Callable[[HTMLMessage], None],
+) -> None:
+    link = url_template.format(token=token)
+    subject = _("Reset password")
+    html_message = template_loader("reset-password.html", link=link)
+    plain_message = _("Click the link to reset your password: {link}").format(link=link)
+    email_sender(
+        HTMLMessage(
+            subject=subject, html_message=html_message, plain_message=plain_message
+        )
+    )
+
+
 async def reset_password(
     data: ResetPasswordData,
     token_reader: TokenReader,
@@ -113,20 +127,12 @@ async def reset_password(
     crud: UserCRUDProtocol,
 ) -> User:
     token_payload = read_reset_password_token(data.token, token_reader)
-    try:
-        user = await crud.read_one(UserFilters(id=token_payload.user_id))
-    except NoObjectFoundError as exc:
-        logger.info("User with id %r not found", token_payload.user_id)
-        raise UserNotFoundError from exc
-    is_valid, _ = password_validator(user.hashed_password, token_payload.fingerprint)
-    if not is_valid:
-        logger.info("The token has invalid fingerprint")
-        raise InvalidResetPasswordTokenFingerprintError
-    if not user.confirmed_email:
-        logger.info("User %r not confirmed", user.email)
-        raise UserNotConfirmedError
-    return await crud.update_and_refresh(
-        user, UserUpdateData(hashed_password=data.hashed_password)
+    return await set_password(
+        token_payload.user_id,
+        token_payload.fingerprint,
+        data.hashed_password,
+        password_validator,
+        crud,
     )
 
 
@@ -146,4 +152,28 @@ def read_reset_password_token(
         raise InvalidResetPasswordTokenError
     return ResetPasswordTokenPayload(
         user_id=UUID(data["sub"]), fingerprint=data["fingerprint"]
+    )
+
+
+async def set_password(
+    user_id: UUID,
+    fingerprint: str,
+    hashed_password: str,
+    password_validator: PasswordValidator,
+    crud: UserCRUDProtocol,
+) -> User:
+    try:
+        user = await crud.read_one(UserFilters(id=user_id))
+    except NoObjectFoundError as exc:
+        logger.info("User with id %r not found", user_id)
+        raise UserNotFoundError from exc
+    is_valid, _ = password_validator(user.hashed_password, fingerprint)
+    if not is_valid:
+        logger.info("The token has invalid fingerprint")
+        raise InvalidResetPasswordTokenFingerprintError
+    if not user.confirmed_email:
+        logger.info("User %r not confirmed", user.email)
+        raise UserNotConfirmedError
+    return await crud.update_and_refresh(
+        user, UserUpdateData(hashed_password=hashed_password)
     )
