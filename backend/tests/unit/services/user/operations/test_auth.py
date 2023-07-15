@@ -1,5 +1,6 @@
 from collections.abc import Mapping
 from contextlib import suppress
+from typing import Any
 from uuid import UUID
 
 import pytest
@@ -180,7 +181,7 @@ async def test_failure_authentication_user_not_confirmed() -> None:
 def test_create_access_token() -> None:
     user_id = UUID("6d9c79d6-9641-4746-92d9-2cc9ebdca941")
 
-    def create_token(payload: Mapping[str, str]) -> str:
+    def create_token(payload: Mapping[str, Any]) -> str:
         return f"sub:{payload['sub']}-type:{payload['type']}"
 
     token = create_access_token(user_id, create_token)
@@ -191,7 +192,7 @@ def test_create_access_token() -> None:
 def test_create_refresh_token() -> None:
     user_id = UUID("6d9c79d6-9641-4746-92d9-2cc9ebdca941")
 
-    def create_token(payload: Mapping[str, str]) -> str:
+    def create_token(payload: Mapping[str, Any]) -> str:
         return f"sub:{payload['sub']}-type:{payload['type']}"
 
     token = create_refresh_token(user_id, create_token)
