@@ -61,12 +61,8 @@ async def login(
         auth_data.password_hasher,
         crud,
     )
-    updated_user = await crud.update_and_refresh(
-        user, UserUpdateData(last_login=datetime.utcnow())
-    )
-    return (
-        create_access_token(updated_user.id, tokens_data.access_token_creator),
-        create_refresh_token(updated_user.id, tokens_data.refresh_token_creator),
+    return await login_with_tokens(
+        user, tokens_data.access_token_creator, tokens_data.refresh_token_creator, crud
     )
 
 
@@ -98,6 +94,21 @@ async def authenticate(
         )
         logger.info("Updated password hash for the user %r", user.email)
     return user
+
+
+async def login_with_tokens(
+    user: User,
+    access_token_creator: TokenCreator,
+    refresh_token_creator: TokenCreator,
+    crud: UserCRUDProtocol,
+) -> tuple[str, str]:
+    updated_user = await crud.update_and_refresh(
+        user, UserUpdateData(last_login=datetime.utcnow())
+    )
+    return (
+        create_access_token(updated_user.id, access_token_creator),
+        create_refresh_token(updated_user.id, refresh_token_creator),
+    )
 
 
 def create_access_token(user_id: UUID, token_creator: TokenCreator) -> str:

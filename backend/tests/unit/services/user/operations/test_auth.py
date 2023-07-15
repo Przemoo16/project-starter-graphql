@@ -15,12 +15,10 @@ from backend.services.user.exceptions import (
 )
 from backend.services.user.models import User
 from backend.services.user.operations.auth import (
-    AuthData,
-    TokensCreationData,
     authenticate,
     create_access_token,
     create_refresh_token,
-    login,
+    login_with_tokens,
     read_access_token,
     read_refresh_token,
 )
@@ -34,49 +32,6 @@ def success_password_validator(*_: str) -> tuple[bool, None]:
 
 def get_test_password(_: str) -> str:
     return "hashed_password"
-
-
-@pytest.mark.anyio()
-async def test_login() -> None:
-    user = create_confirmed_user(email="test@email.com")
-    crud = UserCRUD(existing_user=user)
-
-    auth_data = AuthData(
-        credentials=Credentials(email="test@email.com", password="plain_password"),
-        password_validator=success_password_validator,
-        password_hasher=get_test_password,
-    )
-
-    tokens_data = TokensCreationData(
-        access_token_creator=lambda _: "access-token",
-        refresh_token_creator=lambda _: "refresh-token",
-    )
-
-    access_token, refresh_token = await login(auth_data, tokens_data, crud)
-
-    assert access_token == "access-token"
-    assert refresh_token == "refresh-token"
-
-
-@pytest.mark.anyio()
-async def test_login_update_last_login() -> None:
-    user = create_confirmed_user(email="test@email.com", last_login=False)
-    crud = UserCRUD(existing_user=user)
-
-    auth_data = AuthData(
-        credentials=Credentials(email="test@email.com", password="plain_password"),
-        password_validator=success_password_validator,
-        password_hasher=get_test_password,
-    )
-
-    tokens_data = TokensCreationData(
-        access_token_creator=lambda _: "access-token",
-        refresh_token_creator=lambda _: "refresh-token",
-    )
-
-    await login(auth_data, tokens_data, crud)
-
-    assert user.last_login
 
 
 @pytest.mark.anyio()
@@ -176,6 +131,43 @@ async def test_failure_authentication_user_not_confirmed() -> None:
         await authenticate(
             credentials, success_password_validator, get_test_password, crud
         )
+
+
+@pytest.mark.anyio()
+async def test_login_with_tokens() -> None:
+    user = create_user(email="test@email.com")
+    crud = UserCRUD()
+
+    def create_test_access_token(_: Mapping[str, Any]) -> str:
+        return "access-token"
+
+    def create_test_refresh_token(_: Mapping[str, Any]) -> str:
+        return "refresh-token"
+
+    access_token, refresh_token = await login_with_tokens(
+        user, create_test_access_token, create_test_refresh_token, crud
+    )
+
+    assert access_token == "access-token"
+    assert refresh_token == "refresh-token"
+
+
+@pytest.mark.anyio()
+async def test_login_with_tokens_update_last_login() -> None:
+    user = create_user(email="test@email.com", last_login=False)
+    crud = UserCRUD()
+
+    def create_test_access_token(_: Mapping[str, Any]) -> str:
+        return "access-token"
+
+    def create_test_refresh_token(_: Mapping[str, Any]) -> str:
+        return "refresh-token"
+
+    await login_with_tokens(
+        user, create_test_access_token, create_test_refresh_token, crud
+    )
+
+    assert user.last_login
 
 
 def test_create_access_token() -> None:

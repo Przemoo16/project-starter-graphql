@@ -14,15 +14,12 @@ from backend.services.user.exceptions import (
 )
 from backend.services.user.models import User
 from backend.services.user.operations.password import (
-    ResetPasswordEmailData,
-    ResetPasswordTokenData,
     create_reset_password_token,
     read_reset_password_token,
     recover_password,
-    reset_password,
-    send_reset_password_token,
+    send_reset_password_email,
+    set_password,
 )
-from backend.services.user.schemas import ResetPasswordData
 from tests.unit.helpers.user import UserCRUD, create_confirmed_user, create_user
 
 
@@ -79,42 +76,6 @@ async def test_recover_password_user_not_confirmed() -> None:
     assert not callback_called
 
 
-def test_send_reset_password_token() -> None:
-    message_result = {}
-
-    def load_template(name: str, **kwargs: Any) -> str:
-        return f"{name} {kwargs}"
-
-    def send_email(message: HTMLMessage) -> None:
-        nonlocal message_result
-        message_result = {
-            "subject": message.subject,
-            "html_message": message.html_message,
-            "plain_message": message.plain_message,
-        }
-
-    token_data = ResetPasswordTokenData(
-        user_id=UUID("6d9c79d6-9641-4746-92d9-2cc9ebdca941"),
-        user_password="hashed_password",
-        password_hasher=get_test_password,
-        token_creator=lambda _: "test-token",
-    )
-    email_data = ResetPasswordEmailData(
-        url_template="http://test/{token}",
-        template_loader=load_template,
-        email_sender=send_email,
-    )
-
-    send_reset_password_token(token_data, email_data)
-
-    assert message_result["subject"]
-    assert (
-        message_result["html_message"]
-        == "reset-password.html {'link': 'http://test/test-token'}"
-    )
-    assert "http://test/test-token" in message_result["plain_message"]
-
-
 def test_create_reset_password_token() -> None:
     user_id = UUID("6d9c79d6-9641-4746-92d9-2cc9ebdca941")
     user_password = "hashed_password"
@@ -138,101 +99,30 @@ def test_create_reset_password_token() -> None:
     )
 
 
-@pytest.mark.anyio()
-async def test_reset_password() -> None:
-    def hash_password(_: str) -> str:
-        return "new_hashed_password"
+def test_send_reset_password_email() -> None:
+    token = "test-token"
+    url_template = "http://test/{token}"
+    message_result = {}
 
-    data = ResetPasswordData(
-        token="test-token",
-        password="new_password",
-        password_hasher=hash_password,
-    )
-    crud = UserCRUD(
-        existing_user=create_confirmed_user(
-            id=UUID("6d9c79d6-9641-4746-92d9-2cc9ebdca941")
-        )
-    )
+    def load_template(name: str, **kwargs: Any) -> str:
+        return f"{name} {kwargs}"
 
-    def read_token(_: str) -> dict[str, str]:
-        return {
-            "sub": "6d9c79d6-9641-4746-92d9-2cc9ebdca941",
-            "fingerprint": "test-fingerprint",
-            "type": "reset-password",
+    def send_email(message: HTMLMessage) -> None:
+        nonlocal message_result
+        message_result = {
+            "subject": message.subject,
+            "html_message": message.html_message,
+            "plain_message": message.plain_message,
         }
 
-    user = await reset_password(data, read_token, success_password_validator, crud)
+    send_reset_password_email(token, url_template, load_template, send_email)
 
-    assert user.hashed_password == "new_hashed_password"
-
-
-@pytest.mark.anyio()
-async def test_reset_password_user_not_found() -> None:
-    data = ResetPasswordData(
-        token="test-token",
-        password="new_password",
-        password_hasher=get_test_password,
+    assert message_result["subject"]
+    assert (
+        message_result["html_message"]
+        == "reset-password.html {'link': 'http://test/test-token'}"
     )
-    crud = UserCRUD()
-
-    def read_token(_: str) -> dict[str, str]:
-        return {
-            "sub": "6d9c79d6-9641-4746-92d9-2cc9ebdca941",
-            "fingerprint": "test-fingerprint",
-            "type": "reset-password",
-        }
-
-    with pytest.raises(UserNotFoundError):
-        await reset_password(data, read_token, success_password_validator, crud)
-
-
-@pytest.mark.anyio()
-async def test_reset_password_invalid_fingerprint() -> None:
-    data = ResetPasswordData(
-        token="test-token",
-        password="new_password",
-        password_hasher=get_test_password,
-    )
-    crud = UserCRUD(
-        existing_user=create_confirmed_user(
-            id=UUID("6d9c79d6-9641-4746-92d9-2cc9ebdca941")
-        )
-    )
-
-    def read_token(_: str) -> dict[str, str]:
-        return {
-            "sub": "6d9c79d6-9641-4746-92d9-2cc9ebdca941",
-            "fingerprint": "test-fingerprint",
-            "type": "reset-password",
-        }
-
-    def failure_validator(*_: str) -> tuple[bool, None]:
-        return False, None
-
-    with pytest.raises(InvalidResetPasswordTokenFingerprintError):
-        await reset_password(data, read_token, failure_validator, crud)
-
-
-@pytest.mark.anyio()
-async def test_reset_password_user_not_confirmed() -> None:
-    data = ResetPasswordData(
-        token="test-token",
-        password="new_password",
-        password_hasher=get_test_password,
-    )
-    crud = UserCRUD(
-        existing_user=create_user(id=UUID("6d9c79d6-9641-4746-92d9-2cc9ebdca941"))
-    )
-
-    def read_token(_: str) -> dict[str, str]:
-        return {
-            "sub": "6d9c79d6-9641-4746-92d9-2cc9ebdca941",
-            "fingerprint": "test-fingerprint",
-            "type": "reset-password",
-        }
-
-    with pytest.raises(UserNotConfirmedError):
-        await reset_password(data, read_token, success_password_validator, crud)
+    assert "http://test/test-token" in message_result["plain_message"]
 
 
 def test_read_reset_password_token() -> None:
@@ -273,3 +163,69 @@ def test_read_reset_password_token_invalid_token_type() -> None:
 
     with pytest.raises(InvalidResetPasswordTokenError):
         read_reset_password_token(token, read_token)
+
+
+@pytest.mark.anyio()
+async def test_set_password() -> None:
+    user_id = UUID("6d9c79d6-9641-4746-92d9-2cc9ebdca941")
+    fingerprint = "test-fingerprint"
+    hashed_password = "new_hashed_password"
+    crud = UserCRUD(
+        existing_user=create_confirmed_user(
+            id=UUID("6d9c79d6-9641-4746-92d9-2cc9ebdca941")
+        )
+    )
+
+    user = await set_password(
+        user_id, fingerprint, hashed_password, success_password_validator, crud
+    )
+
+    assert user.hashed_password == "new_hashed_password"
+
+
+@pytest.mark.anyio()
+async def test_set_password_user_not_found() -> None:
+    user_id = UUID("6d9c79d6-9641-4746-92d9-2cc9ebdca941")
+    fingerprint = "test-fingerprint"
+    hashed_password = "new_hashed_password"
+    crud = UserCRUD()
+
+    with pytest.raises(UserNotFoundError):
+        await set_password(
+            user_id, fingerprint, hashed_password, success_password_validator, crud
+        )
+
+
+@pytest.mark.anyio()
+async def test_set_password_invalid_fingerprint() -> None:
+    user_id = UUID("6d9c79d6-9641-4746-92d9-2cc9ebdca941")
+    fingerprint = "test-fingerprint"
+    hashed_password = "new_hashed_password"
+    crud = UserCRUD(
+        existing_user=create_confirmed_user(
+            id=UUID("6d9c79d6-9641-4746-92d9-2cc9ebdca941")
+        )
+    )
+
+    def failure_validator(*_: str) -> tuple[bool, None]:
+        return False, None
+
+    with pytest.raises(InvalidResetPasswordTokenFingerprintError):
+        await set_password(
+            user_id, fingerprint, hashed_password, failure_validator, crud
+        )
+
+
+@pytest.mark.anyio()
+async def test_set_password_user_not_confirmed() -> None:
+    user_id = UUID("6d9c79d6-9641-4746-92d9-2cc9ebdca941")
+    fingerprint = "test-fingerprint"
+    hashed_password = "new_hashed_password"
+    crud = UserCRUD(
+        existing_user=create_user(id=UUID("6d9c79d6-9641-4746-92d9-2cc9ebdca941"))
+    )
+
+    with pytest.raises(UserNotConfirmedError):
+        await set_password(
+            user_id, fingerprint, hashed_password, success_password_validator, crud
+        )
