@@ -4,18 +4,17 @@ from pydantic import ValidationError
 from strawberry import argument
 
 from backend.libs.api.context import Info
-from backend.libs.api.types import from_pydantic_error
+from backend.libs.api.types import User, from_pydantic_error
 from backend.libs.security.password import hash_password
 from backend.services.user.crud import UserCRUD
 from backend.services.user.exceptions import UserAlreadyExistsError
-from backend.services.user.models import User
+from backend.services.user.models import User as UserModel
 from backend.services.user.operations.user import create_user
 from backend.services.user.schemas import UserCreateData
 from backend.services.user.tasks import send_confirmation_email_task
 from backend.services.user.types.user import (
     CreateUserFailure,
     CreateUserResponse,
-    CreateUserSuccess,
     UserAlreadyExistsProblem,
     UserCreateInput,
 )
@@ -33,12 +32,17 @@ async def create_user_resolver(
     except ValidationError as exc:
         return CreateUserFailure(problems=from_pydantic_error(exc))
 
-    def send_confirmation_email(user: User) -> None:
+    def send_confirmation_email(user: UserModel) -> None:
         send_confirmation_email_task.delay(user_id=user.id, user_email=user.email)
 
-    crud = UserCRUD(model=User, session=info.context.session)
+    crud = UserCRUD(model=UserModel, session=info.context.session)
     try:
         created_user = await create_user(user_data, crud, send_confirmation_email)
     except UserAlreadyExistsError:
         return CreateUserFailure(problems=[UserAlreadyExistsProblem()])
-    return CreateUserSuccess(id=created_user.id, email=created_user.email)
+    return User(id=created_user.id, email=created_user.email)
+
+
+async def get_me_resolver(info: Info) -> User:
+    user = await info.context.user
+    return User(id=user.id, email=user.email)

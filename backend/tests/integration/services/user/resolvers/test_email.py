@@ -23,7 +23,7 @@ async def test_confirm_email(
         "query": f"""
             mutation {{
               confirmEmail(token: "{token}") {{
-                ... on ConfirmEmailSuccess {{
+                ... on User {{
                    id
                    email
                 }}
@@ -35,8 +35,10 @@ async def test_confirm_email(
     response = await async_client.post("/graphql", json=payload)
 
     data = response.json()["data"]["confirmEmail"]
-    assert data["id"] == "6d9c79d6-9641-4746-92d9-2cc9ebdca941"
-    assert data["email"] == "test@email.com"
+    assert data == {
+        "id": "6d9c79d6-9641-4746-92d9-2cc9ebdca941",
+        "email": "test@email.com",
+    }
 
 
 @pytest.mark.anyio()

@@ -32,29 +32,38 @@ def hash_password(password: str) -> str:
     return _pwd_context.hash(password)
 
 
-def create_email_confirmation_token(
-    key: str, user_id: UUID, user_email: str, expiration: int = 10
-) -> str:
+def create_auth_header(key: str, user_id: UUID) -> dict[str, str]:
+    token = create_access_token(key, user_id)
+    return {"Authorization": f"Bearer {token}"}
+
+
+def create_access_token(key: str, user_id: UUID) -> str:
+    payload = {
+        "sub": str(user_id),
+        "type": "access",
+    }
+    return create_token(key, payload)
+
+
+def create_email_confirmation_token(key: str, user_id: UUID, user_email: str) -> str:
     payload = {
         "sub": str(user_id),
         "email": user_email,
         "type": "email-confirmation",
     }
-    return create_token(key, payload, expiration)
+    return create_token(key, payload)
 
 
-def create_reset_password_token(
-    key: str, user_id: UUID, user_password: str, expiration: int = 10
-) -> str:
+def create_reset_password_token(key: str, user_id: UUID, user_password: str) -> str:
     payload = {
         "sub": str(user_id),
         "fingerprint": hash_password(user_password),
         "type": "reset-password",
     }
-    return create_token(key, payload, expiration)
+    return create_token(key, payload)
 
 
-def create_token(key: str, payload: Mapping[str, Any], expiration: int) -> str:
+def create_token(key: str, payload: Mapping[str, Any], expiration: int = 10) -> str:
     paseto = Paseto.new(exp=expiration, include_iat=True)
     paseto_key = Key.new(version=4, purpose="public", key=key)
     token = paseto.encode(

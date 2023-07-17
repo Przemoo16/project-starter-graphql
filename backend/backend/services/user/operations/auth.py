@@ -5,6 +5,7 @@ from datetime import datetime
 from typing import Any
 from uuid import UUID
 
+from backend.libs.api.headers import read_bearer_token
 from backend.libs.db.crud import NoObjectFoundError
 from backend.libs.security.token import InvalidTokenError
 from backend.services.user.crud import UserCRUDProtocol
@@ -119,6 +120,14 @@ def create_refresh_token(user_id: UUID, token_creator: TokenCreator) -> str:
     return token_creator({"sub": str(user_id), "type": REFRESH_TOKEN_TYPE})
 
 
+async def get_confirmed_user_from_headers(
+    headers: Mapping[Any, str], token_reader: TokenReader, crud: UserCRUDProtocol
+) -> User:
+    token = read_bearer_token(headers)
+    payload = read_access_token(token, token_reader)
+    return await get_confirmed_user_by_id(payload.user_id, crud)
+
+
 def read_access_token(token: str, token_reader: TokenReader) -> AccessTokenPayload:
     try:
         data = token_reader(token)
@@ -132,6 +141,16 @@ def read_access_token(token: str, token_reader: TokenReader) -> AccessTokenPaylo
         )
         raise InvalidAccessTokenError
     return AccessTokenPayload(user_id=UUID(data["sub"]))
+
+
+async def get_confirmed_user_by_id(user_id: UUID, crud: UserCRUDProtocol) -> User:
+    try:
+        user = await crud.read_one(UserFilters(id=user_id))
+    except NoObjectFoundError as exc:
+        raise UserNotFoundError from exc
+    if not user.confirmed_email:
+        raise UserNotConfirmedError
+    return user
 
 
 def read_refresh_token(token: str, token_reader: TokenReader) -> RefreshTokenPayload:

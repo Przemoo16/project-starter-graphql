@@ -1,3 +1,5 @@
+from typing import Any
+
 import orjson
 from graphql.validation import NoSchemaIntrospectionCustomRule
 from strawberry import Schema
@@ -10,7 +12,7 @@ from backend.api.graphql.mutation import Mutation
 from backend.api.graphql.query import Query
 
 
-class Router(GraphQLRouter):  # type: ignore[type-arg]
+class Router(GraphQLRouter[Any, None]):
     def encode_json(self, response_data: GraphQLHTTPResponse) -> str:
         return orjson.dumps(response_data).decode()
 
