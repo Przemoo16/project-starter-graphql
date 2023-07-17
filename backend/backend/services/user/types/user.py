@@ -4,7 +4,7 @@ from uuid import UUID
 
 import strawberry
 
-from backend.libs.api.types import InvalidInput, Problem
+from backend.libs.api.types import InvalidInputProblem, Problem
 
 
 @strawberry.input
@@ -20,12 +20,13 @@ class CreateUserSuccess:
 
 
 @strawberry.type
-class UserAlreadyExists(Problem):
+class UserAlreadyExistsProblem(Problem):
     message: str = "User with provided data already exists"
 
 
 CreateUserProblem = Annotated[
-    InvalidInput | UserAlreadyExists, strawberry.union("CreateUserProblem")
+    InvalidInputProblem | UserAlreadyExistsProblem,
+    strawberry.union("CreateUserProblem"),
 ]
 
 

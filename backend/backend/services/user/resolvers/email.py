@@ -15,8 +15,8 @@ from backend.services.user.types.email import (
     ConfirmEmailFailure,
     ConfirmEmailResponse,
     ConfirmEmailSuccess,
-    InvalidEmailConfirmationToken,
-    UserAlreadyConfirmed,
+    InvalidEmailConfirmationTokenProblem,
+    UserAlreadyConfirmedProblem,
 )
 
 user_settings = get_settings().user
@@ -31,7 +31,7 @@ async def confirm_email_resolver(info: Info, token: str) -> ConfirmEmailResponse
             crud,
         )
     except (InvalidEmailConfirmationTokenError, UserNotFoundError):
-        return ConfirmEmailFailure(problems=[InvalidEmailConfirmationToken()])
+        return ConfirmEmailFailure(problems=[InvalidEmailConfirmationTokenProblem()])
     except UserAlreadyConfirmedError:
-        return ConfirmEmailFailure(problems=[UserAlreadyConfirmed()])
+        return ConfirmEmailFailure(problems=[UserAlreadyConfirmedProblem()])
     return ConfirmEmailSuccess(id=user.id, email=user.email)

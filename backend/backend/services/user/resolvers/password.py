@@ -25,7 +25,7 @@ from backend.services.user.operations.password import (
 from backend.services.user.schemas import ResetPasswordData
 from backend.services.user.tasks import send_reset_password_email_task
 from backend.services.user.types.password import (
-    InvalidResetPasswordToken,
+    InvalidResetPasswordTokenProblem,
     RecoverPasswordResponse,
     ResetPasswordFailure,
     ResetPasswordInput,
@@ -76,5 +76,5 @@ async def reset_password_resolver(
         InvalidResetPasswordTokenFingerprintError,
         UserNotConfirmedError,
     ):
-        return ResetPasswordFailure(problems=[InvalidResetPasswordToken()])
+        return ResetPasswordFailure(problems=[InvalidResetPasswordTokenProblem()])
     return ResetPasswordSuccess()

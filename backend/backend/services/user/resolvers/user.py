@@ -16,7 +16,7 @@ from backend.services.user.types.user import (
     CreateUserFailure,
     CreateUserResponse,
     CreateUserSuccess,
-    UserAlreadyExists,
+    UserAlreadyExistsProblem,
     UserCreateInput,
 )
 
@@ -40,5 +40,5 @@ async def create_user_resolver(
     try:
         created_user = await create_user(user_data, crud, send_confirmation_email)
     except UserAlreadyExistsError:
-        return CreateUserFailure(problems=[UserAlreadyExists()])
+        return CreateUserFailure(problems=[UserAlreadyExistsProblem()])
     return CreateUserSuccess(id=created_user.id, email=created_user.email)

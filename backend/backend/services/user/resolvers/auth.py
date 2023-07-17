@@ -17,12 +17,12 @@ from backend.services.user.models import User
 from backend.services.user.operations.auth import AuthData, TokensCreationData, login
 from backend.services.user.schemas import Credentials
 from backend.services.user.types.auth import (
-    InvalidCredentials,
+    InvalidCredentialsProblem,
     LoginFailure,
     LoginInput,
     LoginResponse,
     LoginSuccess,
-    UserNotConfirmed,
+    UserNotConfirmedProblem,
 )
 
 user_settings = get_settings().user
@@ -55,9 +55,9 @@ async def login_resolver(
     try:
         access_token, refresh_token = await login(auth_data, tokens_data, crud)
     except (UserNotFoundError, InvalidPasswordError):
-        return LoginFailure(problems=[InvalidCredentials()])
+        return LoginFailure(problems=[InvalidCredentialsProblem()])
     except UserNotConfirmedError:
-        return LoginFailure(problems=[UserNotConfirmed()])
+        return LoginFailure(problems=[UserNotConfirmedProblem()])
     return LoginSuccess(
         access_token=access_token,
         refresh_token=refresh_token,

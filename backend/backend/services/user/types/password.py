@@ -3,7 +3,7 @@ from typing import Annotated
 
 import strawberry
 
-from backend.libs.api.types import InvalidInput, Problem
+from backend.libs.api.types import InvalidInputProblem, Problem
 
 
 @strawberry.type
@@ -23,12 +23,13 @@ class ResetPasswordSuccess:
 
 
 @strawberry.type
-class InvalidResetPasswordToken(Problem):
+class InvalidResetPasswordTokenProblem(Problem):
     message: str = "Provided token is invalid"
 
 
 ResetPasswordProblem = Annotated[
-    InvalidInput | InvalidResetPasswordToken, strawberry.union("ResetPasswordProblem")
+    InvalidInputProblem | InvalidResetPasswordTokenProblem,
+    strawberry.union("ResetPasswordProblem"),
 ]
 
 

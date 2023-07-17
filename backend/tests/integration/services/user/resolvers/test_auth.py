@@ -44,7 +44,7 @@ async def test_login_user_not_found(async_client: AsyncClient) -> None:
               login(input: {username: "test@email.com", password: "plain_password"}) {
                 ... on LoginFailure {
                   problems {
-                    ... on InvalidCredentials {
+                    ... on InvalidCredentialsProblem {
                       message
                     }
                   }
@@ -73,7 +73,7 @@ async def test_login_invalid_password(
               login(input: {username: "test@email.com", password: "invalid_password"}) {
                 ... on LoginFailure {
                   problems {
-                    ... on InvalidCredentials {
+                    ... on InvalidCredentialsProblem {
                       message
                     }
                   }
@@ -102,7 +102,7 @@ async def test_login_user_not_confirmed(
               login(input: {username: "test@email.com", password: "plain_password"}) {
                 ... on LoginFailure {
                   problems {
-                    ... on UserNotConfirmed {
+                    ... on UserNotConfirmedProblem {
                       message
                     }
                   }
