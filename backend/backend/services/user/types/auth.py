@@ -20,17 +20,18 @@ class LoginSuccess:
 
 
 @strawberry.type
-class InvalidCredentials(Problem):
+class InvalidCredentialsProblem(Problem):
     message: str = "Provided credentials are invalid"
 
 
 @strawberry.type
-class UserNotConfirmed(Problem):
+class UserNotConfirmedProblem(Problem):
     message: str = "The user is not confirmed"
 
 
 LoginProblem = Annotated[
-    InvalidCredentials | UserNotConfirmed, strawberry.union("LoginProblem")
+    InvalidCredentialsProblem | UserNotConfirmedProblem,
+    strawberry.union("LoginProblem"),
 ]
 
 

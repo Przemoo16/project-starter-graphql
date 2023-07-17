@@ -46,7 +46,7 @@ async def test_create_user_invalid_input(async_client: AsyncClient) -> None:
     response = await async_client.post("/graphql", json=payload)
 
     data = response.json()["data"]["createUser"]["problems"][0]
-    assert data["__typename"] == "InvalidInput"
+    assert data["__typename"] == "InvalidInputProblem"
 
 
 @pytest.mark.anyio()
@@ -60,7 +60,7 @@ async def test_create_user_already_exists(
               createUser(input: {email: "test@email.com", password: "plain_password"}) {
                 ... on CreateUserFailure {
                   problems {
-                    ... on UserAlreadyExists {
+                    ... on UserAlreadyExistsProblem {
                       message
                     }
                   }

@@ -14,17 +14,17 @@ class ConfirmEmailSuccess:
 
 
 @strawberry.type
-class InvalidEmailConfirmationToken(Problem):
+class InvalidEmailConfirmationTokenProblem(Problem):
     message: str = "Provided token is invalid"
 
 
 @strawberry.type
-class UserAlreadyConfirmed(Problem):
+class UserAlreadyConfirmedProblem(Problem):
     message: str = "The user has already been confirmed"
 
 
 ConfirmEmailProblem = Annotated[
-    InvalidEmailConfirmationToken | UserAlreadyConfirmed,
+    InvalidEmailConfirmationTokenProblem | UserAlreadyConfirmedProblem,
     strawberry.union("ConfirmEmailProblem"),
 ]
 

@@ -8,13 +8,15 @@ class Problem:
 
 
 @strawberry.type
-class InvalidInput(Problem):
+class InvalidInputProblem(Problem):
     message: str
     path: list[str]
 
 
-def from_pydantic_error(exc: ValidationError) -> list[InvalidInput]:
+def from_pydantic_error(exc: ValidationError) -> list[InvalidInputProblem]:
     return [
-        InvalidInput(message=error["msg"], path=[str(loc) for loc in error["loc"]])
+        InvalidInputProblem(
+            message=error["msg"], path=[str(loc) for loc in error["loc"]]
+        )
         for error in exc.errors()
     ]

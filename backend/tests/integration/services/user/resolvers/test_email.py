@@ -47,7 +47,7 @@ async def test_confirm_email_invalid_token(async_client: AsyncClient) -> None:
               confirmEmail(token: "invalid-token") {
                 ... on ConfirmEmailFailure {
                   problems {
-                    ... on InvalidEmailConfirmationToken {
+                    ... on InvalidEmailConfirmationTokenProblem {
                       message
                     }
                   }
@@ -76,7 +76,7 @@ async def test_confirm_email_user_not_found(
               confirmEmail(token: "{token}") {{
                 ... on ConfirmEmailFailure {{
                   problems {{
-                    ... on InvalidEmailConfirmationToken {{
+                    ... on InvalidEmailConfirmationTokenProblem {{
                       message
                     }}
                   }}
@@ -106,7 +106,7 @@ async def test_confirm_email_user_already_confirmed(
               confirmEmail(token: "{token}") {{
                 ... on ConfirmEmailFailure {{
                   problems {{
-                    ... on UserAlreadyConfirmed {{
+                    ... on UserAlreadyConfirmedProblem {{
                       message
                     }}
                   }}

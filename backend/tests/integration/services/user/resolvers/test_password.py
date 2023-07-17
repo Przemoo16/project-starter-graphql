@@ -82,7 +82,7 @@ async def test_reset_password_invalid_input(
     response = await async_client.post("/graphql", json=payload)
 
     data = response.json()["data"]["resetPassword"]["problems"][0]
-    assert data["__typename"] == "InvalidInput"
+    assert data["__typename"] == "InvalidInputProblem"
 
 
 @pytest.mark.anyio()
@@ -93,7 +93,7 @@ async def test_reset_password_invalid_token(async_client: AsyncClient) -> None:
               resetPassword(input: {token: "invalid-token", password: "new_password"}) {
                 ... on ResetPasswordFailure {
                   problems {
-                    ... on InvalidResetPasswordToken {
+                    ... on InvalidResetPasswordTokenProblem {
                       message
                     }
                   }
@@ -124,7 +124,7 @@ async def test_reset_password_user_not_found(
               resetPassword(input: {{token: "{token}", password: "new_password"}}) {{
                 ... on ResetPasswordFailure {{
                   problems {{
-                    ... on InvalidResetPasswordToken {{
+                    ... on InvalidResetPasswordTokenProblem {{
                       message
                     }}
                   }}
@@ -152,7 +152,7 @@ async def test_reset_password_invalid_fingerprint_same_token_used_twice(
               resetPassword(input: {{token: "{token}", password: "new_password"}}) {{
                 ... on ResetPasswordFailure {{
                   problems {{
-                    ... on InvalidResetPasswordToken {{
+                    ... on InvalidResetPasswordTokenProblem {{
                       message
                     }}
                   }}
@@ -181,7 +181,7 @@ async def test_reset_password_user_not_confirmed(
               resetPassword(input: {{token: "{token}", password: "new_password"}}) {{
                 ... on ResetPasswordFailure {{
                   problems {{
-                    ... on InvalidResetPasswordToken {{
+                    ... on InvalidResetPasswordTokenProblem {{
                       message
                     }}
                   }}
