@@ -18,6 +18,7 @@ from backend.services.user.operations.auth import (
     authenticate,
     create_access_token,
     create_refresh_token,
+    get_confirmed_user_by_id,
     login_with_tokens,
     read_access_token,
     read_refresh_token,
@@ -227,6 +228,35 @@ def test_read_access_token_invalid_token_type() -> None:
 
     with pytest.raises(InvalidAccessTokenError):
         read_access_token(token, read_token)
+
+
+@pytest.mark.anyio()
+async def test_get_confirmed_user_by_id() -> None:
+    user_id = UUID("6d9c79d6-9641-4746-92d9-2cc9ebdca941")
+    user = create_confirmed_user(id=user_id)
+    crud = UserCRUD(existing_user=user)
+
+    confirmed_user = await get_confirmed_user_by_id(user_id, crud)
+
+    assert confirmed_user == user
+
+
+@pytest.mark.anyio()
+async def test_get_confirmed_user_by_id_user_not_found() -> None:
+    user_id = UUID("6d9c79d6-9641-4746-92d9-2cc9ebdca941")
+    crud = UserCRUD()
+
+    with pytest.raises(UserNotFoundError):
+        await get_confirmed_user_by_id(user_id, crud)
+
+
+@pytest.mark.anyio()
+async def test_get_confirmed_user_by_id_user_not_confirmed() -> None:
+    user_id = UUID("6d9c79d6-9641-4746-92d9-2cc9ebdca941")
+    crud = UserCRUD(existing_user=create_user(id=user_id))
+
+    with pytest.raises(UserNotConfirmedError):
+        await get_confirmed_user_by_id(user_id, crud)
 
 
 def test_read_refresh_token() -> None:

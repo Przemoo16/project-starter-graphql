@@ -1,3 +1,5 @@
+from uuid import UUID
+
 import strawberry
 from pydantic import ValidationError
 
@@ -20,3 +22,9 @@ def from_pydantic_error(exc: ValidationError) -> list[InvalidInputProblem]:
         )
         for error in exc.errors()
     ]
+
+
+@strawberry.type
+class User:
+    id: UUID
+    email: str

@@ -1,16 +1,9 @@
 from collections.abc import Sequence
 from typing import Annotated
-from uuid import UUID
 
 import strawberry
 
-from backend.libs.api.types import Problem
-
-
-@strawberry.type
-class ConfirmEmailSuccess:
-    id: UUID
-    email: str
+from backend.libs.api.types import Problem, User
 
 
 @strawberry.type
@@ -35,5 +28,5 @@ class ConfirmEmailFailure:
 
 
 ConfirmEmailResponse = Annotated[
-    ConfirmEmailSuccess | ConfirmEmailFailure, strawberry.union("ConfirmEmailResponse")
+    User | ConfirmEmailFailure, strawberry.union("ConfirmEmailResponse")
 ]

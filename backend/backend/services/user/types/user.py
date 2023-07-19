@@ -1,22 +1,15 @@
 from collections.abc import Sequence
 from typing import Annotated
-from uuid import UUID
 
 import strawberry
 
-from backend.libs.api.types import InvalidInputProblem, Problem
+from backend.libs.api.types import InvalidInputProblem, Problem, User
 
 
 @strawberry.input
 class UserCreateInput:
     email: str
     password: str
-
-
-@strawberry.type
-class CreateUserSuccess:
-    id: UUID
-    email: str
 
 
 @strawberry.type
@@ -36,5 +29,5 @@ class CreateUserFailure:
 
 
 CreateUserResponse = Annotated[
-    CreateUserSuccess | CreateUserFailure, strawberry.union("CreateUserResponse")
+    User | CreateUserFailure, strawberry.union("CreateUserResponse")
 ]

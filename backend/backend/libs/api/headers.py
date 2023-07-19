@@ -7,7 +7,7 @@ class BearerTokenNotFoundError(Exception):
 
 
 def read_bearer_token(headers: Mapping[Any, str]) -> str:
-    auth_header = headers.get("Authentication")
+    auth_header = headers.get("Authorization")
     if not auth_header:
         raise BearerTokenNotFoundError
     scheme, _, param = auth_header.partition(" ")
