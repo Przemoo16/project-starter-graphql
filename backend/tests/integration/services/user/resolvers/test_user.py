@@ -108,3 +108,110 @@ async def test_get_me(
         "id": "6d9c79d6-9641-4746-92d9-2cc9ebdca941",
         "email": "test@email.com",
     }
+
+
+@pytest.mark.anyio()
+async def test_update_me(
+    session: AsyncSession, auth_private_key: str, async_client: AsyncClient
+) -> None:
+    user = await create_confirmed_user(
+        session, id=UUID("6d9c79d6-9641-4746-92d9-2cc9ebdca941"), email="test@email.com"
+    )
+    auth_header = create_auth_header(auth_private_key, user.id)
+    payload = {
+        "query": """
+            mutation {
+              updateMe(input: {email: "updated@email.com"}) {
+                ... on User {
+                  id
+                  email
+                }
+              }
+            }
+        """
+    }
+
+    response = await async_client.post("/graphql", json=payload, headers=auth_header)
+
+    data = response.json()["data"]["updateMe"]
+    assert data == {
+        "id": "6d9c79d6-9641-4746-92d9-2cc9ebdca941",
+        "email": "updated@email.com",
+    }
+
+
+@pytest.mark.anyio()
+async def test_update_me_invalid_input(
+    session: AsyncSession, auth_private_key: str, async_client: AsyncClient
+) -> None:
+    user = await create_confirmed_user(session)
+    auth_header = create_auth_header(auth_private_key, user.id)
+    payload = {
+        "query": """
+            mutation {
+              updateMe(input: {email: "test"}) {
+                ... on UpdateMeFailure {
+                  problems {
+                    __typename
+                  }
+                }
+              }
+            }
+        """
+    }
+
+    response = await async_client.post("/graphql", json=payload, headers=auth_header)
+
+    data = response.json()["data"]["updateMe"]["problems"][0]
+    assert data["__typename"] == "InvalidInputProblem"
+
+
+@pytest.mark.anyio()
+async def test_update_me_user_with_provided_email_already_exists(
+    session: AsyncSession, auth_private_key: str, async_client: AsyncClient
+) -> None:
+    await create_user(session, email="updated@email.com")
+    user = await create_confirmed_user(session, email="test@email.com")
+    auth_header = create_auth_header(auth_private_key, user.id)
+    payload = {
+        "query": """
+            mutation {
+              updateMe(input: {email: "updated@email.com"}) {
+                ... on UpdateMeFailure {
+                  problems {
+                    ... on UserAlreadyExistsProblem {
+                      message
+                    }
+                  }
+                }
+              }
+            }
+        """
+    }
+
+    response = await async_client.post("/graphql", json=payload, headers=auth_header)
+
+    data = response.json()["data"]["updateMe"]["problems"][0]
+    assert "message" in data
+
+
+@pytest.mark.anyio()
+async def test_delete_me(
+    session: AsyncSession, auth_private_key: str, async_client: AsyncClient
+) -> None:
+    user = await create_confirmed_user(session)
+    auth_header = create_auth_header(auth_private_key, user.id)
+    payload = {
+        "query": """
+            mutation {
+              deleteMe {
+                message
+              }
+            }
+        """
+    }
+
+    response = await async_client.post("/graphql", json=payload, headers=auth_header)
+
+    data = response.json()["data"]["deleteMe"]
+    assert "message" in data
