@@ -14,21 +14,27 @@ async def test_login(session: AsyncSession, async_client: AsyncClient) -> None:
     await create_confirmed_user(
         session, email="test@email.com", hashed_password=hash_password("plain_password")
     )
-    payload = {
-        "query": """
-            mutation {
-              login(input: {username: "test@email.com", password: "plain_password"}) {
-                ... on LoginSuccess {
-                  accessToken
-                  refreshToken
-                  tokenType
-                }
-              }
-            }
-        """
+    query = """
+      mutation Login($input: LoginInput!) {
+        login(input: $input) {
+          ... on LoginSuccess {
+            accessToken
+            refreshToken
+            tokenType
+          }
+        }
+      }
+    """
+    variables = {
+        "input": {
+            "username": "test@email.com",
+            "password": "plain_password",
+        },
     }
 
-    response = await async_client.post("/graphql", json=payload)
+    response = await async_client.post(
+        "/graphql", json={"query": query, "variables": variables}
+    )
 
     data = response.json()["data"]["login"]
     assert "accessToken" in data
@@ -38,23 +44,29 @@ async def test_login(session: AsyncSession, async_client: AsyncClient) -> None:
 
 @pytest.mark.anyio()
 async def test_login_user_not_found(async_client: AsyncClient) -> None:
-    payload = {
-        "query": """
-            mutation {
-              login(input: {username: "test@email.com", password: "plain_password"}) {
-                ... on LoginFailure {
-                  problems {
-                    ... on InvalidCredentialsProblem {
-                      message
-                    }
-                  }
-                }
+    query = """
+      mutation Login($input: LoginInput!) {
+        login(input: $input) {
+          ... on LoginFailure {
+            problems {
+              ... on InvalidCredentialsProblem {
+                message
               }
             }
-        """
+          }
+        }
+      }
+    """
+    variables = {
+        "input": {
+            "username": "test@email.com",
+            "password": "plain_password",
+        },
     }
 
-    response = await async_client.post("/graphql", json=payload)
+    response = await async_client.post(
+        "/graphql", json={"query": query, "variables": variables}
+    )
 
     data = response.json()["data"]["login"]["problems"][0]
     assert "message" in data
@@ -67,23 +79,29 @@ async def test_login_invalid_password(
     await create_confirmed_user(
         session, email="test@email.com", hashed_password=hash_password("plain_password")
     )
-    payload = {
-        "query": """
-            mutation {
-              login(input: {username: "test@email.com", password: "invalid_password"}) {
-                ... on LoginFailure {
-                  problems {
-                    ... on InvalidCredentialsProblem {
-                      message
-                    }
-                  }
-                }
+    query = """
+      mutation Login($input: LoginInput!) {
+        login(input: $input) {
+          ... on LoginFailure {
+            problems {
+              ... on InvalidCredentialsProblem {
+                message
               }
             }
-        """
+          }
+        }
+      }
+    """
+    variables = {
+        "input": {
+            "username": "test@email.com",
+            "password": "invalid_password",
+        },
     }
 
-    response = await async_client.post("/graphql", json=payload)
+    response = await async_client.post(
+        "/graphql", json={"query": query, "variables": variables}
+    )
 
     data = response.json()["data"]["login"]["problems"][0]
     assert "message" in data
@@ -96,23 +114,29 @@ async def test_login_user_not_confirmed(
     await create_user(
         session, email="test@email.com", hashed_password=hash_password("plain_password")
     )
-    payload = {
-        "query": """
-            mutation {
-              login(input: {username: "test@email.com", password: "plain_password"}) {
-                ... on LoginFailure {
-                  problems {
-                    ... on UserNotConfirmedProblem {
-                      message
-                    }
-                  }
-                }
+    query = """
+      mutation Login($input: LoginInput!) {
+        login(input: $input) {
+          ... on LoginFailure {
+            problems {
+              ... on UserNotConfirmedProblem {
+                message
               }
             }
-        """
+          }
+        }
+      }
+    """
+    variables = {
+        "input": {
+            "username": "test@email.com",
+            "password": "plain_password",
+        },
     }
 
-    response = await async_client.post("/graphql", json=payload)
+    response = await async_client.post(
+        "/graphql", json={"query": query, "variables": variables}
+    )
 
     data = response.json()["data"]["login"]["problems"][0]
     assert "message" in data

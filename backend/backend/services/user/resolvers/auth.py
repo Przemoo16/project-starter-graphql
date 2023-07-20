@@ -29,11 +29,9 @@ user_settings = get_settings().user
 
 
 async def login_resolver(
-    info: Info, credentials_input: Annotated[LoginInput, argument(name="input")]
+    info: Info, login_input: Annotated[LoginInput, argument(name="input")]
 ) -> LoginResponse:
-    credentials = Credentials(
-        email=credentials_input.username, password=credentials_input.password
-    )
+    credentials = Credentials(email=login_input.username, password=login_input.password)
     auth_data = AuthData(
         credentials=credentials,
         password_validator=verify_and_update_password,

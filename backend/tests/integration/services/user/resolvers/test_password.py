@@ -16,17 +16,18 @@ async def test_recover_password(
     session: AsyncSession, async_client: AsyncClient
 ) -> None:
     await create_confirmed_user(session, email="test@email.com")
-    payload = {
-        "query": """
-            mutation {
-              recoverPassword(email: "test@email.com") {
-                message
-              }
-            }
-        """
-    }
+    query = """
+      mutation RecoverPassword($email: String!) {
+        recoverPassword(email: $email) {
+          message
+        }
+      }
+    """
+    variables = {"email": "test@email.com"}
 
-    response = await async_client.post("/graphql", json=payload)
+    response = await async_client.post(
+        "/graphql", json={"query": query, "variables": variables}
+    )
 
     data = response.json()["data"]["recoverPassword"]
     assert "message" in data
@@ -38,19 +39,25 @@ async def test_reset_password(
 ) -> None:
     user = await create_confirmed_user(session)
     token = create_reset_password_token(auth_private_key, user.id, user.hashed_password)
-    payload = {
-        "query": f"""
-            mutation {{
-              resetPassword(input: {{token: "{token}", password: "new_password"}}) {{
-                ... on ResetPasswordSuccess {{
-                  message
-                }}
-              }}
-            }}
-        """
+    query = """
+      mutation ResetPassword($input: ResetPasswordInput!) {
+        resetPassword(input: $input) {
+          ... on ResetPasswordSuccess {
+            message
+          }
+        }
+      }
+    """
+    variables = {
+        "input": {
+            "token": token,
+            "password": "new_password",
+        }
     }
 
-    response = await async_client.post("/graphql", json=payload)
+    response = await async_client.post(
+        "/graphql", json={"query": query, "variables": variables}
+    )
 
     data = response.json()["data"]["resetPassword"]
     assert "message" in data
@@ -65,21 +72,27 @@ async def test_reset_password_invalid_input(
         UUID("6d9c79d6-9641-4746-92d9-2cc9ebdca941"),
         "hashed_password",
     )
-    payload = {
-        "query": f"""
-            mutation {{
-              resetPassword(input: {{token: "{token}", password: "p"}}) {{
-                ... on ResetPasswordFailure {{
-                  problems {{
-                    __typename
-                  }}
-                }}
-              }}
-            }}
-        """
+    query = """
+      mutation ResetPassword($input: ResetPasswordInput!) {
+        resetPassword(input: $input) {
+          ... on ResetPasswordFailure {
+            problems {
+              __typename
+            }
+          }
+        }
+      }
+    """
+    variables = {
+        "input": {
+            "token": token,
+            "password": "p",
+        }
     }
 
-    response = await async_client.post("/graphql", json=payload)
+    response = await async_client.post(
+        "/graphql", json={"query": query, "variables": variables}
+    )
 
     data = response.json()["data"]["resetPassword"]["problems"][0]
     assert data["__typename"] == "InvalidInputProblem"
@@ -87,23 +100,29 @@ async def test_reset_password_invalid_input(
 
 @pytest.mark.anyio()
 async def test_reset_password_invalid_token(async_client: AsyncClient) -> None:
-    payload = {
-        "query": """
-            mutation {
-              resetPassword(input: {token: "invalid-token", password: "new_password"}) {
-                ... on ResetPasswordFailure {
-                  problems {
-                    ... on InvalidResetPasswordTokenProblem {
-                      message
-                    }
-                  }
-                }
+    query = """
+      mutation ResetPassword($input: ResetPasswordInput!) {
+        resetPassword(input: $input) {
+          ... on ResetPasswordFailure {
+            problems {
+              ... on InvalidResetPasswordTokenProblem {
+                message
               }
             }
-        """
+          }
+        }
+      }
+    """
+    variables = {
+        "input": {
+            "token": "invalid-token",
+            "password": "new_password",
+        }
     }
 
-    response = await async_client.post("/graphql", json=payload)
+    response = await async_client.post(
+        "/graphql", json={"query": query, "variables": variables}
+    )
 
     data = response.json()["data"]["resetPassword"]["problems"][0]
     assert "message" in data
@@ -118,23 +137,29 @@ async def test_reset_password_user_not_found(
         UUID("6d9c79d6-9641-4746-92d9-2cc9ebdca941"),
         "hashed_password",
     )
-    payload = {
-        "query": f"""
-            mutation {{
-              resetPassword(input: {{token: "{token}", password: "new_password"}}) {{
-                ... on ResetPasswordFailure {{
-                  problems {{
-                    ... on InvalidResetPasswordTokenProblem {{
-                      message
-                    }}
-                  }}
-                }}
-              }}
-            }}
-        """
+    query = """
+      mutation ResetPassword($input: ResetPasswordInput!) {
+        resetPassword(input: $input) {
+          ... on ResetPasswordFailure {
+            problems {
+              ... on InvalidResetPasswordTokenProblem {
+                message
+              }
+            }
+          }
+        }
+      }
+    """
+    variables = {
+        "input": {
+            "token": token,
+            "password": "new_password",
+        }
     }
 
-    response = await async_client.post("/graphql", json=payload)
+    response = await async_client.post(
+        "/graphql", json={"query": query, "variables": variables}
+    )
 
     data = response.json()["data"]["resetPassword"]["problems"][0]
     assert "message" in data
@@ -146,24 +171,30 @@ async def test_reset_password_invalid_fingerprint_same_token_used_twice(
 ) -> None:
     user = await create_confirmed_user(session)
     token = create_reset_password_token(auth_private_key, user.id, user.hashed_password)
-    payload = {
-        "query": f"""
-            mutation {{
-              resetPassword(input: {{token: "{token}", password: "new_password"}}) {{
-                ... on ResetPasswordFailure {{
-                  problems {{
-                    ... on InvalidResetPasswordTokenProblem {{
-                      message
-                    }}
-                  }}
-                }}
-              }}
-            }}
-        """
+    query = """
+      mutation ResetPassword($input: ResetPasswordInput!) {
+        resetPassword(input: $input) {
+          ... on ResetPasswordFailure {
+            problems {
+              ... on InvalidResetPasswordTokenProblem {
+                message
+              }
+            }
+          }
+        }
+      }
+    """
+    variables = {
+        "input": {
+            "token": token,
+            "password": "new_password",
+        }
     }
 
-    await async_client.post("/graphql", json=payload)
-    response = await async_client.post("/graphql", json=payload)
+    await async_client.post("/graphql", json={"query": query, "variables": variables})
+    response = await async_client.post(
+        "/graphql", json={"query": query, "variables": variables}
+    )
 
     data = response.json()["data"]["resetPassword"]["problems"][0]
     assert "message" in data
@@ -175,23 +206,29 @@ async def test_reset_password_user_not_confirmed(
 ) -> None:
     user = await create_user(session)
     token = create_reset_password_token(auth_private_key, user.id, user.hashed_password)
-    payload = {
-        "query": f"""
-            mutation {{
-              resetPassword(input: {{token: "{token}", password: "new_password"}}) {{
-                ... on ResetPasswordFailure {{
-                  problems {{
-                    ... on InvalidResetPasswordTokenProblem {{
-                      message
-                    }}
-                  }}
-                }}
-              }}
-            }}
-        """
+    query = """
+      mutation ResetPassword($input: ResetPasswordInput!) {
+        resetPassword(input: $input) {
+          ... on ResetPasswordFailure {
+            problems {
+              ... on InvalidResetPasswordTokenProblem {
+                message
+              }
+            }
+          }
+        }
+      }
+    """
+    variables = {
+        "input": {
+            "token": token,
+            "password": "new_password",
+        }
     }
 
-    response = await async_client.post("/graphql", json=payload)
+    response = await async_client.post(
+        "/graphql", json={"query": query, "variables": variables}
+    )
 
     data = response.json()["data"]["resetPassword"]["problems"][0]
     assert "message" in data
