@@ -62,13 +62,15 @@ async def reset_password_resolver(
         )
     except ValidationError as exc:
         return ResetPasswordFailure(problems=from_pydantic_error(exc))
+
+    token_reader = partial(
+        read_paseto_token_public_v4, key=user_settings.auth_public_key
+    )
     crud = UserCRUD(model=User, session=info.context.session)
+
     try:
         await reset_password(
-            reset_password_data,
-            partial(read_paseto_token_public_v4, key=user_settings.auth_public_key),
-            verify_and_update_password,
-            crud,
+            reset_password_data, token_reader, verify_and_update_password, crud
         )
     except (
         InvalidResetPasswordTokenError,

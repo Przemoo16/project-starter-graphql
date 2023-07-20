@@ -23,13 +23,13 @@ user_settings = get_settings().user
 
 
 async def confirm_email_resolver(info: Info, token: str) -> ConfirmEmailResponse:
+    token_reader = partial(
+        read_paseto_token_public_v4, key=user_settings.auth_public_key
+    )
     crud = UserCRUD(model=UserModel, session=info.context.session)
+
     try:
-        user = await confirm_email(
-            token,
-            partial(read_paseto_token_public_v4, key=user_settings.auth_public_key),
-            crud,
-        )
+        user = await confirm_email(token, token_reader, crud)
     except (InvalidEmailConfirmationTokenError, UserNotFoundError):
         return ConfirmEmailFailure(problems=[InvalidEmailConfirmationTokenProblem()])
     except UserAlreadyConfirmedError:

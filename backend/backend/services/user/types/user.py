@@ -31,3 +31,29 @@ class CreateUserFailure:
 CreateUserResponse = Annotated[
     User | CreateUserFailure, strawberry.union("CreateUserResponse")
 ]
+
+
+@strawberry.input
+class UpdateMeInput:
+    email: str = strawberry.UNSET
+
+
+UpdateMeProblem = Annotated[
+    InvalidInputProblem | UserAlreadyExistsProblem,
+    strawberry.union("UpdateMeProblem"),
+]
+
+
+@strawberry.type
+class UpdateMeFailure:
+    problems: Sequence[UpdateMeProblem]
+
+
+UpdateMeResponse = Annotated[
+    User | UpdateMeFailure, strawberry.union("UpdateMeResponse")
+]
+
+
+@strawberry.type
+class DeleteMeResponse:
+    message: str = "User has been deleted"

@@ -31,7 +31,6 @@ user_settings = get_settings().user
 async def login_resolver(
     info: Info, credentials_input: Annotated[LoginInput, argument(name="input")]
 ) -> LoginResponse:
-    crud = UserCRUD(model=User, session=info.context.session)
     credentials = Credentials(
         email=credentials_input.username, password=credentials_input.password
     )
@@ -52,6 +51,8 @@ async def login_resolver(
             key=user_settings.auth_private_key.get_secret_value(),
         ),
     )
+    crud = UserCRUD(model=User, session=info.context.session)
+
     try:
         access_token, refresh_token = await login(auth_data, tokens_data, crud)
     except (UserNotFoundError, InvalidPasswordError):

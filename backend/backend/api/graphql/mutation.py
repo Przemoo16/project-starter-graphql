@@ -6,19 +6,29 @@ from backend.services.user.resolvers.password import (
     recover_password_resolver,
     reset_password_resolver,
 )
-from backend.services.user.resolvers.user import create_user_resolver
+from backend.services.user.resolvers.user import (
+    create_user_resolver,
+    delete_me_resolver,
+    update_me_resolver,
+)
 from backend.services.user.types.auth import LoginResponse
 from backend.services.user.types.email import ConfirmEmailResponse
 from backend.services.user.types.password import (
     RecoverPasswordResponse,
     ResetPasswordResponse,
 )
-from backend.services.user.types.user import CreateUserResponse
+from backend.services.user.types.user import (
+    CreateUserResponse,
+    DeleteMeResponse,
+    UpdateMeResponse,
+)
 
 
 @strawberry.type
 class Mutation:
     create_user: CreateUserResponse = strawberry.field(resolver=create_user_resolver)
+    update_me: UpdateMeResponse = strawberry.field(resolver=update_me_resolver)
+    delete_me: DeleteMeResponse = strawberry.field(resolver=delete_me_resolver)
     confirm_email: ConfirmEmailResponse = strawberry.field(
         resolver=confirm_email_resolver
     )
