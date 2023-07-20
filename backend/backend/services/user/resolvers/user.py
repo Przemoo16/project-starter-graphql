@@ -1,11 +1,10 @@
-from dataclasses import asdict
 from typing import Annotated
 
 from pydantic import ValidationError
-from strawberry import UNSET, argument
+from strawberry import argument
 
 from backend.libs.api.context import Info
-from backend.libs.api.types import User, from_pydantic_error
+from backend.libs.api.types import User, convert_to_dict, from_pydantic_error
 from backend.libs.security.password import hash_password
 from backend.services.user.crud import UserCRUD
 from backend.services.user.exceptions import UserAlreadyExistsError
@@ -61,7 +60,7 @@ async def update_me_resolver(
     user = await info.context.user
 
     try:
-        user_data = validate_update_me_data(user_input)
+        user_data = UserUpdateData.model_validate(convert_to_dict(user_input))
     except ValidationError as exc:
         return UpdateMeFailure(problems=from_pydantic_error(exc))
 
@@ -72,12 +71,6 @@ async def update_me_resolver(
     except UserAlreadyExistsError:
         return UpdateMeFailure(problems=[UserAlreadyExistsProblem()])
     return User(id=updated_user.id, email=updated_user.email)
-
-
-def validate_update_me_data(user_input: UpdateMeInput) -> UserUpdateData:
-    input_dict = asdict(user_input)
-    data = {field: value for field, value in input_dict.items() if value != UNSET}
-    return UserUpdateData.model_validate(data)
 
 
 async def delete_me_resolver(info: Info) -> DeleteMeResponse:

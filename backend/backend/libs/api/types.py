@@ -1,3 +1,5 @@
+from dataclasses import asdict
+from typing import Any, ClassVar, Protocol
 from uuid import UUID
 
 import strawberry
@@ -28,3 +30,15 @@ def from_pydantic_error(exc: ValidationError) -> list[InvalidInputProblem]:
 class User:
     id: UUID
     email: str
+
+
+class Dataclass(Protocol):
+    __dataclass_fields__: ClassVar[dict[str, Any]]
+
+
+def convert_to_dict(data: Dataclass) -> dict[Any, Any]:
+    return {
+        key: value
+        for key, value in asdict(data).items()
+        if value is not strawberry.UNSET
+    }
