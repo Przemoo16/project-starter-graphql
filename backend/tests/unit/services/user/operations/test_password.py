@@ -7,6 +7,7 @@ import pytest
 from backend.libs.email.message import HTMLMessage
 from backend.libs.security.token import InvalidTokenError
 from backend.services.user.exceptions import (
+    InvalidPasswordError,
     InvalidResetPasswordTokenError,
     InvalidResetPasswordTokenFingerprintError,
     UserNotConfirmedError,
@@ -14,12 +15,14 @@ from backend.services.user.exceptions import (
 )
 from backend.services.user.models import User
 from backend.services.user.operations.password import (
+    change_password,
     create_reset_password_token,
     read_reset_password_token,
     recover_password,
     send_reset_password_email,
     set_password,
 )
+from backend.services.user.schemas import ChangePasswordData
 from tests.unit.helpers.user import UserCRUD, create_confirmed_user, create_user
 
 
@@ -27,8 +30,8 @@ def success_password_validator(*_: str) -> tuple[bool, None]:
     return True, None
 
 
-def get_test_password(_: str) -> str:
-    return "hashed_password"
+def failure_password_validator(*_: str) -> tuple[bool, None]:
+    return False, None
 
 
 @pytest.mark.anyio()
@@ -207,12 +210,9 @@ async def test_set_password_invalid_fingerprint() -> None:
         )
     )
 
-    def failure_validator(*_: str) -> tuple[bool, None]:
-        return False, None
-
     with pytest.raises(InvalidResetPasswordTokenFingerprintError):
         await set_password(
-            user_id, fingerprint, hashed_password, failure_validator, crud
+            user_id, fingerprint, hashed_password, failure_password_validator, crud
         )
 
 
@@ -229,3 +229,38 @@ async def test_set_password_user_not_confirmed() -> None:
         await set_password(
             user_id, fingerprint, hashed_password, success_password_validator, crud
         )
+
+
+@pytest.mark.anyio()
+async def test_change_password() -> None:
+    def hash_password(_: str) -> str:
+        return "new_hashed_password"
+
+    data = ChangePasswordData(
+        current_password="plain_password",
+        new_password="new_password",
+        password_hasher=hash_password,
+    )
+    user = create_user(hashed_password="plain_password")
+    crud = UserCRUD()
+
+    updated_user = await change_password(user, data, success_password_validator, crud)
+
+    assert updated_user.hashed_password == "new_hashed_password"
+
+
+@pytest.mark.anyio()
+async def test_change_password_invalid_password() -> None:
+    def hash_password(_: str) -> str:
+        return "new_hashed_password"
+
+    data = ChangePasswordData(
+        current_password="plain_password",
+        new_password="new_password",
+        password_hasher=hash_password,
+    )
+    user = create_user(hashed_password="plain_password")
+    crud = UserCRUD()
+
+    with pytest.raises(InvalidPasswordError):
+        await change_password(user, data, failure_password_validator, crud)

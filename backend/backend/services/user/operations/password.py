@@ -10,13 +10,19 @@ from backend.libs.email.message import HTMLMessage
 from backend.libs.security.token import InvalidTokenError
 from backend.services.user.crud import UserCRUDProtocol
 from backend.services.user.exceptions import (
+    InvalidPasswordError,
     InvalidResetPasswordTokenError,
     InvalidResetPasswordTokenFingerprintError,
     UserNotConfirmedError,
     UserNotFoundError,
 )
 from backend.services.user.models import User
-from backend.services.user.schemas import ResetPasswordData, UserFilters, UserUpdateData
+from backend.services.user.schemas import (
+    ChangePasswordData,
+    ResetPasswordData,
+    UserFilters,
+    UserUpdateData,
+)
 
 logger = logging.getLogger(__name__)
 
@@ -176,4 +182,21 @@ async def set_password(
         raise UserNotConfirmedError
     return await crud.update_and_refresh(
         user, UserUpdateData(hashed_password=hashed_password)
+    )
+
+
+async def change_password(
+    user: User,
+    data: ChangePasswordData,
+    password_validator: PasswordValidator,
+    crud: UserCRUDProtocol,
+) -> User:
+    is_valid, _ = password_validator(
+        data.current_password.get_secret_value(), user.hashed_password
+    )
+    if not is_valid:
+        logger.info("Invalid password for the user %r", user.email)
+        raise InvalidPasswordError()
+    return await crud.update_and_refresh(
+        user, UserUpdateData(hashed_password=data.hashed_password)
     )

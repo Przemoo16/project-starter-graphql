@@ -5,9 +5,17 @@ import pytest
 from pydantic import ValidationError
 
 from backend.services.user.schemas import (
+    ChangePasswordData,
     ResetPasswordData,
     UserCreateData,
     UserUpdateData,
+)
+
+PasswordRelatedSchemas = (
+    type[UserCreateData]
+    | type[UserUpdateData]
+    | type[ResetPasswordData]
+    | type[ChangePasswordData]
 )
 
 
@@ -33,37 +41,39 @@ def test_schema_invalid_email(
 
 
 @pytest.mark.parametrize(
-    ("schema", "params"),
+    ("schema", "password_field", "params"),
     [
-        (UserCreateData, {"email": "test@email.com"}),
-        (UserUpdateData, {}),
-        (ResetPasswordData, {"token": "test-token"}),
+        (UserCreateData, "password", {"email": "test@email.com"}),
+        (UserUpdateData, "password", {}),
+        (ResetPasswordData, "password", {"token": "test-token"}),
+        (ChangePasswordData, "new_password", {"current_password": "plain_password"}),
     ],
 )
 def test_schema_password_too_short(
-    schema: type[UserCreateData] | type[UserUpdateData], params: Mapping[str, Any]
+    schema: PasswordRelatedSchemas, password_field: str, params: Mapping[str, Any]
 ) -> None:
-    password = "p"
+    schema_params = {password_field: "p", **params}
 
     with pytest.raises(ValidationError, match="too_short") as exc_info:
-        schema(password=password, password_hasher=get_test_password, **params)
+        schema(password_hasher=get_test_password, **schema_params)
     assert len(exc_info.value.errors()) == 1
 
 
 @pytest.mark.parametrize(
-    ("schema", "params"),
+    ("schema", "password_field", "params"),
     [
-        (UserCreateData, {"email": "test@email.com"}),
-        (UserUpdateData, {}),
-        (ResetPasswordData, {"token": "test-token"}),
+        (UserCreateData, "password", {"email": "test@email.com"}),
+        (UserUpdateData, "password", {}),
+        (ResetPasswordData, "password", {"token": "test-token"}),
+        (ChangePasswordData, "new_password", {"current_password": "plain_password"}),
     ],
 )
 def test_schema_does_not_export_password_related_fields(
-    schema: type[UserCreateData] | type[UserUpdateData], params: Mapping[str, Any]
+    schema: PasswordRelatedSchemas, password_field: str, params: Mapping[str, Any]
 ) -> None:
-    password = "plain_password"
+    schema_params = {password_field: "plain_password", **params}
 
-    data = schema(password=password, password_hasher=get_test_password, **params)
+    data = schema(password_hasher=get_test_password, **schema_params)
 
     data_dict = data.model_dump()
     assert "password_hasher" not in data_dict
@@ -71,22 +81,23 @@ def test_schema_does_not_export_password_related_fields(
 
 
 @pytest.mark.parametrize(
-    ("schema", "params"),
+    ("schema", "password_field", "params"),
     [
-        (UserCreateData, {"email": "test@email.com"}),
-        (UserUpdateData, {}),
-        (ResetPasswordData, {"token": "test-token"}),
+        (UserCreateData, "password", {"email": "test@email.com"}),
+        (UserUpdateData, "password", {}),
+        (ResetPasswordData, "password", {"token": "test-token"}),
+        (ChangePasswordData, "new_password", {"current_password": "plain_password"}),
     ],
 )
 def test_schema_hashes_password(
-    schema: type[UserCreateData] | type[UserUpdateData], params: Mapping[str, Any]
+    schema: PasswordRelatedSchemas, password_field: str, params: Mapping[str, Any]
 ) -> None:
-    password = "plain_password"
+    schema_params = {password_field: "plain_password", **params}
 
     def hash_password(_: str) -> str:
         return "hashed_password"
 
-    data = schema(password=password, password_hasher=hash_password, **params)
+    data = schema(password_hasher=hash_password, **schema_params)
 
     assert data.hashed_password == "hashed_password"
 

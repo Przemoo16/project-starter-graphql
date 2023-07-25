@@ -42,3 +42,36 @@ ResetPasswordResponse = Annotated[
     ResetPasswordSuccess | ResetPasswordFailure,
     strawberry.union("ResetPasswordResponse"),
 ]
+
+
+@strawberry.input
+class ChangeMyPasswordInput:
+    current_password: str
+    new_password: str
+
+
+@strawberry.type
+class ChangeMyPasswordSuccess:
+    message: str = "Password has been changed"
+
+
+@strawberry.type
+class InvalidPasswordProblem(Problem):
+    message: str = "Provided password is invalid"
+
+
+ChangeMyPasswordProblem = Annotated[
+    InvalidInputProblem | InvalidPasswordProblem,
+    strawberry.union("ChangeMyPasswordProblem"),
+]
+
+
+@strawberry.type
+class ChangeMyPasswordFailure:
+    problems: Sequence[ChangeMyPasswordProblem]
+
+
+ChangeMyPasswordResponse = Annotated[
+    ChangeMyPasswordSuccess | ChangeMyPasswordFailure,
+    strawberry.union("ChangeMyPasswordResponse"),
+]

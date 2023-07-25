@@ -5,9 +5,11 @@ from httpx import AsyncClient
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from tests.integration.helpers.user import (
+    create_auth_header,
     create_confirmed_user,
     create_reset_password_token,
     create_user,
+    hash_password,
 )
 
 
@@ -231,4 +233,104 @@ async def test_reset_password_user_not_confirmed(
     )
 
     data = response.json()["data"]["resetPassword"]["problems"][0]
+    assert "message" in data
+
+
+@pytest.mark.anyio()
+async def test_change_my_password(
+    session: AsyncSession, auth_private_key: str, async_client: AsyncClient
+) -> None:
+    user = await create_confirmed_user(
+        session, hashed_password=hash_password("plain_password")
+    )
+    auth_header = create_auth_header(auth_private_key, user.id)
+    query = """
+      mutation ChangeMyPassword($input: ChangeMyPasswordInput!) {
+        changeMyPassword(input: $input) {
+          ... on ChangeMyPasswordSuccess {
+            message
+          }
+        }
+      }
+    """
+    variables = {
+        "input": {
+            "currentPassword": "plain_password",
+            "newPassword": "new_password",
+        }
+    }
+
+    response = await async_client.post(
+        "/graphql", json={"query": query, "variables": variables}, headers=auth_header
+    )
+
+    data = response.json()["data"]["changeMyPassword"]
+    assert "message" in data
+
+
+@pytest.mark.anyio()
+async def test_change_password_invalid_input(
+    session: AsyncSession, auth_private_key: str, async_client: AsyncClient
+) -> None:
+    user = await create_confirmed_user(session)
+    auth_header = create_auth_header(auth_private_key, user.id)
+    query = """
+      mutation ChangeMyPassword($input: ChangeMyPasswordInput!) {
+        changeMyPassword(input: $input) {
+          ... on ChangeMyPasswordFailure {
+            problems {
+              __typename
+            }
+          }
+        }
+      }
+    """
+    variables = {
+        "input": {
+            "currentPassword": "plain_password",
+            "newPassword": "p",
+        }
+    }
+
+    response = await async_client.post(
+        "/graphql", json={"query": query, "variables": variables}, headers=auth_header
+    )
+
+    data = response.json()["data"]["changeMyPassword"]["problems"][0]
+    assert data["__typename"] == "InvalidInputProblem"
+
+
+@pytest.mark.anyio()
+async def test_change_my_password_invalid_password(
+    session: AsyncSession, auth_private_key: str, async_client: AsyncClient
+) -> None:
+    user = await create_confirmed_user(
+        session, hashed_password=hash_password("plain_password")
+    )
+    auth_header = create_auth_header(auth_private_key, user.id)
+    query = """
+      mutation ChangeMyPassword($input: ChangeMyPasswordInput!) {
+        changeMyPassword(input: $input) {
+          ... on ChangeMyPasswordFailure {
+            problems {
+              ... on InvalidPasswordProblem {
+                message
+              }
+            }
+          }
+        }
+      }
+    """
+    variables = {
+        "input": {
+            "currentPassword": "invalid_password",
+            "newPassword": "new_password",
+        }
+    }
+
+    response = await async_client.post(
+        "/graphql", json={"query": query, "variables": variables}, headers=auth_header
+    )
+
+    data = response.json()["data"]["changeMyPassword"]["problems"][0]
     assert "message" in data

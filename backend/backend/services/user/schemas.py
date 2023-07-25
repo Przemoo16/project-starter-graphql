@@ -1,5 +1,4 @@
 from collections.abc import Callable
-from dataclasses import dataclass
 from datetime import datetime
 from uuid import UUID
 
@@ -67,10 +66,9 @@ class UserFilters(BaseModel):
     email: str | None = None
 
 
-@dataclass
-class Credentials:
+class Credentials(BaseModel):
     email: str
-    password: str
+    password: SecretStr
 
 
 class ResetPasswordData(BaseModel):
@@ -78,6 +76,16 @@ class ResetPasswordData(BaseModel):
     password_hasher: PasswordHasher = Field(exclude=True)
     hashed_password: str = Field(
         min_length=user_settings.password_min_length, alias="password"
+    )
+
+    hash_password = field_validator("hashed_password", mode="after")(hash_password)
+
+
+class ChangePasswordData(BaseModel):
+    password_hasher: PasswordHasher = Field(exclude=True)
+    current_password: SecretStr
+    hashed_password: str = Field(
+        min_length=user_settings.password_min_length, alias="new_password"
     )
 
     hash_password = field_validator("hashed_password", mode="after")(hash_password)

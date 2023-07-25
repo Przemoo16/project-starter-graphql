@@ -12,6 +12,7 @@ from backend.libs.security.password import hash_password, verify_and_update_pass
 from backend.libs.security.token import read_paseto_token_public_v4
 from backend.services.user.crud import UserCRUD
 from backend.services.user.exceptions import (
+    InvalidPasswordError,
     InvalidResetPasswordTokenError,
     InvalidResetPasswordTokenFingerprintError,
     UserNotConfirmedError,
@@ -19,12 +20,18 @@ from backend.services.user.exceptions import (
 )
 from backend.services.user.models import User
 from backend.services.user.operations.password import (
+    change_password,
     recover_password,
     reset_password,
 )
-from backend.services.user.schemas import ResetPasswordData
+from backend.services.user.schemas import ChangePasswordData, ResetPasswordData
 from backend.services.user.tasks import send_reset_password_email_task
 from backend.services.user.types.password import (
+    ChangeMyPasswordFailure,
+    ChangeMyPasswordInput,
+    ChangeMyPasswordResponse,
+    ChangeMyPasswordSuccess,
+    InvalidPasswordProblem,
     InvalidResetPasswordTokenProblem,
     RecoverPasswordResponse,
     ResetPasswordFailure,
@@ -80,3 +87,28 @@ async def reset_password_resolver(
     ):
         return ResetPasswordFailure(problems=[InvalidResetPasswordTokenProblem()])
     return ResetPasswordSuccess()
+
+
+async def change_my_password_resolver(
+    info: Info,
+    change_password_input: Annotated[ChangeMyPasswordInput, argument(name="input")],
+) -> ChangeMyPasswordResponse:
+    user = await info.context.user
+    try:
+        change_password_data = ChangePasswordData(
+            current_password=change_password_input.current_password,
+            new_password=change_password_input.new_password,
+            password_hasher=hash_password,
+        )
+    except ValidationError as exc:
+        return ChangeMyPasswordFailure(problems=from_pydantic_error(exc))
+
+    crud = UserCRUD(model=User, session=info.context.session)
+
+    try:
+        await change_password(
+            user, change_password_data, verify_and_update_password, crud
+        )
+    except InvalidPasswordError:
+        return ChangeMyPasswordFailure(problems=[InvalidPasswordProblem()])
+    return ChangeMyPasswordSuccess()
