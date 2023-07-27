@@ -77,11 +77,11 @@ async def authenticate(
         user = await crud.read_one(UserFilters(email=credentials.email))
     except NoObjectFoundError as exc:
         # Run the password hasher to mitigate timing attack
-        password_hasher(credentials.password)
+        password_hasher(credentials.password.get_secret_value())
         logger.info("User %r not found", credentials.email)
         raise UserNotFoundError from exc
     is_valid, updated_password_hash = password_validator(
-        credentials.password, user.hashed_password
+        credentials.password.get_secret_value(), user.hashed_password
     )
     if not is_valid:
         logger.info("Invalid password for the user %r", user.email)
@@ -147,8 +147,10 @@ async def get_confirmed_user_by_id(user_id: UUID, crud: UserCRUDProtocol) -> Use
     try:
         user = await crud.read_one(UserFilters(id=user_id))
     except NoObjectFoundError as exc:
+        logger.info("User with id %r not found", user_id)
         raise UserNotFoundError from exc
     if not user.confirmed_email:
+        logger.info("User %r not confirmed", user.email)
         raise UserNotConfirmedError
     return user
 

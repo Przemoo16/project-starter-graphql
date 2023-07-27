@@ -116,11 +116,13 @@ async def test_failure_authentication_invalid_password() -> None:
     credentials = Credentials(email="test@email.com", password="plain_password")
     crud = UserCRUD(existing_user=create_confirmed_user(email="test@email.com"))
 
-    def failure_validator(*_: str) -> tuple[bool, None]:
+    def failure_password_validator(*_: str) -> tuple[bool, None]:
         return False, None
 
     with pytest.raises(InvalidPasswordError):
-        await authenticate(credentials, failure_validator, get_test_password, crud)
+        await authenticate(
+            credentials, failure_password_validator, get_test_password, crud
+        )
 
 
 @pytest.mark.anyio()
