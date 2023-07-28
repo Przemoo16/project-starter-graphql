@@ -2,12 +2,8 @@ from typing import Any
 from uuid import uuid4
 
 from backend.libs.db.crud import NoObjectFoundError
+from backend.services.user.crud import UserCreateData, UserFilters, UserUpdateData
 from backend.services.user.models import User
-from backend.services.user.schemas import (
-    UserCreateData,
-    UserFilters,
-    UserUpdateData,
-)
 from tests.unit.stubs.crud.base import CRUDStub
 
 

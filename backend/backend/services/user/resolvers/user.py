@@ -10,7 +10,7 @@ from backend.services.user.crud import UserCRUD
 from backend.services.user.exceptions import UserAlreadyExistsError
 from backend.services.user.models import User as UserModel
 from backend.services.user.operations.user import create_user, delete_user, update_user
-from backend.services.user.schemas import UserCreateData, UserUpdateData
+from backend.services.user.schemas import UserCreateSchema, UserUpdateSchema
 from backend.services.user.tasks import send_confirmation_email_task
 from backend.services.user.types.user import (
     CreateUserFailure,
@@ -32,18 +32,16 @@ async def create_user_resolver(
     info: Info, user_input: Annotated[UserCreateInput, argument(name="input")]
 ) -> CreateUserResponse:
     try:
-        user_data = UserCreateData(
-            email=user_input.email,
-            password=user_input.password,
-            password_hasher=hash_password,
-        )
+        user_data = UserCreateSchema.model_validate(convert_to_dict(user_input))
     except ValidationError as exc:
         return CreateUserFailure(problems=from_pydantic_error(exc))
 
     crud = UserCRUD(model=UserModel, session=info.context.session)
 
     try:
-        created_user = await create_user(user_data, crud, send_confirmation_email)
+        created_user = await create_user(
+            user_data, hash_password, crud, send_confirmation_email
+        )
     except UserAlreadyExistsError:
         return CreateUserFailure(problems=[UserAlreadyExistsProblem()])
     return User(id=created_user.id, email=created_user.email)
@@ -60,7 +58,7 @@ async def update_me_resolver(
     user = await info.context.user
 
     try:
-        user_data = UserUpdateData.model_validate(convert_to_dict(user_input))
+        user_data = UserUpdateSchema.model_validate(convert_to_dict(user_input))
     except ValidationError as exc:
         return UpdateMeFailure(problems=from_pydantic_error(exc))
 

@@ -8,7 +8,7 @@ from uuid import UUID
 from backend.libs.db.crud import NoObjectFoundError
 from backend.libs.email.message import HTMLMessage
 from backend.libs.security.token import InvalidTokenError
-from backend.services.user.crud import UserCRUDProtocol
+from backend.services.user.crud import UserCRUDProtocol, UserFilters, UserUpdateData
 from backend.services.user.exceptions import (
     InvalidPasswordError,
     InvalidResetPasswordTokenError,
@@ -17,12 +17,7 @@ from backend.services.user.exceptions import (
     UserNotFoundError,
 )
 from backend.services.user.models import User
-from backend.services.user.schemas import (
-    ChangePasswordData,
-    ResetPasswordData,
-    UserFilters,
-    UserUpdateData,
-)
+from backend.services.user.schemas import ChangePasswordData, ResetPasswordData
 
 logger = logging.getLogger(__name__)
 
