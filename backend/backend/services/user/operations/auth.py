@@ -8,7 +8,7 @@ from uuid import UUID
 from backend.libs.api.headers import read_bearer_token
 from backend.libs.db.crud import NoObjectFoundError
 from backend.libs.security.token import InvalidTokenError
-from backend.services.user.crud import UserCRUDProtocol
+from backend.services.user.crud import UserCRUDProtocol, UserFilters, UserUpdateData
 from backend.services.user.exceptions import (
     InvalidAccessTokenError,
     InvalidPasswordError,
@@ -17,7 +17,7 @@ from backend.services.user.exceptions import (
     UserNotFoundError,
 )
 from backend.services.user.models import User
-from backend.services.user.schemas import Credentials, UserFilters, UserUpdateData
+from backend.services.user.schemas import Credentials
 
 logger = logging.getLogger(__name__)
 
