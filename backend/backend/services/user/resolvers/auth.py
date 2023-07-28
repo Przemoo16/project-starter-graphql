@@ -15,7 +15,7 @@ from backend.services.user.exceptions import (
 )
 from backend.services.user.models import User
 from backend.services.user.operations.auth import AuthData, TokensCreationData, login
-from backend.services.user.schemas import Credentials
+from backend.services.user.schemas import CredentialsSchema
 from backend.services.user.types.auth import (
     InvalidCredentialsProblem,
     LoginFailure,
@@ -31,7 +31,9 @@ user_settings = get_settings().user
 async def login_resolver(
     info: Info, login_input: Annotated[LoginInput, argument(name="input")]
 ) -> LoginResponse:
-    credentials = Credentials(email=login_input.username, password=login_input.password)
+    credentials = CredentialsSchema(
+        email=login_input.username, password=login_input.password
+    )
     auth_data = AuthData(
         credentials=credentials,
         password_validator=verify_and_update_password,

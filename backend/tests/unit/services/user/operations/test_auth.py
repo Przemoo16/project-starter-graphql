@@ -23,7 +23,7 @@ from backend.services.user.operations.auth import (
     read_access_token,
     read_refresh_token,
 )
-from backend.services.user.schemas import Credentials
+from backend.services.user.schemas import CredentialsSchema
 from tests.unit.helpers.user import UserCRUD, create_confirmed_user, create_user
 
 
@@ -37,7 +37,7 @@ def get_test_password(_: str) -> str:
 
 @pytest.mark.anyio()
 async def test_success_authentication_without_password_hash_update() -> None:
-    credentials = Credentials(email="test@email.com", password="plain_password")
+    credentials = CredentialsSchema(email="test@email.com", password="plain_password")
     crud = UserCRUD(
         existing_user=create_confirmed_user(
             email="test@email.com", hashed_password="hashed_password"
@@ -53,7 +53,7 @@ async def test_success_authentication_without_password_hash_update() -> None:
 
 @pytest.mark.anyio()
 async def test_success_authentication_with_password_hash_update() -> None:
-    credentials = Credentials(email="test@email.com", password="plain_password")
+    credentials = CredentialsSchema(email="test@email.com", password="plain_password")
     crud = UserCRUD(
         existing_user=create_confirmed_user(
             email="test@email.com", hashed_password="hashed_password"
@@ -72,7 +72,7 @@ async def test_success_authentication_with_password_hash_update() -> None:
 
 @pytest.mark.anyio()
 async def test_failure_authentication_user_not_found() -> None:
-    credentials = Credentials(email="test@email.com", password="plain_password")
+    credentials = CredentialsSchema(email="test@email.com", password="plain_password")
     crud = UserCRUD()
 
     with pytest.raises(UserNotFoundError):
@@ -95,7 +95,7 @@ async def test_failure_authentication_user_not_found() -> None:
 async def test_authentication_calling_password_hasher(
     user: User | None, hasher_called: bool
 ) -> None:
-    credentials = Credentials(email="test@email.com", password="plain_password")
+    credentials = CredentialsSchema(email="test@email.com", password="plain_password")
     crud = UserCRUD(existing_user=user)
 
     hash_function_called = False
@@ -113,7 +113,7 @@ async def test_authentication_calling_password_hasher(
 
 @pytest.mark.anyio()
 async def test_failure_authentication_invalid_password() -> None:
-    credentials = Credentials(email="test@email.com", password="plain_password")
+    credentials = CredentialsSchema(email="test@email.com", password="plain_password")
     crud = UserCRUD(existing_user=create_confirmed_user(email="test@email.com"))
 
     def failure_password_validator(*_: str) -> tuple[bool, None]:
@@ -127,7 +127,7 @@ async def test_failure_authentication_invalid_password() -> None:
 
 @pytest.mark.anyio()
 async def test_failure_authentication_user_not_confirmed() -> None:
-    credentials = Credentials(email="test@email.com", password="plain_password")
+    credentials = CredentialsSchema(email="test@email.com", password="plain_password")
     crud = UserCRUD(existing_user=create_user(email="test@email.com"))
 
     with pytest.raises(UserNotConfirmedError):

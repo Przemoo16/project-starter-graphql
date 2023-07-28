@@ -32,7 +32,7 @@ async def create_user_resolver(
     info: Info, user_input: Annotated[UserCreateInput, argument(name="input")]
 ) -> CreateUserResponse:
     try:
-        user_data = UserCreateSchema.model_validate(convert_to_dict(user_input))
+        schema = UserCreateSchema.model_validate(convert_to_dict(user_input))
     except ValidationError as exc:
         return CreateUserFailure(problems=from_pydantic_error(exc))
 
@@ -40,7 +40,7 @@ async def create_user_resolver(
 
     try:
         created_user = await create_user(
-            user_data, hash_password, crud, send_confirmation_email
+            schema, hash_password, crud, send_confirmation_email
         )
     except UserAlreadyExistsError:
         return CreateUserFailure(problems=[UserAlreadyExistsProblem()])
@@ -58,14 +58,14 @@ async def update_me_resolver(
     user = await info.context.user
 
     try:
-        user_data = UserUpdateSchema.model_validate(convert_to_dict(user_input))
+        schema = UserUpdateSchema.model_validate(convert_to_dict(user_input))
     except ValidationError as exc:
         return UpdateMeFailure(problems=from_pydantic_error(exc))
 
     crud = UserCRUD(model=UserModel, session=info.context.session)
 
     try:
-        updated_user = await update_user(user, user_data, crud, send_confirmation_email)
+        updated_user = await update_user(user, schema, crud, send_confirmation_email)
     except UserAlreadyExistsError:
         return UpdateMeFailure(problems=[UserAlreadyExistsProblem()])
     return User(id=updated_user.id, email=updated_user.email)

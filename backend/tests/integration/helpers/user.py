@@ -1,6 +1,6 @@
 from collections.abc import Mapping
 from typing import Any
-from uuid import UUID, uuid4
+from uuid import UUID
 
 import orjson
 from passlib.context import CryptContext
@@ -18,9 +18,9 @@ async def create_confirmed_user(session: AsyncSession, **kwargs: Any) -> User:
 
 async def create_user(session: AsyncSession, **kwargs: Any) -> User:
     if "email" not in kwargs:
-        kwargs["email"] = f"{uuid4()}@email.com"
+        kwargs["email"] = "test_helper_user@email.com"
     if "hashed_password" not in kwargs:
-        kwargs["hashed_password"] = "hashed_password"
+        kwargs["hashed_password"] = "test_helper_hashed_password"
     user = User(**kwargs)
     return await save_to_db(session, user)
 
