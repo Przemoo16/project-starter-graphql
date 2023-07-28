@@ -17,7 +17,7 @@ from backend.services.user.exceptions import (
     UserNotFoundError,
 )
 from backend.services.user.models import User
-from backend.services.user.schemas import Credentials
+from backend.services.user.schemas import CredentialsSchema
 
 logger = logging.getLogger(__name__)
 
@@ -32,7 +32,7 @@ REFRESH_TOKEN_TYPE = "refresh"  # nosec
 
 @dataclass
 class AuthData:
-    credentials: Credentials
+    credentials: CredentialsSchema
     password_validator: PasswordValidator
     password_hasher: PasswordHasher
 
@@ -68,7 +68,7 @@ async def login(
 
 
 async def authenticate(
-    credentials: Credentials,
+    credentials: CredentialsSchema,
     password_validator: PasswordValidator,
     password_hasher: PasswordHasher,
     crud: UserCRUDProtocol,

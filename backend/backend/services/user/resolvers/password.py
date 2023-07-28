@@ -7,7 +7,7 @@ from strawberry import argument
 
 from backend.config.settings import get_settings
 from backend.libs.api.context import Info
-from backend.libs.api.types import from_pydantic_error
+from backend.libs.api.types import convert_to_dict, from_pydantic_error
 from backend.libs.security.password import hash_password, verify_and_update_password
 from backend.libs.security.token import read_paseto_token_public_v4
 from backend.services.user.crud import UserCRUD
@@ -24,7 +24,7 @@ from backend.services.user.operations.password import (
     recover_password,
     reset_password,
 )
-from backend.services.user.schemas import ChangePasswordData, ResetPasswordData
+from backend.services.user.schemas import PasswordChangeSchema, PasswordResetSchema
 from backend.services.user.tasks import send_reset_password_email_task
 from backend.services.user.types.password import (
     ChangeMyPasswordFailure,
@@ -62,10 +62,8 @@ async def reset_password_resolver(
     reset_password_input: Annotated[ResetPasswordInput, argument(name="input")],
 ) -> ResetPasswordResponse:
     try:
-        reset_password_data = ResetPasswordData(
-            token=reset_password_input.token,
-            password=reset_password_input.password,
-            password_hasher=hash_password,
+        schema = PasswordResetSchema.model_validate(
+            convert_to_dict(reset_password_input)
         )
     except ValidationError as exc:
         return ResetPasswordFailure(problems=from_pydantic_error(exc))
@@ -77,7 +75,7 @@ async def reset_password_resolver(
 
     try:
         await reset_password(
-            reset_password_data, token_reader, verify_and_update_password, crud
+            schema, token_reader, verify_and_update_password, hash_password, crud
         )
     except (
         InvalidResetPasswordTokenError,
@@ -95,10 +93,8 @@ async def change_my_password_resolver(
 ) -> ChangeMyPasswordResponse:
     user = await info.context.user
     try:
-        change_password_data = ChangePasswordData(
-            current_password=change_password_input.current_password,
-            new_password=change_password_input.new_password,
-            password_hasher=hash_password,
+        schema = PasswordChangeSchema.model_validate(
+            convert_to_dict(change_password_input)
         )
     except ValidationError as exc:
         return ChangeMyPasswordFailure(problems=from_pydantic_error(exc))
@@ -107,7 +103,7 @@ async def change_my_password_resolver(
 
     try:
         await change_password(
-            user, change_password_data, verify_and_update_password, crud
+            user, schema, verify_and_update_password, hash_password, crud
         )
     except InvalidPasswordError:
         return ChangeMyPasswordFailure(problems=[InvalidPasswordProblem()])

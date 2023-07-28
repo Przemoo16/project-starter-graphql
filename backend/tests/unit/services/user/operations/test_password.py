@@ -3,6 +3,7 @@ from typing import Any
 from uuid import UUID
 
 import pytest
+from pydantic import SecretStr
 
 from backend.libs.email.message import HTMLMessage
 from backend.libs.security.token import InvalidTokenError
@@ -22,7 +23,7 @@ from backend.services.user.operations.password import (
     send_reset_password_email,
     set_password,
 )
-from backend.services.user.schemas import ChangePasswordData
+from backend.services.user.schemas import PasswordChangeSchema
 from tests.unit.helpers.user import UserCRUD, create_confirmed_user, create_user
 
 
@@ -32,6 +33,10 @@ def success_password_validator(*_: str) -> tuple[bool, None]:
 
 def failure_password_validator(*_: str) -> tuple[bool, None]:
     return False, None
+
+
+def get_test_password(_: str) -> str:
+    return "hashed_password"
 
 
 @pytest.mark.anyio()
@@ -172,30 +177,38 @@ def test_read_reset_password_token_invalid_token_type() -> None:
 async def test_set_password() -> None:
     user_id = UUID("6d9c79d6-9641-4746-92d9-2cc9ebdca941")
     fingerprint = "test-fingerprint"
-    hashed_password = "new_hashed_password"
+    password = SecretStr("plain_password")
     crud = UserCRUD(
         existing_user=create_confirmed_user(
             id=UUID("6d9c79d6-9641-4746-92d9-2cc9ebdca941")
         )
     )
 
+    def hash_password(_: str) -> str:
+        return "hashed_password"
+
     user = await set_password(
-        user_id, fingerprint, hashed_password, success_password_validator, crud
+        user_id, fingerprint, password, success_password_validator, hash_password, crud
     )
 
-    assert user.hashed_password == "new_hashed_password"
+    assert user.hashed_password == "hashed_password"
 
 
 @pytest.mark.anyio()
 async def test_set_password_user_not_found() -> None:
     user_id = UUID("6d9c79d6-9641-4746-92d9-2cc9ebdca941")
     fingerprint = "test-fingerprint"
-    hashed_password = "new_hashed_password"
+    password = SecretStr("plain_password")
     crud = UserCRUD()
 
     with pytest.raises(UserNotFoundError):
         await set_password(
-            user_id, fingerprint, hashed_password, success_password_validator, crud
+            user_id,
+            fingerprint,
+            password,
+            success_password_validator,
+            get_test_password,
+            crud,
         )
 
 
@@ -203,7 +216,7 @@ async def test_set_password_user_not_found() -> None:
 async def test_set_password_invalid_fingerprint() -> None:
     user_id = UUID("6d9c79d6-9641-4746-92d9-2cc9ebdca941")
     fingerprint = "test-fingerprint"
-    hashed_password = "new_hashed_password"
+    password = SecretStr("plain_password")
     crud = UserCRUD(
         existing_user=create_confirmed_user(
             id=UUID("6d9c79d6-9641-4746-92d9-2cc9ebdca941")
@@ -212,7 +225,12 @@ async def test_set_password_invalid_fingerprint() -> None:
 
     with pytest.raises(InvalidResetPasswordTokenFingerprintError):
         await set_password(
-            user_id, fingerprint, hashed_password, failure_password_validator, crud
+            user_id,
+            fingerprint,
+            password,
+            failure_password_validator,
+            get_test_password,
+            crud,
         )
 
 
@@ -220,14 +238,19 @@ async def test_set_password_invalid_fingerprint() -> None:
 async def test_set_password_user_not_confirmed() -> None:
     user_id = UUID("6d9c79d6-9641-4746-92d9-2cc9ebdca941")
     fingerprint = "test-fingerprint"
-    hashed_password = "new_hashed_password"
+    password = SecretStr("plain_password")
     crud = UserCRUD(
         existing_user=create_user(id=UUID("6d9c79d6-9641-4746-92d9-2cc9ebdca941"))
     )
 
     with pytest.raises(UserNotConfirmedError):
         await set_password(
-            user_id, fingerprint, hashed_password, success_password_validator, crud
+            user_id,
+            fingerprint,
+            password,
+            success_password_validator,
+            get_test_password,
+            crud,
         )
 
 
@@ -236,31 +259,28 @@ async def test_change_password() -> None:
     def hash_password(_: str) -> str:
         return "new_hashed_password"
 
-    data = ChangePasswordData(
-        current_password="plain_password",
-        new_password="new_password",
-        password_hasher=hash_password,
+    data = PasswordChangeSchema(
+        current_password="plain_password", new_password="new_password"
     )
-    user = create_user(hashed_password="plain_password")
+    user = create_user(hashed_password="hashed_password")
     crud = UserCRUD()
 
-    updated_user = await change_password(user, data, success_password_validator, crud)
+    updated_user = await change_password(
+        user, data, success_password_validator, hash_password, crud
+    )
 
     assert updated_user.hashed_password == "new_hashed_password"
 
 
 @pytest.mark.anyio()
 async def test_change_password_invalid_password() -> None:
-    def hash_password(_: str) -> str:
-        return "new_hashed_password"
-
-    data = ChangePasswordData(
-        current_password="plain_password",
-        new_password="new_password",
-        password_hasher=hash_password,
+    data = PasswordChangeSchema(
+        current_password="plain_password", new_password="new_password"
     )
     user = create_user(hashed_password="plain_password")
     crud = UserCRUD()
 
     with pytest.raises(InvalidPasswordError):
-        await change_password(user, data, failure_password_validator, crud)
+        await change_password(
+            user, data, failure_password_validator, get_test_password, crud
+        )

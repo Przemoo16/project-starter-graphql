@@ -5,6 +5,8 @@ from gettext import gettext as _
 from typing import Any, Protocol
 from uuid import UUID
 
+from pydantic import SecretStr
+
 from backend.libs.db.crud import NoObjectFoundError
 from backend.libs.email.message import HTMLMessage
 from backend.libs.security.token import InvalidTokenError
@@ -17,7 +19,7 @@ from backend.services.user.exceptions import (
     UserNotFoundError,
 )
 from backend.services.user.models import User
-from backend.services.user.schemas import ChangePasswordData, ResetPasswordData
+from backend.services.user.schemas import PasswordChangeSchema, PasswordResetSchema
 
 logger = logging.getLogger(__name__)
 
@@ -122,17 +124,19 @@ def send_reset_password_email(
 
 
 async def reset_password(
-    data: ResetPasswordData,
+    schema: PasswordResetSchema,
     token_reader: TokenReader,
     password_validator: PasswordValidator,
+    password_hasher: PasswordHasher,
     crud: UserCRUDProtocol,
 ) -> User:
-    token_payload = read_reset_password_token(data.token, token_reader)
+    token_payload = read_reset_password_token(schema.token, token_reader)
     return await set_password(
         token_payload.user_id,
         token_payload.fingerprint,
-        data.hashed_password,
+        schema.password,
         password_validator,
+        password_hasher,
         crud,
     )
 
@@ -156,11 +160,12 @@ def read_reset_password_token(
     )
 
 
-async def set_password(
+async def set_password(  # pylint: disable=too-many-arguments
     user_id: UUID,
     fingerprint: str,
-    hashed_password: str,
+    password: SecretStr,
     password_validator: PasswordValidator,
+    password_hasher: PasswordHasher,
     crud: UserCRUDProtocol,
 ) -> User:
     try:
@@ -176,14 +181,16 @@ async def set_password(
         logger.info("User %r not confirmed", user.email)
         raise UserNotConfirmedError
     return await crud.update_and_refresh(
-        user, UserUpdateData(hashed_password=hashed_password)
+        user,
+        UserUpdateData(hashed_password=password_hasher(password.get_secret_value())),
     )
 
 
 async def change_password(
     user: User,
-    data: ChangePasswordData,
+    data: PasswordChangeSchema,
     password_validator: PasswordValidator,
+    password_hasher: PasswordHasher,
     crud: UserCRUDProtocol,
 ) -> User:
     is_valid, _ = password_validator(
@@ -193,5 +200,8 @@ async def change_password(
         logger.info("Invalid password for the user %r", user.email)
         raise InvalidPasswordError()
     return await crud.update_and_refresh(
-        user, UserUpdateData(hashed_password=data.hashed_password)
+        user,
+        UserUpdateData(
+            hashed_password=password_hasher(data.new_password.get_secret_value())
+        ),
     )
