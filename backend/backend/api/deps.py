@@ -36,10 +36,6 @@ async def get_confirmed_user(
         )
     except BearerTokenNotFoundError:
         msg = "Authentication token required"
-    except InvalidAccessTokenError:
-        msg = "Invalid access token"
-    except UserNotFoundError:
-        msg = "User not found"
-    except UserNotConfirmedError:
-        msg = "User not confirmed"
+    except (InvalidAccessTokenError, UserNotFoundError, UserNotConfirmedError):
+        msg = "Invalid token"
     raise UnauthorizedError(msg)

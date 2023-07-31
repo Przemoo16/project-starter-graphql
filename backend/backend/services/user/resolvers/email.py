@@ -1,9 +1,6 @@
-from functools import partial
-
-from backend.config.settings import get_settings
 from backend.libs.api.context import Info
 from backend.libs.api.types import User
-from backend.libs.security.token import read_paseto_token_public_v4
+from backend.services.user.context import TOKEN_READER
 from backend.services.user.crud import UserCRUD
 from backend.services.user.exceptions import (
     InvalidEmailConfirmationTokenError,
@@ -19,17 +16,12 @@ from backend.services.user.types.email import (
     UserAlreadyConfirmedProblem,
 )
 
-user_settings = get_settings().user
-
 
 async def confirm_email_resolver(info: Info, token: str) -> ConfirmEmailResponse:
-    token_reader = partial(
-        read_paseto_token_public_v4, key=user_settings.auth_public_key
-    )
     crud = UserCRUD(model=UserModel, session=info.context.session)
 
     try:
-        user = await confirm_email(token, token_reader, crud)
+        user = await confirm_email(token, TOKEN_READER, crud)
     except (InvalidEmailConfirmationTokenError, UserNotFoundError):
         return ConfirmEmailFailure(problems=[InvalidEmailConfirmationTokenProblem()])
     except UserAlreadyConfirmedError:

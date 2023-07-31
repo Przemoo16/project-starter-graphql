@@ -60,7 +60,7 @@ async def test_get_confirmed_user_no_bearer_token() -> None:
 
 
 @pytest.mark.anyio()
-async def test_get_confirmed_user_invalid_access_token() -> None:
+async def test_get_confirmed_user_invalid_token() -> None:
     request = Request(headers={"Authorization": "Bearer test-token"})
     crud = UserCRUD()
 
@@ -70,7 +70,7 @@ async def test_get_confirmed_user_invalid_access_token() -> None:
             "type": "invalid-token",
         }
 
-    with pytest.raises(UnauthorizedError, match="Invalid access token"):
+    with pytest.raises(UnauthorizedError, match="Invalid token"):
         await get_confirmed_user(request, read_token, crud)
 
 
@@ -85,7 +85,7 @@ async def test_get_confirmed_user_not_found() -> None:
             "type": "access",
         }
 
-    with pytest.raises(UnauthorizedError, match="User not found"):
+    with pytest.raises(UnauthorizedError, match="Invalid token"):
         await get_confirmed_user(request, read_token, crud)
 
 
@@ -102,5 +102,5 @@ async def test_get_confirmed_user_not_confirmed() -> None:
             "type": "access",
         }
 
-    with pytest.raises(UnauthorizedError, match="User not confirmed"):
+    with pytest.raises(UnauthorizedError, match="Invalid token"):
         await get_confirmed_user(request, read_token, crud)

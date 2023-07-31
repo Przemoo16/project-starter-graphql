@@ -1,15 +1,13 @@
 import logging
-from functools import partial
 from typing import Annotated
 
 from pydantic import ValidationError
 from strawberry import argument
 
-from backend.config.settings import get_settings
 from backend.libs.api.context import Info
 from backend.libs.api.types import convert_to_dict, from_pydantic_error
 from backend.libs.security.password import hash_password, verify_and_update_password
-from backend.libs.security.token import read_paseto_token_public_v4
+from backend.services.user.context import TOKEN_READER
 from backend.services.user.crud import UserCRUD
 from backend.services.user.exceptions import (
     InvalidPasswordError,
@@ -42,8 +40,6 @@ from backend.services.user.types.password import (
 
 logger = logging.getLogger(__name__)
 
-user_settings = get_settings().user
-
 
 async def recover_password_resolver(info: Info, email: str) -> RecoverPasswordResponse:
     crud = UserCRUD(model=User, session=info.context.session)
@@ -68,14 +64,11 @@ async def reset_password_resolver(
     except ValidationError as exc:
         return ResetPasswordFailure(problems=from_pydantic_error(exc))
 
-    token_reader = partial(
-        read_paseto_token_public_v4, key=user_settings.auth_public_key
-    )
     crud = UserCRUD(model=User, session=info.context.session)
 
     try:
         await reset_password(
-            schema, token_reader, verify_and_update_password, hash_password, crud
+            schema, TOKEN_READER, verify_and_update_password, hash_password, crud
         )
     except (
         InvalidResetPasswordTokenError,

@@ -45,6 +45,14 @@ def create_access_token(key: str, user_id: UUID) -> str:
     return create_token(key, payload)
 
 
+def create_refresh_token(key: str, user_id: UUID) -> str:
+    payload = {
+        "sub": str(user_id),
+        "type": "refresh",
+    }
+    return create_token(key, payload)
+
+
 def create_email_confirmation_token(key: str, user_id: UUID, user_email: str) -> str:
     payload = {
         "sub": str(user_id),

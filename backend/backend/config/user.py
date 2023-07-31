@@ -8,6 +8,7 @@ class UserSettings(BaseModel):
     email_confirmation_url_template: str
     reset_password_url_template: str
     email_confirmation_token_lifetime: timedelta = timedelta(days=7)
+    reset_password_token_lifetime: timedelta = timedelta(days=3)
     access_token_lifetime: timedelta = timedelta(minutes=30)
     refresh_token_lifetime: timedelta = timedelta(days=7)
 
