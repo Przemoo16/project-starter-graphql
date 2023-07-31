@@ -10,9 +10,7 @@ from backend.libs.email.message import (
     send_html_email,
 )
 from backend.libs.security.password import hash_password
-from backend.libs.security.token import (
-    create_paseto_token_public_v4,
-)
+from backend.services.user.context import TOKEN_CREATOR
 from backend.services.user.jinja import load_template
 from backend.services.user.operations.email import (
     ConfirmationEmailData,
@@ -31,19 +29,28 @@ _settings = get_settings()
 email_settings = _settings.email
 user_settings = _settings.user
 
+CONFIRMATION_TOKEN_CREATOR = partial(
+    TOKEN_CREATOR,
+    expiration=int(user_settings.email_confirmation_token_lifetime.total_seconds()),
+)
+RESET_PASSWORD_TOKEN_CREATOR = partial(
+    TOKEN_CREATOR,
+    expiration=int(user_settings.reset_password_token_lifetime.total_seconds()),
+)
+SMTP_SERVER = SMTPServer(
+    host=email_settings.smtp_host,
+    port=email_settings.smtp_port,
+    user=email_settings.smtp_user,
+    password=email_settings.smtp_password.get_secret_value(),
+)
+
 
 @celery_app.task  # type: ignore[misc]
 def send_confirmation_email_task(user_id: UUID, user_email: str) -> None:
     token_data = ConfirmationTokenData(
         user_id=user_id,
         user_email=user_email,
-        token_creator=partial(
-            create_paseto_token_public_v4,
-            expiration=int(
-                user_settings.email_confirmation_token_lifetime.total_seconds()
-            ),
-            key=user_settings.auth_private_key.get_secret_value(),
-        ),
+        token_creator=CONFIRMATION_TOKEN_CREATOR,
     )
     email_data = ConfirmationEmailData(
         url_template=user_settings.email_confirmation_url_template,
@@ -53,12 +60,7 @@ def send_confirmation_email_task(user_id: UUID, user_email: str) -> None:
             participants=EmailParticipants(
                 sender=email_settings.sender, receiver=user_email
             ),
-            smtp_server=SMTPServer(
-                host=email_settings.smtp_host,
-                port=email_settings.smtp_port,
-                user=email_settings.smtp_user,
-                password=email_settings.smtp_password.get_secret_value(),
-            ),
+            smtp_server=SMTP_SERVER,
         ),
     )
     send_email_confirmation_token(token_data, email_data)
@@ -73,13 +75,7 @@ def send_reset_password_email_task(
         user_id=user_id,
         user_password=user_password,
         password_hasher=hash_password,
-        token_creator=partial(
-            create_paseto_token_public_v4,
-            expiration=int(
-                user_settings.email_confirmation_token_lifetime.total_seconds()
-            ),
-            key=user_settings.auth_private_key.get_secret_value(),
-        ),
+        token_creator=RESET_PASSWORD_TOKEN_CREATOR,
     )
     email_data = ResetPasswordEmailData(
         url_template=user_settings.reset_password_url_template,
@@ -89,12 +85,7 @@ def send_reset_password_email_task(
             participants=EmailParticipants(
                 sender=email_settings.sender, receiver=user_email
             ),
-            smtp_server=SMTPServer(
-                host=email_settings.smtp_host,
-                port=email_settings.smtp_port,
-                user=email_settings.smtp_user,
-                password=email_settings.smtp_password.get_secret_value(),
-            ),
+            smtp_server=SMTP_SERVER,
         ),
     )
     send_reset_password_token(token_data, email_data)

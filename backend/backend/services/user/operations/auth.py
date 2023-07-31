@@ -155,6 +155,17 @@ async def get_confirmed_user_by_id(user_id: UUID, crud: UserCRUDProtocol) -> Use
     return user
 
 
+async def refresh_token(
+    token: str,
+    token_reader: TokenReader,
+    token_creator: TokenCreator,
+    crud: UserCRUDProtocol,
+) -> str:
+    payload = read_refresh_token(token, token_reader)
+    user = await get_confirmed_user_by_id(payload.user_id, crud)
+    return create_access_token(user.id, token_creator)
+
+
 def read_refresh_token(token: str, token_reader: TokenReader) -> RefreshTokenPayload:
     try:
         data = token_reader(token)

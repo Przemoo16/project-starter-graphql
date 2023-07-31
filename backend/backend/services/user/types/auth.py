@@ -43,3 +43,9 @@ class LoginFailure:
 LoginResponse = Annotated[
     LoginSuccess | LoginFailure, strawberry.union("LoginResponse")
 ]
+
+
+@strawberry.type
+class RefreshTokenResponse:
+    access_token: str
+    token_type: str

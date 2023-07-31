@@ -1,9 +1,12 @@
+from uuid import UUID
+
 import pytest
 from httpx import AsyncClient
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from tests.integration.helpers.user import (
     create_confirmed_user,
+    create_refresh_token,
     create_user,
     hash_password,
 )
@@ -140,3 +143,94 @@ async def test_login_user_not_confirmed(
 
     data = response.json()["data"]["login"]["problems"][0]
     assert "message" in data
+
+
+@pytest.mark.anyio()
+async def test_refresh_token(
+    session: AsyncSession, auth_private_key: str, async_client: AsyncClient
+) -> None:
+    user = await create_confirmed_user(session)
+    token = create_refresh_token(auth_private_key, user.id)
+    query = """
+      mutation RefreshToken($token: String!) {
+        refreshToken(token: $token) {
+          accessToken
+          tokenType
+        }
+      }
+    """
+    variables = {"token": token}
+
+    response = await async_client.post(
+        "/graphql", json={"query": query, "variables": variables}
+    )
+
+    data = response.json()["data"]["refreshToken"]
+    assert "accessToken" in data
+    assert data["tokenType"] == "Bearer"
+
+
+@pytest.mark.anyio()
+async def test_refresh_token_invalid_token(async_client: AsyncClient) -> None:
+    query = """
+      mutation RefreshToken($token: String!) {
+        refreshToken(token: $token) {
+          accessToken
+        }
+      }
+    """
+    variables = {"token": "invalid-token"}
+
+    response = await async_client.post(
+        "/graphql", json={"query": query, "variables": variables}
+    )
+
+    errors = response.json()["errors"]
+    assert errors[0]["message"] == "Invalid token"
+
+
+@pytest.mark.anyio()
+async def test_refresh_token_user_not_found(
+    auth_private_key: str, async_client: AsyncClient
+) -> None:
+    token = create_refresh_token(
+        auth_private_key, UUID("6d9c79d6-9641-4746-92d9-2cc9ebdca941")
+    )
+    query = """
+      mutation RefreshToken($token: String!) {
+        refreshToken(token: $token) {
+          accessToken
+        }
+      }
+    """
+    variables = {"token": token}
+
+    response = await async_client.post(
+        "/graphql", json={"query": query, "variables": variables}
+    )
+
+    errors = response.json()["errors"]
+    assert errors[0]["message"] == "Invalid token"
+
+
+@pytest.mark.anyio()
+async def test_refresh_token_user_not_confirmed(
+    session: AsyncSession, auth_private_key: str, async_client: AsyncClient
+) -> None:
+    user = await create_user(session)
+    token = create_refresh_token(auth_private_key, user.id)
+    query = """
+      mutation RefreshToken($token: String!) {
+        refreshToken(token: $token) {
+          accessToken
+        }
+      }
+    """
+    variables = {"token": token}
+
+    response = await async_client.post(
+        "/graphql", json={"query": query, "variables": variables}
+    )
+
+    errors = response.json()["errors"]
+    assert errors[0]["message"] == "Invalid token"
