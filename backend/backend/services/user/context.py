@@ -1,6 +1,7 @@
 from functools import partial
 
 from backend.config.settings import get_settings
+from backend.libs.security.password import hash_password, verify_and_update_password
 from backend.libs.security.token import (
     create_paseto_token_public_v4,
     read_paseto_token_public_v4,
@@ -14,3 +15,5 @@ TOKEN_READER = token_reader = partial(
 TOKEN_CREATOR = partial(
     create_paseto_token_public_v4, key=user_settings.auth_private_key.get_secret_value()
 )
+PASSWORD_VALIDATOR = verify_and_update_password
+PASSWORD_HASHER = hash_password

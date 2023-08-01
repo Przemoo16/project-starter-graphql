@@ -9,8 +9,7 @@ from backend.libs.email.message import (
     SMTPServer,
     send_html_email,
 )
-from backend.libs.security.password import hash_password
-from backend.services.user.context import TOKEN_CREATOR
+from backend.services.user.context import PASSWORD_HASHER, TOKEN_CREATOR
 from backend.services.user.jinja import load_template
 from backend.services.user.operations.email import (
     ConfirmationEmailData,
@@ -74,7 +73,7 @@ def send_reset_password_email_task(
     token_data = ResetPasswordTokenData(
         user_id=user_id,
         user_password=user_password,
-        password_hasher=hash_password,
+        password_hasher=PASSWORD_HASHER,
         token_creator=RESET_PASSWORD_TOKEN_CREATOR,
     )
     email_data = ResetPasswordEmailData(
