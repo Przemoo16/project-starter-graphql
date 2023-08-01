@@ -7,7 +7,7 @@ from uuid import UUID
 
 from pydantic import SecretStr
 
-from backend.libs.api.headers import read_bearer_token
+from backend.libs.api.headers import BearerTokenNotFoundError, read_bearer_token
 from backend.libs.db.crud import NoObjectFoundError
 from backend.libs.security.token import InvalidTokenError
 from backend.services.user.crud import UserCRUDProtocol, UserFilters, UserUpdateData
@@ -15,6 +15,7 @@ from backend.services.user.exceptions import (
     InvalidAccessTokenError,
     InvalidPasswordError,
     InvalidRefreshTokenError,
+    MissingAccessTokenError,
     UserNotConfirmedError,
     UserNotFoundError,
 )
@@ -143,18 +144,24 @@ def _create_refresh_token(user_id: UUID, token_creator: TokenCreator) -> str:
     return token_creator({"sub": str(user_id), "type": REFRESH_TOKEN_TYPE})
 
 
-########################################################## TODO: Continue refactoring
-
-
 async def get_confirmed_user_from_headers(
     headers: Mapping[Any, str], token_reader: TokenReader, crud: UserCRUDProtocol
 ) -> User:
-    token = read_bearer_token(headers)
-    payload = read_access_token(token, token_reader)
-    return await get_confirmed_user_by_id(payload.user_id, crud)
+    token = _read_access_token_from_header(headers)
+    payload = _decode_access_token(token, token_reader)
+    user = await _get_user_by_id(payload.user_id, crud)
+    _validate_user_is_confirmed(user)
+    return user
 
 
-def read_access_token(token: str, token_reader: TokenReader) -> AccessTokenPayload:
+def _read_access_token_from_header(headers: Mapping[Any, str]) -> str:
+    try:
+        return read_bearer_token(headers)
+    except BearerTokenNotFoundError as exc:
+        raise MissingAccessTokenError from exc
+
+
+def _decode_access_token(token: str, token_reader: TokenReader) -> AccessTokenPayload:
     try:
         data = token_reader(token)
     except InvalidTokenError as exc:
@@ -169,16 +176,12 @@ def read_access_token(token: str, token_reader: TokenReader) -> AccessTokenPaylo
     return AccessTokenPayload(user_id=UUID(data["sub"]))
 
 
-async def get_confirmed_user_by_id(user_id: UUID, crud: UserCRUDProtocol) -> User:
+async def _get_user_by_id(user_id: UUID, crud: UserCRUDProtocol) -> User:
     try:
-        user = await crud.read_one(UserFilters(id=user_id))
+        return await crud.read_one(UserFilters(id=user_id))
     except NoObjectFoundError as exc:
         logger.info("User with id %r not found", user_id)
         raise UserNotFoundError from exc
-    if not user.confirmed_email:
-        logger.info("User %r not confirmed", user.email)
-        raise UserNotConfirmedError
-    return user
 
 
 async def refresh_token(
@@ -187,12 +190,13 @@ async def refresh_token(
     token_creator: TokenCreator,
     crud: UserCRUDProtocol,
 ) -> str:
-    payload = read_refresh_token(token, token_reader)
-    user = await get_confirmed_user_by_id(payload.user_id, crud)
+    payload = _decode_refresh_token(token, token_reader)
+    user = await _get_user_by_id(payload.user_id, crud)
+    _validate_user_is_confirmed(user)
     return _create_access_token(user.id, token_creator)
 
 
-def read_refresh_token(token: str, token_reader: TokenReader) -> RefreshTokenPayload:
+def _decode_refresh_token(token: str, token_reader: TokenReader) -> RefreshTokenPayload:
     try:
         data = token_reader(token)
     except InvalidTokenError as exc:

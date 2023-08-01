@@ -45,7 +45,7 @@ async def test_get_confirmed_user_no_request() -> None:
 
 
 @pytest.mark.anyio()
-async def test_get_confirmed_user_no_bearer_token() -> None:
+async def test_get_confirmed_user_missing_token() -> None:
     request = Request(headers={})
     crud = UserCRUD()
 

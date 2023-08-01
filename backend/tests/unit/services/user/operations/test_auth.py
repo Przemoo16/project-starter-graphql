@@ -9,19 +9,23 @@ from backend.services.user.exceptions import (
     InvalidAccessTokenError,
     InvalidPasswordError,
     InvalidRefreshTokenError,
+    MissingAccessTokenError,
     UserNotConfirmedError,
     UserNotFoundError,
 )
 from backend.services.user.operations.auth import (
     PasswordManager,
     TokensManager,
-    get_confirmed_user_by_id,
+    get_confirmed_user_from_headers,
     login,
-    read_access_token,
-    read_refresh_token,
+    refresh_token,
 )
 from backend.services.user.schemas import CredentialsSchema
 from tests.unit.helpers.user import UserCRUD, create_confirmed_user, create_user
+
+
+def create_test_token(_: Mapping[str, Any]) -> str:
+    return "test-token"
 
 
 @pytest.fixture(name="password_manager")
@@ -37,11 +41,8 @@ def password_manager_fixture() -> PasswordManager:
 
 @pytest.fixture(name="tokens_manager")
 def tokens_manager_fixture() -> TokensManager:
-    def create_token(_: Mapping[str, Any]) -> str:
-        return "test-token"
-
     return TokensManager(
-        access_token_creator=create_token, refresh_token_creator=create_token
+        access_token_creator=create_test_token, refresh_token_creator=create_test_token
     )
 
 
@@ -62,12 +63,12 @@ async def test_login_create_tokens(password_manager: PasswordManager) -> None:
         )
     )
 
-    access_token, refresh_token = await login(
+    access_token, refresh_token_ = await login(
         credentials, password_manager, tokens_manager, crud
     )
 
     assert access_token == "sub:6d9c79d6-9641-4746-92d9-2cc9ebdca941-type:access"
-    assert refresh_token == "sub:6d9c79d6-9641-4746-92d9-2cc9ebdca941-type:refresh"
+    assert refresh_token_ == "sub:6d9c79d6-9641-4746-92d9-2cc9ebdca941-type:refresh"
 
 
 @pytest.mark.anyio()
@@ -134,6 +135,7 @@ async def test_login_user_not_found(
         await login(credentials, password_manager, tokens_manager, crud)
 
 
+@pytest.mark.anyio()
 async def test_login_user_not_found_password_hasher_called(
     password_manager: PasswordManager, tokens_manager: TokensManager
 ) -> None:
@@ -200,11 +202,9 @@ async def test_login_user_not_confirmed(
         await login(credentials, password_manager, tokens_manager, crud)
 
 
-################################################## TODO: Continue refactoring
-
-
-def test_read_access_token() -> None:
-    token = "test-token"
+@pytest.mark.anyio()
+async def test_get_confirmed_user_from_headers() -> None:
+    headers = {"Authorization": "Bearer test-token"}
 
     def read_token(_: str) -> dict[str, str]:
         return {
@@ -212,23 +212,49 @@ def test_read_access_token() -> None:
             "type": "access",
         }
 
-    payload = read_access_token(token, read_token)
+    crud = UserCRUD(
+        existing_user=create_confirmed_user(
+            id=UUID("6d9c79d6-9641-4746-92d9-2cc9ebdca941")
+        )
+    )
 
-    assert payload.user_id == UUID("6d9c79d6-9641-4746-92d9-2cc9ebdca941")
+    user = await get_confirmed_user_from_headers(headers, read_token, crud)
+
+    assert user.id == UUID("6d9c79d6-9641-4746-92d9-2cc9ebdca941")
 
 
-def test_read_access_token_invalid_token() -> None:
-    token = "test-token"
+@pytest.mark.anyio()
+async def test_get_confirmed_user_from_headers_missing_token() -> None:
+    headers: dict[str, str] = {}
+
+    def read_token(_: str) -> dict[str, str]:
+        return {
+            "sub": "6d9c79d6-9641-4746-92d9-2cc9ebdca941",
+            "type": "access",
+        }
+
+    crud = UserCRUD()
+
+    with pytest.raises(MissingAccessTokenError):
+        await get_confirmed_user_from_headers(headers, read_token, crud)
+
+
+@pytest.mark.anyio()
+async def test_get_confirmed_user_from_headers_invalid_token() -> None:
+    headers = {"Authorization": "Bearer test-token"}
 
     def read_token(_: str) -> dict[str, str]:
         raise InvalidTokenError
 
+    crud = UserCRUD()
+
     with pytest.raises(InvalidAccessTokenError):
-        read_access_token(token, read_token)
+        await get_confirmed_user_from_headers(headers, read_token, crud)
 
 
-def test_read_access_token_invalid_token_type() -> None:
-    token = "test-token"
+@pytest.mark.anyio()
+async def test_get_confirmed_user_from_headers_invalid_token_type() -> None:
+    headers = {"Authorization": "Bearer test-token"}
 
     def read_token(_: str) -> dict[str, str]:
         return {
@@ -236,40 +262,48 @@ def test_read_access_token_invalid_token_type() -> None:
             "type": "invalid-type",
         }
 
+    crud = UserCRUD()
+
     with pytest.raises(InvalidAccessTokenError):
-        read_access_token(token, read_token)
+        await get_confirmed_user_from_headers(headers, read_token, crud)
 
 
 @pytest.mark.anyio()
-async def test_get_confirmed_user_by_id() -> None:
-    user_id = UUID("6d9c79d6-9641-4746-92d9-2cc9ebdca941")
-    user = create_confirmed_user(id=user_id)
-    crud = UserCRUD(existing_user=user)
+async def test_get_confirmed_user_from_headers_user_not_found() -> None:
+    headers = {"Authorization": "Bearer test-token"}
 
-    confirmed_user = await get_confirmed_user_by_id(user_id, crud)
+    def read_token(_: str) -> dict[str, str]:
+        return {
+            "sub": "6d9c79d6-9641-4746-92d9-2cc9ebdca941",
+            "type": "access",
+        }
 
-    assert confirmed_user == user
-
-
-@pytest.mark.anyio()
-async def test_get_confirmed_user_by_id_user_not_found() -> None:
-    user_id = UUID("6d9c79d6-9641-4746-92d9-2cc9ebdca941")
     crud = UserCRUD()
 
     with pytest.raises(UserNotFoundError):
-        await get_confirmed_user_by_id(user_id, crud)
+        await get_confirmed_user_from_headers(headers, read_token, crud)
 
 
 @pytest.mark.anyio()
-async def test_get_confirmed_user_by_id_user_not_confirmed() -> None:
-    user_id = UUID("6d9c79d6-9641-4746-92d9-2cc9ebdca941")
-    crud = UserCRUD(existing_user=create_user(id=user_id))
+async def test_get_confirmed_user_from_headers_user_not_confirmed() -> None:
+    headers = {"Authorization": "Bearer test-token"}
+
+    def read_token(_: str) -> dict[str, str]:
+        return {
+            "sub": "6d9c79d6-9641-4746-92d9-2cc9ebdca941",
+            "type": "access",
+        }
+
+    crud = UserCRUD(
+        existing_user=create_user(id=UUID("6d9c79d6-9641-4746-92d9-2cc9ebdca941"))
+    )
 
     with pytest.raises(UserNotConfirmedError):
-        await get_confirmed_user_by_id(user_id, crud)
+        await get_confirmed_user_from_headers(headers, read_token, crud)
 
 
-def test_read_refresh_token() -> None:
+@pytest.mark.anyio()
+async def test_refresh_token() -> None:
     token = "test-token"
 
     def read_token(_: str) -> dict[str, str]:
@@ -278,22 +312,35 @@ def test_read_refresh_token() -> None:
             "type": "refresh",
         }
 
-    payload = read_refresh_token(token, read_token)
+    def create_token(payload: Mapping[str, Any]) -> str:
+        return "-".join(f"{key}:{value}" for key, value in payload.items())
 
-    assert payload.user_id == UUID("6d9c79d6-9641-4746-92d9-2cc9ebdca941")
+    crud = UserCRUD(
+        existing_user=create_confirmed_user(
+            id=UUID("6d9c79d6-9641-4746-92d9-2cc9ebdca941")
+        )
+    )
+
+    access_token = await refresh_token(token, read_token, create_token, crud)
+
+    assert access_token == "sub:6d9c79d6-9641-4746-92d9-2cc9ebdca941-type:access"
 
 
-def test_read_refresh_token_invalid_token() -> None:
+@pytest.mark.anyio()
+async def test_refresh_token_invalid_token() -> None:
     token = "test-token"
 
     def read_token(_: str) -> dict[str, str]:
         raise InvalidTokenError
 
+    crud = UserCRUD()
+
     with pytest.raises(InvalidRefreshTokenError):
-        read_refresh_token(token, read_token)
+        await refresh_token(token, read_token, create_test_token, crud)
 
 
-def test_read_refresh_token_invalid_token_type() -> None:
+@pytest.mark.anyio()
+async def test_refresh_token_invalid_token_type() -> None:
     token = "test-token"
 
     def read_token(_: str) -> dict[str, str]:
@@ -302,5 +349,41 @@ def test_read_refresh_token_invalid_token_type() -> None:
             "type": "invalid-type",
         }
 
+    crud = UserCRUD()
+
     with pytest.raises(InvalidRefreshTokenError):
-        read_refresh_token(token, read_token)
+        await refresh_token(token, read_token, create_test_token, crud)
+
+
+@pytest.mark.anyio()
+async def test_refresh_token_user_not_found() -> None:
+    token = "test-token"
+
+    def read_token(_: str) -> dict[str, str]:
+        return {
+            "sub": "6d9c79d6-9641-4746-92d9-2cc9ebdca941",
+            "type": "refresh",
+        }
+
+    crud = UserCRUD()
+
+    with pytest.raises(UserNotFoundError):
+        await refresh_token(token, read_token, create_test_token, crud)
+
+
+@pytest.mark.anyio()
+async def test_refresh_token_user_not_confirmed() -> None:
+    token = "test-token"
+
+    def read_token(_: str) -> dict[str, str]:
+        return {
+            "sub": "6d9c79d6-9641-4746-92d9-2cc9ebdca941",
+            "type": "refresh",
+        }
+
+    crud = UserCRUD(
+        existing_user=create_user(id=UUID("6d9c79d6-9641-4746-92d9-2cc9ebdca941"))
+    )
+
+    with pytest.raises(UserNotConfirmedError):
+        await refresh_token(token, read_token, create_test_token, crud)

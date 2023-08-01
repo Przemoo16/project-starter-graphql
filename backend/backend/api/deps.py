@@ -1,10 +1,10 @@
 from collections.abc import Callable, Mapping
 from typing import Any, Protocol
 
-from backend.libs.api.headers import BearerTokenNotFoundError
 from backend.services.user.crud import UserCRUDProtocol
 from backend.services.user.exceptions import (
     InvalidAccessTokenError,
+    MissingAccessTokenError,
     UserNotConfirmedError,
     UserNotFoundError,
 )
@@ -34,7 +34,7 @@ async def get_confirmed_user(
         return await get_confirmed_user_from_headers(
             request.headers, token_reader, crud
         )
-    except BearerTokenNotFoundError:
+    except MissingAccessTokenError:
         msg = "Authentication token required"
     except (InvalidAccessTokenError, UserNotFoundError, UserNotConfirmedError):
         msg = "Invalid token"
