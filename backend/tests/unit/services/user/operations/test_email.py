@@ -12,9 +12,8 @@ from backend.services.user.exceptions import (
     UserNotFoundError,
 )
 from backend.services.user.operations.email import (
-    confirm_user,
+    confirm_email,
     create_email_confirmation_token,
-    read_email_confirmation_token,
     send_confirmation_email,
 )
 from tests.unit.helpers.user import UserCRUD, create_confirmed_user, create_user
@@ -61,7 +60,8 @@ def test_send_confirmation_email() -> None:
     assert "http://test/test-token" in message_result["plain_message"]
 
 
-def test_read_email_confirmation_token() -> None:
+@pytest.mark.anyio()
+async def test_confirm_email() -> None:
     token = "test-token"
 
     def read_token(_: str) -> dict[str, str]:
@@ -71,40 +71,6 @@ def test_read_email_confirmation_token() -> None:
             "type": "email-confirmation",
         }
 
-    payload = read_email_confirmation_token(token, read_token)
-
-    assert payload.user_id == UUID("6d9c79d6-9641-4746-92d9-2cc9ebdca941")
-    assert payload.user_email == "test@email.com"
-
-
-def test_read_email_confirmation_token_invalid_token() -> None:
-    token = "test-token"
-
-    def read_token(_: str) -> dict[str, str]:
-        raise InvalidTokenError
-
-    with pytest.raises(InvalidEmailConfirmationTokenError):
-        read_email_confirmation_token(token, read_token)
-
-
-def test_read_email_confirmation_token_invalid_token_type() -> None:
-    token = "test-token"
-
-    def read_token(_: str) -> dict[str, str]:
-        return {
-            "sub": "6d9c79d6-9641-4746-92d9-2cc9ebdca941",
-            "email": "test@email.com",
-            "type": "invalid-type",
-        }
-
-    with pytest.raises(InvalidEmailConfirmationTokenError):
-        read_email_confirmation_token(token, read_token)
-
-
-@pytest.mark.anyio()
-async def test_confirm_user() -> None:
-    user_id = UUID("6d9c79d6-9641-4746-92d9-2cc9ebdca941")
-    user_email = "test@email.com"
     crud = UserCRUD(
         existing_user=create_user(
             id=UUID("6d9c79d6-9641-4746-92d9-2cc9ebdca941"),
@@ -113,15 +79,52 @@ async def test_confirm_user() -> None:
         )
     )
 
-    user = await confirm_user(user_id, user_email, crud)
+    confirmed_user = await confirm_email(token, read_token, crud)
 
-    assert user.confirmed_email is True
+    assert confirmed_user.confirmed_email is True
 
 
 @pytest.mark.anyio()
-async def test_confirm_user_id_not_found() -> None:
-    user_id = UUID("e85b027d-67be-48ea-a11a-40e34d57442b")
-    user_email = "test@email.com"
+async def test_confirm_email_invalid_token() -> None:
+    token = "test-token"
+
+    def read_token(_: str) -> dict[str, str]:
+        raise InvalidTokenError
+
+    crud = UserCRUD()
+
+    with pytest.raises(InvalidEmailConfirmationTokenError):
+        await confirm_email(token, read_token, crud)
+
+
+@pytest.mark.anyio()
+async def test_confirm_email_invalid_token_type() -> None:
+    token = "test-token"
+
+    def read_token(_: str) -> dict[str, str]:
+        return {
+            "sub": "6d9c79d6-9641-4746-92d9-2cc9ebdca941",
+            "email": "test@email.com",
+            "type": "invalid-token",
+        }
+
+    crud = UserCRUD()
+
+    with pytest.raises(InvalidEmailConfirmationTokenError):
+        await confirm_email(token, read_token, crud)
+
+
+@pytest.mark.anyio()
+async def test_confirm_email_user_id_not_found() -> None:
+    token = "test-token"
+
+    def read_token(_: str) -> dict[str, str]:
+        return {
+            "sub": "e85b027d-67be-48ea-a11a-40e34d57442b",
+            "email": "test@email.com",
+            "type": "email-confirmation",
+        }
+
     crud = UserCRUD(
         existing_user=create_user(
             id=UUID("6d9c79d6-9641-4746-92d9-2cc9ebdca941"), email="test@email.com"
@@ -129,13 +132,20 @@ async def test_confirm_user_id_not_found() -> None:
     )
 
     with pytest.raises(UserNotFoundError):
-        await confirm_user(user_id, user_email, crud)
+        await confirm_email(token, read_token, crud)
 
 
 @pytest.mark.anyio()
-async def test_confirm_user_email_not_found() -> None:
-    user_id = UUID("6d9c79d6-9641-4746-92d9-2cc9ebdca941")
-    user_email = "invalid@email.com"
+async def test_confirm_email_user_email_not_found() -> None:
+    token = "test-token"
+
+    def read_token(_: str) -> dict[str, str]:
+        return {
+            "sub": "6d9c79d6-9641-4746-92d9-2cc9ebdca941",
+            "email": "invalid@email.com",
+            "type": "email-confirmation",
+        }
+
     crud = UserCRUD(
         existing_user=create_user(
             id=UUID("6d9c79d6-9641-4746-92d9-2cc9ebdca941"), email="test@email.com"
@@ -143,13 +153,20 @@ async def test_confirm_user_email_not_found() -> None:
     )
 
     with pytest.raises(UserNotFoundError):
-        await confirm_user(user_id, user_email, crud)
+        await confirm_email(token, read_token, crud)
 
 
 @pytest.mark.anyio()
-async def test_confirm_user_already_confirmed() -> None:
-    user_id = UUID("6d9c79d6-9641-4746-92d9-2cc9ebdca941")
-    user_email = "test@email.com"
+async def test_confirm_email_user_already_confirmed() -> None:
+    token = "test-token"
+
+    def read_token(_: str) -> dict[str, str]:
+        return {
+            "sub": "6d9c79d6-9641-4746-92d9-2cc9ebdca941",
+            "email": "test@email.com",
+            "type": "email-confirmation",
+        }
+
     crud = UserCRUD(
         existing_user=create_confirmed_user(
             id=UUID("6d9c79d6-9641-4746-92d9-2cc9ebdca941"), email="test@email.com"
@@ -157,4 +174,4 @@ async def test_confirm_user_already_confirmed() -> None:
     )
 
     with pytest.raises(UserAlreadyConfirmedError):
-        await confirm_user(user_id, user_email, crud)
+        await confirm_email(token, read_token, crud)
