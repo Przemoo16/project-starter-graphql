@@ -6,8 +6,11 @@ from strawberry import argument
 
 from backend.libs.api.context import Info
 from backend.libs.api.types import convert_to_dict, from_pydantic_error
-from backend.libs.security.password import hash_password, verify_and_update_password
-from backend.services.user.context import TOKEN_READER
+from backend.services.user.context import (
+    PASSWORD_HASHER,
+    PASSWORD_VALIDATOR,
+    TOKEN_READER,
+)
 from backend.services.user.crud import UserCRUD
 from backend.services.user.exceptions import (
     InvalidPasswordError,
@@ -68,7 +71,7 @@ async def reset_password_resolver(
 
     try:
         await reset_password(
-            schema, TOKEN_READER, verify_and_update_password, hash_password, crud
+            schema, TOKEN_READER, PASSWORD_VALIDATOR, PASSWORD_HASHER, crud
         )
     except (
         InvalidResetPasswordTokenError,
@@ -95,9 +98,7 @@ async def change_my_password_resolver(
     crud = UserCRUD(model=User, session=info.context.session)
 
     try:
-        await change_password(
-            user, schema, verify_and_update_password, hash_password, crud
-        )
+        await change_password(user, schema, PASSWORD_VALIDATOR, PASSWORD_HASHER, crud)
     except InvalidPasswordError:
         return ChangeMyPasswordFailure(problems=[InvalidPasswordProblem()])
     return ChangeMyPasswordSuccess()

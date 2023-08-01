@@ -5,7 +5,7 @@ from strawberry import argument
 
 from backend.libs.api.context import Info
 from backend.libs.api.types import User, convert_to_dict, from_pydantic_error
-from backend.libs.security.password import hash_password
+from backend.services.user.context import PASSWORD_HASHER
 from backend.services.user.crud import UserCRUD
 from backend.services.user.exceptions import UserAlreadyExistsError
 from backend.services.user.models import User as UserModel
@@ -40,7 +40,7 @@ async def create_user_resolver(
 
     try:
         created_user = await create_user(
-            schema, hash_password, crud, send_confirmation_email
+            schema, PASSWORD_HASHER, crud, send_confirmation_email
         )
     except UserAlreadyExistsError:
         return CreateUserFailure(problems=[UserAlreadyExistsProblem()])

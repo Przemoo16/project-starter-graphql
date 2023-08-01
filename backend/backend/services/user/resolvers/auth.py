@@ -5,8 +5,12 @@ from strawberry import argument
 
 from backend.config.settings import get_settings
 from backend.libs.api.context import Info
-from backend.libs.security.password import hash_password, verify_and_update_password
-from backend.services.user.context import TOKEN_CREATOR, TOKEN_READER
+from backend.services.user.context import (
+    PASSWORD_HASHER,
+    PASSWORD_VALIDATOR,
+    TOKEN_CREATOR,
+    TOKEN_READER,
+)
 from backend.services.user.crud import UserCRUD
 from backend.services.user.exceptions import (
     InvalidPasswordError,
@@ -50,8 +54,8 @@ async def login_resolver(
     )
     auth_data = AuthData(
         credentials=credentials,
-        password_validator=verify_and_update_password,
-        password_hasher=hash_password,
+        password_validator=PASSWORD_VALIDATOR,
+        password_hasher=PASSWORD_HASHER,
     )
     tokens_data = TokensCreationData(
         access_token_creator=ACCESS_TOKEN_CREATOR,
