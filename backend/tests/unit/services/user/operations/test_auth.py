@@ -1,5 +1,4 @@
 from collections.abc import Mapping
-from contextlib import suppress
 from typing import Any
 from uuid import UUID
 
@@ -13,13 +12,11 @@ from backend.services.user.exceptions import (
     UserNotConfirmedError,
     UserNotFoundError,
 )
-from backend.services.user.models import User
 from backend.services.user.operations.auth import (
-    authenticate,
-    create_access_token,
-    create_refresh_token,
+    PasswordManager,
+    TokensManager,
     get_confirmed_user_by_id,
-    login_with_tokens,
+    login,
     read_access_token,
     read_refresh_token,
 )
@@ -27,172 +24,183 @@ from backend.services.user.schemas import CredentialsSchema
 from tests.unit.helpers.user import UserCRUD, create_confirmed_user, create_user
 
 
-def success_password_validator(*_: str) -> tuple[bool, None]:
-    return True, None
+@pytest.fixture(name="password_manager")
+def password_manager_fixture() -> PasswordManager:
+    def validate_password(*_: str) -> tuple[bool, None]:
+        return True, None
+
+    def hash_password(_: str) -> str:
+        return "hashed_password"
+
+    return PasswordManager(validator=validate_password, hasher=hash_password)
 
 
-def get_test_password(_: str) -> str:
-    return "hashed_password"
+@pytest.fixture(name="tokens_manager")
+def tokens_manager_fixture() -> TokensManager:
+    def create_token(_: Mapping[str, Any]) -> str:
+        return "test-token"
+
+    return TokensManager(
+        access_token_creator=create_token, refresh_token_creator=create_token
+    )
 
 
 @pytest.mark.anyio()
-async def test_success_authentication_without_password_hash_update() -> None:
+async def test_login_create_tokens(password_manager: PasswordManager) -> None:
     credentials = CredentialsSchema(email="test@email.com", password="plain_password")
+
+    def create_token(payload: Mapping[str, Any]) -> str:
+        return "-".join(f"{key}:{value}" for key, value in payload.items())
+
+    tokens_manager = TokensManager(
+        access_token_creator=create_token,
+        refresh_token_creator=create_token,
+    )
     crud = UserCRUD(
         existing_user=create_confirmed_user(
-            email="test@email.com", hashed_password="hashed_password"
+            id=UUID("6d9c79d6-9641-4746-92d9-2cc9ebdca941"), email="test@email.com"
         )
     )
 
-    user = await authenticate(
-        credentials, success_password_validator, get_test_password, crud
+    access_token, refresh_token = await login(
+        credentials, password_manager, tokens_manager, crud
     )
 
-    assert user.hashed_password == "hashed_password"
+    assert access_token == "sub:6d9c79d6-9641-4746-92d9-2cc9ebdca941-type:access"
+    assert refresh_token == "sub:6d9c79d6-9641-4746-92d9-2cc9ebdca941-type:refresh"
 
 
 @pytest.mark.anyio()
-async def test_success_authentication_with_password_hash_update() -> None:
+async def test_login_update_password_hash(
+    password_manager: PasswordManager, tokens_manager: TokensManager
+) -> None:
     credentials = CredentialsSchema(email="test@email.com", password="plain_password")
-    crud = UserCRUD(
-        existing_user=create_confirmed_user(
-            email="test@email.com", hashed_password="hashed_password"
-        )
-    )
 
-    def password_validator_update_hash(*_: str) -> tuple[bool, str]:
+    def validate_password(*_: str) -> tuple[bool, str]:
         return True, "new_hashed_password"
 
-    user = await authenticate(
-        credentials, password_validator_update_hash, get_test_password, crud
+    password_manager.validator = validate_password
+    user = create_confirmed_user(
+        email="test@email.com", hashed_password="hashed_password"
     )
+    crud = UserCRUD(existing_user=user)
+
+    await login(credentials, password_manager, tokens_manager, crud)
 
     assert user.hashed_password == "new_hashed_password"
 
 
 @pytest.mark.anyio()
-async def test_failure_authentication_user_not_found() -> None:
-    credentials = CredentialsSchema(email="test@email.com", password="plain_password")
-    crud = UserCRUD()
-
-    with pytest.raises(UserNotFoundError):
-        await authenticate(
-            credentials, success_password_validator, get_test_password, crud
-        )
-
-
-@pytest.mark.anyio()
-@pytest.mark.parametrize(
-    ("user", "hasher_called"),
-    [
-        (
-            create_confirmed_user(email="test@email.com"),
-            False,
-        ),
-        (None, True),
-    ],
-)
-async def test_authentication_calling_password_hasher(
-    user: User | None, hasher_called: bool
+async def test_login_do_not_update_password_hash(
+    password_manager: PasswordManager, tokens_manager: TokensManager
 ) -> None:
     credentials = CredentialsSchema(email="test@email.com", password="plain_password")
+
+    def validate_password(*_: str) -> tuple[bool, None]:
+        return True, None
+
+    password_manager.validator = validate_password
+    user = create_confirmed_user(
+        email="test@email.com", hashed_password="hashed_password"
+    )
     crud = UserCRUD(existing_user=user)
 
-    hash_function_called = False
+    await login(credentials, password_manager, tokens_manager, crud)
 
-    def hash_password(_: str) -> str:
-        nonlocal hash_function_called
-        hash_function_called = True
-        return "hashed_password"
-
-    with suppress(UserNotFoundError):
-        await authenticate(credentials, success_password_validator, hash_password, crud)
-
-    assert hash_function_called == hasher_called
+    assert user.hashed_password == "hashed_password"
 
 
 @pytest.mark.anyio()
-async def test_failure_authentication_invalid_password() -> None:
+async def test_login_update_last_login(
+    password_manager: PasswordManager, tokens_manager: TokensManager
+) -> None:
     credentials = CredentialsSchema(email="test@email.com", password="plain_password")
-    crud = UserCRUD(existing_user=create_confirmed_user(email="test@email.com"))
+    user = create_confirmed_user(email="test@email.com", last_login=None)
+    crud = UserCRUD(existing_user=user)
 
-    def failure_password_validator(*_: str) -> tuple[bool, None]:
-        return False, None
-
-    with pytest.raises(InvalidPasswordError):
-        await authenticate(
-            credentials, failure_password_validator, get_test_password, crud
-        )
-
-
-@pytest.mark.anyio()
-async def test_failure_authentication_user_not_confirmed() -> None:
-    credentials = CredentialsSchema(email="test@email.com", password="plain_password")
-    crud = UserCRUD(existing_user=create_user(email="test@email.com"))
-
-    with pytest.raises(UserNotConfirmedError):
-        await authenticate(
-            credentials, success_password_validator, get_test_password, crud
-        )
-
-
-@pytest.mark.anyio()
-async def test_login_with_tokens() -> None:
-    user = create_user(email="test@email.com")
-    crud = UserCRUD()
-
-    def create_test_access_token(_: Mapping[str, Any]) -> str:
-        return "access-token"
-
-    def create_test_refresh_token(_: Mapping[str, Any]) -> str:
-        return "refresh-token"
-
-    access_token, refresh_token = await login_with_tokens(
-        user, create_test_access_token, create_test_refresh_token, crud
-    )
-
-    assert access_token == "access-token"
-    assert refresh_token == "refresh-token"
-
-
-@pytest.mark.anyio()
-async def test_login_with_tokens_update_last_login() -> None:
-    user = create_user(email="test@email.com", last_login=False)
-    crud = UserCRUD()
-
-    def create_test_access_token(_: Mapping[str, Any]) -> str:
-        return "access-token"
-
-    def create_test_refresh_token(_: Mapping[str, Any]) -> str:
-        return "refresh-token"
-
-    await login_with_tokens(
-        user, create_test_access_token, create_test_refresh_token, crud
-    )
+    await login(credentials, password_manager, tokens_manager, crud)
 
     assert user.last_login
 
 
-def test_create_access_token() -> None:
-    user_id = UUID("6d9c79d6-9641-4746-92d9-2cc9ebdca941")
+@pytest.mark.anyio()
+async def test_login_user_not_found(
+    password_manager: PasswordManager, tokens_manager: TokensManager
+) -> None:
+    credentials = CredentialsSchema(email="test@email.com", password="plain_password")
+    crud = UserCRUD()
 
-    def create_token(payload: Mapping[str, Any]) -> str:
-        return f"sub:{payload['sub']}-type:{payload['type']}"
-
-    token = create_access_token(user_id, create_token)
-
-    assert token == "sub:6d9c79d6-9641-4746-92d9-2cc9ebdca941-type:access"
+    with pytest.raises(UserNotFoundError):
+        await login(credentials, password_manager, tokens_manager, crud)
 
 
-def test_create_refresh_token() -> None:
-    user_id = UUID("6d9c79d6-9641-4746-92d9-2cc9ebdca941")
+async def test_login_user_not_found_password_hasher_called(
+    password_manager: PasswordManager, tokens_manager: TokensManager
+) -> None:
+    credentials = CredentialsSchema(email="test@email.com", password="plain_password")
+    hasher_called = False
 
-    def create_token(payload: Mapping[str, Any]) -> str:
-        return f"sub:{payload['sub']}-type:{payload['type']}"
+    def hash_password(_: str) -> str:
+        nonlocal hasher_called
+        hasher_called = True
+        return "hashed_password"
 
-    token = create_refresh_token(user_id, create_token)
+    password_manager.hasher = hash_password
+    crud = UserCRUD()
 
-    assert token == "sub:6d9c79d6-9641-4746-92d9-2cc9ebdca941-type:refresh"
+    with pytest.raises(UserNotFoundError):
+        await login(credentials, password_manager, tokens_manager, crud)
+    assert hasher_called
+
+
+@pytest.mark.anyio()
+async def test_login_user_found_password_hasher_not_called(
+    password_manager: PasswordManager, tokens_manager: TokensManager
+) -> None:
+    credentials = CredentialsSchema(email="test@email.com", password="plain_password")
+    hasher_called = False
+
+    def hash_password(_: str) -> str:
+        nonlocal hasher_called
+        hasher_called = True
+        return "hashed_password"
+
+    password_manager.hasher = hash_password
+    crud = UserCRUD(existing_user=create_confirmed_user(email="test@email.com"))
+
+    await login(credentials, password_manager, tokens_manager, crud)
+
+    assert not hasher_called
+
+
+@pytest.mark.anyio()
+async def test_login_invalid_password(
+    password_manager: PasswordManager, tokens_manager: TokensManager
+) -> None:
+    credentials = CredentialsSchema(email="test@email.com", password="plain_password")
+
+    def validate_password(*_: str) -> tuple[bool, None]:
+        return False, None
+
+    password_manager.validator = validate_password
+    crud = UserCRUD(existing_user=create_confirmed_user(email="test@email.com"))
+
+    with pytest.raises(InvalidPasswordError):
+        await login(credentials, password_manager, tokens_manager, crud)
+
+
+@pytest.mark.anyio()
+async def test_login_user_not_confirmed(
+    password_manager: PasswordManager, tokens_manager: TokensManager
+) -> None:
+    credentials = CredentialsSchema(email="test@email.com", password="plain_password")
+    crud = UserCRUD(existing_user=create_user(email="test@email.com"))
+
+    with pytest.raises(UserNotConfirmedError):
+        await login(credentials, password_manager, tokens_manager, crud)
+
+
+################################################## TODO: Continue refactoring
 
 
 def test_read_access_token() -> None:

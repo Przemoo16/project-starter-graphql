@@ -5,6 +5,8 @@ from datetime import datetime
 from typing import Any
 from uuid import UUID
 
+from pydantic import SecretStr
+
 from backend.libs.api.headers import read_bearer_token
 from backend.libs.db.crud import NoObjectFoundError
 from backend.libs.security.token import InvalidTokenError
@@ -31,14 +33,13 @@ REFRESH_TOKEN_TYPE = "refresh"  # nosec
 
 
 @dataclass
-class AuthData:
-    credentials: CredentialsSchema
-    password_validator: PasswordValidator
-    password_hasher: PasswordHasher
+class PasswordManager:
+    validator: PasswordValidator
+    hasher: PasswordHasher
 
 
 @dataclass
-class TokensCreationData:
+class TokensManager:
     access_token_creator: TokenCreator
     refresh_token_creator: TokenCreator
 
@@ -54,70 +55,95 @@ class RefreshTokenPayload:
 
 
 async def login(
-    auth_data: AuthData, tokens_data: TokensCreationData, crud: UserCRUDProtocol
-) -> tuple[str, str]:
-    user = await authenticate(
-        auth_data.credentials,
-        auth_data.password_validator,
-        auth_data.password_hasher,
-        crud,
-    )
-    return await login_with_tokens(
-        user, tokens_data.access_token_creator, tokens_data.refresh_token_creator, crud
-    )
-
-
-async def authenticate(
     credentials: CredentialsSchema,
-    password_validator: PasswordValidator,
+    password_manager: PasswordManager,
+    tokens_manager: TokensManager,
+    crud: UserCRUDProtocol,
+) -> tuple[str, str]:
+    user = await _authenticate_user(credentials, password_manager, crud)
+    _validate_user_is_confirmed(user)
+    logged_user = await _login_user(user, crud)
+    return _create_auth_tokens(logged_user.id, tokens_manager)
+
+
+async def _authenticate_user(
+    credentials: CredentialsSchema,
+    password_manager: PasswordManager,
+    crud: UserCRUDProtocol,
+) -> User:
+    user = await _get_user_by_credentials(credentials, password_manager.hasher, crud)
+    if updated_password_hash := _validate_password(
+        user, credentials.password, password_manager.validator
+    ):
+        await _update_password_hash(user, updated_password_hash, crud)
+        logger.info("Updated password hash for the user %r", user.email)
+    return user
+
+
+async def _get_user_by_credentials(
+    credentials: CredentialsSchema,
     password_hasher: PasswordHasher,
     crud: UserCRUDProtocol,
 ) -> User:
     try:
-        user = await crud.read_one(UserFilters(email=credentials.email))
+        return await crud.read_one(UserFilters(email=credentials.email))
     except NoObjectFoundError as exc:
         # Run the password hasher to mitigate timing attack
         password_hasher(credentials.password.get_secret_value())
         logger.info("User %r not found", credentials.email)
         raise UserNotFoundError from exc
+
+
+def _validate_password(
+    user: User, password: SecretStr, password_validator: PasswordValidator
+) -> str | None:
     is_valid, updated_password_hash = password_validator(
-        credentials.password.get_secret_value(), user.hashed_password
+        password.get_secret_value(), user.hashed_password
     )
     if not is_valid:
         logger.info("Invalid password for the user %r", user.email)
         raise InvalidPasswordError
+    return updated_password_hash
+
+
+async def _update_password_hash(
+    user: User, password_hash: str, crud: UserCRUDProtocol
+) -> User:
+    return await crud.update_and_refresh(
+        user, UserUpdateData(hashed_password=password_hash)
+    )
+
+
+def _validate_user_is_confirmed(user: User) -> None:
     if not user.confirmed_email:
         logger.info("User %r not confirmed", user.email)
         raise UserNotConfirmedError
-    if updated_password_hash:
-        user = await crud.update_and_refresh(
-            user, UserUpdateData(hashed_password=updated_password_hash)
-        )
-        logger.info("Updated password hash for the user %r", user.email)
-    return user
 
 
-async def login_with_tokens(
-    user: User,
-    access_token_creator: TokenCreator,
-    refresh_token_creator: TokenCreator,
-    crud: UserCRUDProtocol,
-) -> tuple[str, str]:
-    updated_user = await crud.update_and_refresh(
+async def _login_user(user: User, crud: UserCRUDProtocol) -> User:
+    return await crud.update_and_refresh(
         user, UserUpdateData(last_login=datetime.utcnow())
     )
+
+
+def _create_auth_tokens(
+    user_id: UUID, tokens_manager: TokensManager
+) -> tuple[str, str]:
     return (
-        create_access_token(updated_user.id, access_token_creator),
-        create_refresh_token(updated_user.id, refresh_token_creator),
+        _create_access_token(user_id, tokens_manager.access_token_creator),
+        _create_refresh_token(user_id, tokens_manager.refresh_token_creator),
     )
 
 
-def create_access_token(user_id: UUID, token_creator: TokenCreator) -> str:
+def _create_access_token(user_id: UUID, token_creator: TokenCreator) -> str:
     return token_creator({"sub": str(user_id), "type": ACCESS_TOKEN_TYPE})
 
 
-def create_refresh_token(user_id: UUID, token_creator: TokenCreator) -> str:
+def _create_refresh_token(user_id: UUID, token_creator: TokenCreator) -> str:
     return token_creator({"sub": str(user_id), "type": REFRESH_TOKEN_TYPE})
+
+
+########################################################## TODO: Continue refactoring
 
 
 async def get_confirmed_user_from_headers(
@@ -163,7 +189,7 @@ async def refresh_token(
 ) -> str:
     payload = read_refresh_token(token, token_reader)
     user = await get_confirmed_user_by_id(payload.user_id, crud)
-    return create_access_token(user.id, token_creator)
+    return _create_access_token(user.id, token_creator)
 
 
 def read_refresh_token(token: str, token_reader: TokenReader) -> RefreshTokenPayload:
