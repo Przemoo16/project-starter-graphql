@@ -30,6 +30,10 @@ class InvalidResetPasswordTokenFingerprintError(Exception):
     pass
 
 
+class MissingAccessTokenError(Exception):
+    pass
+
+
 class InvalidAccessTokenError(Exception):
     pass
 
