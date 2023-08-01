@@ -20,8 +20,8 @@ from backend.services.user.exceptions import (
 )
 from backend.services.user.models import User
 from backend.services.user.operations.auth import (
-    AuthData,
-    TokensCreationData,
+    PasswordManager,
+    TokensManager,
     login,
     refresh_token,
 )
@@ -52,19 +52,20 @@ async def login_resolver(
     credentials = CredentialsSchema(
         email=login_input.username, password=login_input.password
     )
-    auth_data = AuthData(
-        credentials=credentials,
-        password_validator=PASSWORD_VALIDATOR,
-        password_hasher=PASSWORD_HASHER,
+    password_manager = PasswordManager(
+        validator=PASSWORD_VALIDATOR,
+        hasher=PASSWORD_HASHER,
     )
-    tokens_data = TokensCreationData(
+    tokens_manager = TokensManager(
         access_token_creator=ACCESS_TOKEN_CREATOR,
         refresh_token_creator=REFRESH_TOKEN_CREATOR,
     )
     crud = UserCRUD(model=User, session=info.context.session)
 
     try:
-        access_token, refresh_token_ = await login(auth_data, tokens_data, crud)
+        access_token, refresh_token_ = await login(
+            credentials, password_manager, tokens_manager, crud
+        )
     except (UserNotFoundError, InvalidPasswordError):
         return LoginFailure(problems=[InvalidCredentialsProblem()])
     except UserNotConfirmedError:
