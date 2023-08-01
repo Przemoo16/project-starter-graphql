@@ -96,11 +96,13 @@ def send_confirmation_email(
 async def confirm_email(
     token: str, token_reader: TokenReader, crud: UserCRUDProtocol
 ) -> User:
-    token_payload = read_email_confirmation_token(token, token_reader)
-    return await confirm_user(token_payload.user_id, token_payload.user_email, crud)
+    payload = _decode_email_confirmation_token(token, token_reader)
+    user = await _get_user_by_id_and_email(payload.user_id, payload.user_email, crud)
+    _validate_user_is_not_already_confirmed(user)
+    return await _confirm_user_email(user, crud)
 
 
-def read_email_confirmation_token(
+def _decode_email_confirmation_token(
     token: str, token_reader: TokenReader
 ) -> ConfirmationTokenPayload:
     try:
@@ -117,13 +119,21 @@ def read_email_confirmation_token(
     return ConfirmationTokenPayload(user_id=UUID(data["sub"]), user_email=data["email"])
 
 
-async def confirm_user(user_id: UUID, user_email: str, crud: UserCRUDProtocol) -> User:
+async def _get_user_by_id_and_email(
+    user_id: UUID, user_email: str, crud: UserCRUDProtocol
+) -> User:
     try:
-        user = await crud.read_one(UserFilters(id=user_id, email=user_email))
+        return await crud.read_one(UserFilters(id=user_id, email=user_email))
     except NoObjectFoundError as exc:
         logger.info("User with id %r and email %r not found", user_id, user_email)
         raise UserNotFoundError from exc
+
+
+def _validate_user_is_not_already_confirmed(user: User) -> None:
     if user.confirmed_email:
         logger.info("User %r already confirmed", user.email)
         raise UserAlreadyConfirmedError
+
+
+async def _confirm_user_email(user: User, crud: UserCRUDProtocol) -> User:
     return await crud.update_and_refresh(user, UserUpdateData(confirmed_email=True))
