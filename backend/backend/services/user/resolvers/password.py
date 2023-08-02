@@ -21,6 +21,7 @@ from backend.services.user.exceptions import (
 )
 from backend.services.user.models import User
 from backend.services.user.operations.password import (
+    PasswordManager,
     change_password,
     recover_password,
     reset_password,
@@ -67,12 +68,14 @@ async def reset_password_resolver(
     except ValidationError as exc:
         return ResetPasswordFailure(problems=from_pydantic_error(exc))
 
+    password_manager = PasswordManager(
+        validator=PASSWORD_VALIDATOR,
+        hasher=PASSWORD_HASHER,
+    )
     crud = UserCRUD(model=User, session=info.context.session)
 
     try:
-        await reset_password(
-            schema, TOKEN_READER, PASSWORD_VALIDATOR, PASSWORD_HASHER, crud
-        )
+        await reset_password(schema, TOKEN_READER, password_manager, crud)
     except (
         InvalidResetPasswordTokenError,
         UserNotFoundError,
@@ -95,10 +98,14 @@ async def change_my_password_resolver(
     except ValidationError as exc:
         return ChangeMyPasswordFailure(problems=from_pydantic_error(exc))
 
+    password_manager = PasswordManager(
+        validator=PASSWORD_VALIDATOR,
+        hasher=PASSWORD_HASHER,
+    )
     crud = UserCRUD(model=User, session=info.context.session)
 
     try:
-        await change_password(user, schema, PASSWORD_VALIDATOR, PASSWORD_HASHER, crud)
+        await change_password(user, schema, password_manager, crud)
     except InvalidPasswordError:
         return ChangeMyPasswordFailure(problems=[InvalidPasswordProblem()])
     return ChangeMyPasswordSuccess()
