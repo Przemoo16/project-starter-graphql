@@ -184,7 +184,7 @@ async def _get_user_by_id(user_id: UUID, crud: UserCRUDProtocol) -> User:
         raise UserNotFoundError from exc
 
 
-async def refresh_token(
+def refresh_token(
     token: str, token_reader: TokenReader, token_creator: TokenCreator
 ) -> str:
     payload = _decode_refresh_token(token, token_reader)

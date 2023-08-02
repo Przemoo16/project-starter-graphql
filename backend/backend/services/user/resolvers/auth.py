@@ -81,9 +81,9 @@ class RefreshTokenError(Exception):
     pass
 
 
-async def refresh_token_resolver(token: str) -> RefreshTokenResponse:
+def refresh_token_resolver(token: str) -> RefreshTokenResponse:
     try:
-        access_token = await refresh_token(token, TOKEN_READER, ACCESS_TOKEN_CREATOR)
+        access_token = refresh_token(token, TOKEN_READER, ACCESS_TOKEN_CREATOR)
     except InvalidRefreshTokenError as exc:
         msg = "Invalid token"
         raise RefreshTokenError(msg) from exc
