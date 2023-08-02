@@ -315,13 +315,7 @@ async def test_refresh_token() -> None:
     def create_token(payload: Mapping[str, Any]) -> str:
         return "-".join(f"{key}:{value}" for key, value in payload.items())
 
-    crud = UserCRUD(
-        existing_user=create_confirmed_user(
-            id=UUID("6d9c79d6-9641-4746-92d9-2cc9ebdca941")
-        )
-    )
-
-    access_token = await refresh_token(token, read_token, create_token, crud)
+    access_token = await refresh_token(token, read_token, create_token)
 
     assert access_token == "sub:6d9c79d6-9641-4746-92d9-2cc9ebdca941-type:access"
 
@@ -333,10 +327,8 @@ async def test_refresh_token_invalid_token() -> None:
     def read_token(_: str) -> dict[str, str]:
         raise InvalidTokenError
 
-    crud = UserCRUD()
-
     with pytest.raises(InvalidRefreshTokenError):
-        await refresh_token(token, read_token, create_test_token, crud)
+        await refresh_token(token, read_token, create_test_token)
 
 
 @pytest.mark.anyio()
@@ -349,41 +341,5 @@ async def test_refresh_token_invalid_token_type() -> None:
             "type": "invalid-type",
         }
 
-    crud = UserCRUD()
-
     with pytest.raises(InvalidRefreshTokenError):
-        await refresh_token(token, read_token, create_test_token, crud)
-
-
-@pytest.mark.anyio()
-async def test_refresh_token_user_not_found() -> None:
-    token = "test-token"
-
-    def read_token(_: str) -> dict[str, str]:
-        return {
-            "sub": "6d9c79d6-9641-4746-92d9-2cc9ebdca941",
-            "type": "refresh",
-        }
-
-    crud = UserCRUD()
-
-    with pytest.raises(UserNotFoundError):
-        await refresh_token(token, read_token, create_test_token, crud)
-
-
-@pytest.mark.anyio()
-async def test_refresh_token_user_not_confirmed() -> None:
-    token = "test-token"
-
-    def read_token(_: str) -> dict[str, str]:
-        return {
-            "sub": "6d9c79d6-9641-4746-92d9-2cc9ebdca941",
-            "type": "refresh",
-        }
-
-    crud = UserCRUD(
-        existing_user=create_user(id=UUID("6d9c79d6-9641-4746-92d9-2cc9ebdca941"))
-    )
-
-    with pytest.raises(UserNotConfirmedError):
-        await refresh_token(token, read_token, create_test_token, crud)
+        await refresh_token(token, read_token, create_test_token)

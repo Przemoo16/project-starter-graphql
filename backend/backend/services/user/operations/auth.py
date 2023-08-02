@@ -185,15 +185,10 @@ async def _get_user_by_id(user_id: UUID, crud: UserCRUDProtocol) -> User:
 
 
 async def refresh_token(
-    token: str,
-    token_reader: TokenReader,
-    token_creator: TokenCreator,
-    crud: UserCRUDProtocol,
+    token: str, token_reader: TokenReader, token_creator: TokenCreator
 ) -> str:
     payload = _decode_refresh_token(token, token_reader)
-    user = await _get_user_by_id(payload.user_id, crud)
-    _validate_user_is_confirmed(user)
-    return _create_access_token(user.id, token_creator)
+    return _create_access_token(payload.user_id, token_creator)
 
 
 def _decode_refresh_token(token: str, token_reader: TokenReader) -> RefreshTokenPayload:
