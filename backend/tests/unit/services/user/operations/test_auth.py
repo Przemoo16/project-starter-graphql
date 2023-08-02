@@ -302,8 +302,7 @@ async def test_get_confirmed_user_from_headers_user_not_confirmed() -> None:
         await get_confirmed_user_from_headers(headers, read_token, crud)
 
 
-@pytest.mark.anyio()
-async def test_refresh_token() -> None:
+def test_refresh_token() -> None:
     token = "test-token"
 
     def read_token(_: str) -> dict[str, str]:
@@ -315,24 +314,22 @@ async def test_refresh_token() -> None:
     def create_token(payload: Mapping[str, Any]) -> str:
         return "-".join(f"{key}:{value}" for key, value in payload.items())
 
-    access_token = await refresh_token(token, read_token, create_token)
+    access_token = refresh_token(token, read_token, create_token)
 
     assert access_token == "sub:6d9c79d6-9641-4746-92d9-2cc9ebdca941-type:access"
 
 
-@pytest.mark.anyio()
-async def test_refresh_token_invalid_token() -> None:
+def test_refresh_token_invalid_token() -> None:
     token = "test-token"
 
     def read_token(_: str) -> dict[str, str]:
         raise InvalidTokenError
 
     with pytest.raises(InvalidRefreshTokenError):
-        await refresh_token(token, read_token, create_test_token)
+        refresh_token(token, read_token, create_test_token)
 
 
-@pytest.mark.anyio()
-async def test_refresh_token_invalid_token_type() -> None:
+def test_refresh_token_invalid_token_type() -> None:
     token = "test-token"
 
     def read_token(_: str) -> dict[str, str]:
@@ -342,4 +339,4 @@ async def test_refresh_token_invalid_token_type() -> None:
         }
 
     with pytest.raises(InvalidRefreshTokenError):
-        await refresh_token(token, read_token, create_test_token)
+        refresh_token(token, read_token, create_test_token)
