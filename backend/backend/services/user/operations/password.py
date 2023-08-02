@@ -53,6 +53,12 @@ class ResetPasswordEmailData:
 
 
 @dataclass
+class PasswordManager:
+    validator: PasswordValidator
+    hasher: PasswordHasher
+
+
+@dataclass
 class ResetPasswordTokenPayload:
     user_id: UUID
     fingerprint: str
@@ -124,24 +130,21 @@ def send_reset_password_email(
 
 
 async def reset_password(
-    schema: PasswordResetSchema,
+    data: PasswordResetSchema,
     token_reader: TokenReader,
-    password_validator: PasswordValidator,
-    password_hasher: PasswordHasher,
+    password_manager: PasswordManager,
     crud: UserCRUDProtocol,
 ) -> User:
-    token_payload = read_reset_password_token(schema.token, token_reader)
-    return await set_password(
-        token_payload.user_id,
-        token_payload.fingerprint,
-        schema.password,
-        password_validator,
-        password_hasher,
-        crud,
+    payload = _decode_reset_password_token(data.token, token_reader)
+    user = await _get_user_by_id(payload.user_id, crud)
+    _validate_token_fingerprint(
+        user.hashed_password, payload.fingerprint, password_manager.validator
     )
+    _validate_user_is_confirmed(user)
+    return await _set_password(user, data.password, password_manager.hasher, crud)
 
 
-def read_reset_password_token(
+def _decode_reset_password_token(
     token: str, token_reader: TokenReader
 ) -> ResetPasswordTokenPayload:
     try:
@@ -160,26 +163,35 @@ def read_reset_password_token(
     )
 
 
-async def set_password(  # pylint: disable=too-many-arguments
-    user_id: UUID,
-    fingerprint: str,
-    password: SecretStr,
-    password_validator: PasswordValidator,
-    password_hasher: PasswordHasher,
-    crud: UserCRUDProtocol,
-) -> User:
+async def _get_user_by_id(user_id: UUID, crud: UserCRUDProtocol) -> User:
     try:
-        user = await crud.read_one(UserFilters(id=user_id))
+        return await crud.read_one(UserFilters(id=user_id))
     except NoObjectFoundError as exc:
         logger.info("User with id %r not found", user_id)
         raise UserNotFoundError from exc
-    is_valid, _ = password_validator(user.hashed_password, fingerprint)
+
+
+def _validate_token_fingerprint(
+    hashed_password: str, fingerprint: str, password_validator: PasswordValidator
+) -> None:
+    is_valid, _ = password_validator(hashed_password, fingerprint)
     if not is_valid:
         logger.info("The token has invalid fingerprint")
         raise InvalidResetPasswordTokenFingerprintError
+
+
+def _validate_user_is_confirmed(user: User) -> None:
     if not user.confirmed_email:
         logger.info("User %r not confirmed", user.email)
         raise UserNotConfirmedError
+
+
+async def _set_password(
+    user: User,
+    password: SecretStr,
+    password_hasher: PasswordHasher,
+    crud: UserCRUDProtocol,
+) -> User:
     return await crud.update_and_refresh(
         user,
         UserUpdateData(hashed_password=password_hasher(password.get_secret_value())),
@@ -189,19 +201,21 @@ async def set_password(  # pylint: disable=too-many-arguments
 async def change_password(
     user: User,
     data: PasswordChangeSchema,
-    password_validator: PasswordValidator,
-    password_hasher: PasswordHasher,
+    password_manager: PasswordManager,
     crud: UserCRUDProtocol,
 ) -> User:
-    is_valid, _ = password_validator(
-        data.current_password.get_secret_value(), user.hashed_password
+    _validate_password(
+        user,
+        data.current_password,
+        password_validator=password_manager.validator,
     )
+    return await _set_password(user, data.new_password, password_manager.hasher, crud)
+
+
+def _validate_password(
+    user: User, password: SecretStr, password_validator: PasswordValidator
+) -> None:
+    is_valid, _ = password_validator(password.get_secret_value(), user.hashed_password)
     if not is_valid:
         logger.info("Invalid password for the user %r", user.email)
-        raise InvalidPasswordError()
-    return await crud.update_and_refresh(
-        user,
-        UserUpdateData(
-            hashed_password=password_hasher(data.new_password.get_secret_value())
-        ),
-    )
+        raise InvalidPasswordError
