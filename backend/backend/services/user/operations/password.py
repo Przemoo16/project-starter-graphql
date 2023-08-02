@@ -15,7 +15,6 @@ from backend.services.user.exceptions import (
     InvalidPasswordError,
     InvalidResetPasswordTokenError,
     InvalidResetPasswordTokenFingerprintError,
-    UserNotConfirmedError,
     UserNotFoundError,
 )
 from backend.services.user.models import User
@@ -73,9 +72,6 @@ async def recover_password(
         user = await crud.read_one(UserFilters(email=email))
     except NoObjectFoundError:
         logger.info("User %r not found", email)
-        return
-    if not user.confirmed_email:
-        logger.info("User %r not confirmed", user.email)
         return
     success_callback(user)
 
@@ -140,7 +136,6 @@ async def reset_password(
     _validate_token_fingerprint(
         user.hashed_password, payload.fingerprint, password_manager.validator
     )
-    _validate_user_is_confirmed(user)
     return await _set_password(user, data.password, password_manager.hasher, crud)
 
 
@@ -178,12 +173,6 @@ def _validate_token_fingerprint(
     if not is_valid:
         logger.info("The token has invalid fingerprint")
         raise InvalidResetPasswordTokenFingerprintError
-
-
-def _validate_user_is_confirmed(user: User) -> None:
-    if not user.confirmed_email:
-        logger.info("User %r not confirmed", user.email)
-        raise UserNotConfirmedError
 
 
 async def _set_password(

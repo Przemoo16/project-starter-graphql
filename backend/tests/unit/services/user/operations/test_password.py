@@ -10,7 +10,6 @@ from backend.services.user.exceptions import (
     InvalidPasswordError,
     InvalidResetPasswordTokenError,
     InvalidResetPasswordTokenFingerprintError,
-    UserNotConfirmedError,
     UserNotFoundError,
 )
 from backend.services.user.models import User
@@ -23,7 +22,7 @@ from backend.services.user.operations.password import (
     send_reset_password_email,
 )
 from backend.services.user.schemas import PasswordChangeSchema, PasswordResetSchema
-from tests.unit.helpers.user import UserCRUD, create_confirmed_user, create_user
+from tests.unit.helpers.user import UserCRUD, create_user
 
 
 @pytest.fixture(name="password_manager")
@@ -40,7 +39,7 @@ def password_manager_fixture() -> PasswordManager:
 @pytest.mark.anyio()
 async def test_recover_password() -> None:
     email = "test@email.com"
-    crud = UserCRUD(existing_user=create_confirmed_user(email="test@email.com"))
+    crud = UserCRUD(existing_user=create_user(email="test@email.com"))
     callback_called = False
 
     def callback(_: User) -> None:
@@ -56,21 +55,6 @@ async def test_recover_password() -> None:
 async def test_recover_password_user_not_found() -> None:
     email = "test@email.com"
     crud = UserCRUD()
-    callback_called = False
-
-    def callback(_: User) -> None:
-        nonlocal callback_called
-        callback_called = True
-
-    await recover_password(email, crud, callback)
-
-    assert not callback_called
-
-
-@pytest.mark.anyio()
-async def test_recover_password_user_not_confirmed() -> None:
-    email = "test@email.com"
-    crud = UserCRUD(existing_user=create_user(email="test@email.com"))
     callback_called = False
 
     def callback(_: User) -> None:
@@ -148,7 +132,7 @@ async def test_reset_password(password_manager: PasswordManager) -> None:
     password_manager.hasher = hash_password
 
     crud = UserCRUD(
-        existing_user=create_confirmed_user(
+        existing_user=create_user(
             id=UUID("6d9c79d6-9641-4746-92d9-2cc9ebdca941"),
             hashed_password="hashed_password",
         )
@@ -227,33 +211,10 @@ async def test_reset_password_invalid_fingerprint(
     password_manager.validator = validate_password
 
     crud = UserCRUD(
-        existing_user=create_confirmed_user(
-            id=UUID("6d9c79d6-9641-4746-92d9-2cc9ebdca941")
-        )
-    )
-
-    with pytest.raises(InvalidResetPasswordTokenFingerprintError):
-        await reset_password(data, read_token, password_manager, crud)
-
-
-@pytest.mark.anyio()
-async def test_reset_password_user_not_confirmed(
-    password_manager: PasswordManager,
-) -> None:
-    data = PasswordResetSchema(token="test-token", password="plain_password")
-
-    def read_token(_: str) -> dict[str, str]:
-        return {
-            "sub": "6d9c79d6-9641-4746-92d9-2cc9ebdca941",
-            "fingerprint": "test-fingerprint",
-            "type": "reset-password",
-        }
-
-    crud = UserCRUD(
         existing_user=create_user(id=UUID("6d9c79d6-9641-4746-92d9-2cc9ebdca941"))
     )
 
-    with pytest.raises(UserNotConfirmedError):
+    with pytest.raises(InvalidResetPasswordTokenFingerprintError):
         await reset_password(data, read_token, password_manager, crud)
 
 

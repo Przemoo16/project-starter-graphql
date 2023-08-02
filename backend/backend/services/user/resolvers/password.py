@@ -16,7 +16,6 @@ from backend.services.user.exceptions import (
     InvalidPasswordError,
     InvalidResetPasswordTokenError,
     InvalidResetPasswordTokenFingerprintError,
-    UserNotConfirmedError,
     UserNotFoundError,
 )
 from backend.services.user.models import User
@@ -80,7 +79,6 @@ async def reset_password_resolver(
         InvalidResetPasswordTokenError,
         UserNotFoundError,
         InvalidResetPasswordTokenFingerprintError,
-        UserNotConfirmedError,
     ):
         return ResetPasswordFailure(problems=[InvalidResetPasswordTokenProblem()])
     return ResetPasswordSuccess()

@@ -81,14 +81,10 @@ class RefreshTokenError(Exception):
     pass
 
 
-async def refresh_token_resolver(info: Info, token: str) -> RefreshTokenResponse:
-    crud = UserCRUD(model=User, session=info.context.session)
-
+async def refresh_token_resolver(token: str) -> RefreshTokenResponse:
     try:
-        access_token = await refresh_token(
-            token, TOKEN_READER, ACCESS_TOKEN_CREATOR, crud
-        )
-    except (InvalidRefreshTokenError, UserNotFoundError, UserNotConfirmedError) as exc:
+        access_token = await refresh_token(token, TOKEN_READER, ACCESS_TOKEN_CREATOR)
+    except InvalidRefreshTokenError as exc:
         msg = "Invalid token"
         raise RefreshTokenError(msg) from exc
     return RefreshTokenResponse(
