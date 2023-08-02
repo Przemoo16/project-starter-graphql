@@ -15,8 +15,9 @@ from backend.services.user.exceptions import (
 from backend.services.user.models import User
 from backend.services.user.operations.password import (
     PasswordManager,
+    ResetPasswordEmailData,
+    ResetPasswordUserData,
     change_password,
-    create_reset_password_token,
     recover_password,
     reset_password,
     send_reset_password_email,
@@ -66,33 +67,19 @@ async def test_recover_password_user_not_found() -> None:
     assert not callback_called
 
 
-def test_create_reset_password_token() -> None:
-    user_id = UUID("6d9c79d6-9641-4746-92d9-2cc9ebdca941")
-    user_password = "hashed_password"
+def test_send_reset_password_email() -> None:
+    message_result = {}
+
+    user_data = ResetPasswordUserData(
+        user_id=UUID("6d9c79d6-9641-4746-92d9-2cc9ebdca941"),
+        user_password="hashed_password",
+    )
+
+    def create_token(payload: Mapping[str, Any]) -> str:
+        return "-".join(f"{key}:{value}" for key, value in payload.items())
 
     def hash_password(_: str) -> str:
         return "again_hashed_password"
-
-    def create_token(payload: Mapping[str, Any]) -> str:
-        return (
-            f"sub:{payload['sub']}-fingerprint:{payload['fingerprint']}-"
-            f"type:{payload['type']}"
-        )
-
-    token = create_reset_password_token(
-        user_id, user_password, hash_password, create_token
-    )
-
-    assert token == (
-        "sub:6d9c79d6-9641-4746-92d9-2cc9ebdca941-"
-        "fingerprint:again_hashed_password-type:reset-password"
-    )
-
-
-def test_send_reset_password_email() -> None:
-    token = "test-token"
-    url_template = "http://test/{token}"
-    message_result = {}
 
     def load_template(name: str, **kwargs: Any) -> str:
         return f"{name} {kwargs}"
@@ -100,19 +87,26 @@ def test_send_reset_password_email() -> None:
     def send_email(message: HTMLMessage) -> None:
         nonlocal message_result
         message_result = {
-            "subject": message.subject,
             "html_message": message.html_message,
             "plain_message": message.plain_message,
         }
 
-    send_reset_password_email(token, url_template, load_template, send_email)
-
-    assert message_result["subject"]
-    assert (
-        message_result["html_message"]
-        == "reset-password.html {'link': 'http://test/test-token'}"
+    email_data = ResetPasswordEmailData(
+        url_template="http://test/{token}",
+        template_loader=load_template,
+        email_sender=send_email,
     )
-    assert "http://test/test-token" in message_result["plain_message"]
+
+    send_reset_password_email(user_data, create_token, hash_password, email_data)
+
+    assert message_result["html_message"] == (
+        "reset-password.html {'link': 'http://test/sub:6d9c79d6-9641-4746-92d9-"
+        "2cc9ebdca941-fingerprint:again_hashed_password-type:reset-password'}"
+    )
+    assert (
+        "http://test/sub:6d9c79d6-9641-4746-92d9-2cc9ebdca941-"
+        "fingerprint:again_hashed_password-type:reset-password"
+    ) in message_result["plain_message"]
 
 
 @pytest.mark.anyio()
