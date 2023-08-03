@@ -14,8 +14,8 @@ from backend.services.user.exceptions import (
     UserNotFoundError,
 )
 from backend.services.user.operations.auth import (
+    AuthTokensManager,
     PasswordManager,
-    TokensManager,
     get_confirmed_user_from_headers,
     login,
     refresh_token,
@@ -40,8 +40,8 @@ def password_manager_fixture() -> PasswordManager:
 
 
 @pytest.fixture(name="tokens_manager")
-def tokens_manager_fixture() -> TokensManager:
-    return TokensManager(
+def tokens_manager_fixture() -> AuthTokensManager:
+    return AuthTokensManager(
         access_token_creator=create_test_token, refresh_token_creator=create_test_token
     )
 
@@ -53,7 +53,7 @@ async def test_login_create_tokens(password_manager: PasswordManager) -> None:
     def create_token(payload: Mapping[str, Any]) -> str:
         return "-".join(f"{key}:{value}" for key, value in payload.items())
 
-    tokens_manager = TokensManager(
+    tokens_manager = AuthTokensManager(
         access_token_creator=create_token,
         refresh_token_creator=create_token,
     )
@@ -73,7 +73,7 @@ async def test_login_create_tokens(password_manager: PasswordManager) -> None:
 
 @pytest.mark.anyio()
 async def test_login_update_password_hash(
-    password_manager: PasswordManager, tokens_manager: TokensManager
+    password_manager: PasswordManager, tokens_manager: AuthTokensManager
 ) -> None:
     credentials = CredentialsSchema(email="test@email.com", password="plain_password")
 
@@ -93,7 +93,7 @@ async def test_login_update_password_hash(
 
 @pytest.mark.anyio()
 async def test_login_do_not_update_password_hash(
-    password_manager: PasswordManager, tokens_manager: TokensManager
+    password_manager: PasswordManager, tokens_manager: AuthTokensManager
 ) -> None:
     credentials = CredentialsSchema(email="test@email.com", password="plain_password")
 
@@ -113,7 +113,7 @@ async def test_login_do_not_update_password_hash(
 
 @pytest.mark.anyio()
 async def test_login_update_last_login(
-    password_manager: PasswordManager, tokens_manager: TokensManager
+    password_manager: PasswordManager, tokens_manager: AuthTokensManager
 ) -> None:
     credentials = CredentialsSchema(email="test@email.com", password="plain_password")
     user = create_confirmed_user(email="test@email.com", last_login=None)
@@ -126,7 +126,7 @@ async def test_login_update_last_login(
 
 @pytest.mark.anyio()
 async def test_login_user_not_found(
-    password_manager: PasswordManager, tokens_manager: TokensManager
+    password_manager: PasswordManager, tokens_manager: AuthTokensManager
 ) -> None:
     credentials = CredentialsSchema(email="test@email.com", password="plain_password")
     crud = UserCRUD()
@@ -137,7 +137,7 @@ async def test_login_user_not_found(
 
 @pytest.mark.anyio()
 async def test_login_user_not_found_password_hasher_called(
-    password_manager: PasswordManager, tokens_manager: TokensManager
+    password_manager: PasswordManager, tokens_manager: AuthTokensManager
 ) -> None:
     credentials = CredentialsSchema(email="test@email.com", password="plain_password")
     hasher_called = False
@@ -157,7 +157,7 @@ async def test_login_user_not_found_password_hasher_called(
 
 @pytest.mark.anyio()
 async def test_login_user_found_password_hasher_not_called(
-    password_manager: PasswordManager, tokens_manager: TokensManager
+    password_manager: PasswordManager, tokens_manager: AuthTokensManager
 ) -> None:
     credentials = CredentialsSchema(email="test@email.com", password="plain_password")
     hasher_called = False
@@ -177,7 +177,7 @@ async def test_login_user_found_password_hasher_not_called(
 
 @pytest.mark.anyio()
 async def test_login_invalid_password(
-    password_manager: PasswordManager, tokens_manager: TokensManager
+    password_manager: PasswordManager, tokens_manager: AuthTokensManager
 ) -> None:
     credentials = CredentialsSchema(email="test@email.com", password="plain_password")
 
@@ -193,7 +193,7 @@ async def test_login_invalid_password(
 
 @pytest.mark.anyio()
 async def test_login_user_not_confirmed(
-    password_manager: PasswordManager, tokens_manager: TokensManager
+    password_manager: PasswordManager, tokens_manager: AuthTokensManager
 ) -> None:
     credentials = CredentialsSchema(email="test@email.com", password="plain_password")
     crud = UserCRUD(existing_user=create_user(email="test@email.com"))

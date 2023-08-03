@@ -20,8 +20,8 @@ from backend.services.user.exceptions import (
 )
 from backend.services.user.models import User
 from backend.services.user.operations.auth import (
+    AuthTokensManager,
     PasswordManager,
-    TokensManager,
     login,
     refresh_token,
 )
@@ -49,14 +49,14 @@ REFRESH_TOKEN_CREATOR = partial(
 async def login_resolver(
     info: Info, login_input: Annotated[LoginInput, argument(name="input")]
 ) -> LoginResponse:
-    credentials = CredentialsSchema(
+    schema = CredentialsSchema(
         email=login_input.username, password=login_input.password
     )
     password_manager = PasswordManager(
         validator=PASSWORD_VALIDATOR,
         hasher=PASSWORD_HASHER,
     )
-    tokens_manager = TokensManager(
+    tokens_manager = AuthTokensManager(
         access_token_creator=ACCESS_TOKEN_CREATOR,
         refresh_token_creator=REFRESH_TOKEN_CREATOR,
     )
@@ -64,7 +64,7 @@ async def login_resolver(
 
     try:
         access_token, refresh_token_ = await login(
-            credentials, password_manager, tokens_manager, crud
+            schema, password_manager, tokens_manager, crud
         )
     except (UserNotFoundError, InvalidPasswordError):
         return LoginFailure(problems=[InvalidCredentialsProblem()])

@@ -31,7 +31,7 @@ EMAIL_CONFIRMATION_TOKEN_TYPE = "email-confirmation"  # nosec
 
 
 @dataclass
-class ConfirmationUserData:
+class ConfirmationTokenData:
     user_id: UUID
     user_email: str
 
@@ -50,22 +50,22 @@ class ConfirmationTokenPayload:
 
 
 def send_confirmation_email(
-    user_data: ConfirmationUserData,
+    token_data: ConfirmationTokenData,
     token_creator: TokenCreator,
     email_data: ConfirmationEmailData,
 ) -> None:
-    token = _create_email_confirmation_token(user_data, token_creator)
+    token = _create_email_confirmation_token(token_data, token_creator)
     link = _construct_link(token, email_data.url_template)
-    _send_email(link, email_data.template_loader, email_data.email_sender)
+    _send_confirmation_email(link, email_data.template_loader, email_data.email_sender)
 
 
 def _create_email_confirmation_token(
-    user_data: ConfirmationUserData, token_creator: TokenCreator
+    token_data: ConfirmationTokenData, token_creator: TokenCreator
 ) -> str:
     return token_creator(
         {
-            "sub": str(user_data.user_id),
-            "email": user_data.user_email,
+            "sub": str(token_data.user_id),
+            "email": token_data.user_email,
             "type": EMAIL_CONFIRMATION_TOKEN_TYPE,
         }
     )
@@ -75,7 +75,7 @@ def _construct_link(token: str, url_template: str) -> str:
     return url_template.format(token=token)
 
 
-def _send_email(
+def _send_confirmation_email(
     link: str,
     template_loader: TemplateLoader,
     email_sender: Callable[[HTMLMessage], None],
@@ -96,7 +96,7 @@ async def confirm_email(
     payload = _decode_email_confirmation_token(token, token_reader)
     user = await _get_user_by_id_and_email(payload.user_id, payload.user_email, crud)
     _validate_user_is_not_already_confirmed(user)
-    return await _confirm_user_email(user, crud)
+    return await _confirm_email(user, crud)
 
 
 def _decode_email_confirmation_token(
@@ -132,5 +132,5 @@ def _validate_user_is_not_already_confirmed(user: User) -> None:
         raise UserAlreadyConfirmedError
 
 
-async def _confirm_user_email(user: User, crud: UserCRUDProtocol) -> User:
+async def _confirm_email(user: User, crud: UserCRUDProtocol) -> User:
     return await crud.update_and_refresh(user, UserUpdateData(confirmed_email=True))

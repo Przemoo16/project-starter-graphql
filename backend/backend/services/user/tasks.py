@@ -13,12 +13,12 @@ from backend.services.user.context import PASSWORD_HASHER, TOKEN_CREATOR
 from backend.services.user.jinja import load_template
 from backend.services.user.operations.email import (
     ConfirmationEmailData,
-    ConfirmationUserData,
+    ConfirmationTokenData,
     send_confirmation_email,
 )
 from backend.services.user.operations.password import (
     ResetPasswordEmailData,
-    ResetPasswordUserData,
+    ResetPasswordTokenData,
     send_reset_password_email,
 )
 
@@ -46,7 +46,7 @@ SMTP_SERVER = SMTPServer(
 
 @celery_app.task  # type: ignore[misc]
 def send_confirmation_email_task(user_id: UUID, user_email: str) -> None:
-    token_data = ConfirmationUserData(user_id=user_id, user_email=user_email)
+    token_data = ConfirmationTokenData(user_id=user_id, user_email=user_email)
     email_data = ConfirmationEmailData(
         url_template=user_settings.email_confirmation_url_template,
         template_loader=load_template,
@@ -66,7 +66,7 @@ def send_confirmation_email_task(user_id: UUID, user_email: str) -> None:
 def send_reset_password_email_task(
     user_id: UUID, user_email: str, user_password: str
 ) -> None:
-    token_data = ResetPasswordUserData(user_id=user_id, user_password=user_password)
+    token_data = ResetPasswordTokenData(user_id=user_id, user_password=user_password)
     email_data = ResetPasswordEmailData(
         url_template=user_settings.reset_password_url_template,
         template_loader=load_template,

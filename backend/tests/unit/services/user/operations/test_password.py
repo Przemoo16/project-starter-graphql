@@ -16,7 +16,7 @@ from backend.services.user.models import User
 from backend.services.user.operations.password import (
     PasswordManager,
     ResetPasswordEmailData,
-    ResetPasswordUserData,
+    ResetPasswordTokenData,
     change_password,
     recover_password,
     reset_password,
@@ -70,7 +70,7 @@ async def test_recover_password_user_not_found() -> None:
 def test_send_reset_password_email() -> None:
     message_result = {}
 
-    user_data = ResetPasswordUserData(
+    token_data = ResetPasswordTokenData(
         user_id=UUID("6d9c79d6-9641-4746-92d9-2cc9ebdca941"),
         user_password="hashed_password",
     )
@@ -97,7 +97,7 @@ def test_send_reset_password_email() -> None:
         email_sender=send_email,
     )
 
-    send_reset_password_email(user_data, create_token, hash_password, email_data)
+    send_reset_password_email(token_data, create_token, hash_password, email_data)
 
     assert message_result["html_message"] == (
         "reset-password.html {'link': 'http://test/sub:6d9c79d6-9641-4746-92d9-"
