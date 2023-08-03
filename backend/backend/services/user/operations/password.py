@@ -37,11 +37,9 @@ RESET_PASSWORD_TOKEN_TYPE = "reset-password"  # nosec
 
 
 @dataclass
-class ResetPasswordTokenData:
+class ResetPasswordUserData:
     user_id: UUID
     user_password: str
-    password_hasher: PasswordHasher
-    token_creator: TokenCreator
 
 
 @dataclass
@@ -76,45 +74,44 @@ async def recover_password(
     success_callback(user)
 
 
-def send_reset_password_token(
-    token_data: ResetPasswordTokenData, email_data: ResetPasswordEmailData
+def send_reset_password_email(
+    user_data: ResetPasswordUserData,
+    token_creator: TokenCreator,
+    password_hasher: PasswordHasher,
+    email_data: ResetPasswordEmailData,
 ) -> None:
-    token = create_reset_password_token(
-        token_data.user_id,
-        token_data.user_password,
-        token_data.password_hasher,
-        token_data.token_creator,
-    )
-    send_reset_password_email(
-        token,
-        email_data.url_template,
+    token = _create_reset_password_token(user_data, token_creator, password_hasher)
+    link = _construct_link(token, email_data.url_template)
+    _send_email(
+        link,
         email_data.template_loader,
         email_data.email_sender,
     )
 
 
-def create_reset_password_token(
-    user_id: UUID,
-    user_password: str,
-    password_hasher: PasswordHasher,
+def _create_reset_password_token(
+    user_data: ResetPasswordUserData,
     token_creator: TokenCreator,
+    password_hasher: PasswordHasher,
 ) -> str:
     return token_creator(
         {
-            "sub": str(user_id),
-            "fingerprint": password_hasher(user_password),
+            "sub": str(user_data.user_id),
+            "fingerprint": password_hasher(user_data.user_password),
             "type": RESET_PASSWORD_TOKEN_TYPE,
         }
     )
 
 
-def send_reset_password_email(
-    token: str,
-    url_template: str,
+def _construct_link(token: str, url_template: str) -> str:
+    return url_template.format(token=token)
+
+
+def _send_email(
+    link: str,
     template_loader: TemplateLoader,
     email_sender: Callable[[HTMLMessage], None],
 ) -> None:
-    link = url_template.format(token=token)
     subject = _("Reset password")
     html_message = template_loader("reset-password.html", link=link)
     plain_message = _("Click the link to reset your password: {link}").format(link=link)

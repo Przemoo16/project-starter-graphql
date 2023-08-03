@@ -31,10 +31,9 @@ EMAIL_CONFIRMATION_TOKEN_TYPE = "email-confirmation"  # nosec
 
 
 @dataclass
-class ConfirmationTokenData:
+class ConfirmationUserData:
     user_id: UUID
     user_email: str
-    token_creator: TokenCreator
 
 
 @dataclass
@@ -50,39 +49,37 @@ class ConfirmationTokenPayload:
     user_email: str
 
 
-def send_email_confirmation_token(
-    token_data: ConfirmationTokenData, email_data: ConfirmationEmailData
+def send_confirmation_email(
+    user_data: ConfirmationUserData,
+    token_creator: TokenCreator,
+    email_data: ConfirmationEmailData,
 ) -> None:
-    token = create_email_confirmation_token(
-        token_data.user_id, token_data.user_email, token_data.token_creator
-    )
-    send_confirmation_email(
-        token,
-        email_data.url_template,
-        email_data.template_loader,
-        email_data.email_sender,
-    )
+    token = _create_email_confirmation_token(user_data, token_creator)
+    link = _construct_link(token, email_data.url_template)
+    _send_email(link, email_data.template_loader, email_data.email_sender)
 
 
-def create_email_confirmation_token(
-    user_id: UUID, user_email: str, token_creator: TokenCreator
+def _create_email_confirmation_token(
+    user_data: ConfirmationUserData, token_creator: TokenCreator
 ) -> str:
     return token_creator(
         {
-            "sub": str(user_id),
-            "email": user_email,
+            "sub": str(user_data.user_id),
+            "email": user_data.user_email,
             "type": EMAIL_CONFIRMATION_TOKEN_TYPE,
         }
     )
 
 
-def send_confirmation_email(
-    token: str,
-    url_template: str,
+def _construct_link(token: str, url_template: str) -> str:
+    return url_template.format(token=token)
+
+
+def _send_email(
+    link: str,
     template_loader: TemplateLoader,
     email_sender: Callable[[HTMLMessage], None],
 ) -> None:
-    link = url_template.format(token=token)
     subject = _("Confirm email")
     html_message = template_loader("email-confirmation.html", link=link)
     plain_message = _("Click the link to confirm your email: {link}").format(link=link)
