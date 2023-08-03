@@ -40,7 +40,7 @@ async def test_create_user_already_exists() -> None:
 
 
 @pytest.mark.anyio()
-async def test_create_user_callback_called() -> None:
+async def test_create_user_success_callback_called() -> None:
     data = UserCreateSchema(email="test@email.com", password="plain_password")
     crud = UserCRUD()
     callback_called = False
@@ -55,7 +55,7 @@ async def test_create_user_callback_called() -> None:
 
 
 @pytest.mark.anyio()
-async def test_create_user_callback_not_called() -> None:
+async def test_create_user_success_callback_not_called() -> None:
     data = UserCreateSchema(email="test@email.com", password="plain_password")
     crud = UserCRUD(existing_user=create_user_helper(email="test@email.com"))
     callback_called = False

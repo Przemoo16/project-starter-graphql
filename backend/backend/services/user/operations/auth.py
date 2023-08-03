@@ -40,7 +40,7 @@ class PasswordManager:
 
 
 @dataclass
-class TokensManager:
+class AuthTokensManager:
     access_token_creator: TokenCreator
     refresh_token_creator: TokenCreator
 
@@ -58,7 +58,7 @@ class RefreshTokenPayload:
 async def login(
     credentials: CredentialsSchema,
     password_manager: PasswordManager,
-    tokens_manager: TokensManager,
+    tokens_manager: AuthTokensManager,
     crud: UserCRUDProtocol,
 ) -> tuple[str, str]:
     user = await _authenticate_user(credentials, password_manager, crud)
@@ -128,7 +128,7 @@ async def _login_user(user: User, crud: UserCRUDProtocol) -> User:
 
 
 def _create_auth_tokens(
-    user_id: UUID, tokens_manager: TokensManager
+    user_id: UUID, tokens_manager: AuthTokensManager
 ) -> tuple[str, str]:
     return (
         _create_access_token(user_id, tokens_manager.access_token_creator),

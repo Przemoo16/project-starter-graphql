@@ -13,17 +13,17 @@ from backend.services.user.exceptions import (
 )
 from backend.services.user.operations.email import (
     ConfirmationEmailData,
-    ConfirmationUserData,
+    ConfirmationTokenData,
     confirm_email,
     send_confirmation_email,
 )
 from tests.unit.helpers.user import UserCRUD, create_confirmed_user, create_user
 
 
-def test_send_email_confirmation_token() -> None:
+def test_send_confirmation_email() -> None:
     message_result = {}
 
-    user_data = ConfirmationUserData(
+    token_data = ConfirmationTokenData(
         user_id=UUID("6d9c79d6-9641-4746-92d9-2cc9ebdca941"),
         user_email="test@email.com",
     )
@@ -47,7 +47,7 @@ def test_send_email_confirmation_token() -> None:
         email_sender=send_email,
     )
 
-    send_confirmation_email(user_data, create_token, email_data)
+    send_confirmation_email(token_data, create_token, email_data)
 
     assert message_result["html_message"] == (
         "email-confirmation.html {'link': 'http://test/sub:6d9c79d6-9641-4746-92d9-"

@@ -37,7 +37,7 @@ RESET_PASSWORD_TOKEN_TYPE = "reset-password"  # nosec
 
 
 @dataclass
-class ResetPasswordUserData:
+class ResetPasswordTokenData:
     user_id: UUID
     user_password: str
 
@@ -75,14 +75,14 @@ async def recover_password(
 
 
 def send_reset_password_email(
-    user_data: ResetPasswordUserData,
+    token_data: ResetPasswordTokenData,
     token_creator: TokenCreator,
     password_hasher: PasswordHasher,
     email_data: ResetPasswordEmailData,
 ) -> None:
-    token = _create_reset_password_token(user_data, token_creator, password_hasher)
+    token = _create_reset_password_token(token_data, token_creator, password_hasher)
     link = _construct_link(token, email_data.url_template)
-    _send_email(
+    _send_reset_password_email(
         link,
         email_data.template_loader,
         email_data.email_sender,
@@ -90,14 +90,14 @@ def send_reset_password_email(
 
 
 def _create_reset_password_token(
-    user_data: ResetPasswordUserData,
+    token_data: ResetPasswordTokenData,
     token_creator: TokenCreator,
     password_hasher: PasswordHasher,
 ) -> str:
     return token_creator(
         {
-            "sub": str(user_data.user_id),
-            "fingerprint": password_hasher(user_data.user_password),
+            "sub": str(token_data.user_id),
+            "fingerprint": password_hasher(token_data.user_password),
             "type": RESET_PASSWORD_TOKEN_TYPE,
         }
     )
@@ -107,7 +107,7 @@ def _construct_link(token: str, url_template: str) -> str:
     return url_template.format(token=token)
 
 
-def _send_email(
+def _send_reset_password_email(
     link: str,
     template_loader: TemplateLoader,
     email_sender: Callable[[HTMLMessage], None],
