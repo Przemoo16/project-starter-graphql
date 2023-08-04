@@ -6,7 +6,6 @@ services:
       target: dev
     networks:
       - backend-test
-      - frontend-test
     volumes:
       - type: bind
         source: ./backend
@@ -68,4 +67,3 @@ services:
 
 networks:
   backend-test:
-  frontend-test:
