@@ -3,7 +3,8 @@ from typing import Annotated
 
 import strawberry
 
-from backend.libs.api.types import Problem, User
+from backend.libs.api.types import Problem
+from backend.services.user.types.user import User
 
 
 @strawberry.type

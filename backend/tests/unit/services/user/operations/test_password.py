@@ -234,7 +234,7 @@ async def test_change_password(password_manager: PasswordManager) -> None:
 async def test_change_password_invalid_password(
     password_manager: PasswordManager,
 ) -> None:
-    user = create_user(hashed_password="plain_password")
+    user = create_user()
     data = PasswordChangeSchema(
         current_password="plain_password", new_password="new_password"
     )

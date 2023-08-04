@@ -47,12 +47,12 @@ logger = logging.getLogger(__name__)
 async def recover_password_resolver(info: Info, email: str) -> RecoverPasswordResponse:
     crud = UserCRUD(model=User, session=info.context.session)
 
-    def send_recovery_email(user: User) -> None:
+    def send_reset_password_email(user: User) -> None:
         send_reset_password_email_task.delay(
             user_id=user.id, user_email=user.email, user_password=user.hashed_password
         )
 
-    await recover_password(email, crud, send_recovery_email)
+    await recover_password(email, crud, send_reset_password_email)
     return RecoverPasswordResponse()
 
 

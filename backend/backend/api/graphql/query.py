@@ -1,7 +1,7 @@
 import strawberry
 
-from backend.libs.api.types import User
 from backend.services.user.resolvers.user import get_me_resolver
+from backend.services.user.types.user import User
 
 
 @strawberry.type

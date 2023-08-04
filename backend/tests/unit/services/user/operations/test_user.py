@@ -18,7 +18,9 @@ def hash_test_password(_: str) -> str:
 
 @pytest.mark.anyio()
 async def test_create_user() -> None:
-    data = UserCreateSchema(email="test@email.com", password="plain_password")
+    data = UserCreateSchema(
+        email="test@email.com", password="plain_password", full_name="Test User"
+    )
     crud = UserCRUD()
 
     def hash_password(_: str) -> str:
@@ -28,11 +30,14 @@ async def test_create_user() -> None:
 
     assert user.email == "test@email.com"
     assert user.hashed_password == "hashed_password"
+    assert user.full_name == "Test User"
 
 
 @pytest.mark.anyio()
 async def test_create_user_already_exists() -> None:
-    data = UserCreateSchema(email="test@email.com", password="plain_password")
+    data = UserCreateSchema(
+        email="test@email.com", password="plain_password", full_name="Test User"
+    )
     crud = UserCRUD(existing_user=create_user_helper(email="test@email.com"))
 
     with pytest.raises(UserAlreadyExistsError):
@@ -41,7 +46,9 @@ async def test_create_user_already_exists() -> None:
 
 @pytest.mark.anyio()
 async def test_create_user_success_callback_called() -> None:
-    data = UserCreateSchema(email="test@email.com", password="plain_password")
+    data = UserCreateSchema(
+        email="test@email.com", password="plain_password", full_name="Test User"
+    )
     crud = UserCRUD()
     callback_called = False
 
@@ -56,7 +63,9 @@ async def test_create_user_success_callback_called() -> None:
 
 @pytest.mark.anyio()
 async def test_create_user_success_callback_not_called() -> None:
-    data = UserCreateSchema(email="test@email.com", password="plain_password")
+    data = UserCreateSchema(
+        email="test@email.com", password="plain_password", full_name="Test User"
+    )
     crud = UserCRUD(existing_user=create_user_helper(email="test@email.com"))
     callback_called = False
 
@@ -71,69 +80,14 @@ async def test_create_user_success_callback_not_called() -> None:
 
 
 @pytest.mark.anyio()
-async def test_update_user_email() -> None:
-    data = UserUpdateSchema(email="updated@email.com")
-    user = create_user_helper(email="test@email.com", confirmed_email=True)
+async def test_update_user() -> None:
+    data = UserUpdateSchema(full_name="Updated User")
+    user = create_user_helper(full_name="Test User")
     crud = UserCRUD()
 
     updated_user = await update_user(user, data, crud)
 
-    assert updated_user.email == "updated@email.com"
-    assert updated_user.confirmed_email is False
-
-
-@pytest.mark.anyio()
-async def test_update_user_email_the_same_email_provided() -> None:
-    data = UserUpdateSchema(email="test@email.com")
-    user = create_user_helper(email="test@email.com", confirmed_email=True)
-    crud = UserCRUD()
-
-    updated_user = await update_user(user, data, crud)
-
-    assert updated_user.email == "test@email.com"
-    assert updated_user.confirmed_email is True
-
-
-@pytest.mark.anyio()
-async def test_update_user_email_already_exists() -> None:
-    data = UserUpdateSchema(email="updated@email.com")
-    user = create_user_helper(email="test@email.com")
-    crud = UserCRUD(existing_user=create_user_helper(email="updated@email.com"))
-
-    with pytest.raises(UserAlreadyExistsError):
-        await update_user(user, data, crud)
-
-
-@pytest.mark.anyio()
-async def test_update_user_email_callback_called() -> None:
-    data = UserUpdateSchema(email="updated@email.com")
-    user = create_user_helper(email="test@email.com")
-    crud = UserCRUD()
-    callback_called = False
-
-    def callback(_: User) -> None:
-        nonlocal callback_called
-        callback_called = True
-
-    await update_user(user, data, crud, callback)
-
-    assert callback_called
-
-
-@pytest.mark.anyio()
-async def test_update_user_email_callback_not_called() -> None:
-    data = UserUpdateSchema()
-    user = create_user_helper()
-    crud = UserCRUD()
-    callback_called = False
-
-    def callback(_: User) -> None:
-        nonlocal callback_called
-        callback_called = True
-
-    await update_user(user, data, crud, callback)
-
-    assert not callback_called
+    assert updated_user.full_name == "Updated User"
 
 
 @pytest.mark.anyio()

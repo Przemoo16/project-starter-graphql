@@ -1,5 +1,4 @@
 from backend.libs.api.context import Info
-from backend.libs.api.types import User
 from backend.services.user.context import TOKEN_READER
 from backend.services.user.crud import UserCRUD
 from backend.services.user.exceptions import (
@@ -15,6 +14,7 @@ from backend.services.user.types.email import (
     InvalidEmailConfirmationTokenProblem,
     UserAlreadyConfirmedProblem,
 )
+from backend.services.user.types.user import User
 
 
 async def confirm_email_resolver(info: Info, token: str) -> ConfirmEmailResponse:
@@ -26,4 +26,4 @@ async def confirm_email_resolver(info: Info, token: str) -> ConfirmEmailResponse
         return ConfirmEmailFailure(problems=[InvalidEmailConfirmationTokenProblem()])
     except UserAlreadyConfirmedError:
         return ConfirmEmailFailure(problems=[UserAlreadyConfirmedProblem()])
-    return User(id=user.id, email=user.email)
+    return User.from_model(user)

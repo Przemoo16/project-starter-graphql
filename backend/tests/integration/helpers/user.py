@@ -21,6 +21,8 @@ async def create_user(session: AsyncSession, **kwargs: Any) -> User:
         kwargs["email"] = "test_helper_user@email.com"
     if "hashed_password" not in kwargs:
         kwargs["hashed_password"] = "test_helper_hashed_password"
+    if "full_name" not in kwargs:
+        kwargs["full_name"] = "Test Helper User"
     user = User(**kwargs)
     return await save_to_db(session, user)
 

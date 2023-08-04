@@ -4,7 +4,7 @@ from pydantic import ValidationError
 from strawberry import argument
 
 from backend.libs.api.context import Info
-from backend.libs.api.types import User, convert_to_dict, from_pydantic_error
+from backend.libs.api.types import convert_to_dict, from_pydantic_error
 from backend.services.user.context import PASSWORD_HASHER
 from backend.services.user.crud import UserCRUD
 from backend.services.user.exceptions import UserAlreadyExistsError
@@ -19,13 +19,10 @@ from backend.services.user.types.user import (
     UpdateMeFailure,
     UpdateMeInput,
     UpdateMeResponse,
+    User,
     UserAlreadyExistsProblem,
     UserCreateInput,
 )
-
-
-def send_confirmation_email(user: UserModel) -> None:
-    send_confirmation_email_task.delay(user_id=user.id, user_email=user.email)
 
 
 async def create_user_resolver(
@@ -38,18 +35,21 @@ async def create_user_resolver(
 
     crud = UserCRUD(model=UserModel, session=info.context.session)
 
+    def send_confirmation_email(user: UserModel) -> None:
+        send_confirmation_email_task.delay(user_id=user.id, user_email=user.email)
+
     try:
         created_user = await create_user(
             schema, PASSWORD_HASHER, crud, send_confirmation_email
         )
     except UserAlreadyExistsError:
         return CreateUserFailure(problems=[UserAlreadyExistsProblem()])
-    return User(id=created_user.id, email=created_user.email)
+    return User.from_model(created_user)
 
 
 async def get_me_resolver(info: Info) -> User:
     user = await info.context.user
-    return User(id=user.id, email=user.email)
+    return User.from_model(user)
 
 
 async def update_me_resolver(
@@ -64,11 +64,8 @@ async def update_me_resolver(
 
     crud = UserCRUD(model=UserModel, session=info.context.session)
 
-    try:
-        updated_user = await update_user(user, schema, crud, send_confirmation_email)
-    except UserAlreadyExistsError:
-        return UpdateMeFailure(problems=[UserAlreadyExistsProblem()])
-    return User(id=updated_user.id, email=updated_user.email)
+    updated_user = await update_user(user, schema, crud)
+    return User.from_model(updated_user)
 
 
 async def delete_me_resolver(info: Info) -> DeleteMeResponse:
