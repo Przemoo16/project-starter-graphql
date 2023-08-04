@@ -15,16 +15,13 @@ from tests.integration.helpers.user import (
 async def test_confirm_email(
     session: AsyncSession, auth_private_key: str, async_client: AsyncClient
 ) -> None:
-    user = await create_user(
-        session, id=UUID("6d9c79d6-9641-4746-92d9-2cc9ebdca941"), email="test@email.com"
-    )
+    user = await create_user(session, id=UUID("6d9c79d6-9641-4746-92d9-2cc9ebdca941"))
     token = create_email_confirmation_token(auth_private_key, user.id, user.email)
     query = """
       mutation ConfirmEmail($token: String!) {
         confirmEmail(token: $token) {
           ... on User {
             id
-            email
           }
         }
       }
@@ -38,7 +35,6 @@ async def test_confirm_email(
     data = response.json()["data"]["confirmEmail"]
     assert data == {
         "id": "6d9c79d6-9641-4746-92d9-2cc9ebdca941",
-        "email": "test@email.com",
     }
 
 
@@ -101,9 +97,7 @@ async def test_confirm_email_user_not_found(
 async def test_confirm_email_user_already_confirmed(
     session: AsyncSession, auth_private_key: str, async_client: AsyncClient
 ) -> None:
-    user = await create_confirmed_user(
-        session, id=UUID("6d9c79d6-9641-4746-92d9-2cc9ebdca941"), email="test@email.com"
-    )
+    user = await create_confirmed_user(session)
     token = create_email_confirmation_token(auth_private_key, user.id, user.email)
     query = """
       mutation ConfirmEmail($token: String!) {

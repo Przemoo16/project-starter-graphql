@@ -10,11 +10,13 @@ from backend.services.user.models import User
 class UserCreateData(BaseModel):
     email: str
     hashed_password: str
+    full_name: str
 
 
 class UserUpdateData(BaseModel):
     email: str | None = None
     hashed_password: str | None = None
+    full_name: str | None = None
     confirmed_email: bool | None = None
     last_login: datetime | None = None
 

@@ -8,10 +8,18 @@ user_settings = get_settings().user
 class UserCreateSchema(BaseModel):
     email: EmailStr
     password: SecretStr = Field(min_length=user_settings.password_min_length)
+    full_name: str = Field(
+        min_length=user_settings.full_name_min_length,
+        max_length=user_settings.full_name_max_length,
+    )
 
 
 class UserUpdateSchema(BaseModel):
-    email: EmailStr | None = None
+    full_name: str | None = Field(
+        default=None,
+        min_length=user_settings.full_name_min_length,
+        max_length=user_settings.full_name_max_length,
+    )
 
 
 class CredentialsSchema(BaseModel):
