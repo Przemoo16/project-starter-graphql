@@ -92,11 +92,11 @@ def _send_confirmation_email(
 
 async def confirm_email(
     token: str, token_reader: TokenReader, crud: UserCRUDProtocol
-) -> User:
+) -> None:
     payload = _decode_email_confirmation_token(token, token_reader)
     user = await _get_user_by_id_and_email(payload.user_id, payload.user_email, crud)
     _validate_user_is_not_already_confirmed(user)
-    return await _confirm_email(user, crud)
+    await _confirm_email(user, crud)
 
 
 def _decode_email_confirmation_token(
@@ -132,5 +132,5 @@ def _validate_user_is_not_already_confirmed(user: User) -> None:
         raise UserAlreadyConfirmedError
 
 
-async def _confirm_email(user: User, crud: UserCRUDProtocol) -> User:
-    return await crud.update_and_refresh(user, UserUpdateData(confirmed_email=True))
+async def _confirm_email(user: User, crud: UserCRUDProtocol) -> None:
+    await crud.update(user, UserUpdateData(confirmed_email=True))

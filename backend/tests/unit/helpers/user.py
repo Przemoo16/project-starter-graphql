@@ -1,7 +1,12 @@
+from dataclasses import asdict
 from typing import Any
 
-from backend.libs.db.crud import NoObjectFoundError
-from backend.services.user.crud import UserCreateData, UserFilters, UserUpdateData
+from backend.libs.db.crud import NoObjectFoundError, is_unset
+from backend.services.user.crud import (
+    UserCreateData,
+    UserFilters,
+    UserUpdateData,
+)
 from backend.services.user.models import User
 from tests.unit.stubs.crud.base import CRUDStub
 
@@ -28,24 +33,30 @@ class UserCRUD(  # pylint: disable=abstract-method
         self.existing_user = existing_user
 
     async def create_and_refresh(self, data: UserCreateData) -> User:
-        return create_user(**data.model_dump())
+        return create_user(**asdict(data))
 
     async def read_one(self, filters: UserFilters) -> User:
         if not self.existing_user:
             raise NoObjectFoundError
-        filters_dict = filters.model_dump(exclude_unset=True)
+        filters_dict = asdict(filters)
         if all(
             getattr(self.existing_user, field) == value
             for field, value in filters_dict.items()
+            if not is_unset(value)
         ):
             return self.existing_user
         raise NoObjectFoundError
 
-    async def update_and_refresh(self, obj: User, data: UserUpdateData) -> User:
-        data_dict = data.model_dump(exclude_unset=True)
+    async def update(self, obj: User, data: UserUpdateData) -> User:
+        data_dict = asdict(data)
         for field, value in data_dict.items():
+            if is_unset(value):
+                continue
             setattr(obj, field, value)
         return obj
+
+    async def update_and_refresh(self, obj: User, data: UserUpdateData) -> User:
+        return await self.update(obj, data)
 
     async def delete(self, obj: User) -> None:
         pass

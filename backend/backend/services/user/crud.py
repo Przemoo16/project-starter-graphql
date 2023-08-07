@@ -1,29 +1,31 @@
+from dataclasses import dataclass
 from datetime import datetime
 from uuid import UUID
 
-from pydantic import BaseModel
-
-from backend.libs.db.crud import CRUD, CRUDProtocol
+from backend.libs.db.crud import CRUD, UNSET, CRUDProtocol, UnsetType
 from backend.services.user.models import User
 
 
-class UserCreateData(BaseModel):
+@dataclass
+class UserCreateData:
     email: str
     hashed_password: str
     full_name: str
 
 
-class UserUpdateData(BaseModel):
-    email: str | None = None
-    hashed_password: str | None = None
-    full_name: str | None = None
-    confirmed_email: bool | None = None
-    last_login: datetime | None = None
+@dataclass
+class UserUpdateData:
+    email: str | UnsetType = UNSET
+    hashed_password: str | UnsetType = UNSET
+    full_name: str | UnsetType = UNSET
+    confirmed_email: bool | UnsetType = UNSET
+    last_login: datetime | UnsetType = UNSET
 
 
-class UserFilters(BaseModel):
-    id: UUID | None = None
-    email: str | None = None
+@dataclass
+class UserFilters:
+    id: UUID | UnsetType = UNSET
+    email: str | UnsetType = UNSET
 
 
 UserCRUDProtocol = CRUDProtocol[User, UserCreateData, UserUpdateData, UserFilters]

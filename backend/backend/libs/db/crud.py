@@ -1,15 +1,33 @@
-from typing import Generic, Protocol, TypeVar
+from dataclasses import asdict
+from typing import Any, Generic, Optional, Protocol, TypeVar
 
-from pydantic import BaseModel
 from sqlalchemy.exc import NoResultFound
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import DeclarativeBase
 from sqlalchemy.sql import Select, select
 
+from backend.libs.types.dataclass import Dataclass
+
 Model = TypeVar("Model", bound=DeclarativeBase)
-CreateData_contra = TypeVar("CreateData_contra", bound=BaseModel, contravariant=True)
-UpdateData_contra = TypeVar("UpdateData_contra", bound=BaseModel, contravariant=True)
-Filters_contra = TypeVar("Filters_contra", bound=BaseModel, contravariant=True)
+CreateData_contra = TypeVar("CreateData_contra", bound=Dataclass, contravariant=True)
+UpdateData_contra = TypeVar("UpdateData_contra", bound=Dataclass, contravariant=True)
+Filters_contra = TypeVar("Filters_contra", bound=Dataclass, contravariant=True)
+
+
+class UnsetType:
+    __instance: Optional["UnsetType"] = None
+
+    def __new__(cls) -> "UnsetType":
+        if not cls.__instance:
+            cls.__instance = super().__new__(cls)
+        return cls.__instance
+
+
+UNSET = UnsetType()
+
+
+def is_unset(value: Any) -> bool:
+    return value is UNSET
 
 
 class NoObjectFoundError(Exception):
@@ -52,7 +70,7 @@ class CRUD(Generic[Model, CreateData_contra, UpdateData_contra, Filters_contra])
         return await self._commit_and_refresh(created_obj)
 
     def _create_obj(self, data: CreateData_contra) -> Model:
-        data_dict = data.model_dump()
+        data_dict = asdict(data)
         return self.model(**data_dict)
 
     async def read_one(self, filters: Filters_contra) -> Model:
@@ -72,8 +90,10 @@ class CRUD(Generic[Model, CreateData_contra, UpdateData_contra, Filters_contra])
         return await self._commit_and_refresh(updated_obj)
 
     def _update_obj(self, obj: Model, data: UpdateData_contra) -> Model:
-        data_dict = data.model_dump(exclude_unset=True)
+        data_dict = asdict(data)
         for field, value in data_dict.items():
+            if is_unset(value):
+                continue
             setattr(obj, field, value)
         return obj
 
@@ -94,7 +114,9 @@ class CRUD(Generic[Model, CreateData_contra, UpdateData_contra, Filters_contra])
     def _build_where_statement(
         self, statement: Select[tuple[Model]], filters: Filters_contra
     ) -> Select[tuple[Model]]:
-        filters_dict = filters.model_dump(exclude_unset=True)
+        filters_dict = asdict(filters)
         for field, value in filters_dict.items():
+            if is_unset(value):
+                continue
             statement = statement.where(getattr(self.model, field) == value)
         return statement

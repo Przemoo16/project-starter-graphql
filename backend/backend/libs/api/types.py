@@ -1,8 +1,10 @@
 from dataclasses import asdict
-from typing import Any, ClassVar, Protocol
+from typing import Any
 
 import strawberry
 from pydantic import ValidationError
+
+from backend.libs.types.dataclass import Dataclass
 
 
 @strawberry.interface
@@ -23,10 +25,6 @@ def from_pydantic_error(exc: ValidationError) -> list[InvalidInputProblem]:
         )
         for error in exc.errors()
     ]
-
-
-class Dataclass(Protocol):
-    __dataclass_fields__: ClassVar[dict[str, Any]]
 
 
 def convert_to_dict(data: Dataclass) -> dict[Any, Any]:

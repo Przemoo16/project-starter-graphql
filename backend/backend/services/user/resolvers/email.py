@@ -11,19 +11,19 @@ from backend.services.user.operations.email import confirm_email
 from backend.services.user.types.email import (
     ConfirmEmailFailure,
     ConfirmEmailResponse,
+    ConfirmEmailSuccess,
     InvalidEmailConfirmationTokenProblem,
     UserAlreadyConfirmedProblem,
 )
-from backend.services.user.types.user import User
 
 
 async def confirm_email_resolver(info: Info, token: str) -> ConfirmEmailResponse:
     crud = UserCRUD(model=UserModel, session=info.context.session)
 
     try:
-        user = await confirm_email(token, TOKEN_READER, crud)
+        await confirm_email(token, TOKEN_READER, crud)
     except (InvalidEmailConfirmationTokenError, UserNotFoundError):
         return ConfirmEmailFailure(problems=[InvalidEmailConfirmationTokenProblem()])
     except UserAlreadyConfirmedError:
         return ConfirmEmailFailure(problems=[UserAlreadyConfirmedProblem()])
-    return User.from_model(user)
+    return ConfirmEmailSuccess()

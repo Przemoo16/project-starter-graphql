@@ -62,6 +62,11 @@ def test_send_confirmation_email() -> None:
 @pytest.mark.anyio()
 async def test_confirm_email() -> None:
     token = "test-token"
+    user = create_user(
+        id=UUID("6d9c79d6-9641-4746-92d9-2cc9ebdca941"),
+        email="test@email.com",
+        confirmed_email=False,
+    )
 
     def read_token(_: str) -> dict[str, str]:
         return {
@@ -70,17 +75,11 @@ async def test_confirm_email() -> None:
             "type": "email-confirmation",
         }
 
-    crud = UserCRUD(
-        existing_user=create_user(
-            id=UUID("6d9c79d6-9641-4746-92d9-2cc9ebdca941"),
-            email="test@email.com",
-            confirmed_email=False,
-        )
-    )
+    crud = UserCRUD(existing_user=user)
 
-    confirmed_user = await confirm_email(token, read_token, crud)
+    await confirm_email(token, read_token, crud)
 
-    assert confirmed_user.confirmed_email is True
+    assert user.confirmed_email is True
 
 
 @pytest.mark.anyio()

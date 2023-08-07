@@ -4,7 +4,11 @@ from typing import Annotated
 import strawberry
 
 from backend.libs.api.types import Problem
-from backend.services.user.types.user import User
+
+
+@strawberry.type
+class ConfirmEmailSuccess:
+    message: str = "Email has been confirmed"
 
 
 @strawberry.type
@@ -29,5 +33,5 @@ class ConfirmEmailFailure:
 
 
 ConfirmEmailResponse = Annotated[
-    User | ConfirmEmailFailure, strawberry.union("ConfirmEmailResponse")
+    ConfirmEmailSuccess | ConfirmEmailFailure, strawberry.union("ConfirmEmailResponse")
 ]
