@@ -36,10 +36,8 @@ class UserCRUD(  # pylint: disable=abstract-method
         return create_user(**asdict(data))
 
     async def read_one(self, filters: UserFilters) -> User:
-        if not self.existing_user:
-            raise NoObjectFoundError
         filters_dict = asdict(filters)
-        if all(
+        if self.existing_user and all(
             getattr(self.existing_user, field) == value
             for field, value in filters_dict.items()
             if not is_unset(value)
@@ -47,16 +45,19 @@ class UserCRUD(  # pylint: disable=abstract-method
             return self.existing_user
         raise NoObjectFoundError
 
-    async def update(self, obj: User, data: UserUpdateData) -> User:
+    async def update(self, obj: User, data: UserUpdateData) -> None:
+        self._update(obj, data)
+
+    async def update_and_refresh(self, obj: User, data: UserUpdateData) -> User:
+        return self._update(obj, data)
+
+    def _update(self, obj: User, data: UserUpdateData) -> User:
         data_dict = asdict(data)
         for field, value in data_dict.items():
             if is_unset(value):
                 continue
             setattr(obj, field, value)
         return obj
-
-    async def update_and_refresh(self, obj: User, data: UserUpdateData) -> User:
-        return await self.update(obj, data)
 
     async def delete(self, obj: User) -> None:
         pass

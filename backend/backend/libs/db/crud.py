@@ -37,7 +37,7 @@ class NoObjectFoundError(Exception):
 class CRUDProtocol(
     Protocol[Model, CreateData_contra, UpdateData_contra, Filters_contra]
 ):
-    async def create(self, data: CreateData_contra) -> Model:
+    async def create(self, data: CreateData_contra) -> None:
         ...
 
     async def create_and_refresh(self, data: CreateData_contra) -> Model:
@@ -46,7 +46,7 @@ class CRUDProtocol(
     async def read_one(self, filters: Filters_contra) -> Model:
         ...
 
-    async def update(self, obj: Model, data: UpdateData_contra) -> Model:
+    async def update(self, obj: Model, data: UpdateData_contra) -> None:
         ...
 
     async def update_and_refresh(self, obj: Model, data: UpdateData_contra) -> Model:
@@ -61,9 +61,9 @@ class CRUD(Generic[Model, CreateData_contra, UpdateData_contra, Filters_contra])
         self.model = model
         self.session = session
 
-    async def create(self, data: CreateData_contra) -> Model:
+    async def create(self, data: CreateData_contra) -> None:
         created_obj = self._create_obj(data)
-        return await self._commit(created_obj)
+        await self._commit(created_obj)
 
     async def create_and_refresh(self, data: CreateData_contra) -> Model:
         created_obj = self._create_obj(data)
@@ -81,9 +81,9 @@ class CRUD(Generic[Model, CreateData_contra, UpdateData_contra, Filters_contra])
         except NoResultFound as exc:
             raise NoObjectFoundError from exc
 
-    async def update(self, obj: Model, data: UpdateData_contra) -> Model:
+    async def update(self, obj: Model, data: UpdateData_contra) -> None:
         updated_obj = self._update_obj(obj, data)
-        return await self._commit(updated_obj)
+        await self._commit(updated_obj)
 
     async def update_and_refresh(self, obj: Model, data: UpdateData_contra) -> Model:
         updated_obj = self._update_obj(obj, data)
