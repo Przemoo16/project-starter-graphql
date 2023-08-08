@@ -112,6 +112,10 @@ def test_send_reset_password_email() -> None:
 @pytest.mark.anyio()
 async def test_reset_password(password_manager: PasswordManager) -> None:
     data = PasswordResetSchema(token="test-token", password="plain_password")
+    user = create_user(
+        id=UUID("6d9c79d6-9641-4746-92d9-2cc9ebdca941"),
+        hashed_password="hashed_password",
+    )
 
     def read_token(_: str) -> dict[str, str]:
         return {
@@ -125,14 +129,9 @@ async def test_reset_password(password_manager: PasswordManager) -> None:
 
     password_manager.hasher = hash_password
 
-    crud = UserCRUD(
-        existing_user=create_user(
-            id=UUID("6d9c79d6-9641-4746-92d9-2cc9ebdca941"),
-            hashed_password="hashed_password",
-        )
-    )
+    crud = UserCRUD(existing_user=user)
 
-    user = await reset_password(data, read_token, password_manager, crud)
+    await reset_password(data, read_token, password_manager, crud)
 
     assert user.hashed_password == "new_hashed_password"
 
@@ -225,9 +224,9 @@ async def test_change_password(password_manager: PasswordManager) -> None:
     password_manager.hasher = hash_password
     crud = UserCRUD()
 
-    updated_user = await change_password(user, data, password_manager, crud)
+    await change_password(user, data, password_manager, crud)
 
-    assert updated_user.hashed_password == "new_hashed_password"
+    assert user.hashed_password == "new_hashed_password"
 
 
 @pytest.mark.anyio()

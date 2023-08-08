@@ -15,13 +15,13 @@ from tests.integration.helpers.user import (
 async def test_confirm_email(
     session: AsyncSession, auth_private_key: str, async_client: AsyncClient
 ) -> None:
-    user = await create_user(session, id=UUID("6d9c79d6-9641-4746-92d9-2cc9ebdca941"))
+    user = await create_user(session)
     token = create_email_confirmation_token(auth_private_key, user.id, user.email)
     query = """
       mutation ConfirmEmail($token: String!) {
         confirmEmail(token: $token) {
-          ... on User {
-            id
+          ... on ConfirmEmailSuccess {
+            message
           }
         }
       }
@@ -33,9 +33,7 @@ async def test_confirm_email(
     )
 
     data = response.json()["data"]["confirmEmail"]
-    assert data == {
-        "id": "6d9c79d6-9641-4746-92d9-2cc9ebdca941",
-    }
+    assert "message" in data
 
 
 @pytest.mark.anyio()

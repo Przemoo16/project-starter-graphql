@@ -1,10 +1,11 @@
+from dataclasses import dataclass
+
 import pytest
-from pydantic import BaseModel
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import Mapped, mapped_column
 from sqlalchemy.orm.attributes import instance_state
 
-from backend.libs.db.crud import CRUD, NoObjectFoundError
+from backend.libs.db.crud import CRUD, UNSET, NoObjectFoundError, UnsetType
 from tests.integration.conftest import Base
 from tests.integration.helpers.db import save_to_db
 
@@ -16,19 +17,22 @@ class Dummy(Base):
     age: Mapped[int] = mapped_column(default=25)
 
 
-class DummyCreate(BaseModel):
+@dataclass
+class DummyCreate:
     id: int = 1
     name: str = "Created"
 
 
-class DummyUpdate(BaseModel):
-    name: str | None = None
-    age: int | None = None
+@dataclass
+class DummyUpdate:
+    name: str | UnsetType = UNSET
+    age: int | UnsetType = UNSET
 
 
-class DummyFilters(BaseModel):
-    id: int | None = None
-    name: str | None = None
+@dataclass
+class DummyFilters:
+    id: int | UnsetType = UNSET
+    name: str | UnsetType = UNSET
 
 
 DummyCRUD = CRUD[Dummy, DummyCreate, DummyUpdate, DummyFilters]

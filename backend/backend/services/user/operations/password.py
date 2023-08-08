@@ -127,13 +127,13 @@ async def reset_password(
     token_reader: TokenReader,
     password_manager: PasswordManager,
     crud: UserCRUDProtocol,
-) -> User:
+) -> None:
     payload = _decode_reset_password_token(data.token, token_reader)
     user = await _get_user_by_id(payload.user_id, crud)
     _validate_token_fingerprint(
         user.hashed_password, payload.fingerprint, password_manager.validator
     )
-    return await _set_password(user, data.password, password_manager.hasher, crud)
+    await _set_password(user, data.password, password_manager.hasher, crud)
 
 
 def _decode_reset_password_token(
@@ -177,8 +177,8 @@ async def _set_password(
     password: SecretStr,
     password_hasher: PasswordHasher,
     crud: UserCRUDProtocol,
-) -> User:
-    return await crud.update_and_refresh(
+) -> None:
+    await crud.update(
         user,
         UserUpdateData(hashed_password=password_hasher(password.get_secret_value())),
     )
@@ -189,13 +189,13 @@ async def change_password(
     data: PasswordChangeSchema,
     password_manager: PasswordManager,
     crud: UserCRUDProtocol,
-) -> User:
+) -> None:
     _validate_password(
         user,
         data.current_password,
         password_validator=password_manager.validator,
     )
-    return await _set_password(user, data.new_password, password_manager.hasher, crud)
+    await _set_password(user, data.new_password, password_manager.hasher, crud)
 
 
 def _validate_password(

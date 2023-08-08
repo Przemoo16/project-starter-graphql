@@ -76,7 +76,7 @@ async def _authenticate_user(
     if updated_password_hash := _validate_password(
         user, credentials.password, password_manager.validator
     ):
-        await _update_password_hash(user, updated_password_hash, crud)
+        user = await _update_password_hash(user, updated_password_hash, crud)
         logger.info("Updated password hash for the user %r", user.email)
     return user
 
