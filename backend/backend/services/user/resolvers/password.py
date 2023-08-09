@@ -1,4 +1,3 @@
-import logging
 from typing import Annotated
 
 from pydantic import ValidationError
@@ -40,8 +39,6 @@ from backend.services.user.types.password import (
     ResetPasswordResponse,
     ResetPasswordSuccess,
 )
-
-logger = logging.getLogger(__name__)
 
 
 async def recover_password_resolver(info: Info, email: str) -> RecoverPasswordResponse:
