@@ -99,6 +99,6 @@ repos:
         entry: docker compose run -T --rm --no-deps frontend yarn lint
         language: system
         files: ^frontend/
-        types: [javascript, jsx, ts, tsx]
+        types_or: [javascript, jsx, ts, tsx]
         require_serial: true
         pass_filenames: false
