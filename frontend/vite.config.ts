@@ -1,12 +1,20 @@
-import preact from '@preact/preset-vite';
-import { defineConfig } from 'vite';
+import { qwikCity } from "@builder.io/qwik-city/vite";
+import { qwikVite } from "@builder.io/qwik/optimizer";
+import { defineConfig } from "vite";
+import tsconfigPaths from "vite-tsconfig-paths";
 
-// https://vitejs.dev/config/
-export default defineConfig({
-  server: {
-    host: true,
-    port: 5173,
-    strictPort: true,
-  },
-  plugins: [preact()],
+export default defineConfig(() => {
+  return {
+    plugins: [qwikCity(), qwikVite(), tsconfigPaths()],
+    server: {
+      host: true,
+      port: 5173,
+      strictPort: true,
+    },
+    preview: {
+      headers: {
+        "Cache-Control": "public, max-age=600",
+      },
+    },
+  };
 });
