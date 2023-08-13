@@ -6,8 +6,6 @@ services:
       target: dev
     networks:
       - backend
-    ports:
-      - "8000:80"
     volumes:
       - type: bind
         source: ./backend
@@ -50,7 +48,7 @@ services:
         source: node_modules
         target: /opt/app/node_modules
 
-  nginx:
+  proxy:
     image: nginx:1.25
     networks:
       - backend
