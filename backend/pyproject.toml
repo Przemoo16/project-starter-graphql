@@ -16,14 +16,14 @@ celery = "^5.3.1"
 fastapi = "0.101.0"
 jinja2 = "^3.1.2"
 orjson = "^3.9.4"
-passlib = {extras = ["bcrypt"], version = "^1.7.4"}
-pydantic = {extras = ["email"], version = "^2.1"}
+passlib = { extras = ["bcrypt"], version = "^1.7.4" }
+pydantic = { extras = ["email"], version = "^2.1" }
 pydantic-settings = "^2.0.2"
 pyseto = "^1.7.3"
 redis = "^4.6.0"
 sqlalchemy = "^2.0.19"
-strawberry-graphql = {extras = ["fastapi"], version = "^0.203.0"}
-uvicorn = {extras = ["standard"], version = "^0.23.1"}
+strawberry-graphql = { extras = ["fastapi"], version = "^0.203.0" }
+uvicorn = { extras = ["standard"], version = "^0.23.1" }
 
 [tool.poetry.group.dev]
 optional = true
@@ -41,11 +41,7 @@ types-passlib = "^1.7.7.12"
 [tool.mypy]
 ignore_missing_imports = true
 strict = true
-show_column_numbers = true
-plugins = [
-    "pydantic.mypy",
-    "strawberry.ext.mypy_plugin"
-]
+plugins = ["pydantic.mypy", "strawberry.ext.mypy_plugin"]
 
 [tool.pydantic-mypy]
 init_forbid_extra = true
@@ -55,9 +51,7 @@ warn_required_dynamic_aliases = true
 max-line-length = 88
 
 [tool.pylint.BASIC]
-good-names = [
-    "id"
-]
+good-names = ["id"]
 
 [tool.pylint."MESSAGES CONTROL"]
 disable = [
@@ -65,37 +59,21 @@ disable = [
     "fixme",
     "missing-docstring",
     "too-few-public-methods",
-    "too-many-instance-attributes"
+    "too-many-instance-attributes",
 ]
-enable = [
-    "useless-suppression"
-]
-extension-pkg-whitelist = [
-    "orjson",
-    "pydantic"
-]
+enable = ["useless-suppression"]
+extension-pkg-whitelist = ["orjson", "pydantic"]
 
 [tool.pytest.ini_options]
-addopts = [
-    "--cov=backend",
-    "--strict-config",
-    "--strict-markers"
-]
+addopts = ["--cov=backend", "--strict-config", "--strict-markers"]
 xfail_strict = true
 
 [tool.coverage.run]
 # Fixes the problem with missing coverage lines after await
 # https://github.com/nedbat/coveragepy/issues/1082
-concurrency = [
-    "greenlet"
-]
+concurrency = ["greenlet"]
 
 [tool.coverage.report]
-omit = [
-   "*/__init__.py"
-]
-exclude_lines = [
-    "pragma: no cover",
-    "if typing.TYPE_CHECKING:"
-]
+omit = ["*/__init__.py"]
+exclude_lines = ["pragma: no cover", "if typing.TYPE_CHECKING:"]
 show_missing = true
