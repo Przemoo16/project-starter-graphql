@@ -14,10 +14,10 @@ RUN yarn install --frozen-lockfile \
 
 COPY . .
 
+EXPOSE 5173
+
 
 FROM base AS dev
-
-EXPOSE 5173
 
 CMD ["yarn", "dev"]
 
@@ -27,6 +27,12 @@ FROM base as build
 RUN yarn build
 
 
-FROM nginx:1.25
+FROM node:20.0-slim
 
-COPY --from=build /opt/app/dist /usr/share/nginx/html
+WORKDIR /opt/app
+
+COPY --from=build /opt/app/node_modules ./node_modules
+COPY --from=build /opt/app/dist ./dist
+COPY --from=build /opt/app/server ./server
+
+CMD ["node", "server/entry.node-server"]
