@@ -9,6 +9,7 @@
     "build": "qwik build",
     "build.client": "vite build",
     "build.preview": "vite build --ssr src/entry.preview.tsx",
+    "build.server": "vite build -c adapters/node-server/vite.config.ts",
     "build.types": "tsc --incremental --noEmit",
     "deploy": "echo 'Run \"npm run qwik add\" to install a server adapter'",
     "dev": "vite --mode ssr",
@@ -17,10 +18,11 @@
     "fmt.check": "prettier --check .",
     "lint": "eslint --ext .js,.jsx,.ts,.tsx . --fix",
     "preview": "qwik build preview && vite preview --open",
+    "serve": "node server/entry.node-server",
     "start": "vite --open --mode ssr",
-    "test:ci": "vitest run components",
     "test.unit": "vitest components",
     "test.unit.ui": "vitest --ui components",
+    "test:ci": "vitest run components",
     "qwik": "qwik"
   },
   "devDependencies": {
