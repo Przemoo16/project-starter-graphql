@@ -1,10 +1,12 @@
+import { type QwikJSX } from '@builder.io/qwik';
+
 export const QwikLogo = ({
   width = 100,
   height = 35,
 }: {
   width?: number;
   height?: number;
-}) => (
+}): QwikJSX.Element => (
   <svg
     width={width}
     height={height}

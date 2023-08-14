@@ -7,11 +7,13 @@
  * - https://qwik.builder.io/docs/deployments/node/
  *
  */
-import { createQwikCity } from "@builder.io/qwik-city/middleware/node";
-import qwikCityPlan from "@qwik-city-plan";
-import { manifest } from "@qwik-client-manifest";
-import { createServer } from "node:http";
-import render from "./entry.ssr";
+import { createServer } from 'node:http';
+
+import { createQwikCity } from '@builder.io/qwik-city/middleware/node';
+import qwikCityPlan from '@qwik-city-plan';
+import { manifest } from '@qwik-client-manifest';
+
+import render from './entry.ssr';
 
 // Allow for dynamic port
 const PORT = process.env.PORT ?? 5173;
@@ -24,13 +26,14 @@ const { router, notFound, staticFile } = createQwikCity({
 });
 
 const server = createServer();
-
-server.on("request", (req, res) => {
+/* eslint-disable @typescript-eslint/no-floating-promises */
+server.on('request', (req, res) => {
   staticFile(req, res, () => {
     router(req, res, () => {
       notFound(req, res, () => {});
     });
   });
 });
+/* eslint-enable @typescript-eslint/no-floating-promises */
 
 server.listen(PORT);
