@@ -21,7 +21,7 @@ pydantic = { extras = ["email"], version = "^2.1.1" }
 pydantic-settings = "^2.0.3"
 pyseto = "^1.7.3"
 redis = "^5.0.0"
-sqlalchemy = "^2.0.19"
+sqlalchemy = "^2.0.20"
 strawberry-graphql = { extras = ["fastapi"], version = "^0.204.0" }
 uvicorn = { extras = ["standard"], version = "^0.23.2" }
 
