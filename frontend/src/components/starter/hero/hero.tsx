@@ -33,8 +33,7 @@ export default component$(() => {
             async function loadConfetti(): Promise<(opts: any) => void> {
               return await new Promise<(opts: any) => void>(
                 (resolve, reject) => {
-                  // eslint-disable-next-line @typescript-eslint/strict-boolean-expressions
-                  if ((globalThis as any).confetti) {
+                  if ((globalThis as any).confetti !== undefined) {
                     resolve((globalThis as any).confetti);
                     return;
                   }
