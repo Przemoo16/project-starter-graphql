@@ -35,6 +35,10 @@ services:
           "${DB__USERNAME}",
           "--dbname",
           "${DB__NAME}",
+          "--host",
+          "${DB__HOST}",
+          "--port",
+          "${DB__PORT}",
         ]
       interval: 2s
       timeout: 3s
