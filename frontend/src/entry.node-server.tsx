@@ -26,14 +26,13 @@ const { router, notFound, staticFile } = createQwikCity({
 });
 
 const server = createServer();
-/* eslint-disable @typescript-eslint/no-floating-promises */
+
 server.on('request', (req, res) => {
-  staticFile(req, res, () => {
-    router(req, res, () => {
-      notFound(req, res, () => {});
+  void staticFile(req, res, () => {
+    void router(req, res, () => {
+      void notFound(req, res, () => {});
     });
   });
 });
-/* eslint-enable @typescript-eslint/no-floating-promises */
 
 server.listen(PORT);
