@@ -1,4 +1,4 @@
-FROM node:20.0-slim as base
+FROM node:20.5-slim as base
 
 SHELL ["/bin/bash", "-o", "pipefail", "-c"]
 
@@ -8,26 +8,29 @@ RUN apt-get update \
 
 WORKDIR /opt/app
 
-COPY ./package.json ./yarn.lock ./
-RUN yarn install --frozen-lockfile \
-    && yarn cache clean
-
-COPY . .
-
 EXPOSE 5173
 
 
 FROM base AS dev
+
+COPY ./package.json ./yarn.lock ./
+
+RUN yarn install --frozen-lockfile \
+    && yarn cache clean
+
+COPY . .
 
 CMD ["yarn", "dev"]
 
 
 FROM base as build
 
+COPY . .
+
 RUN yarn build
 
 
-FROM node:20.0-slim
+FROM base
 
 WORKDIR /opt/app
 

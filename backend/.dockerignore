@@ -1,0 +1,9 @@
+*
+!alembic/
+!backend/
+!tests/
+
+!alembic.ini
+!poetry.lock
+!pyproject.toml
+!run.sh
