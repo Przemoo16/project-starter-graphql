@@ -11,7 +11,8 @@ services:
         source: ./backend
         target: /opt/app
     depends_on:
-      - db
+      db:
+        condition: service_healthy
     env_file:
       - .env
 
@@ -31,6 +32,20 @@ services:
       POSTGRES_DB: "${DB__NAME}"
       POSTGRES_HOST: "${DB__HOST}"
       POSTGRES_PORT: "${DB__PORT}"
+    healthcheck:
+      test:
+        [
+          "CMD",
+          "pg_isready",
+          "--username",
+          "${DB__USERNAME}",
+          "--dbname",
+          "${DB__NAME}",
+        ]
+      interval: 2s
+      timeout: 3s
+      retries: 3
+      start_period: 5s
 
   frontend:
     image: "${FRONTEND_IMAGE}"
