@@ -11,28 +11,26 @@ WORKDIR /opt/app
 EXPOSE 5173
 
 
-FROM base AS dev
+FROM base as deps
 
 COPY ./package.json ./yarn.lock ./
-
 RUN yarn install --frozen-lockfile \
     && yarn cache clean
 
 COPY . .
 
+
+FROM deps AS dev
+
 CMD ["yarn", "dev"]
 
 
-FROM base as build
-
-COPY . .
+FROM deps as build
 
 RUN yarn build
 
 
 FROM base
-
-WORKDIR /opt/app
 
 COPY --from=build /opt/app/node_modules ./node_modules
 COPY --from=build /opt/app/dist ./dist

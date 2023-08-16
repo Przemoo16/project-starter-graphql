@@ -28,10 +28,10 @@ RUN curl -sSL https://install.python-poetry.org | python - \
     && ln -s /root/.local/bin/poetry /usr/local/bin/poetry \
     && poetry config virtualenvs.create false
 
+COPY ./pyproject.toml ./poetry.lock ./
 
 FROM deps AS dev
 
-COPY ./pyproject.toml ./poetry.lock ./
 RUN --mount=type=cache,target=/root/.cache/pypoetry/cache \
     --mount=type=cache,target=/root/.cache/pypoetry/artifacts \
     poetry install --no-root --no-interaction --no-ansi --with dev
@@ -45,8 +45,9 @@ CMD ["./run.sh", "--reload"]
 
 FROM deps as build
 
-COPY ./pyproject.toml ./poetry.lock ./
 RUN poetry export -f requirements.txt --output requirements.txt
+
+COPY . .
 
 
 FROM base
@@ -54,9 +55,9 @@ FROM base
 COPY --from=build /opt/app/requirements.txt ./
 RUN pip install --no-deps --no-cache-dir -r ./requirements.txt
 
-COPY ./pyproject.toml ./alembic.ini ./run.sh ./
-COPY ./alembic ./alembic
-COPY ./backend ./backend
+COPY --from=build /opt/app/pyproject.toml /opt/app/alembic.ini /opt/app/run.sh ./
+COPY --from=build /opt/app/alembic ./alembic
+COPY --from=build /opt/app/backend ./backend
 
 RUN pip install --no-deps --no-cache-dir .
 
