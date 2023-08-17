@@ -11,13 +11,18 @@ import { setupServiceWorker } from '@builder.io/qwik-city/service-worker';
 
 setupServiceWorker();
 
-// eslint-disable-next-line @typescript-eslint/no-misused-promises
-addEventListener('install', async () => {
-  await self.skipWaiting();
+addEventListener('install', () => {
+  const handler = async (): Promise<void> => {
+    await self.skipWaiting();
+  };
+  void handler();
 });
-// eslint-disable-next-line @typescript-eslint/no-misused-promises
-addEventListener('activate', async () => {
-  await self.clients.claim();
+
+addEventListener('activate', () => {
+  const handler = async (): Promise<void> => {
+    await self.clients.claim();
+  };
+  void handler();
 });
 
 declare const self: ServiceWorkerGlobalScope;
