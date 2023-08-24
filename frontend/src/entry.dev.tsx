@@ -17,6 +17,6 @@ import {
 
 import Root from './root';
 
-export default async function (opts: RenderOptions): Promise<RenderResult> {
-  return await render(document, <Root />, opts);
+export default function (opts: RenderOptions): Promise<RenderResult> {
+  return render(document, <Root />, opts);
 }
