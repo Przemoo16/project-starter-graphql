@@ -19,10 +19,10 @@ import { manifest } from '@qwik-client-manifest';
 
 import Root from './root';
 
-export default async function (
+export default function (
   opts: RenderToStreamOptions,
 ): Promise<RenderToStreamResult> {
-  return await renderToStream(<Root />, {
+  return renderToStream(<Root />, {
     manifest,
     ...opts,
     // Use container attributes to set attributes on the html tag.

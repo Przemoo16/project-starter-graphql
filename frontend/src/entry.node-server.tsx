@@ -28,9 +28,9 @@ const { router, notFound, staticFile } = createQwikCity({
 const server = createServer();
 
 server.on('request', (req, res) => {
-  void staticFile(req, res, () => {
-    void router(req, res, () => {
-      void notFound(req, res, () => {});
+  staticFile(req, res, () => {
+    router(req, res, () => {
+      notFound(req, res, () => {});
     });
   });
 });
