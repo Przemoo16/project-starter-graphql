@@ -68,6 +68,7 @@ class ECSService(pulumi.ComponentResource):
                 cpu=args.task_cpu,
                 memory=args.task_memory,
                 container=awsx.ecs.TaskDefinitionContainerDefinitionArgs(
+                    name=name,
                     image=args.container_image,
                     essential=True,
                     port_mappings=get_port_mappings(
