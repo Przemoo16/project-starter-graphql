@@ -20,10 +20,10 @@
     vite-imagetools "^5.0.5"
     zod "^3.21.4"
 
-"@builder.io/qwik@^1.2.8":
-  version "1.2.8"
-  resolved "https://registry.yarnpkg.com/@builder.io/qwik/-/qwik-1.2.8.tgz#019d258cce0d33c6b54d971b754c9c94fb39209f"
-  integrity sha512-I9bQ6flHeic5pI8ChXx1xAvMyjNOIcOdI7VY6sneiYcVLjW3JtdHKKcdk2QMtrMuIIljN6j/xiyn9MBB2Vxqxg==
+"@builder.io/qwik@^1.2.9":
+  version "1.2.9"
+  resolved "https://registry.yarnpkg.com/@builder.io/qwik/-/qwik-1.2.9.tgz#dd1c3bd1fd795f3b74bc98b373f7ef875fd84003"
+  integrity sha512-LLifLKFHIe0181aYgzoayG2mSv0asBQq38BrwxS3sBfnsQSEJuTXUfx1PwUq5xZRHQ/jNbkyMHuznC06SU3mPg==
   dependencies:
     csstype "^3.1.2"
 
