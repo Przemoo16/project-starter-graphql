@@ -1,5 +1,8 @@
 import { component$, Slot } from '@builder.io/qwik';
-import type { RequestHandler } from '@builder.io/qwik-city';
+import type { DocumentHead, RequestHandler } from '@builder.io/qwik-city';
+
+import { Footer } from '~/components/footer/footer';
+import { Header } from '~/components/header/header';
 
 export const onGet: RequestHandler = async ({ cacheControl }) => {
   // Control caching for this request for best performance and to reduce hosting costs:
@@ -12,10 +15,18 @@ export const onGet: RequestHandler = async ({ cacheControl }) => {
   });
 };
 
-export default component$(() => {
-  return (
+export const head: DocumentHead = ({ head }) => {
+  return {
+    title: head.title ? `Project Starter | ${head.title}` : 'Project Starter',
+  };
+};
+
+export default component$(() => (
+  <>
+    <Header />
     <main>
       <Slot />
     </main>
-  );
-});
+    <Footer />
+  </>
+));
