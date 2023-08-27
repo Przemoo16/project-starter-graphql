@@ -14,7 +14,8 @@
     "preview": "qwik build preview && vite preview --open",
     "serve": "node server/entry.node-server",
     "test": "vitest run components",
-    "qwik": "qwik"
+    "qwik": "qwik",
+    "qwik-speak-extract": "qwik-speak-extract --supportedLangs=en-US --assetsPath=i18n"
   },
   "devDependencies": {
     "@builder.io/qwik": "^1.2.9",
@@ -33,6 +34,7 @@
     "eslint-plugin-qwik": "^1.2.9",
     "eslint-plugin-simple-import-sort": "^10.0.0",
     "postcss": "8.4.27",
+    "qwik-speak": "^0.15.3",
     "tailwindcss": "3.3.3",
     "typescript": "^5.2.2",
     "undici": "^5.23.0",

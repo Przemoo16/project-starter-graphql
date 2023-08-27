@@ -1,0 +1,54 @@
+{
+  "runtime": {
+    "404": {
+      "head": {
+        "title": "404"
+      }
+    },
+    "account": {
+      "head": {
+        "title": "Account"
+      }
+    },
+    "app": {
+      "head": {
+        "title": "Project Starter"
+      }
+    },
+    "confirm-email": {
+      "head": {
+        "title": "Confirm Email"
+      }
+    },
+    "dashboard": {
+      "head": {
+        "title": "Dashboard"
+      }
+    },
+    "home": {
+      "head": {
+        "title": "Home"
+      }
+    },
+    "login": {
+      "head": {
+        "title": "Login"
+      }
+    },
+    "recover-password": {
+      "head": {
+        "title": "Recover Password"
+      }
+    },
+    "register": {
+      "head": {
+        "title": "Register"
+      }
+    },
+    "reset-password": {
+      "head": {
+        "title": "Reset Password"
+      }
+    }
+  }
+}

@@ -1,4 +1,12 @@
 services:
+  frontend-test:
+    image: "${FRONTEND_IMAGE}"
+    build:
+      context: ./frontend
+      target: dev
+    networks:
+      - frontend-test
+
   backend-test:
     image: "${BACKEND_IMAGE}"
     build:
@@ -6,10 +14,6 @@ services:
       target: dev
     networks:
       - backend-test
-    volumes:
-      - type: bind
-        source: ./backend
-        target: /opt/app
     depends_on:
       db-test:
         condition: service_healthy
@@ -57,10 +61,6 @@ services:
       target: dev
     networks:
       - backend-test
-    volumes:
-      - type: bind
-        source: ./backend
-        target: /opt/app
     depends_on:
       - redis-test
     env_file:
@@ -74,10 +74,6 @@ services:
       target: dev
     networks:
       - backend-test
-    volumes:
-      - type: bind
-        source: ./backend
-        target: /opt/app
     depends_on:
       - redis-test
     env_file:
@@ -85,4 +81,5 @@ services:
     command: "celery --app backend.celery:celery_app beat --loglevel INFO"
 
 networks:
+  frontend-test:
   backend-test:
