@@ -12,7 +12,7 @@ export const RouterHead = component$(() => {
 
   const title = head.title
     ? `${t('runtime.app.head.title')} | ${t(head.title)}`
-    : t(head.title);
+    : t('runtime.app.head.title');
 
   return (
     <>
