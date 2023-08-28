@@ -3,5 +3,4 @@ node_modules/
 server/
 
 src/entry.*.tsx
-src/root.tsx
 src/routes/service-worker.ts
