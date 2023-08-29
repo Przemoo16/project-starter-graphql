@@ -12,10 +12,10 @@
   resolved "https://registry.yarnpkg.com/@alloc/quick-lru/-/quick-lru-5.2.0.tgz#7bf68b20c0a350f936915fcae06f58e32007ce30"
   integrity sha512-UrcABB+4bUrFABwbluTIBErXwvbsU/V7TZWfmbgJfbkwiBuziS9gxdODUyuiecfdGQ85jglMW6juS3+z5TsKLw==
 
-"@builder.io/qwik-city@^1.2.9":
-  version "1.2.9"
-  resolved "https://registry.yarnpkg.com/@builder.io/qwik-city/-/qwik-city-1.2.9.tgz#1f11f7860fbc6ecbd67daf9bad5c98ecdf512fb4"
-  integrity sha512-p+etf1zQ+srhjNH5fX/YSFBjayWEIpnlTKKJgvb22f4E6R4CEPYIhRtcZtg3ljPuC2k+ouGdA0GMHj6LA3enhA==
+"@builder.io/qwik-city@^1.2.10":
+  version "1.2.10"
+  resolved "https://registry.yarnpkg.com/@builder.io/qwik-city/-/qwik-city-1.2.10.tgz#c7dbb3ef373871decdec052f362d5a17f20b9103"
+  integrity sha512-IKo6NjT7dYtDYY1Y0hP56/jlbjcnK89NA0sHEBmNZJZJy+YnzvWLPWf9Ft9q30hIwK3azyW+XtJZpwIJIPEAFw==
   dependencies:
     "@mdx-js/mdx" "2.3.0"
     "@types/mdx" "2.0.5"
