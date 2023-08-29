@@ -11,7 +11,7 @@ export const RouterHead = component$(() => {
   const loc = useLocation();
 
   const title = head.title
-    ? `${t('runtime.app.head.title')} | ${t(head.title)}`
+    ? `${t(head.title)} | ${t('runtime.app.head.title')}`
     : t('runtime.app.head.title');
 
   return (
