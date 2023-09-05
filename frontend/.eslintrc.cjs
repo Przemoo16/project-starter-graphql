@@ -22,11 +22,7 @@ module.exports = {
   rules: {
     'simple-import-sort/imports': 'error',
     'simple-import-sort/exports': 'error',
-    '@typescript-eslint/strict-boolean-expressions': [
-      'error',
-      {
-        allowString: true,
-      },
-    ],
+    '@typescript-eslint/strict-boolean-expressions': 'off',
+    '@typescript-eslint/consistent-type-definitions': 'off',
   },
 };

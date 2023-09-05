@@ -35,7 +35,7 @@
         "title": "Login"
       }
     },
-    "recover-password": {
+    "recoverPassword": {
       "head": {
         "title": "Recover Password"
       }
@@ -45,7 +45,7 @@
         "title": "Register"
       }
     },
-    "reset-password": {
+    "resetPassword": {
       "head": {
         "title": "Reset Password"
       }
