@@ -1,10 +1,9 @@
-import { $, component$ } from '@builder.io/qwik';
+import { component$ } from '@builder.io/qwik';
 import { routeLoader$ } from '@builder.io/qwik-city';
 import {
   email,
   type InitialValues,
   required,
-  type SubmitHandler,
   useForm,
 } from '@modular-forms/qwik';
 import { Speak, useTranslate } from 'qwik-speak';
@@ -33,17 +32,10 @@ const RecoverPassword = component$(() => {
     loader: useFormLoader(),
   });
 
-  const handleSubmit = $<SubmitHandler<RecoverPasswordForm>>(
-    (values, event) => {
-      // Runs on client
-      console.log(values);
-    },
-  );
-
   const emailLabel = t('auth.email');
 
   return (
-    <Form onSubmit$={handleSubmit}>
+    <Form>
       <Field
         name="email"
         validate={[
