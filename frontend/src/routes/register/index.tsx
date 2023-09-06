@@ -15,9 +15,7 @@ import {
 import { Speak, useTranslate } from 'qwik-speak';
 
 import { TextInput } from '~/components/text-input/text-input';
-
-const MAX_FULL_NAME_LENGTH = 128;
-const MIN_PASSWORD_LENGTH = 8;
+import { MAX_FULL_NAME_LENGTH, MIN_PASSWORD_LENGTH } from '~/constants';
 
 export const head: DocumentHead = {
   title: 'runtime.register.head.title',
