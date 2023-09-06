@@ -13,8 +13,7 @@ import {
 import { Speak, useTranslate } from 'qwik-speak';
 
 import { TextInput } from '~/components/text-input/text-input';
-
-const MIN_PASSWORD_LENGTH = 8;
+import { MIN_PASSWORD_LENGTH } from '~/constants';
 
 export const head: DocumentHead = {
   title: 'runtime.resetPassword.head.title',
