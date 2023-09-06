@@ -1,0 +1,9 @@
+{
+  "validation": {
+    "invalidEmail": "Invalid email",
+    "maxName": "Name must be up to {{max}} characters",
+    "minPassword": "Password mut be at least {{min}} characters",
+    "passwordMatch": "Password doesn't match",
+    "required": "This field is required"
+  }
+}
