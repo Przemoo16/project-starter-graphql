@@ -60,6 +60,7 @@ const Login = component$(() => {
             {...props}
             type="email"
             label={emailLabel}
+            placeholder="joe@example.com"
             value={field.value}
             error={field.error}
             required
@@ -72,13 +73,13 @@ const Login = component$(() => {
             {...props}
             type="password"
             label={passwordLabel}
+            placeholder="********"
             value={field.value}
             error={field.error}
             required
           />
         )}
       </Field>
-
       <button type="submit">{t('auth.loginButton')}</button>
     </Form>
   );
