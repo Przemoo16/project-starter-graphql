@@ -95,6 +95,7 @@ const Register = component$(() => {
             {...props}
             type="email"
             label={emailLabel}
+            placeholder="joe@example.com"
             value={field.value}
             error={field.error}
             required
@@ -116,6 +117,7 @@ const Register = component$(() => {
             {...props}
             type="password"
             label={passwordLabel}
+            placeholder="********"
             value={field.value}
             error={field.error}
             required
@@ -137,6 +139,7 @@ const Register = component$(() => {
             {...props}
             type="password"
             label={repeatPasswordLabel}
+            placeholder="********"
             value={field.value}
             error={field.error}
             required
