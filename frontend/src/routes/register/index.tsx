@@ -43,7 +43,7 @@ export default component$(() => (
 
 const Register = component$(() => {
   const t = useTranslate();
-  const [registerForm, { Form, Field }] = useForm<RegisterForm>({
+  const [form, { Form, Field }] = useForm<RegisterForm>({
     loader: useFormLoader(),
   });
 
@@ -127,7 +127,7 @@ const Register = component$(() => {
         validate={[
           required(t('validation.required')),
           custom$(
-            value => value === getValue(registerForm, 'password'),
+            value => value === getValue(form, 'password'),
             t(`validation.passwordMatch`),
           ),
         ]}
