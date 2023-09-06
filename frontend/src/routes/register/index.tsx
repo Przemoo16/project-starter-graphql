@@ -23,19 +23,19 @@ export const head: DocumentHead = {
   title: 'runtime.register.head.title',
 };
 
-type RegisterForm = {
-  fullName: string;
-  email: string;
-  password: string;
-  repeatPassword: string;
-};
-
 export const useFormLoader = routeLoader$<InitialValues<RegisterForm>>(() => ({
   fullName: '',
   email: '',
   password: '',
   repeatPassword: '',
 }));
+
+type RegisterForm = {
+  fullName: string;
+  email: string;
+  password: string;
+  repeatPassword: string;
+};
 
 export default component$(() => (
   <Speak assets={['auth', 'validation']}>
