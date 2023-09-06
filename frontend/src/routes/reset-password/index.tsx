@@ -1,4 +1,4 @@
-import { $, component$ } from '@builder.io/qwik';
+import { component$ } from '@builder.io/qwik';
 import type { DocumentHead } from '@builder.io/qwik-city';
 import { routeLoader$ } from '@builder.io/qwik-city';
 import {
@@ -7,7 +7,6 @@ import {
   type InitialValues,
   minLength,
   required,
-  type SubmitHandler,
   useForm,
 } from '@modular-forms/qwik';
 import { Speak, useTranslate } from 'qwik-speak';
@@ -43,16 +42,11 @@ const ResetPassword = component$(() => {
     loader: useFormLoader(),
   });
 
-  const handleSubmit = $<SubmitHandler<ResetPasswordForm>>((values, event) => {
-    // Runs on client
-    console.log(values);
-  });
-
   const passwordLabel = t('auth.password');
   const repeatPasswordLabel = t('auth.repeatPassword');
 
   return (
-    <Form onSubmit$={handleSubmit}>
+    <Form>
       <Field
         name="password"
         validate={[

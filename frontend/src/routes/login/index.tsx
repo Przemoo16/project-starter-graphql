@@ -1,11 +1,10 @@
-import { $, component$ } from '@builder.io/qwik';
+import { component$ } from '@builder.io/qwik';
 import type { DocumentHead } from '@builder.io/qwik-city';
 import { routeLoader$ } from '@builder.io/qwik-city';
 import {
   email,
   type InitialValues,
   required,
-  type SubmitHandler,
   useForm,
 } from '@modular-forms/qwik';
 import { Speak, useTranslate } from 'qwik-speak';
@@ -38,16 +37,11 @@ const Login = component$(() => {
     loader: useFormLoader(),
   });
 
-  const handleSubmit = $<SubmitHandler<LoginForm>>((values, event) => {
-    // Runs on client
-    console.log(values);
-  });
-
   const emailLabel = t('auth.email');
   const passwordLabel = t('auth.password');
 
   return (
-    <Form onSubmit$={handleSubmit}>
+    <Form>
       <Field
         name="email"
         validate={[
