@@ -15,15 +15,15 @@ export const head: DocumentHead = {
   title: 'runtime.login.head.title',
 };
 
-export const useFormLoader = routeLoader$<InitialValues<LoginForm>>(() => ({
-  email: '',
-  password: '',
-}));
-
 type LoginForm = {
   email: string;
   password: string;
 };
+
+export const useFormLoader = routeLoader$<InitialValues<LoginForm>>(() => ({
+  email: '',
+  password: '',
+}));
 
 export default component$(() => (
   <Speak assets={['auth', 'validation']}>

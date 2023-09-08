@@ -1,23 +1,41 @@
-import { component$ } from '@builder.io/qwik';
-import type { DocumentHead } from '@builder.io/qwik-city';
-import { routeLoader$ } from '@builder.io/qwik-city';
+import { $, component$ } from '@builder.io/qwik';
+import {
+  type DocumentHead,
+  routeLoader$,
+  useNavigate,
+} from '@builder.io/qwik-city';
 import {
   custom$,
   email,
+  FormError,
   getValue,
   type InitialValues,
   maxLength,
   minLength,
   required,
+  type SubmitHandler,
   useForm,
 } from '@modular-forms/qwik';
-import { Speak, useTranslate } from 'qwik-speak';
+import {
+  inlineTranslate,
+  Speak,
+  useSpeakContext,
+  useTranslate,
+} from 'qwik-speak';
 
 import { TextInput } from '~/components/text-input/text-input';
 import { MAX_FULL_NAME_LENGTH, MIN_PASSWORD_LENGTH } from '~/constants';
+import { register } from '~/services/user';
 
 export const head: DocumentHead = {
   title: 'runtime.register.head.title',
+};
+
+type RegisterForm = {
+  fullName: string;
+  email: string;
+  password: string;
+  repeatPassword: string;
 };
 
 export const useFormLoader = routeLoader$<InitialValues<RegisterForm>>(() => ({
@@ -27,13 +45,6 @@ export const useFormLoader = routeLoader$<InitialValues<RegisterForm>>(() => ({
   repeatPassword: '',
 }));
 
-type RegisterForm = {
-  fullName: string;
-  email: string;
-  password: string;
-  repeatPassword: string;
-};
-
 export default component$(() => (
   <Speak assets={['auth', 'validation']}>
     <Register />
@@ -42,9 +53,33 @@ export default component$(() => (
 
 const Register = component$(() => {
   const t = useTranslate();
-  const [form, { Form, Field }] = useForm<RegisterForm>({
+  const ctx = useSpeakContext();
+  const nav = useNavigate();
+  const [loginForm, { Form, Field }] = useForm<RegisterForm>({
     loader: useFormLoader(),
   });
+
+  const handleSubmit = $<SubmitHandler<RegisterForm>>(
+    async (values, _event) => {
+      const data = await register(
+        values.fullName,
+        values.email,
+        values.password,
+      );
+      if (!data.createUser.problems) {
+        await nav('/login');
+      }
+      // TODO: Display handling all possible errors and fix any type
+      const isAlreadyExistingUserError = data.createUser.problems.some(
+        (problem: any) => problem.__typename === 'UserAlreadyExistsProblem',
+      );
+      throw new FormError<RegisterForm>(
+        isAlreadyExistingUserError && {
+          email: inlineTranslate('auth.userAlreadyExists', ctx),
+        },
+      );
+    },
+  );
 
   const fullNameLabel = t('auth.fullName');
   const emailLabel = t('auth.email');
@@ -52,7 +87,7 @@ const Register = component$(() => {
   const repeatPasswordLabel = t('auth.repeatPassword');
 
   return (
-    <Form>
+    <Form onSubmit$={handleSubmit}>
       <Field
         name="fullName"
         validate={[
@@ -121,7 +156,7 @@ const Register = component$(() => {
         validate={[
           required(t('validation.required')),
           custom$(
-            value => value === getValue(form, 'password'),
+            value => value === getValue(loginForm, 'password'),
             t(`validation.passwordMatch`),
           ),
         ]}
@@ -138,7 +173,10 @@ const Register = component$(() => {
           />
         )}
       </Field>
-      <button type="submit">{t('auth.getStarted')}</button>
+      <div>{loginForm.response.message}</div>
+      <button type="submit" disabled={loginForm.submitting}>
+        {t('auth.getStarted')}
+      </button>
     </Form>
   );
 });
