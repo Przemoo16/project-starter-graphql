@@ -108,7 +108,7 @@ const Register = component$(() => {
             placeholder="Jon Doe"
             value={field.value}
             error={field.error}
-            // required
+            required
           />
         )}
       </Field>
@@ -127,6 +127,7 @@ const Register = component$(() => {
             placeholder="joe@example.com"
             value={field.value}
             error={field.error}
+            required
           />
         )}
       </Field>
