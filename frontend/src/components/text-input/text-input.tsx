@@ -27,22 +27,20 @@ type TextInputProps = {
 };
 
 export const TextInput = component$<TextInputProps>(
-  ({ label, error, name, required, ...props }) => {
-    return (
-      <div>
-        {label && (
-          <label for={name}>
-            {label} {required && <span>*</span>}
-          </label>
-        )}
-        <input
-          {...props}
-          id={name}
-          aria-invalid={!!error}
-          aria-errormessage={`${name}-error`}
-        />
-        {error && <div id={`${name}-error`}>{error}</div>}
-      </div>
-    );
-  },
+  ({ label, error, name, required, ...props }) => (
+    <div>
+      {label && (
+        <label for={name}>
+          {label} {required && <span>*</span>}
+        </label>
+      )}
+      <input
+        {...props}
+        id={name}
+        aria-invalid={!!error}
+        aria-errormessage={`${name}-error`}
+      />
+      {error && <div id={`${name}-error`}>{error}</div>}
+    </div>
+  ),
 );
