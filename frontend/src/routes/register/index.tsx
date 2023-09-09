@@ -25,6 +25,7 @@ import {
 
 import { TextInput } from '~/components/text-input/text-input';
 import { MAX_FULL_NAME_LENGTH, MIN_PASSWORD_LENGTH } from '~/constants';
+import { isProblemPresent } from '~/libs/api/errors';
 import { register } from '~/services/user';
 
 export const head: DocumentHead = {
@@ -61,23 +62,24 @@ const Register = component$(() => {
 
   const handleSubmit = $<SubmitHandler<RegisterForm>>(
     async (values, _event) => {
-      const data = await register(
-        values.fullName,
-        values.email,
-        values.password,
-      );
-      if (!data.createUser.problems) {
+      const {
+        createUser: { problems },
+      } = await register(values.fullName, values.email, values.password);
+
+      if (!problems) {
         await nav('/login');
       }
-      // TODO: Display handling all possible errors and fix any type
-      const isAlreadyExistingUserError = data.createUser.problems.some(
-        (problem: any) => problem.__typename === 'UserAlreadyExistsProblem',
-      );
-      throw new FormError<RegisterForm>(
-        isAlreadyExistingUserError && {
-          email: inlineTranslate('auth.userAlreadyExists', ctx),
-        },
-      );
+
+      let emailError = '';
+      let generalError = '';
+      if (isProblemPresent(problems, 'UserAlreadyExistsProblem')) {
+        emailError = inlineTranslate('auth.userAlreadyExists', ctx);
+      } else {
+        generalError = inlineTranslate('auth.registerError', ctx);
+      }
+      throw new FormError<RegisterForm>(generalError, {
+        email: emailError,
+      });
     },
   );
 

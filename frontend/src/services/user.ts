@@ -14,7 +14,7 @@ const sendGraphQLrequest = async (
       variables,
     }),
   });
-  return await response.json();
+  return (await response.json()).data;
 };
 
 const getApiURL = (): string => {
@@ -46,12 +46,11 @@ export const register = async (
   password: string,
 ): Promise<any> => {
   // TODO: Fix any type
-  const response = await sendGraphQLrequest(REGISTER_QUERY, {
+  return await sendGraphQLrequest(REGISTER_QUERY, {
     input: {
       fullName,
       email,
       password,
     },
   });
-  return response.data;
 };
