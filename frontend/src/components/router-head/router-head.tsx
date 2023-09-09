@@ -12,9 +12,12 @@ export const RouterHead = component$(() => {
   const head = useDocumentHead();
   const loc = useLocation();
 
+  const appName = t('runtime.app.head.title');
+  const pageTitle = t(head.title);
+
   return (
     <>
-      <Title appName={t('runtime.app.head.title')} pageTitle={t(head.title)} />
+      <Title appName={appName} pageTitle={pageTitle} />
 
       <link rel="canonical" href={loc.url.href} />
       <meta name="viewport" content="width=device-width, initial-scale=1.0" />

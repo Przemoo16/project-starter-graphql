@@ -1,5 +1,5 @@
 import { component$ } from '@builder.io/qwik';
-import { routeLoader$ } from '@builder.io/qwik-city';
+import { type DocumentHead, routeLoader$ } from '@builder.io/qwik-city';
 import {
   email,
   type InitialValues,
@@ -10,15 +10,19 @@ import { Speak, useTranslate } from 'qwik-speak';
 
 import { TextInput } from '~/components/text-input/text-input';
 
+export const head: DocumentHead = {
+  title: 'runtime.recoverPassword.head.title',
+};
+
+type RecoverPasswordForm = {
+  email: string;
+};
+
 export const useFormLoader = routeLoader$<InitialValues<RecoverPasswordForm>>(
   () => ({
     email: '',
   }),
 );
-
-type RecoverPasswordForm = {
-  email: string;
-};
 
 export default component$(() => (
   <Speak assets={['auth', 'validation']}>

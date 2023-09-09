@@ -18,17 +18,17 @@ export const head: DocumentHead = {
   title: 'runtime.resetPassword.head.title',
 };
 
+type ResetPasswordForm = {
+  password: string;
+  repeatPassword: string;
+};
+
 export const useFormLoader = routeLoader$<InitialValues<ResetPasswordForm>>(
   () => ({
     password: '',
     repeatPassword: '',
   }),
 );
-
-type ResetPasswordForm = {
-  password: string;
-  repeatPassword: string;
-};
 
 export default component$(() => (
   <Speak assets={['auth', 'validation']}>
@@ -38,7 +38,7 @@ export default component$(() => (
 
 const ResetPassword = component$(() => {
   const t = useTranslate();
-  const [form, { Form, Field }] = useForm<ResetPasswordForm>({
+  const [resetPasswordForm, { Form, Field }] = useForm<ResetPasswordForm>({
     loader: useFormLoader(),
   });
 
@@ -74,7 +74,7 @@ const ResetPassword = component$(() => {
         validate={[
           required(t('validation.required')),
           custom$(
-            value => value === getValue(form, 'password'),
+            value => value === getValue(resetPasswordForm, 'password'),
             t(`validation.passwordMatch`),
           ),
         ]}
