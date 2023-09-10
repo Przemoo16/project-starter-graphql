@@ -60,13 +60,13 @@ const Login = component$(() => {
       await nav('/dashboard');
     }
 
-    let generalError = '';
+    let error = '';
     if (isProblemPresent(problems, 'UserNotConfirmedProblem')) {
-      generalError = inlineTranslate('auth.userNotConfirmed', ctx);
+      error = inlineTranslate('auth.userNotConfirmed', ctx);
     } else {
-      generalError = inlineTranslate('auth.invalidCredentials', ctx);
+      error = inlineTranslate('auth.invalidCredentials', ctx);
     }
-    throw new FormError<LoginForm>(generalError);
+    throw new FormError<LoginForm>(error);
   });
 
   const emailLabel = t('auth.email');

@@ -8,7 +8,7 @@ from backend.libs.api.types import Problem
 
 @strawberry.type
 class ConfirmEmailSuccess:
-    message: str = "Email has been confirmed"
+    message: str = " The user has been confirmed"
 
 
 @strawberry.type
