@@ -19,9 +19,9 @@ const sendGraphQLrequest = async (
 
 const getApiURL = (): string => {
   const serverApiURL =
-    import.meta.env.VITE_SERVER_API_URL || 'http://proxy/graphql';
+    import.meta.env.VITE_SERVER_API_URL ?? 'http://proxy/graphql';
   const clientApiURL =
-    import.meta.env.VITE_CLIENT_API_URL || 'http://localhost:5173/graphql';
+    import.meta.env.VITE_CLIENT_API_URL ?? 'http://localhost:5173/graphql';
   return isServer ? serverApiURL : clientApiURL;
 };
 
@@ -90,5 +90,30 @@ export const recoverPassword = async (email: string): Promise<any> => {
   // TODO: Fix any type
   return await sendGraphQLrequest(RECOVER_PASSWORD_MUTATION, {
     email,
+  });
+};
+
+const RESET_PASSWORD_MUTATION = `
+  mutation ResetPassword($input: ResetPasswordInput!) {
+    resetPassword(input: $input) {
+      ... on ResetPasswordFailure {
+        problems {
+          __typename
+        }
+      }
+    }
+  }
+`;
+
+export const resetPassword = async (
+  token: string,
+  password: string,
+): Promise<any> => {
+  // TODO: Fix any type
+  return await sendGraphQLrequest(RESET_PASSWORD_MUTATION, {
+    input: {
+      token,
+      password,
+    },
   });
 };
