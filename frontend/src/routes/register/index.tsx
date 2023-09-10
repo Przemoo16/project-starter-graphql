@@ -56,7 +56,7 @@ const Register = component$(() => {
   const t = useTranslate();
   const ctx = useSpeakContext();
   const nav = useNavigate();
-  const [loginForm, { Form, Field }] = useForm<RegisterForm>({
+  const [registerForm, { Form, Field }] = useForm<RegisterForm>({
     loader: useFormLoader(),
   });
 
@@ -158,7 +158,7 @@ const Register = component$(() => {
         validate={[
           required(t('validation.required')),
           custom$(
-            value => value === getValue(loginForm, 'password'),
+            value => value === getValue(registerForm, 'password'),
             t(`validation.passwordMatch`),
           ),
         ]}
@@ -175,8 +175,8 @@ const Register = component$(() => {
           />
         )}
       </Field>
-      <div>{loginForm.response.message}</div>
-      <button type="submit" disabled={loginForm.submitting}>
+      <div>{registerForm.response.message}</div>
+      <button type="submit" disabled={registerForm.submitting}>
         {t('auth.getStarted')}
       </button>
     </Form>
