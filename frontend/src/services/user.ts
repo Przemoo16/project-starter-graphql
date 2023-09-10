@@ -25,7 +25,7 @@ const getApiURL = (): string => {
   return isServer ? serverApiURL : clientApiURL;
 };
 
-const REGISTER_QUERY = `
+const REGISTER_MUTATION = `
   mutation CreateUser($input: UserCreateInput!) {
     createUser(input: $input) {
       ... on CreateUserFailure {
@@ -43,7 +43,7 @@ export const register = async (
   password: string,
 ): Promise<any> => {
   // TODO: Fix any type
-  return await sendGraphQLrequest(REGISTER_QUERY, {
+  return await sendGraphQLrequest(REGISTER_MUTATION, {
     input: {
       fullName,
       email,
@@ -52,7 +52,7 @@ export const register = async (
   });
 };
 
-const LOGIN_QUERY = `
+const LOGIN_MUTATION = `
   mutation Login($input: LoginInput!) {
     login(input: $input) {
       ... on LoginSuccess {
@@ -70,10 +70,25 @@ const LOGIN_QUERY = `
 
 export const login = async (email: string, password: string): Promise<any> => {
   // TODO: Fix any type
-  return await sendGraphQLrequest(LOGIN_QUERY, {
+  return await sendGraphQLrequest(LOGIN_MUTATION, {
     input: {
       username: email,
       password,
     },
+  });
+};
+
+const RECOVER_PASSWORD_MUTATION = `
+  mutation RecoverPassword($email: String!) {
+    recoverPassword(email: $email) {
+      message
+    }
+  }
+`;
+
+export const recoverPassword = async (email: string): Promise<any> => {
+  // TODO: Fix any type
+  return await sendGraphQLrequest(RECOVER_PASSWORD_MUTATION, {
+    email,
   });
 };
