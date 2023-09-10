@@ -1,15 +1,27 @@
-import { component$ } from '@builder.io/qwik';
-import type { DocumentHead } from '@builder.io/qwik-city';
-import { routeLoader$ } from '@builder.io/qwik-city';
+import { $, component$ } from '@builder.io/qwik';
+import {
+  type DocumentHead,
+  routeLoader$,
+  useNavigate,
+} from '@builder.io/qwik-city';
 import {
   email,
+  FormError,
   type InitialValues,
   required,
+  type SubmitHandler,
   useForm,
 } from '@modular-forms/qwik';
-import { Speak, useTranslate } from 'qwik-speak';
+import {
+  inlineTranslate,
+  Speak,
+  useSpeakContext,
+  useTranslate,
+} from 'qwik-speak';
 
 import { TextInput } from '~/components/text-input/text-input';
+import { isProblemPresent } from '~/libs/api/errors';
+import { login } from '~/services/user';
 
 export const head: DocumentHead = {
   title: 'runtime.login.head.title',
@@ -33,15 +45,35 @@ export default component$(() => (
 
 const Login = component$(() => {
   const t = useTranslate();
-  const [, { Form, Field }] = useForm<LoginForm>({
+  const ctx = useSpeakContext();
+  const nav = useNavigate();
+  const [loginForm, { Form, Field }] = useForm<LoginForm>({
     loader: useFormLoader(),
+  });
+
+  const handleSubmit = $<SubmitHandler<LoginForm>>(async (values, _event) => {
+    const {
+      login: { problems },
+    } = await login(values.email, values.password);
+
+    if (!problems) {
+      await nav('/dashboard');
+    }
+
+    let generalError = '';
+    if (isProblemPresent(problems, 'UserNotConfirmedProblem')) {
+      generalError = inlineTranslate('auth.userNotConfirmed', ctx);
+    } else {
+      generalError = inlineTranslate('auth.invalidCredentials', ctx);
+    }
+    throw new FormError<LoginForm>(generalError);
   });
 
   const emailLabel = t('auth.email');
   const passwordLabel = t('auth.password');
 
   return (
-    <Form>
+    <Form onSubmit$={handleSubmit}>
       <Field
         name="email"
         validate={[
@@ -74,7 +106,10 @@ const Login = component$(() => {
           />
         )}
       </Field>
-      <button type="submit">{t('auth.loginButton')}</button>
+      <div>{loginForm.response.message}</div>
+      <button type="submit" disabled={loginForm.submitting}>
+        {t('auth.loginButton')}
+      </button>
     </Form>
   );
 });

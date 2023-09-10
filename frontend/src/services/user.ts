@@ -31,9 +31,6 @@ const REGISTER_QUERY = `
       ... on CreateUserFailure {
         problems {
           __typename
-          ... on Problem {
-            message
-          }
         }
       }
     }
@@ -50,6 +47,32 @@ export const register = async (
     input: {
       fullName,
       email,
+      password,
+    },
+  });
+};
+
+const LOGIN_QUERY = `
+  mutation Login($input: LoginInput!) {
+    login(input: $input) {
+      ... on LoginSuccess {
+        accessToken
+        refreshToken
+      }
+      ... on LoginFailure {
+        problems {
+          __typename
+        }
+      }
+    }
+  }
+`;
+
+export const login = async (email: string, password: string): Promise<any> => {
+  // TODO: Fix any type
+  return await sendGraphQLrequest(LOGIN_QUERY, {
+    input: {
+      username: email,
       password,
     },
   });
