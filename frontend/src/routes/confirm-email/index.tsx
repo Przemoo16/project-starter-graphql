@@ -9,7 +9,7 @@ export const head: DocumentHead = {
   title: 'runtime.confirm-email.head.title',
 };
 
-export const userConfirmEmail = routeLoader$(async requestEvent => {
+export const useConfirmEmail = routeLoader$(async requestEvent => {
   return await confirmEmail(requestEvent.url.searchParams.get('token') ?? '');
 });
 
@@ -20,7 +20,7 @@ export default component$(() => (
 ));
 
 const ConfirmEmail = component$(() => {
-  const signal = userConfirmEmail();
+  const signal = useConfirmEmail();
   const t = useTranslate();
 
   const {
@@ -30,7 +30,7 @@ const ConfirmEmail = component$(() => {
   let message = '';
   if (problems) {
     if (isProblemPresent(problems, 'UserAlreadyConfirmedProblem')) {
-      message = t('auth.userAlreadyConfirmed');
+      message = t('auth.accountAlreadyConfirmed');
     } else {
       message = t('auth.confirmEmailError');
     }

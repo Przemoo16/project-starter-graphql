@@ -1,13 +1,8 @@
 import { $, component$ } from '@builder.io/qwik';
-import {
-  type DocumentHead,
-  routeLoader$,
-  useNavigate,
-} from '@builder.io/qwik-city';
+import { type DocumentHead, useNavigate } from '@builder.io/qwik-city';
 import {
   email,
   FormError,
-  type InitialValues,
   required,
   type SubmitHandler,
   useForm,
@@ -32,11 +27,6 @@ type LoginForm = {
   password: string;
 };
 
-export const useFormLoader = routeLoader$<InitialValues<LoginForm>>(() => ({
-  email: '',
-  password: '',
-}));
-
 export default component$(() => (
   <Speak assets={['auth', 'validation']}>
     <Login />
@@ -48,7 +38,7 @@ const Login = component$(() => {
   const ctx = useSpeakContext();
   const nav = useNavigate();
   const [loginForm, { Form, Field }] = useForm<LoginForm>({
-    loader: useFormLoader(),
+    loader: { value: { email: '', password: '' } },
   });
 
   const handleSubmit = $<SubmitHandler<LoginForm>>(async (values, _event) => {
@@ -56,17 +46,17 @@ const Login = component$(() => {
       login: { problems },
     } = await login(values.email, values.password);
 
-    if (!problems) {
-      await nav('/dashboard');
+    if (problems) {
+      let error = '';
+      if (isProblemPresent(problems, 'UserNotConfirmedProblem')) {
+        error = inlineTranslate('auth.accountNotConfirmed', ctx);
+      } else {
+        error = inlineTranslate('auth.invalidCredentials', ctx);
+      }
+      throw new FormError<LoginForm>(error);
     }
 
-    let error = '';
-    if (isProblemPresent(problems, 'UserNotConfirmedProblem')) {
-      error = inlineTranslate('auth.userNotConfirmed', ctx);
-    } else {
-      error = inlineTranslate('auth.invalidCredentials', ctx);
-    }
-    throw new FormError<LoginForm>(error);
+    await nav('/dashboard');
   });
 
   const emailLabel = t('auth.email');
