@@ -150,7 +150,7 @@ export const getMe = async (): Promise<any> => {
   return await sendGraphQLrequest(GET_ME_QUERY, {});
 };
 
-const UPDATE_ACCOUNT_MUTATION = `
+const UPDATE_ME_MUTATION = `
   mutation UpdateMe($input: UpdateMeInput!) {
     updateMe(input: $input) {
       ... on UpdateMeFailure {
@@ -162,16 +162,16 @@ const UPDATE_ACCOUNT_MUTATION = `
   }
 `;
 
-export const updateAccount = async (fullName: string): Promise<any> => {
+export const updateMe = async (fullName: string): Promise<any> => {
   // TODO: Fix any type
-  return await sendGraphQLrequest(UPDATE_ACCOUNT_MUTATION, {
+  return await sendGraphQLrequest(UPDATE_ME_MUTATION, {
     input: {
       fullName,
     },
   });
 };
 
-const CHANGE_PASSWORD_MUTATION = `
+const CHANGE_MY_PASSWORD_MUTATION = `
   mutation ChangeMyPassword($input: ChangeMyPasswordInput!) {
     changeMyPassword(input: $input) {
       ... on ChangeMyPasswordFailure {
@@ -183,12 +183,12 @@ const CHANGE_PASSWORD_MUTATION = `
   }
 `;
 
-export const changePassword = async (
+export const changeMyPassword = async (
   currentPassword: string,
   newPassword: string,
 ): Promise<any> => {
   // TODO: Fix any type
-  return await sendGraphQLrequest(CHANGE_PASSWORD_MUTATION, {
+  return await sendGraphQLrequest(CHANGE_MY_PASSWORD_MUTATION, {
     input: {
       currentPassword,
       newPassword,
@@ -196,9 +196,7 @@ export const changePassword = async (
   });
 };
 
-// TODO Check if message is needed
-// TODO Check what is $input in the mutations
-const DELETE_ACCOUNT_MUTATION = `
+const DELETE_ME_MUTATION = `
   mutation DeleteMe {
     deleteMe {
       message
@@ -206,7 +204,7 @@ const DELETE_ACCOUNT_MUTATION = `
   }
 `;
 
-export const deleteAccount = async (): Promise<any> => {
+export const deleteMe = async (): Promise<any> => {
   // TODO: Fix any type
-  return await sendGraphQLrequest(DELETE_ACCOUNT_MUTATION, {});
+  return await sendGraphQLrequest(DELETE_ME_MUTATION, {});
 };
