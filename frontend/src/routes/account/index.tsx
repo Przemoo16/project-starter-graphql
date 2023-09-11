@@ -23,7 +23,7 @@ import {
 import { TextInput } from '~/components/text-input/text-input';
 import { MAX_FULL_NAME_LENGTH, MIN_PASSWORD_LENGTH } from '~/constants';
 import { isProblemPresent } from '~/libs/api/errors';
-import { changePassword, updateAccount } from '~/services/user';
+import { changeMyPassword, updateMe } from '~/services/user';
 
 export const head: DocumentHead = {
   title: 'runtime.account.head.title',
@@ -67,7 +67,7 @@ const Account = component$(() => {
     async (values, _event) => {
       const {
         updateMe: { problems },
-      } = await updateAccount(values.fullName);
+      } = await updateMe(values.fullName);
 
       if (problems) {
         throw new FormError<UpdateAccountForm>(
@@ -86,7 +86,7 @@ const Account = component$(() => {
     async (values, _event) => {
       const {
         changeMyPassword: { problems },
-      } = await changePassword(values.currentPassword, values.newPassword);
+      } = await changeMyPassword(values.currentPassword, values.newPassword);
 
       if (problems) {
         let error = '';
