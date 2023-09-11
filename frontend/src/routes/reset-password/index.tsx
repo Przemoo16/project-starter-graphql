@@ -1,17 +1,12 @@
 import { $, component$ } from '@builder.io/qwik';
-import {
-  type DocumentHead,
-  routeLoader$,
-  useLocation,
-  useNavigate,
-} from '@builder.io/qwik-city';
+import { type DocumentHead, useLocation } from '@builder.io/qwik-city';
 import {
   custom$,
   FormError,
   getValue,
-  type InitialValues,
   minLength,
   required,
+  setResponse,
   type SubmitHandler,
   useForm,
 } from '@modular-forms/qwik';
@@ -35,13 +30,6 @@ type ResetPasswordForm = {
   repeatPassword: string;
 };
 
-export const useFormLoader = routeLoader$<InitialValues<ResetPasswordForm>>(
-  () => ({
-    password: '',
-    repeatPassword: '',
-  }),
-);
-
 export default component$(() => (
   <Speak assets={['auth', 'validation']}>
     <ResetPassword />
@@ -51,10 +39,9 @@ export default component$(() => (
 const ResetPassword = component$(() => {
   const t = useTranslate();
   const ctx = useSpeakContext();
-  const nav = useNavigate();
   const loc = useLocation();
   const [resetPasswordForm, { Form, Field }] = useForm<ResetPasswordForm>({
-    loader: useFormLoader(),
+    loader: { value: { password: '', repeatPassword: '' } },
   });
 
   const handleSubmit = $<SubmitHandler<ResetPasswordForm>>(
@@ -66,13 +53,15 @@ const ResetPassword = component$(() => {
         values.password,
       );
 
-      if (!problems) {
-        await nav('/login');
+      if (problems) {
+        throw new FormError<ResetPasswordForm>(
+          inlineTranslate('auth.resetPasswordError', ctx),
+        );
       }
 
-      throw new FormError<ResetPasswordForm>(
-        inlineTranslate('auth.resetPasswordError', ctx),
-      );
+      setResponse(resetPasswordForm, {
+        message: inlineTranslate('auth.resetPasswordSuccess', ctx),
+      });
     },
   );
 

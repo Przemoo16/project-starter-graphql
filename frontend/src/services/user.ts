@@ -136,3 +136,77 @@ export const confirmEmail = async (token: string): Promise<any> => {
     token,
   });
 };
+
+const GET_ME_QUERY = `
+  query GetMe {
+    me {
+      id
+    }
+  }
+`;
+
+export const getMe = async (): Promise<any> => {
+  // TODO: Fix any type
+  return await sendGraphQLrequest(GET_ME_QUERY, {});
+};
+
+const UPDATE_ACCOUNT_MUTATION = `
+  mutation UpdateMe($input: UpdateMeInput!) {
+    updateMe(input: $input) {
+      ... on UpdateMeFailure {
+        problems {
+          __typename
+        }
+      }
+    }
+  }
+`;
+
+export const updateAccount = async (fullName: string): Promise<any> => {
+  // TODO: Fix any type
+  return await sendGraphQLrequest(UPDATE_ACCOUNT_MUTATION, {
+    input: {
+      fullName,
+    },
+  });
+};
+
+const CHANGE_PASSWORD_MUTATION = `
+  mutation ChangeMyPassword($input: ChangeMyPasswordInput!) {
+    changeMyPassword(input: $input) {
+      ... on ChangeMyPasswordFailure {
+        problems {
+          __typename
+        }
+      }
+    }
+  }
+`;
+
+export const changePassword = async (
+  currentPassword: string,
+  newPassword: string,
+): Promise<any> => {
+  // TODO: Fix any type
+  return await sendGraphQLrequest(CHANGE_PASSWORD_MUTATION, {
+    input: {
+      currentPassword,
+      newPassword,
+    },
+  });
+};
+
+// TODO Check if message is needed
+// TODO Check what is $input in the mutations
+const DELETE_ACCOUNT_MUTATION = `
+  mutation DeleteMe {
+    deleteMe {
+      message
+    }
+  }
+`;
+
+export const deleteAccount = async (): Promise<any> => {
+  // TODO: Fix any type
+  return await sendGraphQLrequest(DELETE_ACCOUNT_MUTATION, {});
+};

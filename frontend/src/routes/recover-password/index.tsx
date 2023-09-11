@@ -1,13 +1,17 @@
 import { $, component$ } from '@builder.io/qwik';
-import { type DocumentHead, routeLoader$ } from '@builder.io/qwik-city';
+import { type DocumentHead } from '@builder.io/qwik-city';
 import {
   email,
-  type InitialValues,
   required,
   type SubmitHandler,
   useForm,
 } from '@modular-forms/qwik';
-import { Speak, useTranslate } from 'qwik-speak';
+import {
+  inlineTranslate,
+  Speak,
+  useSpeakContext,
+  useTranslate,
+} from 'qwik-speak';
 
 import { TextInput } from '~/components/text-input/text-input';
 import { recoverPassword } from '~/services/user';
@@ -20,12 +24,6 @@ type RecoverPasswordForm = {
   email: string;
 };
 
-export const useFormLoader = routeLoader$<InitialValues<RecoverPasswordForm>>(
-  () => ({
-    email: '',
-  }),
-);
-
 export default component$(() => (
   <Speak assets={['auth', 'validation']}>
     <RecoverPassword />
@@ -34,18 +32,21 @@ export default component$(() => (
 
 const RecoverPassword = component$(() => {
   const t = useTranslate();
+  const ctx = useSpeakContext();
   const [recoverPasswordForm, { Form, Field }] = useForm<RecoverPasswordForm>({
-    loader: useFormLoader(),
+    loader: { value: { email: '' } },
   });
 
   const handleSubmit = $<SubmitHandler<RecoverPasswordForm>>(
     async (values, _event) => {
       await recoverPassword(values.email);
+      return {
+        message: inlineTranslate('auth.recoverPasswordSuccess', ctx),
+      };
     },
   );
 
   const emailLabel = t('auth.email');
-  const recoverPasswordSubmitted = t('auth.recoverPasswordSubmitted');
 
   return (
     <Form onSubmit$={handleSubmit}>
@@ -68,7 +69,9 @@ const RecoverPassword = component$(() => {
           />
         )}
       </Field>
-      {recoverPasswordForm.submitted && <div>{recoverPasswordSubmitted}</div>}
+      <div>{recoverPasswordForm.response.status}</div>
+      <div>{recoverPasswordForm.response.message}</div>
+      <div>{recoverPasswordForm.response.data}</div>
       <button type="submit" disabled={recoverPasswordForm.submitting}>
         {t('auth.recoverPassword')}
       </button>

@@ -1,18 +1,14 @@
 import { $, component$ } from '@builder.io/qwik';
-import {
-  type DocumentHead,
-  routeLoader$,
-  useNavigate,
-} from '@builder.io/qwik-city';
+import { type DocumentHead } from '@builder.io/qwik-city';
 import {
   custom$,
   email,
   FormError,
   getValue,
-  type InitialValues,
   maxLength,
   minLength,
   required,
+  setResponse,
   type SubmitHandler,
   useForm,
 } from '@modular-forms/qwik';
@@ -39,13 +35,6 @@ type RegisterForm = {
   repeatPassword: string;
 };
 
-export const useFormLoader = routeLoader$<InitialValues<RegisterForm>>(() => ({
-  fullName: '',
-  email: '',
-  password: '',
-  repeatPassword: '',
-}));
-
 export default component$(() => (
   <Speak assets={['auth', 'validation']}>
     <Register />
@@ -55,9 +44,10 @@ export default component$(() => (
 const Register = component$(() => {
   const t = useTranslate();
   const ctx = useSpeakContext();
-  const nav = useNavigate();
   const [registerForm, { Form, Field }] = useForm<RegisterForm>({
-    loader: useFormLoader(),
+    loader: {
+      value: { fullName: '', email: '', password: '', repeatPassword: '' },
+    },
   });
 
   const handleSubmit = $<SubmitHandler<RegisterForm>>(
@@ -66,19 +56,21 @@ const Register = component$(() => {
         createUser: { problems },
       } = await register(values.fullName, values.email, values.password);
 
-      if (!problems) {
-        await nav('/login');
+      if (problems) {
+        let emailError = '';
+        let generalError = '';
+        if (isProblemPresent(problems, 'UserAlreadyExistsProblem')) {
+          emailError = inlineTranslate('auth.accountAlreadyExists', ctx);
+        } else {
+          generalError = inlineTranslate('auth.registerError', ctx);
+        }
+        throw new FormError<RegisterForm>(generalError, {
+          email: emailError,
+        });
       }
 
-      let emailError = '';
-      let generalError = '';
-      if (isProblemPresent(problems, 'UserAlreadyExistsProblem')) {
-        emailError = inlineTranslate('auth.userAlreadyExists', ctx);
-      } else {
-        generalError = inlineTranslate('auth.registerError', ctx);
-      }
-      throw new FormError<RegisterForm>(generalError, {
-        email: emailError,
+      setResponse(registerForm, {
+        message: inlineTranslate('auth.registerSuccess', ctx),
       });
     },
   );
@@ -175,6 +167,7 @@ const Register = component$(() => {
           />
         )}
       </Field>
+      <div>{registerForm.response.status}</div>
       <div>{registerForm.response.message}</div>
       <button type="submit" disabled={registerForm.submitting}>
         {t('auth.getStarted')}
