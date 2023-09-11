@@ -117,3 +117,22 @@ export const resetPassword = async (
     },
   });
 };
+
+const CONFIRM_EMAIL_MUTATION = `
+  mutation ConfirmEmail($token: String!) {
+    confirmEmail(token: $token) {
+      ... on ConfirmEmailFailure {
+        problems {
+          __typename
+        }
+      }
+    }
+  }
+`;
+
+export const confirmEmail = async (token: string): Promise<any> => {
+  // TODO: Fix any type
+  return await sendGraphQLrequest(CONFIRM_EMAIL_MUTATION, {
+    token,
+  });
+};
