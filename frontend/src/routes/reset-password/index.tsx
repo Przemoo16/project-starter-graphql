@@ -6,6 +6,7 @@ import {
   getValue,
   minLength,
   required,
+  reset,
   setResponse,
   type SubmitHandler,
   useForm,
@@ -59,6 +60,7 @@ const ResetPassword = component$(() => {
         );
       }
 
+      reset(resetPasswordForm);
       setResponse(resetPasswordForm, {
         message: inlineTranslate('auth.resetPasswordSuccess', ctx),
       });

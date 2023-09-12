@@ -75,10 +75,9 @@ const Account = component$(() => {
         );
       }
 
-      setResponse(changePasswordForm, {
+      setResponse(updateAccountForm, {
         message: inlineTranslate('account.updateAccountSuccess', ctx),
       });
-      reset(changePasswordForm);
     },
   );
 
@@ -98,6 +97,7 @@ const Account = component$(() => {
         throw new FormError<UpdateAccountForm>(error);
       }
 
+      reset(changePasswordForm);
       setResponse(changePasswordForm, {
         message: inlineTranslate('account.changePasswordSuccess', ctx),
       });
