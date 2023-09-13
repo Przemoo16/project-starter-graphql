@@ -53,9 +53,11 @@ const Register = component$(() => {
 
   const handleSubmit = $<SubmitHandler<RegisterForm>>(
     async (values, _event) => {
-      const {
-        createUser: { problems },
-      } = await register(values.fullName, values.email, values.password);
+      const { problems } = await register(
+        values.fullName,
+        values.email,
+        values.password,
+      );
 
       if (problems) {
         let emailError = '';

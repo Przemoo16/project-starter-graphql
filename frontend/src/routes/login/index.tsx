@@ -42,9 +42,7 @@ const Login = component$(() => {
   });
 
   const handleSubmit = $<SubmitHandler<LoginForm>>(async (values, _event) => {
-    const {
-      login: { problems },
-    } = await login(values.email, values.password);
+    const { problems } = await login(values.email, values.password);
 
     if (problems) {
       let error = '';

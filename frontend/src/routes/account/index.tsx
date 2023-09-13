@@ -65,9 +65,7 @@ const Account = component$(() => {
 
   const handleUpdateAccountSubmit = $<SubmitHandler<UpdateAccountForm>>(
     async (values, _event) => {
-      const {
-        updateMe: { problems },
-      } = await updateMe(values.fullName);
+      const { problems } = await updateMe(values.fullName);
 
       if (problems) {
         throw new FormError<UpdateAccountForm>(
@@ -83,9 +81,10 @@ const Account = component$(() => {
 
   const handleChangePasswordSubmit = $<SubmitHandler<ChangePasswordForm>>(
     async (values, _event) => {
-      const {
-        changeMyPassword: { problems },
-      } = await changeMyPassword(values.currentPassword, values.newPassword);
+      const { problems } = await changeMyPassword(
+        values.currentPassword,
+        values.newPassword,
+      );
 
       if (problems) {
         let error = '';
