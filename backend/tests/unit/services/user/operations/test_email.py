@@ -8,7 +8,7 @@ from backend.libs.email.message import HTMLMessage
 from backend.libs.security.token import InvalidTokenError
 from backend.services.user.exceptions import (
     InvalidEmailConfirmationTokenError,
-    UserAlreadyConfirmedError,
+    UserEmailAlreadyConfirmedError,
     UserNotFoundError,
 )
 from backend.services.user.operations.email import (
@@ -155,7 +155,7 @@ async def test_confirm_email_user_email_not_found() -> None:
 
 
 @pytest.mark.anyio()
-async def test_confirm_email_user_already_confirmed() -> None:
+async def test_confirm_email_user_email_already_confirmed() -> None:
     token = "test-token"
 
     def read_token(_: str) -> dict[str, str]:
@@ -171,5 +171,5 @@ async def test_confirm_email_user_already_confirmed() -> None:
         )
     )
 
-    with pytest.raises(UserAlreadyConfirmedError):
+    with pytest.raises(UserEmailAlreadyConfirmedError):
         await confirm_email(token, read_token, crud)

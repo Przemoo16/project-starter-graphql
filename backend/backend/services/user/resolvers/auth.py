@@ -15,7 +15,7 @@ from backend.services.user.crud import UserCRUD
 from backend.services.user.exceptions import (
     InvalidPasswordError,
     InvalidRefreshTokenError,
-    UserNotConfirmedError,
+    UserEmailNotConfirmedError,
     UserNotFoundError,
 )
 from backend.services.user.models import User
@@ -33,7 +33,7 @@ from backend.services.user.types.auth import (
     LoginResponse,
     LoginSuccess,
     RefreshTokenResponse,
-    UserNotConfirmedProblem,
+    UserEmailNotConfirmedProblem,
 )
 
 user_settings = get_settings().user
@@ -68,8 +68,8 @@ async def login_resolver(
         )
     except (UserNotFoundError, InvalidPasswordError):
         return LoginFailure(problems=[InvalidCredentialsProblem()])
-    except UserNotConfirmedError:
-        return LoginFailure(problems=[UserNotConfirmedProblem()])
+    except UserEmailNotConfirmedError:
+        return LoginFailure(problems=[UserEmailNotConfirmedProblem()])
     return LoginSuccess(
         access_token=access_token,
         refresh_token=refresh_token_,

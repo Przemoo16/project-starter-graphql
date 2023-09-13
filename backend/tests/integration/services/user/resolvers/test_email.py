@@ -92,7 +92,7 @@ async def test_confirm_email_user_not_found(
 
 
 @pytest.mark.anyio()
-async def test_confirm_email_user_already_confirmed(
+async def test_confirm_email_user_email_already_confirmed(
     session: AsyncSession, auth_private_key: str, async_client: AsyncClient
 ) -> None:
     user = await create_confirmed_user(session)
@@ -102,7 +102,7 @@ async def test_confirm_email_user_already_confirmed(
         confirmEmail(token: $token) {
           ... on ConfirmEmailFailure {
             problems {
-              ... on UserAlreadyConfirmedProblem {
+              ... on UserEmailAlreadyConfirmedProblem {
                 message
               }
             }

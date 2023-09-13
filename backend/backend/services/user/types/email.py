@@ -8,7 +8,7 @@ from backend.libs.api.types import Problem
 
 @strawberry.type
 class ConfirmEmailSuccess:
-    message: str = " The user has been confirmed"
+    message: str = " The user email has been confirmed"
 
 
 @strawberry.type
@@ -17,12 +17,12 @@ class InvalidEmailConfirmationTokenProblem(Problem):
 
 
 @strawberry.type
-class UserAlreadyConfirmedProblem(Problem):
-    message: str = "The user has already been confirmed"
+class UserEmailAlreadyConfirmedProblem(Problem):
+    message: str = "The user email has already been confirmed"
 
 
 ConfirmEmailProblem = Annotated[
-    InvalidEmailConfirmationTokenProblem | UserAlreadyConfirmedProblem,
+    InvalidEmailConfirmationTokenProblem | UserEmailAlreadyConfirmedProblem,
     strawberry.union("ConfirmEmailProblem"),
 ]
 

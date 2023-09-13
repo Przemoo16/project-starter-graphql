@@ -111,7 +111,7 @@ async def test_login_invalid_password(
 
 
 @pytest.mark.anyio()
-async def test_login_user_not_confirmed(
+async def test_login_user_email_not_confirmed(
     session: AsyncSession, async_client: AsyncClient
 ) -> None:
     await create_user(
@@ -122,7 +122,7 @@ async def test_login_user_not_confirmed(
         login(input: $input) {
           ... on LoginFailure {
             problems {
-              ... on UserNotConfirmedProblem {
+              ... on UserEmailNotConfirmedProblem {
                 message
               }
             }

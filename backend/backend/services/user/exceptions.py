@@ -6,7 +6,7 @@ class UserNotFoundError(Exception):
     pass
 
 
-class UserNotConfirmedError(Exception):
+class UserEmailNotConfirmedError(Exception):
     pass
 
 
@@ -14,7 +14,7 @@ class InvalidEmailConfirmationTokenError(Exception):
     pass
 
 
-class UserAlreadyConfirmedError(Exception):
+class UserEmailAlreadyConfirmedError(Exception):
     pass
 
 
