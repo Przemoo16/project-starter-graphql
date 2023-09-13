@@ -29,8 +29,8 @@ const ConfirmEmail = component$(() => {
 
   let message = '';
   if (problems) {
-    if (isProblemPresent(problems, 'UserAlreadyConfirmedProblem')) {
-      message = t('auth.accountAlreadyConfirmed');
+    if (isProblemPresent(problems, 'UserEmailAlreadyConfirmedProblem')) {
+      message = t('auth.accountEmailAlreadyConfirmed');
     } else {
       message = t('auth.confirmEmailError');
     }

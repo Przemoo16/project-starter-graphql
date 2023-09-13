@@ -11,7 +11,7 @@ from backend.libs.security.token import InvalidTokenError
 from backend.services.user.crud import UserCRUDProtocol, UserFilters, UserUpdateData
 from backend.services.user.exceptions import (
     InvalidEmailConfirmationTokenError,
-    UserAlreadyConfirmedError,
+    UserEmailAlreadyConfirmedError,
     UserNotFoundError,
 )
 from backend.services.user.models import User
@@ -95,7 +95,7 @@ async def confirm_email(
 ) -> None:
     payload = _decode_email_confirmation_token(token, token_reader)
     user = await _get_user_by_id_and_email(payload.user_id, payload.user_email, crud)
-    _validate_user_is_not_already_confirmed(user)
+    _validate_user_email_is_not_already_confirmed(user)
     await _confirm_email(user, crud)
 
 
@@ -126,10 +126,10 @@ async def _get_user_by_id_and_email(
         raise UserNotFoundError from exc
 
 
-def _validate_user_is_not_already_confirmed(user: User) -> None:
+def _validate_user_email_is_not_already_confirmed(user: User) -> None:
     if user.confirmed_email:
-        logger.info("User %r already confirmed", user.email)
-        raise UserAlreadyConfirmedError
+        logger.info("User email %r already confirmed", user.email)
+        raise UserEmailAlreadyConfirmedError
 
 
 async def _confirm_email(user: User, crud: UserCRUDProtocol) -> None:

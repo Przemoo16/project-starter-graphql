@@ -16,7 +16,7 @@ from backend.services.user.exceptions import (
     InvalidPasswordError,
     InvalidRefreshTokenError,
     MissingAccessTokenError,
-    UserNotConfirmedError,
+    UserEmailNotConfirmedError,
     UserNotFoundError,
 )
 from backend.services.user.models import User
@@ -62,7 +62,7 @@ async def login(
     crud: UserCRUDProtocol,
 ) -> tuple[str, str]:
     user = await _authenticate_user(credentials, password_manager, crud)
-    _validate_user_is_confirmed(user)
+    _validate_user_email_is_confirmed(user)
     logged_user = await _login_user(user, crud)
     return _create_auth_tokens(logged_user.id, tokens_manager)
 
@@ -115,10 +115,10 @@ async def _update_password_hash(
     )
 
 
-def _validate_user_is_confirmed(user: User) -> None:
+def _validate_user_email_is_confirmed(user: User) -> None:
     if not user.confirmed_email:
-        logger.info("User %r not confirmed", user.email)
-        raise UserNotConfirmedError
+        logger.info("User email %r not confirmed", user.email)
+        raise UserEmailNotConfirmedError
 
 
 async def _login_user(user: User, crud: UserCRUDProtocol) -> User:
@@ -150,7 +150,7 @@ async def get_confirmed_user_from_headers(
     token = _read_access_token_from_header(headers)
     payload = _decode_access_token(token, token_reader)
     user = await _get_user_by_id(payload.user_id, crud)
-    _validate_user_is_confirmed(user)
+    _validate_user_email_is_confirmed(user)
     return user
 
 

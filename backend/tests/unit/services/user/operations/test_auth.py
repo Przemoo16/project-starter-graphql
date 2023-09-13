@@ -10,7 +10,7 @@ from backend.services.user.exceptions import (
     InvalidPasswordError,
     InvalidRefreshTokenError,
     MissingAccessTokenError,
-    UserNotConfirmedError,
+    UserEmailNotConfirmedError,
     UserNotFoundError,
 )
 from backend.services.user.operations.auth import (
@@ -192,13 +192,13 @@ async def test_login_invalid_password(
 
 
 @pytest.mark.anyio()
-async def test_login_user_not_confirmed(
+async def test_login_user_email_not_confirmed(
     password_manager: PasswordManager, tokens_manager: AuthTokensManager
 ) -> None:
     credentials = CredentialsSchema(email="test@email.com", password="plain_password")
     crud = UserCRUD(existing_user=create_user(email="test@email.com"))
 
-    with pytest.raises(UserNotConfirmedError):
+    with pytest.raises(UserEmailNotConfirmedError):
         await login(credentials, password_manager, tokens_manager, crud)
 
 
@@ -285,7 +285,7 @@ async def test_get_confirmed_user_from_headers_user_not_found() -> None:
 
 
 @pytest.mark.anyio()
-async def test_get_confirmed_user_from_headers_user_not_confirmed() -> None:
+async def test_get_confirmed_user_from_headers_user_email_not_confirmed() -> None:
     headers = {"Authorization": "Bearer test-token"}
 
     def read_token(_: str) -> dict[str, str]:
@@ -298,7 +298,7 @@ async def test_get_confirmed_user_from_headers_user_not_confirmed() -> None:
         existing_user=create_user(id=UUID("6d9c79d6-9641-4746-92d9-2cc9ebdca941"))
     )
 
-    with pytest.raises(UserNotConfirmedError):
+    with pytest.raises(UserEmailNotConfirmedError):
         await get_confirmed_user_from_headers(headers, read_token, crud)
 
 

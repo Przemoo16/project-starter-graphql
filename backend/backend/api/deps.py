@@ -5,7 +5,7 @@ from backend.services.user.crud import UserCRUDProtocol
 from backend.services.user.exceptions import (
     InvalidAccessTokenError,
     MissingAccessTokenError,
-    UserNotConfirmedError,
+    UserEmailNotConfirmedError,
     UserNotFoundError,
 )
 from backend.services.user.models import User
@@ -36,6 +36,6 @@ async def get_confirmed_user(
         )
     except MissingAccessTokenError:
         msg = "Authentication token required"
-    except (InvalidAccessTokenError, UserNotFoundError, UserNotConfirmedError):
+    except (InvalidAccessTokenError, UserNotFoundError, UserEmailNotConfirmedError):
         msg = "Invalid token"
     raise UnauthorizedError(msg)

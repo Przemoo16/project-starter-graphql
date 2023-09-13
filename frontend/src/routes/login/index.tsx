@@ -48,8 +48,8 @@ const Login = component$(() => {
 
     if (problems) {
       let error = '';
-      if (isProblemPresent(problems, 'UserNotConfirmedProblem')) {
-        error = inlineTranslate('auth.accountNotConfirmed', ctx);
+      if (isProblemPresent(problems, 'UserEmailNotConfirmedProblem')) {
+        error = inlineTranslate('auth.accountEmailNotConfirmed', ctx);
       } else {
         error = inlineTranslate('auth.invalidCredentials', ctx);
       }

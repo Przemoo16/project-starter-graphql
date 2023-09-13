@@ -90,7 +90,7 @@ async def test_get_confirmed_user_not_found() -> None:
 
 
 @pytest.mark.anyio()
-async def test_get_confirmed_user_not_confirmed() -> None:
+async def test_get_confirmed_user_email_not_confirmed() -> None:
     request = Request(headers={"Authorization": "Bearer test-token"})
     crud = UserCRUD(
         existing_user=create_user(id=UUID("6d9c79d6-9641-4746-92d9-2cc9ebdca941"))
