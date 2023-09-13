@@ -80,14 +80,16 @@ export const register = async (
   fullName: string,
   email: string,
   password: string,
-): Promise<any> =>
-  await sendRequest(REGISTER_MUTATION, {
+): Promise<any> => {
+  const { createUser } = await sendRequest(REGISTER_MUTATION, {
     input: {
       fullName,
       email,
       password,
     },
   });
+  return createUser;
+};
 
 const LOGIN_MUTATION = `
   mutation Login($input: LoginInput!) {
@@ -107,17 +109,17 @@ const LOGIN_MUTATION = `
 
 export const login = async (email: string, password: string): Promise<any> => {
   // TODO: Fix any type
-  const data = await sendRequest(LOGIN_MUTATION, {
+  const { login } = await sendRequest(LOGIN_MUTATION, {
     input: {
       username: email,
       password,
     },
   });
-  if (!data.login.problems) {
-    localStorage.setItem('auth:accessToken', data.login.accessToken);
-    localStorage.setItem('auth:refreshToken', data.login.refreshToken);
+  if (!login.problems) {
+    localStorage.setItem('auth:accessToken', login.accessToken);
+    localStorage.setItem('auth:refreshToken', login.refreshToken);
   }
-  return data;
+  return login;
 };
 
 const REFRESH_TOKEN_MUTATION = `
@@ -131,11 +133,11 @@ mutation RefreshToken($token: String!) {
 
 export const refreshToken = async (): Promise<any> => {
   // TODO: Fix any type
-  const data = await sendRequest(REFRESH_TOKEN_MUTATION, {
+  const { refreshToken } = await sendRequest(REFRESH_TOKEN_MUTATION, {
     token: localStorage.getItem('auth:refreshToken'),
   });
-  localStorage.setItem('auth:accessToken', data.refreshToken.accessToken);
-  return data;
+  localStorage.setItem('auth:accessToken', refreshToken.accessToken);
+  return refreshToken;
 };
 
 const RECOVER_PASSWORD_MUTATION = `
@@ -146,10 +148,12 @@ const RECOVER_PASSWORD_MUTATION = `
   }
 `;
 
-export const recoverPassword = async (email: string): Promise<any> =>
-  await sendRequest(RECOVER_PASSWORD_MUTATION, {
+export const recoverPassword = async (email: string): Promise<any> => {
+  const { recoverPassword } = await sendRequest(RECOVER_PASSWORD_MUTATION, {
     email,
   });
+  return recoverPassword;
+};
 
 const RESET_PASSWORD_MUTATION = `
   mutation ResetPassword($input: ResetPasswordInput!) {
@@ -166,13 +170,15 @@ const RESET_PASSWORD_MUTATION = `
 export const resetPassword = async (
   token: string,
   password: string,
-): Promise<any> =>
-  await sendRequest(RESET_PASSWORD_MUTATION, {
+): Promise<any> => {
+  const { resetPassword } = await sendRequest(RESET_PASSWORD_MUTATION, {
     input: {
       token,
       password,
     },
   });
+  return resetPassword;
+};
 
 const CONFIRM_EMAIL_MUTATION = `
   mutation ConfirmEmail($token: String!) {
@@ -186,10 +192,12 @@ const CONFIRM_EMAIL_MUTATION = `
   }
 `;
 
-export const confirmEmail = async (token: string): Promise<any> =>
-  await sendRequest(CONFIRM_EMAIL_MUTATION, {
+export const confirmEmail = async (token: string): Promise<any> => {
+  const { confirmEmail } = await sendRequest(CONFIRM_EMAIL_MUTATION, {
     token,
   });
+  return confirmEmail;
+};
 
 const GET_ME_QUERY = `
   query GetMe {
@@ -214,12 +222,14 @@ const UPDATE_ME_MUTATION = `
   }
 `;
 
-export const updateMe = async (fullName: string): Promise<any> =>
-  await sendAuthorizedRequest(UPDATE_ME_MUTATION, {
+export const updateMe = async (fullName: string): Promise<any> => {
+  const { updateMe } = await sendAuthorizedRequest(UPDATE_ME_MUTATION, {
     input: {
       fullName,
     },
   });
+  return updateMe;
+};
 
 const CHANGE_MY_PASSWORD_MUTATION = `
   mutation ChangeMyPassword($input: ChangeMyPasswordInput!) {
@@ -236,13 +246,18 @@ const CHANGE_MY_PASSWORD_MUTATION = `
 export const changeMyPassword = async (
   currentPassword: string,
   newPassword: string,
-): Promise<any> =>
-  await sendAuthorizedRequest(CHANGE_MY_PASSWORD_MUTATION, {
-    input: {
-      currentPassword,
-      newPassword,
+): Promise<any> => {
+  const { changeMyPassword } = await sendAuthorizedRequest(
+    CHANGE_MY_PASSWORD_MUTATION,
+    {
+      input: {
+        currentPassword,
+        newPassword,
+      },
     },
-  });
+  );
+  return changeMyPassword;
+};
 
 const DELETE_ME_MUTATION = `
   mutation DeleteMe {
@@ -252,5 +267,7 @@ const DELETE_ME_MUTATION = `
   }
 `;
 
-export const deleteMe = async (): Promise<any> =>
-  await sendAuthorizedRequest(DELETE_ME_MUTATION, {});
+export const deleteMe = async (): Promise<any> => {
+  const { deleteMe } = await sendAuthorizedRequest(DELETE_ME_MUTATION, {});
+  return deleteMe;
+};

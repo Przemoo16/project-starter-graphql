@@ -23,9 +23,7 @@ const ConfirmEmail = component$(() => {
   const signal = useConfirmEmail();
   const t = useTranslate();
 
-  const {
-    confirmEmail: { problems },
-  } = signal.value;
+  const { problems } = signal.value;
 
   let message = '';
   if (problems) {
