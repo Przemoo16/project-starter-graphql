@@ -8,6 +8,7 @@ import {
   maxLength,
   minLength,
   required,
+  reset,
   setResponse,
   type SubmitHandler,
   useForm,
@@ -69,6 +70,7 @@ const Register = component$(() => {
         });
       }
 
+      reset(registerForm);
       setResponse(registerForm, {
         message: inlineTranslate('auth.registerSuccess', ctx),
       });

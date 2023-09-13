@@ -3,6 +3,8 @@ import { type DocumentHead } from '@builder.io/qwik-city';
 import {
   email,
   required,
+  reset,
+  setResponse,
   type SubmitHandler,
   useForm,
 } from '@modular-forms/qwik';
@@ -40,9 +42,11 @@ const RecoverPassword = component$(() => {
   const handleSubmit = $<SubmitHandler<RecoverPasswordForm>>(
     async (values, _event) => {
       await recoverPassword(values.email);
-      return {
+
+      reset(recoverPasswordForm);
+      setResponse(recoverPasswordForm, {
         message: inlineTranslate('auth.recoverPasswordSuccess', ctx),
-      };
+      });
     },
   );
 
