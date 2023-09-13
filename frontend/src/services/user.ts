@@ -65,7 +65,7 @@ const sendAuthorizedRequest = $(
 
 export const register = $(
   async (fullName: string, email: string, password: string): Promise<any> => {
-    const REGISTER_MUTATION = `
+    const mutation = `
       mutation CreateUser($input: UserCreateInput!) {
         createUser(input: $input) {
           ... on CreateUserFailure {
@@ -77,7 +77,7 @@ export const register = $(
       }
     `;
 
-    const { createUser } = await sendRequest(REGISTER_MUTATION, {
+    const { createUser } = await sendRequest(mutation, {
       input: {
         fullName,
         email,
@@ -90,7 +90,7 @@ export const register = $(
 
 export const login = $(
   async (email: string, password: string): Promise<any> => {
-    const LOGIN_MUTATION = `
+    const mutation = `
       mutation Login($input: LoginInput!) {
         login(input: $input) {
           ... on LoginSuccess {
@@ -106,7 +106,7 @@ export const login = $(
       }
     `;
 
-    const { login } = await sendRequest(LOGIN_MUTATION, {
+    const { login } = await sendRequest(mutation, {
       input: {
         username: email,
         password,
@@ -121,7 +121,7 @@ export const login = $(
 );
 
 export const refreshToken = $(async (): Promise<any> => {
-  const REFRESH_TOKEN_MUTATION = `
+  const mutation = `
     mutation RefreshToken($token: String!) {
       refreshToken(token: $token) {
         accessToken
@@ -130,7 +130,7 @@ export const refreshToken = $(async (): Promise<any> => {
     }
   `;
 
-  const { refreshToken } = await sendRequest(REFRESH_TOKEN_MUTATION, {
+  const { refreshToken } = await sendRequest(mutation, {
     token: localStorage.getItem('auth:refreshToken'),
   });
   localStorage.setItem('auth:accessToken', refreshToken.accessToken);
@@ -138,7 +138,7 @@ export const refreshToken = $(async (): Promise<any> => {
 });
 
 export const recoverPassword = $(async (email: string): Promise<any> => {
-  const RECOVER_PASSWORD_MUTATION = `
+  const mutation = `
     mutation RecoverPassword($email: String!) {
       recoverPassword(email: $email) {
         message
@@ -146,7 +146,7 @@ export const recoverPassword = $(async (email: string): Promise<any> => {
     }
   `;
 
-  const { recoverPassword } = await sendRequest(RECOVER_PASSWORD_MUTATION, {
+  const { recoverPassword } = await sendRequest(mutation, {
     email,
   });
   return recoverPassword;
@@ -154,7 +154,7 @@ export const recoverPassword = $(async (email: string): Promise<any> => {
 
 export const resetPassword = $(
   async (token: string, password: string): Promise<any> => {
-    const RESET_PASSWORD_MUTATION = `
+    const mutation = `
       mutation ResetPassword($input: ResetPasswordInput!) {
         resetPassword(input: $input) {
           ... on ResetPasswordFailure {
@@ -166,7 +166,7 @@ export const resetPassword = $(
       }
     `;
 
-    const { resetPassword } = await sendRequest(RESET_PASSWORD_MUTATION, {
+    const { resetPassword } = await sendRequest(mutation, {
       input: {
         token,
         password,
@@ -177,7 +177,7 @@ export const resetPassword = $(
 );
 
 export const confirmEmail = $(async (token: string): Promise<any> => {
-  const CONFIRM_EMAIL_MUTATION = `
+  const mutation = `
     mutation ConfirmEmail($token: String!) {
       confirmEmail(token: $token) {
         ... on ConfirmEmailFailure {
@@ -189,14 +189,14 @@ export const confirmEmail = $(async (token: string): Promise<any> => {
     }
   `;
 
-  const { confirmEmail } = await sendRequest(CONFIRM_EMAIL_MUTATION, {
+  const { confirmEmail } = await sendRequest(mutation, {
     token,
   });
   return confirmEmail;
 });
 
 export const getMe = $(async (): Promise<any> => {
-  const GET_ME_QUERY = `
+  const query = `
     query GetMe {
       me {
         id
@@ -204,11 +204,11 @@ export const getMe = $(async (): Promise<any> => {
     }
   `;
 
-  return await sendAuthorizedRequest(GET_ME_QUERY, {});
+  return await sendAuthorizedRequest(query, {});
 });
 
 export const updateMe = $(async (fullName: string): Promise<any> => {
-  const UPDATE_ME_MUTATION = `
+  const mutation = `
     mutation UpdateMe($input: UpdateMeInput!) {
       updateMe(input: $input) {
         ... on UpdateMeFailure {
@@ -220,7 +220,7 @@ export const updateMe = $(async (fullName: string): Promise<any> => {
     }
   `;
 
-  const { updateMe } = await sendAuthorizedRequest(UPDATE_ME_MUTATION, {
+  const { updateMe } = await sendAuthorizedRequest(mutation, {
     input: {
       fullName,
     },
@@ -230,7 +230,7 @@ export const updateMe = $(async (fullName: string): Promise<any> => {
 
 export const changeMyPassword = $(
   async (currentPassword: string, newPassword: string): Promise<any> => {
-    const CHANGE_MY_PASSWORD_MUTATION = `
+    const mutation = `
       mutation ChangeMyPassword($input: ChangeMyPasswordInput!) {
         changeMyPassword(input: $input) {
           ... on ChangeMyPasswordFailure {
@@ -242,21 +242,18 @@ export const changeMyPassword = $(
       }
     `;
 
-    const { changeMyPassword } = await sendAuthorizedRequest(
-      CHANGE_MY_PASSWORD_MUTATION,
-      {
-        input: {
-          currentPassword,
-          newPassword,
-        },
+    const { changeMyPassword } = await sendAuthorizedRequest(mutation, {
+      input: {
+        currentPassword,
+        newPassword,
       },
-    );
+    });
     return changeMyPassword;
   },
 );
 
 export const deleteMe = $(async (): Promise<any> => {
-  const DELETE_ME_MUTATION = `
+  const mutation = `
     mutation DeleteMe {
       deleteMe {
         message
@@ -264,6 +261,6 @@ export const deleteMe = $(async (): Promise<any> => {
     }
   `;
 
-  const { deleteMe } = await sendAuthorizedRequest(DELETE_ME_MUTATION, {});
+  const { deleteMe } = await sendAuthorizedRequest(mutation, {});
   return deleteMe;
 });
