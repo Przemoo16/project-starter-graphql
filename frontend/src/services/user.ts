@@ -1,70 +1,92 @@
 import { $ } from '@builder.io/qwik';
 import { isServer } from '@builder.io/qwik/build';
 
-import { sendGraphQLRequest } from '~/libs/api/requests';
+import {
+  getApiURL,
+  sendAuthorizedRequest,
+  sendRequest,
+  sendRequestWithErrorHandling,
+} from '~/libs/api/requests';
 
-const getApiURL = $((isRunningOnTheServer: boolean): string => {
-  const serverApiURL =
-    import.meta.env.VITE_SERVER_API_URL ?? 'http://proxy/graphql';
-  const clientApiURL =
-    import.meta.env.VITE_CLIENT_API_URL ?? 'http://localhost:5173/graphql';
-  return isRunningOnTheServer ? serverApiURL : clientApiURL;
-});
+interface TokenStorage {
+  getItem: (key: string) => string | null;
+  setItem: (key: string, value: string) => void;
+  removeItem: (key: string) => void;
+}
 
-const sendRequest = $(
-  async (query: string, variables: Record<string, unknown>): Promise<any> => {
-    const response = await sendGraphQLRequest(
-      await getApiURL(isServer),
+type RequestSender = (
+  query: string,
+  variables?: Record<string, unknown>,
+  headers?: Record<string, string>,
+) => Promise<any>;
+
+const ACCESS_TOKEN_STORAGE_KEY = 'auth:accessToken';
+const REFRESH_TOKEN_STORAGE_KEY = 'auth:refreshToken';
+
+const REQUEST_SENDER = $(
+  async (query: string, variables?: Record<string, unknown>) => {
+    const url = await getApiURL(isServer);
+    const sender = async (): Promise<any> =>
+      await sendRequestWithErrorHandling(url, query, sendRequest, variables);
+    return await sendAuthorizedRequest(
+      url,
       query,
+      sender,
+      async () => await getAuthHeader(localStorage),
+      async () => await refreshToken(localStorage, sender),
+      async () => {
+        await clearTokens(localStorage);
+      },
       variables,
     );
-    const { errors, data } = await response.json();
-    if (errors) {
-      throw Error('Error');
-    }
-    return data;
   },
 );
 
-const sendAuthorizedRequest = $(
-  async (query: string, variables: Record<string, unknown>): Promise<any> => {
-    const url = await getApiURL(isServer);
-    const accessToken = localStorage.getItem('auth:accessToken');
-    const headers: Record<string, string> = accessToken
-      ? { Authorization: `Bearer ${accessToken}` }
-      : {};
+export const userService = {
+  register: $(
+    async (fullName: string, email: string, password: string) =>
+      await register(fullName, email, password, REQUEST_SENDER),
+  ),
+  login: $(
+    async (email: string, password: string) =>
+      await login(email, password, localStorage, REQUEST_SENDER),
+  ),
+  recoverPassword: $(
+    async (email: string) => await recoverPassword(email, REQUEST_SENDER),
+  ),
+  resetPassword: $(
+    async (token: string, password: string) =>
+      await resetPassword(token, password, REQUEST_SENDER),
+  ),
+  confirmEmail: $(
+    async (token: string) => await confirmEmail(token, REQUEST_SENDER),
+  ),
+  updateMe: $(
+    async (fullName: string) => await updateMe(fullName, REQUEST_SENDER),
+  ),
+  changeMyPassword: $(
+    async (currentPassword: string, newPassword: string) =>
+      await changeMyPassword(currentPassword, newPassword, REQUEST_SENDER),
+  ),
+};
 
-    const response = await sendGraphQLRequest(url, query, variables, headers);
-    const { errors, data } = await response.json();
+const getAuthHeader = $((storage: TokenStorage): Record<string, string> => {
+  const accessToken = storage.getItem(ACCESS_TOKEN_STORAGE_KEY);
+  return accessToken ? { Authorization: `Bearer ${accessToken}` } : {};
+});
 
-    if (errors) {
-      if (errors.some((error: any) => error.message === 'Invalid token')) {
-        try {
-          await refreshToken();
-        } catch (error) {
-          localStorage.removeItem('auth:accessToken');
-          localStorage.removeItem('auth:refreshToken');
-        }
-        const originalRequest = await sendGraphQLRequest(
-          url,
-          query,
-          variables,
-          headers,
-        );
-        const { errors, data } = await originalRequest.json();
-        if (errors) {
-          throw Error('Error');
-        }
-        return data;
-      }
-      throw Error('Error');
-    }
-    return data;
-  },
-);
+const clearTokens = $((storage: TokenStorage) => {
+  storage.removeItem(ACCESS_TOKEN_STORAGE_KEY);
+  storage.removeItem(REFRESH_TOKEN_STORAGE_KEY);
+});
 
 export const register = $(
-  async (fullName: string, email: string, password: string): Promise<any> => {
+  async (
+    fullName: string,
+    email: string,
+    password: string,
+    requestSender: RequestSender,
+  ) => {
     const mutation = `
       mutation CreateUser($input: UserCreateInput!) {
         createUser(input: $input) {
@@ -77,7 +99,7 @@ export const register = $(
       }
     `;
 
-    const { createUser } = await sendRequest(mutation, {
+    const { createUser } = await requestSender(mutation, {
       input: {
         fullName,
         email,
@@ -89,7 +111,12 @@ export const register = $(
 );
 
 export const login = $(
-  async (email: string, password: string): Promise<any> => {
+  async (
+    email: string,
+    password: string,
+    storage: TokenStorage,
+    requestSender: RequestSender,
+  ) => {
     const mutation = `
       mutation Login($input: LoginInput!) {
         login(input: $input) {
@@ -106,22 +133,23 @@ export const login = $(
       }
     `;
 
-    const { login } = await sendRequest(mutation, {
+    const { login } = await requestSender(mutation, {
       input: {
         username: email,
         password,
       },
     });
     if (!login.problems) {
-      localStorage.setItem('auth:accessToken', login.accessToken);
-      localStorage.setItem('auth:refreshToken', login.refreshToken);
+      storage.setItem(ACCESS_TOKEN_STORAGE_KEY, login.accessToken);
+      storage.setItem(REFRESH_TOKEN_STORAGE_KEY, login.refreshToken);
     }
     return login;
   },
 );
 
-export const refreshToken = $(async (): Promise<any> => {
-  const mutation = `
+export const refreshToken = $(
+  async (storage: TokenStorage, requestSender: RequestSender) => {
+    const mutation = `
     mutation RefreshToken($token: String!) {
       refreshToken(token: $token) {
         accessToken
@@ -130,15 +158,17 @@ export const refreshToken = $(async (): Promise<any> => {
     }
   `;
 
-  const { refreshToken } = await sendRequest(mutation, {
-    token: localStorage.getItem('auth:refreshToken'),
-  });
-  localStorage.setItem('auth:accessToken', refreshToken.accessToken);
-  return refreshToken;
-});
+    const { refreshToken } = await requestSender(mutation, {
+      token: storage.getItem(REFRESH_TOKEN_STORAGE_KEY),
+    });
+    storage.setItem(ACCESS_TOKEN_STORAGE_KEY, refreshToken.accessToken);
+    return refreshToken;
+  },
+);
 
-export const recoverPassword = $(async (email: string): Promise<any> => {
-  const mutation = `
+export const recoverPassword = $(
+  async (email: string, requestSender: RequestSender) => {
+    const mutation = `
     mutation RecoverPassword($email: String!) {
       recoverPassword(email: $email) {
         message
@@ -146,14 +176,15 @@ export const recoverPassword = $(async (email: string): Promise<any> => {
     }
   `;
 
-  const { recoverPassword } = await sendRequest(mutation, {
-    email,
-  });
-  return recoverPassword;
-});
+    const { recoverPassword } = await requestSender(mutation, {
+      email,
+    });
+    return recoverPassword;
+  },
+);
 
 export const resetPassword = $(
-  async (token: string, password: string): Promise<any> => {
+  async (token: string, password: string, requestSender: RequestSender) => {
     const mutation = `
       mutation ResetPassword($input: ResetPasswordInput!) {
         resetPassword(input: $input) {
@@ -166,7 +197,7 @@ export const resetPassword = $(
       }
     `;
 
-    const { resetPassword } = await sendRequest(mutation, {
+    const { resetPassword } = await requestSender(mutation, {
       input: {
         token,
         password,
@@ -176,8 +207,9 @@ export const resetPassword = $(
   },
 );
 
-export const confirmEmail = $(async (token: string): Promise<any> => {
-  const mutation = `
+export const confirmEmail = $(
+  async (token: string, requestSender: RequestSender) => {
+    const mutation = `
     mutation ConfirmEmail($token: String!) {
       confirmEmail(token: $token) {
         ... on ConfirmEmailFailure {
@@ -189,13 +221,14 @@ export const confirmEmail = $(async (token: string): Promise<any> => {
     }
   `;
 
-  const { confirmEmail } = await sendRequest(mutation, {
-    token,
-  });
-  return confirmEmail;
-});
+    const { confirmEmail } = await requestSender(mutation, {
+      token,
+    });
+    return confirmEmail;
+  },
+);
 
-export const getMe = $(async (): Promise<any> => {
+export const getMe = $(async (requestSender: RequestSender) => {
   const query = `
     query GetMe {
       me {
@@ -204,11 +237,12 @@ export const getMe = $(async (): Promise<any> => {
     }
   `;
 
-  return await sendAuthorizedRequest(query, {});
+  return await requestSender(query);
 });
 
-export const updateMe = $(async (fullName: string): Promise<any> => {
-  const mutation = `
+export const updateMe = $(
+  async (fullName: string, requestSender: RequestSender) => {
+    const mutation = `
     mutation UpdateMe($input: UpdateMeInput!) {
       updateMe(input: $input) {
         ... on UpdateMeFailure {
@@ -220,16 +254,21 @@ export const updateMe = $(async (fullName: string): Promise<any> => {
     }
   `;
 
-  const { updateMe } = await sendAuthorizedRequest(mutation, {
-    input: {
-      fullName,
-    },
-  });
-  return updateMe;
-});
+    const { updateMe } = await requestSender(mutation, {
+      input: {
+        fullName,
+      },
+    });
+    return updateMe;
+  },
+);
 
 export const changeMyPassword = $(
-  async (currentPassword: string, newPassword: string): Promise<any> => {
+  async (
+    currentPassword: string,
+    newPassword: string,
+    requestSender: RequestSender,
+  ) => {
     const mutation = `
       mutation ChangeMyPassword($input: ChangeMyPasswordInput!) {
         changeMyPassword(input: $input) {
@@ -242,7 +281,7 @@ export const changeMyPassword = $(
       }
     `;
 
-    const { changeMyPassword } = await sendAuthorizedRequest(mutation, {
+    const { changeMyPassword } = await requestSender(mutation, {
       input: {
         currentPassword,
         newPassword,
@@ -252,7 +291,7 @@ export const changeMyPassword = $(
   },
 );
 
-export const deleteMe = $(async (): Promise<any> => {
+export const deleteMe = $(async (requestSender: RequestSender) => {
   const mutation = `
     mutation DeleteMe {
       deleteMe {
@@ -261,6 +300,6 @@ export const deleteMe = $(async (): Promise<any> => {
     }
   `;
 
-  const { deleteMe } = await sendAuthorizedRequest(mutation, {});
+  const { deleteMe } = await requestSender(mutation);
   return deleteMe;
 });
