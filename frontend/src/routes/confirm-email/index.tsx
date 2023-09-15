@@ -3,14 +3,16 @@ import { type DocumentHead, routeLoader$ } from '@builder.io/qwik-city';
 import { Speak, useTranslate } from 'qwik-speak';
 
 import { isProblemPresent } from '~/libs/api/errors';
-import { confirmEmail } from '~/services/user';
+import { userService } from '~/services/user';
 
 export const head: DocumentHead = {
   title: 'runtime.confirm-email.head.title',
 };
 
 export const useConfirmEmail = routeLoader$(async requestEvent => {
-  return await confirmEmail(requestEvent.url.searchParams.get('token') ?? '');
+  return await userService.confirmEmail(
+    requestEvent.url.searchParams.get('token') ?? '',
+  );
 });
 
 export default component$(() => (

@@ -16,7 +16,7 @@ import {
 } from 'qwik-speak';
 
 import { TextInput } from '~/components/text-input/text-input';
-import { recoverPassword } from '~/services/user';
+import { userService } from '~/services/user';
 
 export const head: DocumentHead = {
   title: 'runtime.recoverPassword.head.title',
@@ -41,7 +41,7 @@ const RecoverPassword = component$(() => {
 
   const handleSubmit = $<SubmitHandler<RecoverPasswordForm>>(
     async (values, _event) => {
-      await recoverPassword(values.email);
+      await userService.recoverPassword(values.email);
 
       reset(recoverPasswordForm);
       setResponse(recoverPasswordForm, {

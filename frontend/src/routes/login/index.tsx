@@ -16,7 +16,7 @@ import {
 
 import { TextInput } from '~/components/text-input/text-input';
 import { isProblemPresent } from '~/libs/api/errors';
-import { login } from '~/services/user';
+import { userService } from '~/services/user';
 
 export const head: DocumentHead = {
   title: 'runtime.login.head.title',
@@ -42,7 +42,7 @@ const Login = component$(() => {
   });
 
   const handleSubmit = $<SubmitHandler<LoginForm>>(async (values, _event) => {
-    const { problems } = await login(values.email, values.password);
+    const { problems } = await userService.login(values.email, values.password);
 
     if (problems) {
       let error = '';

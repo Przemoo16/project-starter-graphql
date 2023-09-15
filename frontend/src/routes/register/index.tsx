@@ -23,7 +23,7 @@ import {
 import { TextInput } from '~/components/text-input/text-input';
 import { MAX_FULL_NAME_LENGTH, MIN_PASSWORD_LENGTH } from '~/constants';
 import { isProblemPresent } from '~/libs/api/errors';
-import { register } from '~/services/user';
+import { userService } from '~/services/user';
 
 export const head: DocumentHead = {
   title: 'runtime.register.head.title',
@@ -53,7 +53,7 @@ const Register = component$(() => {
 
   const handleSubmit = $<SubmitHandler<RegisterForm>>(
     async (values, _event) => {
-      const { problems } = await register(
+      const { problems } = await userService.register(
         values.fullName,
         values.email,
         values.password,
