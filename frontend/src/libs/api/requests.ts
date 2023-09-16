@@ -5,7 +5,7 @@ type Fetcher = (
   method?: string,
   body?: string,
   headers?: Record<string, string>,
-) => Promise<any>;
+) => Promise<Record<string, any>>;
 
 interface ErrorLocation {
   line: number;
@@ -64,7 +64,7 @@ export const sendRequest = $(
     query: string,
     variables?: Record<string, unknown>,
     headers?: Record<string, string>,
-  ) => {
+  ): Promise<Record<string, any>> => {
     const { data, errors } = await fetcher(
       url,
       'POST',
@@ -87,19 +87,13 @@ export const sendAuthorizedRequest = $(
     url: string,
     query: string,
     variables?: Record<string, unknown>,
-    accessTokenGetter: () => Promise<string | null> = async () => null,
+    getAuthHeader: () => Promise<Record<string, string>> = async () => ({}),
     onUnauthorized: () => Promise<void> = async () => {},
     onInvalidTokens: () => Promise<void> = async () => {},
   ) => {
-    const accessToken = await accessTokenGetter();
-    const authHeader: Record<string, string> = accessToken
-      ? { Authorization: `Bearer ${accessToken}` }
-      : {};
-    const originalRequest = async (): Promise<Record<string, unknown>> =>
-      await sendRequest(fetcher, url, query, variables, authHeader);
-
     try {
-      return await originalRequest();
+      const authHeader = await getAuthHeader();
+      return await sendRequest(fetcher, url, query, variables, authHeader);
     } catch (e) {
       const error = e as RequestError;
       if (!error.errors.some(error => error.message === 'Invalid token')) {
@@ -110,7 +104,8 @@ export const sendAuthorizedRequest = $(
       } catch (error) {
         await onInvalidTokens();
       }
-      return await originalRequest();
+      const authHeader = await getAuthHeader();
+      return await sendRequest(fetcher, url, query, variables, authHeader);
     }
   },
 );

@@ -22,6 +22,7 @@ test(`[getApiURL function]: returns default client URL`, async () => {
 
 test(`[getApiURL function]: returns server URL from env variable`, async () => {
   vi.stubEnv('VITE_SERVER_API_URL', 'http://server-url');
+
   const url = await getApiURL(true);
 
   expect(url).toEqual('http://server-url');
@@ -29,6 +30,7 @@ test(`[getApiURL function]: returns server URL from env variable`, async () => {
 
 test(`[getApiURL function]: returns client URL from env variable`, async () => {
   vi.stubEnv('VITE_CLIENT_API_URL', 'http://client-url');
+
   const url = await getApiURL(false);
 
   expect(url).toEqual('http://client-url');
@@ -40,13 +42,11 @@ test(`[sendRequest function]: returns data`, async () => {
     _method?: string,
     _body?: string,
     _headers?: Record<string, string>,
-  ): Promise<Record<string, Record<string, string>>> => {
-    return {
-      data: {
-        foo: 'bar',
-      },
-    };
-  };
+  ): Promise<Record<string, Record<string, string>>> => ({
+    data: {
+      foo: 'bar',
+    },
+  });
 
   const data = await sendRequest(fetcher, "http://localhost'", 'test-query');
 
@@ -59,22 +59,20 @@ test(`[sendRequest function]: throws error`, async () => {
     _method?: string,
     _body?: string,
     _headers?: Record<string, string>,
-  ): Promise<Record<string, GraphQLError[]>> => {
-    return {
-      errors: [
-        {
-          message: 'Error',
-          locations: [
-            {
-              line: 1,
-              column: 1,
-            },
-          ],
-          path: ['test'],
-        },
-      ],
-    };
-  };
+  ): Promise<Record<string, GraphQLError[]>> => ({
+    errors: [
+      {
+        message: 'Error',
+        locations: [
+          {
+            line: 1,
+            column: 1,
+          },
+        ],
+        path: ['test'],
+      },
+    ],
+  });
 
   await expect(
     async () => await sendRequest(fetcher, 'http://localhost', 'test-query'),
@@ -87,22 +85,20 @@ test(`[sendRequest function]: throws error with error details included`, async (
     _method?: string,
     _body?: string,
     _headers?: Record<string, string>,
-  ): Promise<Record<string, GraphQLError[]>> => {
-    return {
-      errors: [
-        {
-          message: 'Error',
-          locations: [
-            {
-              line: 1,
-              column: 1,
-            },
-          ],
-          path: ['test'],
-        },
-      ],
-    };
-  };
+  ): Promise<Record<string, GraphQLError[]>> => ({
+    errors: [
+      {
+        message: 'Error',
+        locations: [
+          {
+            line: 1,
+            column: 1,
+          },
+        ],
+        path: ['test'],
+      },
+    ],
+  });
 
   try {
     await sendRequest(fetcher, 'http://localhost', 'test-query');
@@ -201,35 +197,6 @@ test(`[sendRequest function]: uses the custom headers with the default ones`, as
   });
 });
 
-test(`[sendAuthorizedRequest function]: sends request without an auth header`, async () => {
-  let calledHeaders: Record<string, string> | undefined = {};
-  const fetcher = async (
-    _url: string,
-    _method?: string,
-    _body?: string,
-    headers?: Record<string, string>,
-  ): Promise<Record<string, Record<string, string>>> => {
-    calledHeaders = headers;
-    return {
-      data: {
-        foo: 'bar',
-      },
-    };
-  };
-
-  const accessTokenGetter = async (): Promise<null> => null;
-
-  await sendAuthorizedRequest(
-    fetcher,
-    'http://localhost',
-    'test-query',
-    undefined,
-    accessTokenGetter,
-  );
-
-  expect(calledHeaders).toEqual({ 'Content-Type': 'application/json' });
-});
-
 test(`[sendAuthorizedRequest function]: sends request with the auth header`, async () => {
   let calledHeaders: Record<string, string> | undefined = {};
   const fetcher = async (
@@ -245,42 +212,44 @@ test(`[sendAuthorizedRequest function]: sends request with the auth header`, asy
       },
     };
   };
-  const accessTokenGetter = async (): Promise<string> => 'test-token';
+  const getAuthHeader = async (): Promise<Record<string, string>> => ({
+    Authorization: 'Bearer test-token',
+  });
 
   await sendAuthorizedRequest(
     fetcher,
     'http://localhost',
     'test-query',
     undefined,
-    accessTokenGetter,
+    getAuthHeader,
   );
 
-  expect(calledHeaders).toEqual({
-    'Content-Type': 'application/json',
+  expect(calledHeaders).toMatchObject({
     Authorization: 'Bearer test-token',
   });
 });
 
 test(`[sendAuthorizedRequest function]: sends original request successfully`, async () => {
-  let onAuthorizedCalled = false;
-  let onInvalidTokensCalled = false;
+  let fetcherCalledTimes = 0;
+  let onUnauthorizedCalled = false;
   const fetcher = async (
     _url: string,
     _method?: string,
     _body?: string,
     _headers?: Record<string, string>,
   ): Promise<Record<string, Record<string, string>>> => {
+    fetcherCalledTimes += 1;
     return {
       data: {
         foo: 'bar',
       },
     };
   };
-  const onAuthorized = async (): Promise<void> => {
-    onAuthorizedCalled = true;
-  };
-  const onInvalidTokens = async (): Promise<void> => {
-    onInvalidTokensCalled = true;
+  const getAuthHeader = async (): Promise<Record<string, string>> => ({
+    Authorization: 'Bearer test-token',
+  });
+  const onUnauthorized = async (): Promise<void> => {
+    onUnauthorizedCalled = true;
   };
 
   await sendAuthorizedRequest(
@@ -288,74 +257,167 @@ test(`[sendAuthorizedRequest function]: sends original request successfully`, as
     'http://localhost',
     'test-query',
     undefined,
-    async (): Promise<null> => null,
-    onAuthorized,
-    onInvalidTokens,
+    getAuthHeader,
+    onUnauthorized,
   );
 
-  expect(onAuthorizedCalled).toBe(false);
-  expect(onInvalidTokensCalled).toBe(false);
+  expect(fetcherCalledTimes).toEqual(1);
+  expect(onUnauthorizedCalled).toBe(false);
 });
 
-test(`[sendAuthorizedRequest function]: calls onAuthorized callback`, async () => {
+test(`[sendAuthorizedRequest function]: doesn't handle non token related errors`, async () => {
   let fetcherCalledTimes = 0;
-  let onAuthorizedCalled = false;
-  let onInvalidTokensCalled = false;
+  let onUnauthorizedCalled = false;
   const fetcher = async (
     _url: string,
     _method?: string,
     _body?: string,
     _headers?: Record<string, string>,
   ): Promise<Record<string, GraphQLError[] | Record<string, string>>> => {
-    const response: Record<string, GraphQLError[] | Record<string, string>> =
-      fetcherCalledTimes === 0
-        ? {
-            errors: [
-              {
-                message: 'Invalid token',
-                locations: [
-                  {
-                    line: 1,
-                    column: 1,
-                  },
-                ],
-                path: ['test'],
-              },
-            ],
-          }
-        : { data: { foo: 'bar' } };
     fetcherCalledTimes += 1;
-    return response;
+    return {
+      errors: [
+        {
+          message: 'Error',
+          locations: [
+            {
+              line: 1,
+              column: 1,
+            },
+          ],
+          path: ['test'],
+        },
+      ],
+    };
   };
-  const onAuthorized = async (): Promise<void> => {
-    onAuthorizedCalled = true;
-  };
-  const onInvalidTokens = async (): Promise<void> => {
-    onInvalidTokensCalled = true;
+  const getAuthHeader = async (): Promise<Record<string, string>> => ({
+    Authorization: 'Bearer test-token',
+  });
+  const onUnauthorized = async (): Promise<void> => {
+    onUnauthorizedCalled = true;
   };
 
-  await sendAuthorizedRequest(
-    fetcher,
-    'http://localhost',
-    'test-query',
-    undefined,
-    async (): Promise<null> => null,
-    onAuthorized,
-    onInvalidTokens,
-  );
+  await expect(
+    async () =>
+      await sendAuthorizedRequest(
+        fetcher,
+        'http://localhost',
+        'test-query',
+        undefined,
+        getAuthHeader,
+        onUnauthorized,
+      ),
+  ).rejects.toThrowError(RequestError);
 
-  expect(onAuthorizedCalled).toBe(true);
-  expect(onInvalidTokensCalled).toBe(false);
+  expect(fetcherCalledTimes).toEqual(1);
+  expect(onUnauthorizedCalled).toBe(false);
 });
 
-test(`[sendAuthorizedRequest function]: calls onInvalidTokens callback`, async () => {
+test(`[sendAuthorizedRequest function]: calls onUnauthorized callback on token related errors`, async () => {
+  let onUnauthorizedCalled = false;
   let onInvalidTokensCalled = false;
   const fetcher = async (
     _url: string,
     _method?: string,
     _body?: string,
     _headers?: Record<string, string>,
+  ): Promise<Record<string, GraphQLError[] | Record<string, string>>> => ({
+    errors: [
+      {
+        message: 'Invalid token',
+        locations: [
+          {
+            line: 1,
+            column: 1,
+          },
+        ],
+        path: ['test'],
+      },
+    ],
+  });
+  const getAuthHeader = async (): Promise<Record<string, string>> => ({
+    Authorization: 'Bearer test-token',
+  });
+  const onUnauthorized = async (): Promise<void> => {
+    onUnauthorizedCalled = true;
+  };
+  const onInvalidTokens = async (): Promise<void> => {
+    onInvalidTokensCalled = true;
+  };
+
+  await expect(
+    async () =>
+      await sendAuthorizedRequest(
+        fetcher,
+        'http://localhost',
+        'test-query',
+        undefined,
+        getAuthHeader,
+        onUnauthorized,
+        onInvalidTokens,
+      ),
+  ).rejects.toThrowError(RequestError);
+
+  expect(onUnauthorizedCalled).toBe(true);
+  expect(onInvalidTokensCalled).toBe(false);
+});
+
+test(`[sendAuthorizedRequest function]: calls onInvalidTokens callback on onUnauthorized callback error`, async () => {
+  let onInvalidTokensCalled = false;
+  const fetcher = async (
+    _url: string,
+    _method?: string,
+    _body?: string,
+    _headers?: Record<string, string>,
+  ): Promise<Record<string, GraphQLError[]>> => ({
+    errors: [
+      {
+        message: 'Invalid token',
+        locations: [
+          {
+            line: 1,
+            column: 1,
+          },
+        ],
+        path: ['test'],
+      },
+    ],
+  });
+  const getAuthHeader = async (): Promise<Record<string, string>> => ({
+    Authorization: 'Bearer test-token',
+  });
+  const onUnauthorized = async (): Promise<void> => {
+    throw new Error();
+  };
+  const onInvalidTokens = async (): Promise<void> => {
+    onInvalidTokensCalled = true;
+  };
+
+  await expect(
+    async () =>
+      await sendAuthorizedRequest(
+        fetcher,
+        'http://localhost',
+        'test-query',
+        undefined,
+        getAuthHeader,
+        onUnauthorized,
+        onInvalidTokens,
+      ),
+  ).rejects.toThrowError(RequestError);
+  expect(onInvalidTokensCalled).toBe(true);
+});
+
+test(`[sendAuthorizedRequest function]: retry original request with new token`, async () => {
+  let getAuthHeaderCalledTimes = 0;
+  const headersCalled: Array<Record<string, string> | undefined> = [];
+  const fetcher = async (
+    _url: string,
+    _method?: string,
+    _body?: string,
+    headers?: Record<string, string>,
   ): Promise<Record<string, GraphQLError[]>> => {
+    headersCalled.push(headers);
     return {
       errors: [
         {
@@ -371,11 +433,11 @@ test(`[sendAuthorizedRequest function]: calls onInvalidTokens callback`, async (
       ],
     };
   };
-  const onAuthorized = async (): Promise<void> => {
-    throw new Error();
-  };
-  const onInvalidTokens = async (): Promise<void> => {
-    onInvalidTokensCalled = true;
+  const getAuthHeader = async (): Promise<Record<string, string>> => {
+    const token =
+      getAuthHeaderCalledTimes === 0 ? 'first-token' : 'second-token';
+    getAuthHeaderCalledTimes += 1;
+    return { Authorization: `Bearer ${token}` };
   };
 
   await expect(
@@ -385,10 +447,15 @@ test(`[sendAuthorizedRequest function]: calls onInvalidTokens callback`, async (
         'http://localhost',
         'test-query',
         undefined,
-        async (): Promise<null> => null,
-        onAuthorized,
-        onInvalidTokens,
+        getAuthHeader,
       ),
   ).rejects.toThrowError(RequestError);
-  expect(onInvalidTokensCalled).toBe(true);
+
+  expect(headersCalled).toHaveLength(2);
+  expect(headersCalled[0]).toMatchObject({
+    Authorization: 'Bearer first-token',
+  });
+  expect(headersCalled[1]).toMatchObject({
+    Authorization: 'Bearer second-token',
+  });
 });
