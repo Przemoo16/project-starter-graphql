@@ -30,7 +30,8 @@ const REQUEST_SENDER = $(
       fetchAdapter,
       url,
       query,
-      async () => await getAuthHeader(localStorage),
+      variables,
+      async () => await getAccessToken(localStorage),
       async () =>
         await refreshToken(
           await sendRequest(fetchAdapter, url, query, variables),
@@ -39,7 +40,6 @@ const REQUEST_SENDER = $(
       async () => {
         await clearTokens(localStorage);
       },
-      variables,
     );
   },
 );
@@ -72,12 +72,11 @@ export const userService = {
   ),
 };
 
-const getAuthHeader = $((storage: TokenStorage): Record<string, string> => {
-  const accessToken = storage.getItem(ACCESS_TOKEN_STORAGE_KEY);
-  return accessToken ? { Authorization: `Bearer ${accessToken}` } : {};
-});
+const getAccessToken = $((storage: TokenStorage) =>
+  storage.getItem(ACCESS_TOKEN_STORAGE_KEY),
+);
 
-const clearTokens = $((storage: TokenStorage) => {
+export const clearTokens = $((storage: TokenStorage) => {
   storage.removeItem(ACCESS_TOKEN_STORAGE_KEY);
   storage.removeItem(REFRESH_TOKEN_STORAGE_KEY);
 });
