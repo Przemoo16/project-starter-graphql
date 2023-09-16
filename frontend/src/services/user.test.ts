@@ -1,6 +1,6 @@
 import { expect, test } from 'vitest';
 
-import { clearTokens, login, refreshToken } from './user';
+import { clearTokens, getAuthHeader, login, refreshToken } from './user';
 
 class TokenStorage {
   readonly storage = new Map<string, string>();
@@ -17,6 +17,23 @@ class TokenStorage {
     this.storage.delete(key);
   }
 }
+
+test(`[getAuthHeader function]: returns auth header`, async () => {
+  const tokenStorage = new TokenStorage();
+  tokenStorage.setItem('auth:accessToken', 'access-token');
+
+  const headers = await getAuthHeader(tokenStorage);
+
+  expect(headers).toEqual({ Authorization: 'Bearer access-token' });
+});
+
+test(`[getAuthHeader function]: returns empty header`, async () => {
+  const tokenStorage = new TokenStorage();
+
+  const headers = await getAuthHeader(tokenStorage);
+
+  expect(headers).toEqual({});
+});
 
 test(`[clearTokens function]: removes tokens`, async () => {
   const tokenStorage = new TokenStorage();

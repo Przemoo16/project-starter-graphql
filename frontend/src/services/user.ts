@@ -18,7 +18,7 @@ type RequestSender = (
   query: string,
   variables?: Record<string, unknown>,
   headers?: Record<string, string>,
-) => Promise<any>;
+) => Promise<Record<string, any>>;
 
 const ACCESS_TOKEN_STORAGE_KEY = 'auth:accessToken';
 const REFRESH_TOKEN_STORAGE_KEY = 'auth:refreshToken';
@@ -31,7 +31,7 @@ const REQUEST_SENDER = $(
       url,
       query,
       variables,
-      async () => await getAccessToken(localStorage),
+      async () => await getAuthHeader(localStorage),
       async () =>
         await refreshToken(
           await sendRequest(fetchAdapter, url, query, variables),
@@ -72,8 +72,11 @@ export const userService = {
   ),
 };
 
-const getAccessToken = $((storage: TokenStorage) =>
-  storage.getItem(ACCESS_TOKEN_STORAGE_KEY),
+export const getAuthHeader = $(
+  async (storage: TokenStorage): Promise<Record<string, string>> => {
+    const accessToken = storage.getItem(ACCESS_TOKEN_STORAGE_KEY);
+    return accessToken ? { Authorization: `Bearer ${accessToken}` } : {};
+  },
 );
 
 export const clearTokens = $((storage: TokenStorage) => {
