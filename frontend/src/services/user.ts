@@ -2,10 +2,10 @@ import { $ } from '@builder.io/qwik';
 import { isServer } from '@builder.io/qwik/build';
 
 import {
+  fetchAdapter,
   getApiURL,
   sendAuthorizedRequest,
   sendRequest,
-  sendRequestWithErrorHandling,
 } from '~/libs/api/requests';
 
 interface TokenStorage {
@@ -26,14 +26,16 @@ const REFRESH_TOKEN_STORAGE_KEY = 'auth:refreshToken';
 const REQUEST_SENDER = $(
   async (query: string, variables?: Record<string, unknown>) => {
     const url = await getApiURL(isServer);
-    const sender = async (): Promise<any> =>
-      await sendRequestWithErrorHandling(url, query, sendRequest, variables);
     return await sendAuthorizedRequest(
+      fetchAdapter,
       url,
       query,
-      sender,
       async () => await getAuthHeader(localStorage),
-      async () => await refreshToken(localStorage, sender),
+      async () =>
+        await refreshToken(
+          await sendRequest(fetchAdapter, url, query, variables),
+          localStorage,
+        ),
       async () => {
         await clearTokens(localStorage);
       },
@@ -45,28 +47,28 @@ const REQUEST_SENDER = $(
 export const userService = {
   register: $(
     async (fullName: string, email: string, password: string) =>
-      await register(fullName, email, password, REQUEST_SENDER),
+      await register(REQUEST_SENDER, fullName, email, password),
   ),
   login: $(
     async (email: string, password: string) =>
-      await login(email, password, localStorage, REQUEST_SENDER),
+      await login(REQUEST_SENDER, localStorage, email, password),
   ),
   recoverPassword: $(
-    async (email: string) => await recoverPassword(email, REQUEST_SENDER),
+    async (email: string) => await recoverPassword(REQUEST_SENDER, email),
   ),
   resetPassword: $(
     async (token: string, password: string) =>
-      await resetPassword(token, password, REQUEST_SENDER),
+      await resetPassword(REQUEST_SENDER, token, password),
   ),
   confirmEmail: $(
-    async (token: string) => await confirmEmail(token, REQUEST_SENDER),
+    async (token: string) => await confirmEmail(REQUEST_SENDER, token),
   ),
   updateMe: $(
-    async (fullName: string) => await updateMe(fullName, REQUEST_SENDER),
+    async (fullName: string) => await updateMe(REQUEST_SENDER, fullName),
   ),
   changeMyPassword: $(
     async (currentPassword: string, newPassword: string) =>
-      await changeMyPassword(currentPassword, newPassword, REQUEST_SENDER),
+      await changeMyPassword(REQUEST_SENDER, currentPassword, newPassword),
   ),
 };
 
@@ -82,10 +84,10 @@ const clearTokens = $((storage: TokenStorage) => {
 
 export const register = $(
   async (
+    requestSender: RequestSender,
     fullName: string,
     email: string,
     password: string,
-    requestSender: RequestSender,
   ) => {
     const mutation = `
       mutation CreateUser($input: UserCreateInput!) {
@@ -112,10 +114,10 @@ export const register = $(
 
 export const login = $(
   async (
+    requestSender: RequestSender,
+    storage: TokenStorage,
     email: string,
     password: string,
-    storage: TokenStorage,
-    requestSender: RequestSender,
   ) => {
     const mutation = `
       mutation Login($input: LoginInput!) {
@@ -148,7 +150,7 @@ export const login = $(
 );
 
 export const refreshToken = $(
-  async (storage: TokenStorage, requestSender: RequestSender) => {
+  async (requestSender: RequestSender, storage: TokenStorage) => {
     const mutation = `
     mutation RefreshToken($token: String!) {
       refreshToken(token: $token) {
@@ -167,7 +169,7 @@ export const refreshToken = $(
 );
 
 export const recoverPassword = $(
-  async (email: string, requestSender: RequestSender) => {
+  async (requestSender: RequestSender, email: string) => {
     const mutation = `
     mutation RecoverPassword($email: String!) {
       recoverPassword(email: $email) {
@@ -184,7 +186,7 @@ export const recoverPassword = $(
 );
 
 export const resetPassword = $(
-  async (token: string, password: string, requestSender: RequestSender) => {
+  async (requestSender: RequestSender, token: string, password: string) => {
     const mutation = `
       mutation ResetPassword($input: ResetPasswordInput!) {
         resetPassword(input: $input) {
@@ -208,7 +210,7 @@ export const resetPassword = $(
 );
 
 export const confirmEmail = $(
-  async (token: string, requestSender: RequestSender) => {
+  async (requestSender: RequestSender, token: string) => {
     const mutation = `
     mutation ConfirmEmail($token: String!) {
       confirmEmail(token: $token) {
@@ -241,7 +243,7 @@ export const getMe = $(async (requestSender: RequestSender) => {
 });
 
 export const updateMe = $(
-  async (fullName: string, requestSender: RequestSender) => {
+  async (requestSender: RequestSender, fullName: string) => {
     const mutation = `
     mutation UpdateMe($input: UpdateMeInput!) {
       updateMe(input: $input) {
@@ -265,9 +267,9 @@ export const updateMe = $(
 
 export const changeMyPassword = $(
   async (
+    requestSender: RequestSender,
     currentPassword: string,
     newPassword: string,
-    requestSender: RequestSender,
   ) => {
     const mutation = `
       mutation ChangeMyPassword($input: ChangeMyPasswordInput!) {

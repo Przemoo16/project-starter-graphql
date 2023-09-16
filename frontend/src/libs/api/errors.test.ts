@@ -11,8 +11,9 @@ test(`[isProblemPresent function]: finds specified problem`, () => {
       __typename: 'test2',
     },
   ];
+  const problemType = 'test1';
 
-  const isPresent = isProblemPresent(problems, 'test1');
+  const isPresent = isProblemPresent(problems, problemType);
 
   expect(isPresent).toBe(true);
 });
@@ -26,8 +27,9 @@ test(`[isProblemPresent function]: doesn't find specified problem`, () => {
       __typename: 'test2',
     },
   ];
+  const problemType = 'test3';
 
-  const isPresent = isProblemPresent(problems, 'test3');
+  const isPresent = isProblemPresent(problems, problemType);
 
   expect(isPresent).toBe(false);
 });
