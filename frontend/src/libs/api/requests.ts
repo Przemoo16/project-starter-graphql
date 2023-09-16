@@ -1,19 +1,11 @@
 import { $ } from '@builder.io/qwik';
 
-type RequestSender = (
+type Fetcher = (
   url: string,
-  query: string,
-  variables?: Record<string, unknown>,
+  method?: string,
+  body?: string,
   headers?: Record<string, string>,
 ) => Promise<any>;
-
-export const getApiURL = $((isRunningOnTheServer: boolean): string => {
-  const serverApiURL =
-    import.meta.env.VITE_SERVER_API_URL ?? 'http://proxy/graphql';
-  const clientApiURL =
-    import.meta.env.VITE_CLIENT_API_URL ?? 'http://localhost:5173/graphql';
-  return isRunningOnTheServer ? serverApiURL : clientApiURL;
-});
 
 interface ErrorLocation {
   line: number;
@@ -22,11 +14,11 @@ interface ErrorLocation {
 
 interface GraphQLError {
   message: string;
-  location: ErrorLocation[];
-  path: string;
+  locations: ErrorLocation[];
+  path: string[];
 }
 
-class RequestError extends Error {
+export class RequestError extends Error {
   errors: GraphQLError[];
 
   constructor(
@@ -40,33 +32,48 @@ class RequestError extends Error {
   }
 }
 
-export const sendRequest = $(
+export const getApiURL = $((isServer: boolean): string => {
+  const serverApiURL =
+    import.meta.env.VITE_SERVER_API_URL ?? 'http://proxy/graphql';
+  const clientApiURL =
+    import.meta.env.VITE_CLIENT_API_URL ?? 'http://localhost:5173/graphql';
+  return isServer ? serverApiURL : clientApiURL;
+});
+
+export const fetchAdapter = $(
   async (
     url: string,
-    query: string,
-    variables?: Record<string, unknown>,
+    method?: string,
+    body?: string,
     headers?: Record<string, string>,
-  ) =>
-    await fetch(url, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json', ...(headers ?? {}) },
-      body: JSON.stringify({
-        query,
-        variables, // TODO: Change if works with undefined
-      }),
-    }),
+  ) => {
+    const response = await fetch(url, {
+      method,
+      headers,
+      body,
+    });
+
+    return await response.json();
+  },
 );
 
-export const sendRequestWithErrorHandling = $(
+export const sendRequest = $(
   async (
+    fetcher: Fetcher,
     url: string,
     query: string,
-    requestSender: RequestSender,
     variables?: Record<string, unknown>,
     headers?: Record<string, string>,
   ) => {
-    const response = await requestSender(url, query, variables, headers);
-    const { data, errors } = await response.json();
+    const { data, errors } = await fetcher(
+      url,
+      'POST',
+      JSON.stringify({
+        query,
+        variables,
+      }),
+      { 'Content-Type': 'application/json', ...(headers ?? {}) },
+    );
     if (errors) {
       throw new RequestError(errors);
     }
@@ -76,9 +83,9 @@ export const sendRequestWithErrorHandling = $(
 
 export const sendAuthorizedRequest = $(
   async (
+    fetcher: Fetcher,
     url: string,
     query: string,
-    requestSender: RequestSender,
     authHeaderRetriever: () => Promise<Record<string, string>>,
     onUnauthorized: () => Promise<unknown>,
     onInvalidTokens: () => Promise<void>,
@@ -86,7 +93,7 @@ export const sendAuthorizedRequest = $(
   ) => {
     const authHeader = await authHeaderRetriever();
     const originalRequest = async (): Promise<Record<string, unknown>> =>
-      await requestSender(url, query, variables, authHeader);
+      await sendRequest(fetcher, url, query, variables, authHeader);
 
     try {
       return await originalRequest();
