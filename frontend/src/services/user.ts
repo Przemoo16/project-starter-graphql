@@ -1,12 +1,9 @@
 import { $ } from '@builder.io/qwik';
 import { isServer } from '@builder.io/qwik/build';
 
-import {
-  fetchAdapter,
-  getApiURL,
-  sendAuthorizedRequest,
-  sendRequest,
-} from '~/libs/api/requests';
+import { fetchAdapter } from '~/libs/api/fetchers';
+import { sendAuthorizedRequest, sendRequest } from '~/libs/api/requests';
+import { getApiURL } from '~/libs/api/urls';
 
 interface TokenStorage {
   getItem: (key: string) => string | null;
