@@ -12,7 +12,7 @@ interface ErrorLocation {
   column: number;
 }
 
-interface GraphQLError {
+export interface GraphQLError {
   message: string;
   locations: ErrorLocation[];
   path: string[];
@@ -86,12 +86,15 @@ export const sendAuthorizedRequest = $(
     fetcher: Fetcher,
     url: string,
     query: string,
-    authHeaderRetriever: () => Promise<Record<string, string>>,
-    onUnauthorized: () => Promise<unknown>,
-    onInvalidTokens: () => Promise<void>,
     variables?: Record<string, unknown>,
+    accessTokenGetter: () => Promise<string | null> = async () => null,
+    onUnauthorized: () => Promise<void> = async () => {},
+    onInvalidTokens: () => Promise<void> = async () => {},
   ) => {
-    const authHeader = await authHeaderRetriever();
+    const accessToken = await accessTokenGetter();
+    const authHeader: Record<string, string> = accessToken
+      ? { Authorization: `Bearer ${accessToken}` }
+      : {};
     const originalRequest = async (): Promise<Record<string, unknown>> =>
       await sendRequest(fetcher, url, query, variables, authHeader);
 
