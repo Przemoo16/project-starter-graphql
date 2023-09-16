@@ -1,61 +1,13 @@
 import { $ } from '@builder.io/qwik';
 
+import { RequestError } from './errors';
+
 type Fetcher = (
   url: string,
   method?: string,
   body?: string,
   headers?: Record<string, string>,
 ) => Promise<Record<string, any>>;
-
-interface ErrorLocation {
-  line: number;
-  column: number;
-}
-
-export interface GraphQLError {
-  message: string;
-  locations: ErrorLocation[];
-  path: string[];
-}
-
-export class RequestError extends Error {
-  errors: GraphQLError[];
-
-  constructor(
-    errors: GraphQLError[],
-    message?: string,
-    options?: ErrorOptions,
-  ) {
-    super(message, options);
-    this.errors = errors;
-    Error.captureStackTrace(this, RequestError);
-  }
-}
-
-export const getApiURL = $((isServer: boolean): string => {
-  const serverApiURL =
-    import.meta.env.VITE_SERVER_API_URL ?? 'http://proxy/graphql';
-  const clientApiURL =
-    import.meta.env.VITE_CLIENT_API_URL ?? 'http://localhost:5173/graphql';
-  return isServer ? serverApiURL : clientApiURL;
-});
-
-export const fetchAdapter = $(
-  async (
-    url: string,
-    method?: string,
-    body?: string,
-    headers?: Record<string, string>,
-  ) => {
-    const response = await fetch(url, {
-      method,
-      headers,
-      body,
-    });
-
-    return await response.json();
-  },
-);
 
 export const sendRequest = $(
   async (
