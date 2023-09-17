@@ -20,7 +20,8 @@ import {
 
 import { TextInput } from '~/components/text-input/text-input';
 import { MIN_PASSWORD_LENGTH } from '~/constants';
-import { userService } from '~/services/user';
+import { REQUEST_SENDER } from '~/services/context';
+import { resetPassword } from '~/services/user';
 
 export const head: DocumentHead = {
   title: 'runtime.resetPassword.head.title',
@@ -47,7 +48,8 @@ const ResetPassword = component$(() => {
 
   const handleSubmit = $<SubmitHandler<ResetPasswordForm>>(
     async (values, _event) => {
-      const { problems } = await userService.resetPassword(
+      const { problems } = await resetPassword(
+        REQUEST_SENDER,
         loc.url.searchParams.get('token') ?? '',
         values.password,
       );

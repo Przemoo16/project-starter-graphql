@@ -1,15 +1,10 @@
 import { expect, test } from 'vitest';
 
-import { type GraphQLError, RequestError } from './errors';
+import { RequestError } from './errors';
 import { sendAuthorizedRequest, sendRequest } from './requests';
 
 test(`[sendRequest function]: returns data`, async () => {
-  const fetcher = async (
-    _url: string,
-    _method?: string,
-    _body?: string,
-    _headers?: Record<string, string>,
-  ): Promise<Record<string, Record<string, string>>> => ({
+  const fetcher = async () => ({
     data: {
       foo: 'bar',
     },
@@ -21,12 +16,7 @@ test(`[sendRequest function]: returns data`, async () => {
 });
 
 test(`[sendRequest function]: throws error`, async () => {
-  const fetcher = async (
-    _url: string,
-    _method?: string,
-    _body?: string,
-    _headers?: Record<string, string>,
-  ): Promise<Record<string, GraphQLError[]>> => ({
+  const fetcher = async () => ({
     errors: [
       {
         message: 'Error',
@@ -47,12 +37,7 @@ test(`[sendRequest function]: throws error`, async () => {
 });
 
 test(`[sendRequest function]: throws error with error details included`, async () => {
-  const fetcher = async (
-    _url: string,
-    _method?: string,
-    _body?: string,
-    _headers?: Record<string, string>,
-  ): Promise<Record<string, GraphQLError[]>> => ({
+  const fetcher = async () => ({
     errors: [
       {
         message: 'Error',
@@ -89,12 +74,7 @@ test(`[sendRequest function]: throws error with error details included`, async (
 
 test(`[sendRequest function]: sends serialized body`, async () => {
   let calledBody: string | undefined;
-  const fetcher = async (
-    _url: string,
-    _method?: string,
-    body?: string,
-    _headers?: Record<string, string>,
-  ): Promise<Record<string, Record<string, string>>> => {
+  const fetcher = async (_url: string, _method?: string, body?: string) => {
     calledBody = body;
     return {
       data: {
@@ -117,7 +97,7 @@ test(`[sendRequest function]: uses Content-Type header by default`, async () => 
     _method?: string,
     _body?: string,
     headers?: Record<string, string>,
-  ): Promise<Record<string, Record<string, string>>> => {
+  ) => {
     calledHeaders = headers;
     return {
       data: {
@@ -140,7 +120,7 @@ test(`[sendRequest function]: uses the custom headers with the default ones`, as
     _method?: string,
     _body?: string,
     headers?: Record<string, string>,
-  ): Promise<Record<string, Record<string, string>>> => {
+  ) => {
     calledHeaders = headers;
     return {
       data: {
@@ -171,7 +151,7 @@ test(`[sendAuthorizedRequest function]: sends request with the auth header`, asy
     _method?: string,
     _body?: string,
     headers?: Record<string, string>,
-  ): Promise<Record<string, Record<string, string>>> => {
+  ) => {
     calledHeaders = headers;
     return {
       data: {
@@ -179,7 +159,7 @@ test(`[sendAuthorizedRequest function]: sends request with the auth header`, asy
       },
     };
   };
-  const getAuthHeader = async (): Promise<Record<string, string>> => ({
+  const getAuthHeader = async () => ({
     Authorization: 'Bearer test-token',
   });
 
@@ -199,12 +179,7 @@ test(`[sendAuthorizedRequest function]: sends request with the auth header`, asy
 test(`[sendAuthorizedRequest function]: sends original request successfully`, async () => {
   let fetcherCalledTimes = 0;
   let onUnauthorizedCalled = false;
-  const fetcher = async (
-    _url: string,
-    _method?: string,
-    _body?: string,
-    _headers?: Record<string, string>,
-  ): Promise<Record<string, Record<string, string>>> => {
+  const fetcher = async () => {
     fetcherCalledTimes += 1;
     return {
       data: {
@@ -212,10 +187,10 @@ test(`[sendAuthorizedRequest function]: sends original request successfully`, as
       },
     };
   };
-  const getAuthHeader = async (): Promise<Record<string, string>> => ({
+  const getAuthHeader = async () => ({
     Authorization: 'Bearer test-token',
   });
-  const onUnauthorized = async (): Promise<void> => {
+  const onUnauthorized = async () => {
     onUnauthorizedCalled = true;
   };
 
@@ -235,12 +210,7 @@ test(`[sendAuthorizedRequest function]: sends original request successfully`, as
 test(`[sendAuthorizedRequest function]: doesn't handle non token related errors`, async () => {
   let fetcherCalledTimes = 0;
   let onUnauthorizedCalled = false;
-  const fetcher = async (
-    _url: string,
-    _method?: string,
-    _body?: string,
-    _headers?: Record<string, string>,
-  ): Promise<Record<string, GraphQLError[] | Record<string, string>>> => {
+  const fetcher = async () => {
     fetcherCalledTimes += 1;
     return {
       errors: [
@@ -257,10 +227,10 @@ test(`[sendAuthorizedRequest function]: doesn't handle non token related errors`
       ],
     };
   };
-  const getAuthHeader = async (): Promise<Record<string, string>> => ({
+  const getAuthHeader = async () => ({
     Authorization: 'Bearer test-token',
   });
-  const onUnauthorized = async (): Promise<void> => {
+  const onUnauthorized = async () => {
     onUnauthorizedCalled = true;
   };
 
@@ -283,12 +253,7 @@ test(`[sendAuthorizedRequest function]: doesn't handle non token related errors`
 test(`[sendAuthorizedRequest function]: calls onUnauthorized callback on token related errors`, async () => {
   let onUnauthorizedCalled = false;
   let onInvalidTokensCalled = false;
-  const fetcher = async (
-    _url: string,
-    _method?: string,
-    _body?: string,
-    _headers?: Record<string, string>,
-  ): Promise<Record<string, GraphQLError[] | Record<string, string>>> => ({
+  const fetcher = async () => ({
     errors: [
       {
         message: 'Invalid token',
@@ -302,13 +267,13 @@ test(`[sendAuthorizedRequest function]: calls onUnauthorized callback on token r
       },
     ],
   });
-  const getAuthHeader = async (): Promise<Record<string, string>> => ({
+  const getAuthHeader = async () => ({
     Authorization: 'Bearer test-token',
   });
-  const onUnauthorized = async (): Promise<void> => {
+  const onUnauthorized = async () => {
     onUnauthorizedCalled = true;
   };
-  const onInvalidTokens = async (): Promise<void> => {
+  const onInvalidTokens = async () => {
     onInvalidTokensCalled = true;
   };
 
@@ -331,12 +296,7 @@ test(`[sendAuthorizedRequest function]: calls onUnauthorized callback on token r
 
 test(`[sendAuthorizedRequest function]: calls onInvalidTokens callback on onUnauthorized callback error`, async () => {
   let onInvalidTokensCalled = false;
-  const fetcher = async (
-    _url: string,
-    _method?: string,
-    _body?: string,
-    _headers?: Record<string, string>,
-  ): Promise<Record<string, GraphQLError[]>> => ({
+  const fetcher = async () => ({
     errors: [
       {
         message: 'Invalid token',
@@ -350,13 +310,13 @@ test(`[sendAuthorizedRequest function]: calls onInvalidTokens callback on onUnau
       },
     ],
   });
-  const getAuthHeader = async (): Promise<Record<string, string>> => ({
+  const getAuthHeader = async () => ({
     Authorization: 'Bearer test-token',
   });
-  const onUnauthorized = async (): Promise<void> => {
+  const onUnauthorized = async () => {
     throw new Error();
   };
-  const onInvalidTokens = async (): Promise<void> => {
+  const onInvalidTokens = async () => {
     onInvalidTokensCalled = true;
   };
 
@@ -383,7 +343,7 @@ test(`[sendAuthorizedRequest function]: retry original request with new token`, 
     _method?: string,
     _body?: string,
     headers?: Record<string, string>,
-  ): Promise<Record<string, GraphQLError[]>> => {
+  ) => {
     headersCalled.push(headers);
     return {
       errors: [
@@ -400,7 +360,7 @@ test(`[sendAuthorizedRequest function]: retry original request with new token`, 
       ],
     };
   };
-  const getAuthHeader = async (): Promise<Record<string, string>> => {
+  const getAuthHeader = async () => {
     const token =
       getAuthHeaderCalledTimes === 0 ? 'first-token' : 'second-token';
     getAuthHeaderCalledTimes += 1;

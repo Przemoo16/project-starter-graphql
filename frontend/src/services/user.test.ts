@@ -5,15 +5,15 @@ import { clearTokens, getAuthHeader, login, refreshToken } from './user';
 class TokenStorage {
   readonly storage = new Map<string, string>();
 
-  getItem(key: string): string | null {
+  getItem(key: string) {
     return this.storage.get(key) ?? null;
   }
 
-  setItem(key: string, value: string): void {
+  setItem(key: string, value: string) {
     this.storage.set(key, value);
   }
 
-  removeItem(key: string): void {
+  removeItem(key: string) {
     this.storage.delete(key);
   }
 }
@@ -47,18 +47,13 @@ test(`[clearTokens function]: removes tokens`, async () => {
 });
 
 test(`[login function]: saves tokens`, async () => {
-  const requestSender = async (
-    _query: string,
-    _variables?: Record<string, unknown>,
-  ): Promise<Record<string, unknown>> => {
-    return {
-      login: {
-        accessToken: 'access-token',
-        refreshToken: 'refresh-token',
-        tokenType: 'Bearer',
-      },
-    };
-  };
+  const requestSender = async () => ({
+    login: {
+      accessToken: 'access-token',
+      refreshToken: 'refresh-token',
+      tokenType: 'Bearer',
+    },
+  });
   const tokenStorage = new TokenStorage();
 
   await login(requestSender, tokenStorage, 'test@email.com', 'testPassword');
@@ -68,16 +63,11 @@ test(`[login function]: saves tokens`, async () => {
 });
 
 test(`[login function]: doesn't save tokens on problems`, async () => {
-  const requestSender = async (
-    _query: string,
-    _variables?: Record<string, unknown>,
-  ): Promise<Record<string, unknown>> => {
-    return {
-      login: {
-        problems: [{ message: 'Error' }],
-      },
-    };
-  };
+  const requestSender = async () => ({
+    login: {
+      problems: [{ message: 'Error' }],
+    },
+  });
   const tokenStorage = new TokenStorage();
 
   await login(requestSender, tokenStorage, 'test@email.com', 'testPassword');
@@ -91,7 +81,7 @@ test(`[refreshToken function]: retrieve refresh token and saves new access token
   const requestSender = async (
     _query: string,
     variables?: Record<string, unknown>,
-  ): Promise<Record<string, unknown>> => {
+  ) => {
     calledVariables = variables;
     return {
       refreshToken: {
