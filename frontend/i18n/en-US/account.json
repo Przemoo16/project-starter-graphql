@@ -7,6 +7,7 @@
     "deleteAccount": "Delete account",
     "fullName": "Full name",
     "invalidCurrentPassword": "Invalid current password",
+    "logout": "Logout",
     "newPassword": "New password",
     "repeatNewPassword": "Repeat new password",
     "updateAccount": "Update account",

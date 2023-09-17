@@ -1,5 +1,9 @@
-import { $, component$ } from '@builder.io/qwik';
-import { type DocumentHead, routeLoader$ } from '@builder.io/qwik-city';
+import { $, component$, useSignal } from '@builder.io/qwik';
+import {
+  type DocumentHead,
+  routeLoader$,
+  useNavigate,
+} from '@builder.io/qwik-city';
 import {
   custom$,
   FormError,
@@ -23,8 +27,9 @@ import {
 import { TextInput } from '~/components/text-input/text-input';
 import { MAX_FULL_NAME_LENGTH, MIN_PASSWORD_LENGTH } from '~/constants';
 import { isProblemPresent } from '~/libs/api/errors';
-import { REQUEST_SENDER } from '~/services/context';
-import { changeMyPassword, updateMe } from '~/services/user';
+import { getTokenStorage, REQUEST_SENDER } from '~/services/context';
+import { changeMyPassword, deleteMe, logout, updateMe } from '~/services/user';
+
 export const head: DocumentHead = {
   title: 'runtime.account.head.title',
 };
@@ -54,6 +59,7 @@ export default component$(() => (
 const Account = component$(() => {
   const t = useTranslate();
   const ctx = useSpeakContext();
+  const nav = useNavigate();
   const [updateAccountForm, UpdateAccount] = useForm<UpdateAccountForm>({
     loader: useUpdateAccountFormLoader(),
   });
@@ -62,6 +68,7 @@ const Account = component$(() => {
       value: { currentPassword: '', newPassword: '', repeatNewPassword: '' },
     },
   });
+  const deleteAccountPending = useSignal(false);
 
   const handleUpdateAccountSubmit = $<SubmitHandler<UpdateAccountForm>>(
     async (values, _event) => {
@@ -103,6 +110,14 @@ const Account = component$(() => {
       });
     },
   );
+
+  const onDeleteAccount = $(async () => {
+    deleteAccountPending.value = true;
+    await deleteMe(REQUEST_SENDER);
+    await logout(await getTokenStorage());
+    deleteAccountPending.value = false;
+    await nav('/login', { forceReload: true });
+  });
 
   const fullNameLabel = t('account.fullName');
 
@@ -206,7 +221,9 @@ const Account = component$(() => {
           {t('account.changePassword')}
         </button>
       </ChangePassword.Form>
-      <button type="submit">{t('account.deleteAccount')}</button>
+      <button onClick$={onDeleteAccount} disabled={deleteAccountPending.value}>
+        {t('account.deleteAccount')}
+      </button>
     </>
   );
 });
