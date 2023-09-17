@@ -31,7 +31,7 @@ const REQUEST_SENDER = $(
       async () => await getAuthHeader(localStorage),
       async () =>
         await refreshToken(
-          await sendRequest(fetchAdapter, url, query, variables),
+          async (query: string) => await sendRequest(fetchAdapter, url, query),
           localStorage,
         ),
       async () => {

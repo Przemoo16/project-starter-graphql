@@ -66,7 +66,7 @@ repos:
     hooks:
       - id: mypy-backend
         name: mypy (backend)
-        entry: docker compose run -T --rm --no-deps backend mypy .
+        entry: docker compose run --no-TTY --rm --no-deps backend mypy .
         language: system
         files: ^backend/
         types: [python]
@@ -81,7 +81,7 @@ repos:
         require_serial: true
       - id: pylint-backend
         name: pylint (backend)
-        entry: docker compose run -T --rm --no-deps backend pylint backend tests
+        entry: docker compose run --no-TTY --rm --no-deps backend pylint backend tests
         language: system
         files: ^backend/
         types: [python]
@@ -96,7 +96,15 @@ repos:
         require_serial: true
       - id: eslint-frontend
         name: eslint (frontend)
-        entry: docker compose run -T --rm --no-deps frontend yarn lint
+        entry: docker compose run --no-TTY --rm --no-deps frontend yarn run eslint
+        language: system
+        files: ^frontend/
+        types_or: [javascript, jsx, ts, tsx]
+        require_serial: true
+        pass_filenames: false
+      - id: typescript-frontend
+        name: eslint (typescript)
+        entry: docker compose run --no-TTY --rm --no-deps frontend yarn run tsc
         language: system
         files: ^frontend/
         types_or: [javascript, jsx, ts, tsx]
