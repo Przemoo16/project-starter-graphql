@@ -16,7 +16,8 @@ import {
 
 import { TextInput } from '~/components/text-input/text-input';
 import { isProblemPresent } from '~/libs/api/errors';
-import { userService } from '~/services/user';
+import { getTokenStorage, REQUEST_SENDER } from '~/services/context';
+import { login } from '~/services/user';
 
 export const head: DocumentHead = {
   title: 'runtime.login.head.title',
@@ -42,7 +43,12 @@ const Login = component$(() => {
   });
 
   const handleSubmit = $<SubmitHandler<LoginForm>>(async (values, _event) => {
-    const { problems } = await userService.login(values.email, values.password);
+    const { problems } = await login(
+      REQUEST_SENDER,
+      await getTokenStorage(),
+      values.email,
+      values.password,
+    );
 
     if (problems) {
       let error = '';

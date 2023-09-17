@@ -1,9 +1,4 @@
 import { $ } from '@builder.io/qwik';
-import { isServer } from '@builder.io/qwik/build';
-
-import { fetchAdapter } from '~/libs/api/fetchers';
-import { sendAuthorizedRequest, sendRequest } from '~/libs/api/requests';
-import { getApiURL } from '~/libs/api/urls';
 
 interface TokenStorage {
   getItem: (key: string) => string | null;
@@ -14,67 +9,18 @@ interface TokenStorage {
 type RequestSender = (
   query: string,
   variables?: Record<string, unknown>,
-  headers?: Record<string, string>,
 ) => Promise<Record<string, any>>;
 
 const ACCESS_TOKEN_STORAGE_KEY = 'auth:accessToken';
 const REFRESH_TOKEN_STORAGE_KEY = 'auth:refreshToken';
 
-const REQUEST_SENDER = $(
-  async (query: string, variables?: Record<string, unknown>) => {
-    const url = await getApiURL(isServer);
-    return await sendAuthorizedRequest(
-      fetchAdapter,
-      url,
-      query,
-      variables,
-      async () => await getAuthHeader(localStorage),
-      async () =>
-        await refreshToken(
-          async (query: string) => await sendRequest(fetchAdapter, url, query),
-          localStorage,
-        ),
-      async () => {
-        await clearTokens(localStorage);
-      },
-    );
-  },
-);
-
-export const userService = {
-  register: $(
-    async (fullName: string, email: string, password: string) =>
-      await register(REQUEST_SENDER, fullName, email, password),
-  ),
-  login: $(
-    async (email: string, password: string) =>
-      await login(REQUEST_SENDER, localStorage, email, password),
-  ),
-  recoverPassword: $(
-    async (email: string) => await recoverPassword(REQUEST_SENDER, email),
-  ),
-  resetPassword: $(
-    async (token: string, password: string) =>
-      await resetPassword(REQUEST_SENDER, token, password),
-  ),
-  confirmEmail: $(
-    async (token: string) => await confirmEmail(REQUEST_SENDER, token),
-  ),
-  updateMe: $(
-    async (fullName: string) => await updateMe(REQUEST_SENDER, fullName),
-  ),
-  changeMyPassword: $(
-    async (currentPassword: string, newPassword: string) =>
-      await changeMyPassword(REQUEST_SENDER, currentPassword, newPassword),
-  ),
-};
-
-export const getAuthHeader = $(
-  async (storage: TokenStorage): Promise<Record<string, string>> => {
-    const accessToken = storage.getItem(ACCESS_TOKEN_STORAGE_KEY);
-    return accessToken ? { Authorization: `Bearer ${accessToken}` } : {};
-  },
-);
+export const getAuthHeader = $(async (storage: TokenStorage) => {
+  const accessToken = storage.getItem(ACCESS_TOKEN_STORAGE_KEY);
+  const headers: Record<string, string> = accessToken
+    ? { Authorization: `Bearer ${accessToken}` }
+    : {};
+  return headers;
+});
 
 export const clearTokens = $((storage: TokenStorage) => {
   storage.removeItem(ACCESS_TOKEN_STORAGE_KEY);

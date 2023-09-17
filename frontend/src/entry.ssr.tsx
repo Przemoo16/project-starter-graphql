@@ -15,19 +15,16 @@ import {
   renderToStream,
   type RenderOptions,
   type RenderToStreamOptions,
-  type RenderToStreamResult,
 } from '@builder.io/qwik/server';
 import { manifest } from '@qwik-client-manifest';
 
 import Root from './root';
 import { config } from './speak-config';
 
-const extractBase = ({ serverData }: RenderOptions): string =>
+const extractBase = ({ serverData }: RenderOptions) =>
   !isDev && serverData?.locale ? `/build/${serverData.locale}` : '/build';
 
-export default function (
-  opts: RenderToStreamOptions,
-): Promise<RenderToStreamResult> {
+export default function (opts: RenderToStreamOptions) {
   return renderToStream(<Root />, {
     manifest,
     ...opts,

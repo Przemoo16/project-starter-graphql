@@ -6,7 +6,7 @@ export const fetchAdapter = $(
     method?: string,
     body?: string,
     headers?: Record<string, string>,
-  ) => {
+  ): Promise<Record<string, any>> => {
     const response = await fetch(url, {
       method,
       headers,

@@ -2,7 +2,7 @@ import { $ } from '@builder.io/qwik';
 
 import { RequestError } from './errors';
 
-type Fetcher = (
+export type Fetcher = (
   url: string,
   method?: string,
   body?: string,
