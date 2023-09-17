@@ -10,7 +10,7 @@ test(`[sendRequest function]: returns data`, async () => {
     },
   });
 
-  const data = await sendRequest(fetcher, "http://localhost'", 'test-query');
+  const data = await sendRequest(fetcher, "http://localhost'");
 
   expect(data).toEqual({ foo: 'bar' });
 });
@@ -30,9 +30,8 @@ test(`[sendRequest function]: throws error`, async () => {
       },
     ],
   });
-
   await expect(
-    async () => await sendRequest(fetcher, 'http://localhost', 'test-query'),
+    async () => await sendRequest(fetcher, 'http://localhost'),
   ).rejects.toThrowError(RequestError);
 });
 
@@ -53,7 +52,7 @@ test(`[sendRequest function]: throws error with error details included`, async (
   });
 
   try {
-    await sendRequest(fetcher, 'http://localhost', 'test-query');
+    await sendRequest(fetcher, 'http://localhost');
     throw new Error();
   } catch (e) {
     const error = e as RequestError;
@@ -74,7 +73,7 @@ test(`[sendRequest function]: throws error with error details included`, async (
 
 test(`[sendRequest function]: sends serialized body`, async () => {
   let calledBody: string | undefined;
-  const fetcher = async (_url: string, _method?: string, body?: string) => {
+  const fetcher = async (_query: string, { body }: { body?: string }) => {
     calledBody = body;
     return {
       data: {
@@ -82,8 +81,12 @@ test(`[sendRequest function]: sends serialized body`, async () => {
       },
     };
   };
+  const requestConfig = {
+    query: 'test-query',
+    variables: { foo: 'bar' },
+  };
 
-  await sendRequest(fetcher, 'http://localhost', 'test-query', { foo: 'bar' });
+  await sendRequest(fetcher, 'http://localhost', requestConfig);
 
   expect(calledBody).toEqual(
     '{"query":"test-query","variables":{"foo":"bar"}}',
@@ -94,9 +97,7 @@ test(`[sendRequest function]: uses Content-Type header by default`, async () => 
   let calledHeaders: Record<string, string> | undefined = {};
   const fetcher = async (
     _url: string,
-    _method?: string,
-    _body?: string,
-    headers?: Record<string, string>,
+    { headers }: { headers?: Record<string, string> },
   ) => {
     calledHeaders = headers;
     return {
@@ -106,7 +107,7 @@ test(`[sendRequest function]: uses Content-Type header by default`, async () => 
     };
   };
 
-  await sendRequest(fetcher, 'http://localhost', 'test-query');
+  await sendRequest(fetcher, 'http://localhost');
 
   expect(calledHeaders).toEqual({
     'Content-Type': 'application/json',
@@ -117,9 +118,7 @@ test(`[sendRequest function]: uses the custom headers with the default ones`, as
   let calledHeaders: Record<string, string> | undefined = {};
   const fetcher = async (
     _url: string,
-    _method?: string,
-    _body?: string,
-    headers?: Record<string, string>,
+    { headers }: { headers?: Record<string, string> },
   ) => {
     calledHeaders = headers;
     return {
@@ -128,15 +127,9 @@ test(`[sendRequest function]: uses the custom headers with the default ones`, as
       },
     };
   };
-  const headers = { Test: 'Header' };
+  const requestConfig = { headers: { Test: 'Header' } };
 
-  await sendRequest(
-    fetcher,
-    'http://localhost',
-    'test-query',
-    undefined,
-    headers,
-  );
+  await sendRequest(fetcher, 'http://localhost', requestConfig);
 
   expect(calledHeaders).toEqual({
     'Content-Type': 'application/json',
@@ -148,9 +141,7 @@ test(`[sendAuthorizedRequest function]: sends request with the auth header`, asy
   let calledHeaders: Record<string, string> | undefined = {};
   const fetcher = async (
     _url: string,
-    _method?: string,
-    _body?: string,
-    headers?: Record<string, string>,
+    { headers }: { headers?: Record<string, string> },
   ) => {
     calledHeaders = headers;
     return {
@@ -162,14 +153,9 @@ test(`[sendAuthorizedRequest function]: sends request with the auth header`, asy
   const getAuthHeader = async () => ({
     Authorization: 'Bearer test-token',
   });
+  const requestConfig = { getAuthHeader };
 
-  await sendAuthorizedRequest(
-    fetcher,
-    'http://localhost',
-    'test-query',
-    undefined,
-    getAuthHeader,
-  );
+  await sendAuthorizedRequest(fetcher, 'http://localhost', requestConfig);
 
   expect(calledHeaders).toMatchObject({
     Authorization: 'Bearer test-token',
@@ -187,21 +173,12 @@ test(`[sendAuthorizedRequest function]: sends original request successfully`, as
       },
     };
   };
-  const getAuthHeader = async () => ({
-    Authorization: 'Bearer test-token',
-  });
   const onUnauthorized = async () => {
     onUnauthorizedCalled = true;
   };
+  const requestConfig = { onUnauthorized };
 
-  await sendAuthorizedRequest(
-    fetcher,
-    'http://localhost',
-    'test-query',
-    undefined,
-    getAuthHeader,
-    onUnauthorized,
-  );
+  await sendAuthorizedRequest(fetcher, 'http://localhost', requestConfig);
 
   expect(fetcherCalledTimes).toEqual(1);
   expect(onUnauthorizedCalled).toBe(false);
@@ -227,23 +204,14 @@ test(`[sendAuthorizedRequest function]: doesn't handle non token related errors`
       ],
     };
   };
-  const getAuthHeader = async () => ({
-    Authorization: 'Bearer test-token',
-  });
   const onUnauthorized = async () => {
     onUnauthorizedCalled = true;
   };
+  const requestConfig = { onUnauthorized };
 
   await expect(
     async () =>
-      await sendAuthorizedRequest(
-        fetcher,
-        'http://localhost',
-        'test-query',
-        undefined,
-        getAuthHeader,
-        onUnauthorized,
-      ),
+      await sendAuthorizedRequest(fetcher, 'http://localhost', requestConfig),
   ).rejects.toThrowError(RequestError);
 
   expect(fetcherCalledTimes).toEqual(1);
@@ -267,27 +235,17 @@ test(`[sendAuthorizedRequest function]: calls onUnauthorized callback on token r
       },
     ],
   });
-  const getAuthHeader = async () => ({
-    Authorization: 'Bearer test-token',
-  });
   const onUnauthorized = async () => {
     onUnauthorizedCalled = true;
   };
   const onInvalidTokens = async () => {
     onInvalidTokensCalled = true;
   };
+  const requestConfig = { onUnauthorized, onInvalidTokens };
 
   await expect(
     async () =>
-      await sendAuthorizedRequest(
-        fetcher,
-        'http://localhost',
-        'test-query',
-        undefined,
-        getAuthHeader,
-        onUnauthorized,
-        onInvalidTokens,
-      ),
+      await sendAuthorizedRequest(fetcher, 'http://localhost', requestConfig),
   ).rejects.toThrowError(RequestError);
 
   expect(onUnauthorizedCalled).toBe(true);
@@ -310,27 +268,17 @@ test(`[sendAuthorizedRequest function]: calls onInvalidTokens callback on onUnau
       },
     ],
   });
-  const getAuthHeader = async () => ({
-    Authorization: 'Bearer test-token',
-  });
   const onUnauthorized = async () => {
     throw new Error();
   };
   const onInvalidTokens = async () => {
     onInvalidTokensCalled = true;
   };
+  const requestConfig = { onUnauthorized, onInvalidTokens };
 
   await expect(
     async () =>
-      await sendAuthorizedRequest(
-        fetcher,
-        'http://localhost',
-        'test-query',
-        undefined,
-        getAuthHeader,
-        onUnauthorized,
-        onInvalidTokens,
-      ),
+      await sendAuthorizedRequest(fetcher, 'http://localhost', requestConfig),
   ).rejects.toThrowError(RequestError);
   expect(onInvalidTokensCalled).toBe(true);
 });
@@ -340,9 +288,7 @@ test(`[sendAuthorizedRequest function]: retry original request with new token`, 
   const headersCalled: Array<Record<string, string> | undefined> = [];
   const fetcher = async (
     _url: string,
-    _method?: string,
-    _body?: string,
-    headers?: Record<string, string>,
+    { headers }: { headers?: Record<string, string> },
   ) => {
     headersCalled.push(headers);
     return {
@@ -366,16 +312,11 @@ test(`[sendAuthorizedRequest function]: retry original request with new token`, 
     getAuthHeaderCalledTimes += 1;
     return { Authorization: `Bearer ${token}` };
   };
+  const requestConfig = { getAuthHeader };
 
   await expect(
     async () =>
-      await sendAuthorizedRequest(
-        fetcher,
-        'http://localhost',
-        'test-query',
-        undefined,
-        getAuthHeader,
-      ),
+      await sendAuthorizedRequest(fetcher, 'http://localhost', requestConfig),
   ).rejects.toThrowError(RequestError);
 
   expect(headersCalled).toHaveLength(2);

@@ -13,21 +13,19 @@ export const REQUEST_SENDER = $(
   async (query: string, variables?: Record<string, unknown>) => {
     const url = await getApiURL(isServer);
     const tokenStorage = await getTokenStorage();
-    return await sendAuthorizedRequest(
-      fetchAdapter,
-      url,
+    return await sendAuthorizedRequest(fetchAdapter, url, {
       query,
       variables,
-      async () => await getAuthHeader(tokenStorage),
-      async () =>
+      getAuthHeader: async () => await getAuthHeader(tokenStorage),
+      onUnauthorized: async () =>
         await refreshToken(
           async (query: string, variables?: Record<string, unknown>) =>
-            await sendRequest(fetchAdapter, url, query, variables),
+            await sendRequest(fetchAdapter, url, { query, variables }),
           tokenStorage,
         ),
-      async () => {
+      onInvalidTokens: async () => {
         await clearTokens(tokenStorage);
       },
-    );
+    });
   },
 );

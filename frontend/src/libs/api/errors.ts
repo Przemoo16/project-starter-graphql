@@ -5,14 +5,12 @@ interface Problem {
 export const isProblemPresent = (problems: Problem[], type: string) =>
   problems.some(problem => problem.__typename === type);
 
-interface ErrorLocation {
-  line: number;
-  column: number;
-}
-
 export interface GraphQLError {
   message: string;
-  locations: ErrorLocation[];
+  locations: Array<{
+    line: number;
+    column: number;
+  }>;
   path: string[];
 }
 
