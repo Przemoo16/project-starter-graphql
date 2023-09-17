@@ -94,6 +94,10 @@ export const login = $(
   },
 );
 
+export const logout = $(async (storage: TokenStorage) => {
+  await clearTokens(storage);
+});
+
 export const refreshToken = $(
   async (requestSender: RequestSender, storage: TokenStorage) => {
     const mutation = `
