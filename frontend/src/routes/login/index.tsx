@@ -1,7 +1,12 @@
 import { $, component$ } from '@builder.io/qwik';
-import { type DocumentHead, useNavigate } from '@builder.io/qwik-city';
+import { type DocumentHead, Link, useNavigate } from '@builder.io/qwik-city';
 import { FormError, type SubmitHandler } from '@modular-forms/qwik';
-import { inlineTranslate, Speak, useSpeakContext } from 'qwik-speak';
+import {
+  inlineTranslate,
+  Speak,
+  useSpeakContext,
+  useTranslate,
+} from 'qwik-speak';
 
 import { LoginForm, type LoginFormSchema } from '~/components/forms/login';
 import { isProblemPresent } from '~/libs/api/errors';
@@ -19,6 +24,7 @@ export default component$(() => (
 ));
 
 const Login = component$(() => {
+  const t = useTranslate();
   const ctx = useSpeakContext();
   const nav = useNavigate();
 
@@ -45,5 +51,11 @@ const Login = component$(() => {
     },
   );
 
-  return <LoginForm onSubmit={handleSubmit} />;
+  return (
+    <>
+      <LoginForm onSubmit={handleSubmit} />
+      <Link href="/register">{t('auth.registerLink')}</Link>
+      <Link href="/recover-password">{t('auth.recoverPasswordLink')}</Link>
+    </>
+  );
 });

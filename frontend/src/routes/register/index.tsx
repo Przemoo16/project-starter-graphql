@@ -1,7 +1,12 @@
 import { $, component$ } from '@builder.io/qwik';
-import { type DocumentHead } from '@builder.io/qwik-city';
+import { type DocumentHead, Link } from '@builder.io/qwik-city';
 import { FormError, type SubmitHandler } from '@modular-forms/qwik';
-import { inlineTranslate, Speak, useSpeakContext } from 'qwik-speak';
+import {
+  inlineTranslate,
+  Speak,
+  useSpeakContext,
+  useTranslate,
+} from 'qwik-speak';
 
 import {
   RegisterForm,
@@ -22,6 +27,7 @@ export default component$(() => (
 ));
 
 const Register = component$(() => {
+  const t = useTranslate();
   const ctx = useSpeakContext();
 
   const handleSubmit = $<SubmitHandler<RegisterFormSchema>>(
@@ -48,5 +54,10 @@ const Register = component$(() => {
     },
   );
 
-  return <RegisterForm onSubmit={handleSubmit} />;
+  return (
+    <>
+      <RegisterForm onSubmit={handleSubmit} />
+      <Link href="/login">{t('auth.loginLink')}</Link>
+    </>
+  );
 });

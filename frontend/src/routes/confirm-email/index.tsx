@@ -1,5 +1,5 @@
 import { component$ } from '@builder.io/qwik';
-import { type DocumentHead, routeLoader$ } from '@builder.io/qwik-city';
+import { type DocumentHead, Link, routeLoader$ } from '@builder.io/qwik-city';
 import { Speak, useTranslate } from 'qwik-speak';
 
 import { isProblemPresent } from '~/libs/api/errors';
@@ -40,12 +40,11 @@ const ConfirmEmail = component$(() => {
     message = t('auth.confirmEmailSuccess');
   }
 
-  const confirmEmail = t('auth.confirmEmail');
-
   return (
     <>
-      {confirmEmail}
+      {t('auth.confirmEmail')}
       <div>{message}</div>
+      <Link href="/login">{t('auth.backToLoginLink')}</Link>
     </>
   );
 });

@@ -1,7 +1,7 @@
 import { $, component$ } from '@builder.io/qwik';
-import { type DocumentHead } from '@builder.io/qwik-city';
+import { type DocumentHead, Link } from '@builder.io/qwik-city';
 import { type SubmitHandler } from '@modular-forms/qwik';
-import { Speak } from 'qwik-speak';
+import { Speak, useTranslate } from 'qwik-speak';
 
 import {
   RecoverPasswordForm,
@@ -21,11 +21,17 @@ export default component$(() => (
 ));
 
 const RecoverPassword = component$(() => {
+  const t = useTranslate();
   const handleSubmit = $<SubmitHandler<RecoverPasswordFormSchema>>(
     async (values, _event) => {
       await recoverPassword(REQUEST_SENDER, values.email);
     },
   );
 
-  return <RecoverPasswordForm onSubmit={handleSubmit} />;
+  return (
+    <>
+      <RecoverPasswordForm onSubmit={handleSubmit} />
+      <Link href="/login">{t('auth.backToLoginLink')}</Link>
+    </>
+  );
 });

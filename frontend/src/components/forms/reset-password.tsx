@@ -33,9 +33,6 @@ export const ResetPasswordForm = component$(
         loader: { value: { password: '', repeatPassword: '' } },
       });
 
-    const passwordLabel = t('auth.password');
-    const repeatPasswordLabel = t('auth.repeatPassword');
-
     const handleSubmit = $<SubmitHandler<ResetPasswordFormSchema>>(
       async (values, event) => {
         await onSubmit(values, event);
@@ -46,6 +43,9 @@ export const ResetPasswordForm = component$(
         });
       },
     );
+
+    const passwordLabel = t('auth.password');
+    const repeatPasswordLabel = t('auth.repeatPassword');
 
     return (
       <Form onSubmit$={handleSubmit}>
