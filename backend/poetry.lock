@@ -1547,23 +1547,23 @@ testutils = ["gitpython (>3)"]
 
 [[package]]
 name = "pyseto"
-version = "1.7.3"
+version = "1.7.4"
 description = "A Python implementation of PASETO/PASERK."
 optional = false
 python-versions = ">=3.8,<4.0"
 files = [
-    {file = "pyseto-1.7.3-py3-none-any.whl", hash = "sha256:ee679c0dab1837d73bb3f69e3e0e5f0737039e1bb62377d9d08a54386580f734"},
-    {file = "pyseto-1.7.3.tar.gz", hash = "sha256:df3a3b220a0fb28a9b355012c2f1762ace26626354ad410b55a83addb6407fb8"},
+    {file = "pyseto-1.7.4-py3-none-any.whl", hash = "sha256:e4c66180ad13b11f2ca5d90425648130e26ca8fae30eb2a2289f8392a03395d7"},
+    {file = "pyseto-1.7.4.tar.gz", hash = "sha256:b3a1f43cfe383dea63a437476c52657cc46e36ad235a19503ee6e45d1791196e"},
 ]
 
 [package.dependencies]
-cryptography = ">=41.0.0,<42.0.0"
+cryptography = "41.0.3"
 iso8601 = ">=1.0.2,<3.0.0"
 passlib = {version = ">=1.7.4,<2.0.0", extras = ["argon2"]}
-pycryptodomex = ">=3.12.0,<4.0.0"
+pycryptodomex = ">=3.18.0,<4.0.0"
 
 [package.extras]
-docs = ["Sphinx[docs] (>=6.0.0,<7.0.0)", "sphinx-autodoc-typehints[docs] (>=1.21.0,<2.0.0)", "sphinx-rtd-theme[docs] (>=1.0.0,<2.0.0)"]
+docs = ["Sphinx[docs] (>=6,<8)", "sphinx-autodoc-typehints[docs] (>=1.21.0,<2.0.0)", "sphinx-rtd-theme[docs] (>=1.2.1,<2.0.0)"]
 
 [[package]]
 name = "pytest"
@@ -2240,4 +2240,4 @@ files = [
 [metadata]
 lock-version = "2.0"
 python-versions = "^3.11"
-content-hash = "9688f72c22af92e65f23f19d55b5d6f7eff64523e16eb15d4429c83c9e609381"
+content-hash = "9bc07d60ff02003a369a48bf71ba6f81253459d3ba76d858420b8b32f6f7084a"
