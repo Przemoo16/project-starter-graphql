@@ -1,7 +1,12 @@
 import { $, component$ } from '@builder.io/qwik';
-import { type DocumentHead, useLocation } from '@builder.io/qwik-city';
+import { type DocumentHead, Link, useLocation } from '@builder.io/qwik-city';
 import { FormError, type SubmitHandler } from '@modular-forms/qwik';
-import { inlineTranslate, Speak, useSpeakContext } from 'qwik-speak';
+import {
+  inlineTranslate,
+  Speak,
+  useSpeakContext,
+  useTranslate,
+} from 'qwik-speak';
 
 import {
   ResetPasswordForm,
@@ -21,6 +26,7 @@ export default component$(() => (
 ));
 
 const ResetPassword = component$(() => {
+  const t = useTranslate();
   const ctx = useSpeakContext();
   const loc = useLocation();
 
@@ -40,5 +46,10 @@ const ResetPassword = component$(() => {
     },
   );
 
-  return <ResetPasswordForm onSubmit={handleSubmit} />;
+  return (
+    <>
+      <ResetPasswordForm onSubmit={handleSubmit} />
+      <Link href="/login">{t('auth.backToLoginLink')}</Link>
+    </>
+  );
 });
