@@ -5,17 +5,9 @@ import {
   useNavigate,
 } from '@builder.io/qwik-city';
 import {
-  custom$,
   FormError,
-  getValue,
   type InitialValues,
-  maxLength,
-  minLength,
-  required,
-  reset,
-  setResponse,
   type SubmitHandler,
-  useForm,
 } from '@modular-forms/qwik';
 import {
   inlineTranslate,
@@ -24,8 +16,14 @@ import {
   useTranslate,
 } from 'qwik-speak';
 
-import { TextInput } from '~/components/text-input/text-input';
-import { MAX_FULL_NAME_LENGTH, MIN_PASSWORD_LENGTH } from '~/constants';
+import {
+  ChangePasswordForm,
+  type ChangePasswordFormSchema,
+} from '~/components/forms/change-password';
+import {
+  UpdateAccountForm,
+  type UpdateAccountFormSchema,
+} from '~/components/forms/update-account';
 import { isProblemPresent } from '~/libs/api/errors';
 import { getTokenStorage, REQUEST_SENDER } from '~/services/context';
 import { changeMyPassword, deleteMe, logout, updateMe } from '~/services/user';
@@ -34,18 +32,8 @@ export const head: DocumentHead = {
   title: 'runtime.account.head.title',
 };
 
-type UpdateAccountForm = {
-  fullName: string;
-};
-
-type ChangePasswordForm = {
-  currentPassword: string;
-  newPassword: string;
-  repeatNewPassword: string;
-};
-
 export const useUpdateAccountFormLoader = routeLoader$<
-  InitialValues<UpdateAccountForm>
+  InitialValues<UpdateAccountFormSchema>
 >(() => ({
   fullName: '', // TODO: Fill details from the user
 }));
@@ -60,33 +48,22 @@ const Account = component$(() => {
   const t = useTranslate();
   const ctx = useSpeakContext();
   const nav = useNavigate();
-  const [updateAccountForm, UpdateAccount] = useForm<UpdateAccountForm>({
-    loader: useUpdateAccountFormLoader(),
-  });
-  const [changePasswordForm, ChangePassword] = useForm<ChangePasswordForm>({
-    loader: {
-      value: { currentPassword: '', newPassword: '', repeatNewPassword: '' },
-    },
-  });
   const deleteAccountPending = useSignal(false);
+  const updateAccountFormSignal = useUpdateAccountFormLoader();
 
-  const handleUpdateAccountSubmit = $<SubmitHandler<UpdateAccountForm>>(
+  const handleUpdateAccountSubmit = $<SubmitHandler<UpdateAccountFormSchema>>(
     async (values, _event) => {
       const { problems } = await updateMe(REQUEST_SENDER, values.fullName);
 
       if (problems) {
-        throw new FormError<UpdateAccountForm>(
+        throw new FormError<UpdateAccountFormSchema>(
           inlineTranslate('account.updateAccountError', ctx),
         );
       }
-
-      setResponse(updateAccountForm, {
-        message: inlineTranslate('account.updateAccountSuccess', ctx),
-      });
     },
   );
 
-  const handleChangePasswordSubmit = $<SubmitHandler<ChangePasswordForm>>(
+  const handleChangePasswordSubmit = $<SubmitHandler<ChangePasswordFormSchema>>(
     async (values, _event) => {
       const { problems } = await changeMyPassword(
         REQUEST_SENDER,
@@ -101,13 +78,8 @@ const Account = component$(() => {
         } else {
           error = inlineTranslate('account.changePasswordError', ctx);
         }
-        throw new FormError<UpdateAccountForm>(error);
+        throw new FormError<ChangePasswordFormSchema>(error);
       }
-
-      reset(changePasswordForm);
-      setResponse(changePasswordForm, {
-        message: inlineTranslate('account.changePasswordSuccess', ctx),
-      });
     },
   );
 
@@ -119,108 +91,13 @@ const Account = component$(() => {
     await nav('/login', { forceReload: true });
   });
 
-  const fullNameLabel = t('account.fullName');
-
-  const currentPasswordLabel = t('account.currentPassword');
-  const newPasswordLabel = t('account.newPassword');
-  const repeatNewPasswordLabel = t('account.repeatNewPassword');
-
   return (
     <>
-      <UpdateAccount.Form onSubmit$={handleUpdateAccountSubmit} shouldDirty>
-        <UpdateAccount.Field
-          name="fullName"
-          validate={[
-            required(t('validation.required')),
-            maxLength(
-              MAX_FULL_NAME_LENGTH,
-              t('validation.maxFullName', { max: MAX_FULL_NAME_LENGTH }),
-            ),
-          ]}
-        >
-          {(field, props) => (
-            <TextInput
-              {...props}
-              type="text"
-              label={fullNameLabel}
-              placeholder="Jon Doe"
-              value={field.value}
-              error={field.error}
-              required
-            />
-          )}
-        </UpdateAccount.Field>
-        <div>{updateAccountForm.response.message}</div>
-        <button type="submit" disabled={updateAccountForm.submitting}>
-          {t('account.updateAccount')}
-        </button>
-      </UpdateAccount.Form>
-      <ChangePassword.Form onSubmit$={handleChangePasswordSubmit}>
-        <ChangePassword.Field
-          name="currentPassword"
-          validate={[required(t('validation.required'))]}
-        >
-          {(field, props) => (
-            <TextInput
-              {...props}
-              type="password"
-              label={currentPasswordLabel}
-              placeholder="********"
-              value={field.value}
-              error={field.error}
-              required
-            />
-          )}
-        </ChangePassword.Field>
-        <ChangePassword.Field
-          name="newPassword"
-          validate={[
-            required(t('validation.required')),
-            minLength(
-              MIN_PASSWORD_LENGTH,
-              t('validation.minPassword', { min: MIN_PASSWORD_LENGTH }),
-            ),
-          ]}
-        >
-          {(field, props) => (
-            <TextInput
-              {...props}
-              type="password"
-              label={newPasswordLabel}
-              placeholder="********"
-              value={field.value}
-              error={field.error}
-              required
-            />
-          )}
-        </ChangePassword.Field>
-        <ChangePassword.Field
-          name="repeatNewPassword"
-          validate={[
-            required(t('validation.required')),
-            custom$(
-              value => value === getValue(changePasswordForm, 'newPassword'),
-              t(`validation.passwordMatch`),
-            ),
-          ]}
-        >
-          {(field, props) => (
-            <TextInput
-              {...props}
-              type="password"
-              label={repeatNewPasswordLabel}
-              placeholder="********"
-              value={field.value}
-              error={field.error}
-              required
-            />
-          )}
-        </ChangePassword.Field>
-        <div>{changePasswordForm.response.message}</div>
-        <button type="submit" disabled={changePasswordForm.submitting}>
-          {t('account.changePassword')}
-        </button>
-      </ChangePassword.Form>
+      <UpdateAccountForm
+        onSubmit={handleUpdateAccountSubmit}
+        loader={updateAccountFormSignal}
+      />
+      <ChangePasswordForm onSubmit={handleChangePasswordSubmit} />
       <button onClick$={onDeleteAccount} disabled={deleteAccountPending.value}>
         {t('account.deleteAccount')}
       </button>
