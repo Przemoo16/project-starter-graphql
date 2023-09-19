@@ -1,7 +1,8 @@
-import { $, component$, type QRL } from '@builder.io/qwik';
+import { $, component$ } from '@builder.io/qwik';
 import {
   custom$,
   email,
+  FormError,
   getValue,
   maxLength,
   minLength,
@@ -14,21 +15,22 @@ import {
 import { inlineTranslate, useSpeakContext, useTranslate } from 'qwik-speak';
 
 import { TextInput } from '~/components/text-input/text-input';
+import { isProblemPresent } from '~/libs/api/errors';
+import {
+  MAX_FULL_NAME_LENGTH,
+  MIN_PASSWORD_LENGTH,
+} from '~/routes/schema-config';
+import { REQUEST_SENDER } from '~/services/context';
+import { register } from '~/services/user';
 
-import { MAX_FULL_NAME_LENGTH, MIN_PASSWORD_LENGTH } from './schema-config';
-
-export type RegisterFormSchema = {
+type RegisterFormSchema = {
   fullName: string;
   email: string;
   password: string;
   repeatPassword: string;
 };
 
-interface RegisterFormProps {
-  onSubmit: QRL<SubmitHandler<RegisterFormSchema>>;
-}
-
-export const RegisterForm = component$(({ onSubmit }: RegisterFormProps) => {
+export const RegisterForm = component$(() => {
   const t = useTranslate();
   const ctx = useSpeakContext();
   const [registerForm, { Form, Field }] = useForm<RegisterFormSchema>({
@@ -39,7 +41,25 @@ export const RegisterForm = component$(({ onSubmit }: RegisterFormProps) => {
 
   const handleSubmit = $<SubmitHandler<RegisterFormSchema>>(
     async (values, event) => {
-      await onSubmit(values, event);
+      const { problems } = await register(
+        REQUEST_SENDER,
+        values.fullName,
+        values.email,
+        values.password,
+      );
+
+      if (problems) {
+        let emailError = '';
+        let generalError = '';
+        if (isProblemPresent(problems, 'UserAlreadyExistsProblem')) {
+          emailError = inlineTranslate('auth.accountAlreadyExists', ctx);
+        } else {
+          generalError = inlineTranslate('auth.registerError', ctx);
+        }
+        throw new FormError<RegisterFormSchema>(generalError, {
+          email: emailError,
+        });
+      }
 
       reset(registerForm);
       setResponse(registerForm, {
