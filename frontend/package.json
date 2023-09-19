@@ -20,7 +20,7 @@
     "qwik-speak-extract": "qwik-speak-extract --supportedLangs=en-US --assetsPath=i18n"
   },
   "devDependencies": {
-    "@builder.io/qwik": "^1.2.11",
+    "@builder.io/qwik": "^1.2.12",
     "@builder.io/qwik-city": "^1.2.11",
     "@modular-forms/qwik": "^0.20.2",
     "@types/eslint": "^8.44.2",
