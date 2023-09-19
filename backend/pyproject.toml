@@ -19,7 +19,7 @@ orjson = "^3.9.7"
 passlib = { extras = ["bcrypt"], version = "^1.7.4" }
 pydantic = { extras = ["email"], version = "^2.3.0" }
 pydantic-settings = "^2.0.3"
-pyseto = "^1.7.3"
+pyseto = "^1.7.4"
 redis = "^5.0.0"
 sqlalchemy = "^2.0.20"
 strawberry-graphql = { extras = ["fastapi"], version = "^0.208.1" }
