@@ -68,7 +68,7 @@ export const RegisterForm = component$(() => {
     },
   );
 
-  const fullNameLabel = t('auth.fullName');
+  const fullNameLabel = t('account.fullName');
   const emailLabel = t('auth.email');
   const passwordLabel = t('auth.password');
   const repeatPasswordLabel = t('auth.repeatPassword');
@@ -160,7 +160,6 @@ export const RegisterForm = component$(() => {
           />
         )}
       </Field>
-      <div>{registerForm.response.status}</div>
       <div>{registerForm.response.message}</div>
       <button type="submit" disabled={registerForm.submitting}>
         {t('auth.getStarted')}

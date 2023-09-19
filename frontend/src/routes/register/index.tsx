@@ -9,7 +9,7 @@ export const head: DocumentHead = {
 };
 
 export default component$(() => (
-  <Speak assets={['auth', 'validation']}>
+  <Speak assets={['account', 'auth', 'validation']}>
     <Register />
   </Speak>
 ));
