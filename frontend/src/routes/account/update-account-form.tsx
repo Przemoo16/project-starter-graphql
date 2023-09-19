@@ -1,5 +1,6 @@
-import { $, component$, type QRL, type Signal } from '@builder.io/qwik';
+import { $, component$, type Signal } from '@builder.io/qwik';
 import {
+  FormError,
   type InitialValues,
   maxLength,
   required,
@@ -10,20 +11,20 @@ import {
 import { inlineTranslate, useSpeakContext, useTranslate } from 'qwik-speak';
 
 import { TextInput } from '~/components/text-input/text-input';
-
-import { MAX_FULL_NAME_LENGTH } from './schema-config';
+import { MAX_FULL_NAME_LENGTH } from '~/routes/schema-config';
+import { REQUEST_SENDER } from '~/services/context';
+import { updateMe } from '~/services/user';
 
 export type UpdateAccountFormSchema = {
   fullName: string;
 };
 
 interface UpdateAccountFormProps {
-  onSubmit: QRL<SubmitHandler<UpdateAccountFormSchema>>;
   loader: Readonly<Signal<InitialValues<UpdateAccountFormSchema>>>;
 }
 
 export const UpdateAccountForm = component$(
-  ({ onSubmit, loader }: UpdateAccountFormProps) => {
+  ({ loader }: UpdateAccountFormProps) => {
     const t = useTranslate();
     const ctx = useSpeakContext();
     const [updateAccountForm, UpdateAccount] = useForm<UpdateAccountFormSchema>(
@@ -33,9 +34,14 @@ export const UpdateAccountForm = component$(
     );
 
     const handleSubmit = $<SubmitHandler<UpdateAccountFormSchema>>(
-      async (values, event) => {
-        await onSubmit(values, event);
+      async (values, _event) => {
+        const { problems } = await updateMe(REQUEST_SENDER, values.fullName);
 
+        if (problems) {
+          throw new FormError<UpdateAccountFormSchema>(
+            inlineTranslate('account.updateAccountError', ctx),
+          );
+        }
         setResponse(updateAccountForm, {
           message: inlineTranslate('account.updateAccountSuccess', ctx),
         });

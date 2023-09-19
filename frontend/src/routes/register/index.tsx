@@ -1,20 +1,8 @@
-import { $, component$ } from '@builder.io/qwik';
+import { component$ } from '@builder.io/qwik';
 import { type DocumentHead, Link } from '@builder.io/qwik-city';
-import { FormError, type SubmitHandler } from '@modular-forms/qwik';
-import {
-  inlineTranslate,
-  Speak,
-  useSpeakContext,
-  useTranslate,
-} from 'qwik-speak';
+import { Speak, useTranslate } from 'qwik-speak';
 
-import {
-  RegisterForm,
-  type RegisterFormSchema,
-} from '~/components/forms/register';
-import { isProblemPresent } from '~/libs/api/errors';
-import { REQUEST_SENDER } from '~/services/context';
-import { register } from '~/services/user';
+import { RegisterForm } from './register-form';
 
 export const head: DocumentHead = {
   title: 'runtime.register.head.title',
@@ -28,35 +16,10 @@ export default component$(() => (
 
 const Register = component$(() => {
   const t = useTranslate();
-  const ctx = useSpeakContext();
-
-  const handleSubmit = $<SubmitHandler<RegisterFormSchema>>(
-    async (values, _event) => {
-      const { problems } = await register(
-        REQUEST_SENDER,
-        values.fullName,
-        values.email,
-        values.password,
-      );
-
-      if (problems) {
-        let emailError = '';
-        let generalError = '';
-        if (isProblemPresent(problems, 'UserAlreadyExistsProblem')) {
-          emailError = inlineTranslate('auth.accountAlreadyExists', ctx);
-        } else {
-          generalError = inlineTranslate('auth.registerError', ctx);
-        }
-        throw new FormError<RegisterFormSchema>(generalError, {
-          email: emailError,
-        });
-      }
-    },
-  );
 
   return (
     <>
-      <RegisterForm onSubmit={handleSubmit} />
+      <RegisterForm />
       <Link href="/login">{t('auth.loginLink')}</Link>
     </>
   );
