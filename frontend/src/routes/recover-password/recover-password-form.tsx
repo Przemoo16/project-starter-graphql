@@ -59,9 +59,7 @@ export const RecoverPasswordForm = component$(() => {
           />
         )}
       </Field>
-      <div>{recoverPasswordForm.response.status}</div>
       <div>{recoverPasswordForm.response.message}</div>
-      <div>{recoverPasswordForm.response.data}</div>
       <button type="submit" disabled={recoverPasswordForm.submitting}>
         {t('auth.recoverPassword')}
       </button>
