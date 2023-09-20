@@ -1,6 +1,6 @@
 import { $ } from '@builder.io/qwik';
 
-import { RequestError } from './errors';
+import { GraphQLError } from './errors';
 
 export type Fetcher = (
   url: string,
@@ -38,7 +38,7 @@ export const sendRequest = $(
       headers: { 'Content-Type': 'application/json', ...(headers ?? {}) },
     });
     if (errors) {
-      throw new RequestError(errors);
+      throw new GraphQLError(errors);
     }
     return data;
   },
@@ -60,8 +60,10 @@ export const sendAuthorizedRequest = $(
       const headers = await getAuthHeader();
       return await sendRequest(fetcher, url, { query, variables, headers });
     } catch (e) {
-      const error = e as RequestError;
-      if (!error.errors.some(error => error.message === 'Invalid token')) {
+      if (
+        !(e instanceof GraphQLError) ||
+        !e.errors.some(error => error.message === 'Invalid token')
+      ) {
         throw e;
       }
       try {
