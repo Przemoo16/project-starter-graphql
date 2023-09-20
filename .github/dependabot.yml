@@ -3,24 +3,24 @@ updates:
   - package-ecosystem: "github-actions"
     directory: "/"
     schedule:
-      interval: "daily"
+      interval: "weekly"
     commit-message:
       prefix: ⬆
   - package-ecosystem: "pip"
     directory: "/infrastructure"
     schedule:
-      interval: "daily"
+      interval: "weekly"
     commit-message:
       prefix: ⬆
   - package-ecosystem: "pip"
     directory: "/backend"
     schedule:
-      interval: "daily"
+      interval: "weekly"
     commit-message:
       prefix: ⬆
   - package-ecosystem: "npm"
     directory: "/frontend"
     schedule:
-      interval: "daily"
+      interval: "weekly"
     commit-message:
       prefix: ⬆
