@@ -1,6 +1,6 @@
 import { expect, test } from 'vitest';
 
-import { RequestError } from './errors';
+import { GraphQLError } from './errors';
 import { sendAuthorizedRequest, sendRequest } from './requests';
 
 test(`[sendRequest function]: returns data`, async () => {
@@ -32,7 +32,7 @@ test(`[sendRequest function]: throws error`, async () => {
   });
   await expect(
     async () => await sendRequest(fetcher, 'http://localhost'),
-  ).rejects.toThrowError(RequestError);
+  ).rejects.toThrowError(GraphQLError);
 });
 
 test(`[sendRequest function]: throws error with error details included`, async () => {
@@ -55,7 +55,7 @@ test(`[sendRequest function]: throws error with error details included`, async (
     await sendRequest(fetcher, 'http://localhost');
     throw new Error();
   } catch (e) {
-    const error = e as RequestError;
+    const error = e as GraphQLError;
     expect(error.errors).toEqual([
       {
         message: 'Error',
@@ -184,6 +184,27 @@ test(`[sendAuthorizedRequest function]: sends original request successfully`, as
   expect(onUnauthorizedCalled).toBe(false);
 });
 
+test(`[sendAuthorizedRequest function]: doesn't handle non graphql errors`, async () => {
+  let fetcherCalledTimes = 0;
+  let onUnauthorizedCalled = false;
+  const fetcher = async () => {
+    fetcherCalledTimes += 1;
+    throw new Error('Connection error');
+  };
+  const onUnauthorized = async () => {
+    onUnauthorizedCalled = true;
+  };
+  const requestConfig = { onUnauthorized };
+
+  await expect(
+    async () =>
+      await sendAuthorizedRequest(fetcher, 'http://localhost', requestConfig),
+  ).rejects.toThrowError(/^Connection error$/);
+
+  expect(fetcherCalledTimes).toEqual(1);
+  expect(onUnauthorizedCalled).toBe(false);
+});
+
 test(`[sendAuthorizedRequest function]: doesn't handle non token related errors`, async () => {
   let fetcherCalledTimes = 0;
   let onUnauthorizedCalled = false;
@@ -212,7 +233,7 @@ test(`[sendAuthorizedRequest function]: doesn't handle non token related errors`
   await expect(
     async () =>
       await sendAuthorizedRequest(fetcher, 'http://localhost', requestConfig),
-  ).rejects.toThrowError(RequestError);
+  ).rejects.toThrowError(GraphQLError);
 
   expect(fetcherCalledTimes).toEqual(1);
   expect(onUnauthorizedCalled).toBe(false);
@@ -246,7 +267,7 @@ test(`[sendAuthorizedRequest function]: calls onUnauthorized callback on token r
   await expect(
     async () =>
       await sendAuthorizedRequest(fetcher, 'http://localhost', requestConfig),
-  ).rejects.toThrowError(RequestError);
+  ).rejects.toThrowError(GraphQLError);
 
   expect(onUnauthorizedCalled).toBe(true);
   expect(onInvalidTokensCalled).toBe(false);
@@ -279,7 +300,7 @@ test(`[sendAuthorizedRequest function]: calls onInvalidTokens callback on onUnau
   await expect(
     async () =>
       await sendAuthorizedRequest(fetcher, 'http://localhost', requestConfig),
-  ).rejects.toThrowError(RequestError);
+  ).rejects.toThrowError(GraphQLError);
   expect(onInvalidTokensCalled).toBe(true);
 });
 
@@ -317,7 +338,7 @@ test(`[sendAuthorizedRequest function]: retry original request with new token`, 
   await expect(
     async () =>
       await sendAuthorizedRequest(fetcher, 'http://localhost', requestConfig),
-  ).rejects.toThrowError(RequestError);
+  ).rejects.toThrowError(GraphQLError);
 
   expect(headersCalled).toHaveLength(2);
   expect(headersCalled[0]).toMatchObject({

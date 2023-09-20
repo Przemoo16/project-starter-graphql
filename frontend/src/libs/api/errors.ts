@@ -5,7 +5,7 @@ interface Problem {
 export const isProblemPresent = (problems: Problem[], type: string) =>
   problems.some(problem => problem.__typename === type);
 
-export interface GraphQLError {
+interface GraphQLErrorDetails {
   message: string;
   locations: Array<{
     line: number;
@@ -14,16 +14,16 @@ export interface GraphQLError {
   path: string[];
 }
 
-export class RequestError extends Error {
-  errors: GraphQLError[];
+export class GraphQLError extends Error {
+  errors: GraphQLErrorDetails[];
 
   constructor(
-    errors: GraphQLError[],
+    errors: GraphQLErrorDetails[],
     message?: string,
     options?: ErrorOptions,
   ) {
     super(message, options);
     this.errors = errors;
-    Error.captureStackTrace(this, RequestError);
+    Error.captureStackTrace(this, GraphQLError);
   }
 }
