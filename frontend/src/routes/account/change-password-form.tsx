@@ -15,7 +15,7 @@ import { inlineTranslate, useSpeakContext, useTranslate } from 'qwik-speak';
 import { TextInput } from '~/components/text-input/text-input';
 import { isProblemPresent } from '~/libs/api/errors';
 import { MIN_PASSWORD_LENGTH } from '~/routes/schema-config';
-import { REQUEST_SENDER } from '~/services/context';
+import { getClientRequestSender } from '~/services/requests';
 import { changeMyPassword } from '~/services/user';
 
 type ChangePasswordFormSchema = {
@@ -41,7 +41,7 @@ export const ChangePasswordForm = component$(() => {
   const handleSubmit = $<SubmitHandler<ChangePasswordFormSchema>>(
     async (values, _event) => {
       const { problems } = await changeMyPassword(
-        REQUEST_SENDER,
+        await getClientRequestSender(),
         values.currentPassword,
         values.newPassword,
       );

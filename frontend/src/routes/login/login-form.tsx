@@ -11,7 +11,8 @@ import { inlineTranslate, useSpeakContext, useTranslate } from 'qwik-speak';
 
 import { TextInput } from '~/components/text-input/text-input';
 import { isProblemPresent } from '~/libs/api/errors';
-import { getTokenStorage, REQUEST_SENDER } from '~/services/context';
+import { getClientRequestSender } from '~/services/requests';
+import { getClientTokenStorage } from '~/services/storage';
 import { login } from '~/services/user';
 
 type LoginFormSchema = {
@@ -30,8 +31,8 @@ export const LoginForm = component$(() => {
   const handleSubmit = $<SubmitHandler<LoginFormSchema>>(
     async (values, _event) => {
       const { problems } = await login(
-        REQUEST_SENDER,
-        await getTokenStorage(),
+        await getClientRequestSender(),
+        await getClientTokenStorage(),
         values.email,
         values.password,
       );

@@ -1,21 +1,17 @@
 import { $ } from '@builder.io/qwik';
 
-interface TokenStorage {
-  getItem: (key: string) => string | null;
-  setItem: (key: string, value: string) => void;
-  removeItem: (key: string) => void;
-}
+import { type TokenStorage } from '~/libs/tokens/storage';
 
 type RequestSender = (
   query: string,
   variables?: Record<string, unknown>,
 ) => Promise<Record<string, any>>;
 
-const ACCESS_TOKEN_STORAGE_KEY = 'auth:accessToken';
-const REFRESH_TOKEN_STORAGE_KEY = 'auth:refreshToken';
+const ACCESS_TOKEN_STORAGE_KEY = 'accessToken';
+const REFRESH_TOKEN_STORAGE_KEY = 'refreshToken';
 
 export const getAuthHeader = $(async (storage: TokenStorage) => {
-  const accessToken = storage.getItem(ACCESS_TOKEN_STORAGE_KEY);
+  const accessToken = storage.get(ACCESS_TOKEN_STORAGE_KEY);
   const headers: Record<string, string> = accessToken
     ? { Authorization: `Bearer ${accessToken}` }
     : {};
@@ -23,8 +19,8 @@ export const getAuthHeader = $(async (storage: TokenStorage) => {
 });
 
 export const clearTokens = $((storage: TokenStorage) => {
-  storage.removeItem(ACCESS_TOKEN_STORAGE_KEY);
-  storage.removeItem(REFRESH_TOKEN_STORAGE_KEY);
+  storage.remove(ACCESS_TOKEN_STORAGE_KEY);
+  storage.remove(REFRESH_TOKEN_STORAGE_KEY);
 });
 
 export const register = $(
@@ -87,8 +83,8 @@ export const login = $(
       },
     });
     if (!login.problems) {
-      storage.setItem(ACCESS_TOKEN_STORAGE_KEY, login.accessToken);
-      storage.setItem(REFRESH_TOKEN_STORAGE_KEY, login.refreshToken);
+      storage.set(ACCESS_TOKEN_STORAGE_KEY, login.accessToken);
+      storage.set(REFRESH_TOKEN_STORAGE_KEY, login.refreshToken);
     }
     return login;
   },
@@ -110,9 +106,9 @@ export const refreshToken = $(
   `;
 
     const { refreshToken } = await requestSender(mutation, {
-      token: storage.getItem(REFRESH_TOKEN_STORAGE_KEY),
+      token: storage.get(REFRESH_TOKEN_STORAGE_KEY),
     });
-    storage.setItem(ACCESS_TOKEN_STORAGE_KEY, refreshToken.accessToken);
+    storage.set(ACCESS_TOKEN_STORAGE_KEY, refreshToken.accessToken);
     return refreshToken;
   },
 );

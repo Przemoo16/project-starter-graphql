@@ -3,17 +3,17 @@ import { type DocumentHead, Link, routeLoader$ } from '@builder.io/qwik-city';
 import { Speak, useTranslate } from 'qwik-speak';
 
 import { isProblemPresent } from '~/libs/api/errors';
-import { REQUEST_SENDER } from '~/services/context';
+import { getServerRequestSender } from '~/services/requests';
 import { confirmEmail } from '~/services/user';
 
 export const head: DocumentHead = {
   title: 'runtime.confirm-email.head.title',
 };
 
-export const useConfirmEmail = routeLoader$(async requestEvent => {
+export const useConfirmEmail = routeLoader$(async ({ cookie, url }) => {
   return await confirmEmail(
-    REQUEST_SENDER,
-    requestEvent.url.searchParams.get('token') ?? '',
+    await getServerRequestSender(cookie),
+    url.searchParams.get('token') ?? '',
   );
 });
 

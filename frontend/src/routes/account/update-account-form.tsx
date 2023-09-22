@@ -12,7 +12,7 @@ import { inlineTranslate, useSpeakContext, useTranslate } from 'qwik-speak';
 
 import { TextInput } from '~/components/text-input/text-input';
 import { MAX_FULL_NAME_LENGTH } from '~/routes/schema-config';
-import { REQUEST_SENDER } from '~/services/context';
+import { getClientRequestSender } from '~/services/requests';
 import { updateMe } from '~/services/user';
 
 export type UpdateAccountFormSchema = {
@@ -35,7 +35,10 @@ export const UpdateAccountForm = component$(
 
     const handleSubmit = $<SubmitHandler<UpdateAccountFormSchema>>(
       async (values, _event) => {
-        const { problems } = await updateMe(REQUEST_SENDER, values.fullName);
+        const { problems } = await updateMe(
+          await getClientRequestSender(),
+          values.fullName,
+        );
 
         if (problems) {
           throw new FormError<UpdateAccountFormSchema>(
