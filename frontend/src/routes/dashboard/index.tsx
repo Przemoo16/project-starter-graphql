@@ -2,7 +2,7 @@ import { $, component$, useSignal } from '@builder.io/qwik';
 import { type DocumentHead, useNavigate } from '@builder.io/qwik-city';
 import { Speak, useTranslate } from 'qwik-speak';
 
-import { getTokenStorage } from '~/services/context';
+import { getClientTokenStorage } from '~/services/storage';
 import { logout } from '~/services/user';
 
 export const head: DocumentHead = {
@@ -22,7 +22,7 @@ const Dashboard = component$(() => {
 
   const onLogout = $(async () => {
     logoutPending.value = true;
-    await logout(await getTokenStorage());
+    await logout(await getClientTokenStorage());
     logoutPending.value = false;
     await nav('/login', { forceReload: true });
   });

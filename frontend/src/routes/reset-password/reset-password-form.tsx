@@ -15,7 +15,7 @@ import { inlineTranslate, useSpeakContext, useTranslate } from 'qwik-speak';
 
 import { TextInput } from '~/components/text-input/text-input';
 import { MIN_PASSWORD_LENGTH } from '~/routes/schema-config';
-import { REQUEST_SENDER } from '~/services/context';
+import { getClientRequestSender } from '~/services/requests';
 import { resetPassword } from '~/services/user';
 
 type ResetPasswordFormSchema = {
@@ -34,9 +34,9 @@ export const ResetPasswordForm = component$(() => {
   );
 
   const handleSubmit = $<SubmitHandler<ResetPasswordFormSchema>>(
-    async (values, event) => {
+    async (values, _event) => {
       const { problems } = await resetPassword(
-        REQUEST_SENDER,
+        await getClientRequestSender(),
         loc.url.searchParams.get('token') ?? '',
         values.password,
       );

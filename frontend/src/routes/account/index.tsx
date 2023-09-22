@@ -7,7 +7,8 @@ import {
 import { type InitialValues } from '@modular-forms/qwik';
 import { Speak, useTranslate } from 'qwik-speak';
 
-import { getTokenStorage, REQUEST_SENDER } from '~/services/context';
+import { getClientRequestSender } from '~/services/requests';
+import { getClientTokenStorage } from '~/services/storage';
 import { deleteMe, logout } from '~/services/user';
 
 import { ChangePasswordForm } from './change-password-form';
@@ -40,8 +41,8 @@ const Account = component$(() => {
 
   const onDeleteAccount = $(async () => {
     deleteAccountPending.value = true;
-    await deleteMe(REQUEST_SENDER);
-    await logout(await getTokenStorage());
+    await deleteMe(await getClientRequestSender());
+    await logout(await getClientTokenStorage());
     deleteAccountPending.value = false;
     await nav('/login', { forceReload: true });
   });

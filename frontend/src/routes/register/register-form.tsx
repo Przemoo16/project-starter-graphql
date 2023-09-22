@@ -20,7 +20,7 @@ import {
   MAX_FULL_NAME_LENGTH,
   MIN_PASSWORD_LENGTH,
 } from '~/routes/schema-config';
-import { REQUEST_SENDER } from '~/services/context';
+import { getClientRequestSender } from '~/services/requests';
 import { register } from '~/services/user';
 
 type RegisterFormSchema = {
@@ -40,9 +40,9 @@ export const RegisterForm = component$(() => {
   });
 
   const handleSubmit = $<SubmitHandler<RegisterFormSchema>>(
-    async (values, event) => {
+    async (values, _event) => {
       const { problems } = await register(
-        REQUEST_SENDER,
+        await getClientRequestSender(),
         values.fullName,
         values.email,
         values.password,
