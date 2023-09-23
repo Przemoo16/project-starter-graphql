@@ -49,7 +49,7 @@ CreateUserResponse = Annotated[
 
 @strawberry.input
 class UpdateMeInput:
-    full_name: str = strawberry.UNSET
+    full_name: str | None = strawberry.UNSET
 
 
 @strawberry.type

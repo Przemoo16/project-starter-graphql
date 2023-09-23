@@ -10,12 +10,13 @@ export const head: DocumentHead = {
   title: 'runtime.confirm-email.head.title',
 };
 
-export const useConfirmEmail = routeLoader$(async ({ cookie, url }) => {
-  return await confirmEmail(
-    await getServerRequestSender(cookie),
-    url.searchParams.get('token') ?? '',
-  );
-});
+export const useConfirmEmail = routeLoader$(
+  async ({ cookie, url }) =>
+    await confirmEmail(
+      await getServerRequestSender(cookie),
+      url.searchParams.get('token') ?? '',
+    ),
+);
 
 export default component$(() => (
   <Speak assets={['auth']}>
