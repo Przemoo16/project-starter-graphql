@@ -1,5 +1,5 @@
 import { $, component$ } from '@builder.io/qwik';
-import { useNavigate } from '@builder.io/qwik-city';
+import { useLocation, useNavigate } from '@builder.io/qwik-city';
 import {
   email,
   FormError,
@@ -24,14 +24,16 @@ export const LoginForm = component$(() => {
   const t = useTranslate();
   const ctx = useSpeakContext();
   const nav = useNavigate();
+  const loc = useLocation();
   const [loginForm, { Form, Field }] = useForm<LoginFormSchema>({
     loader: { value: { email: '', password: '' } },
   });
 
   const handleSubmit = $<SubmitHandler<LoginFormSchema>>(
     async (values, _event) => {
+      const requestSender = await getClientRequestSender();
       const { problems } = await login(
-        await getClientRequestSender(),
+        requestSender,
         await getClientTokenStorage(),
         values.email,
         values.password,
@@ -47,7 +49,7 @@ export const LoginForm = component$(() => {
         throw new FormError<LoginFormSchema>(error);
       }
 
-      await nav('/dashboard');
+      await nav(loc.url.searchParams.get('callbackUrl') ?? '/dashboard');
     },
   );
 

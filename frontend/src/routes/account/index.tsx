@@ -7,9 +7,12 @@ import {
 import { type InitialValues } from '@modular-forms/qwik';
 import { Speak, useTranslate } from 'qwik-speak';
 
-import { getClientRequestSender } from '~/services/requests';
+import {
+  getClientRequestSender,
+  getServerRequestSender,
+} from '~/services/requests';
 import { getClientTokenStorage } from '~/services/storage';
-import { deleteMe, logout } from '~/services/user';
+import { deleteMe, getMe, logout } from '~/services/user';
 
 import { ChangePasswordForm } from './change-password-form';
 import {
@@ -23,9 +26,12 @@ export const head: DocumentHead = {
 
 export const useUpdateAccountFormLoader = routeLoader$<
   InitialValues<UpdateAccountFormSchema>
->(() => ({
-  fullName: '', // TODO: Fill details from the user
-}));
+>(async ({ cookie }) => {
+  const {
+    me: { fullName },
+  } = await getMe(await getServerRequestSender(cookie));
+  return { fullName };
+});
 
 export default component$(() => (
   <Speak assets={['account', 'validation']}>

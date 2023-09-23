@@ -17,7 +17,7 @@ export class ClientCookiesTokenStorage {
   get = (key: string) => Cookies.get(key) ?? null;
 
   set = (key: string, value: string) => {
-    Cookies.set(key, value, { expires: this.lifetime });
+    Cookies.set(key, value, { path: '/', expires: this.lifetime });
   };
 
   remove = (key: string) => {
@@ -40,7 +40,7 @@ export class ServerCookiesTokenStorage {
   };
 
   set = (key: string, value: string) => {
-    this.cookie.set(key, value, { expires: this.lifetime });
+    this.cookie.set(key, value, { path: '/', expires: this.lifetime });
   };
 
   remove = (key: string) => {

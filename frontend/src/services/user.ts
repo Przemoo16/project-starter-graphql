@@ -180,6 +180,8 @@ export const getMe = $(async (requestSender: RequestSender) => {
     query GetMe {
       me {
         id
+        email
+        fullName
       }
     }
   `;
