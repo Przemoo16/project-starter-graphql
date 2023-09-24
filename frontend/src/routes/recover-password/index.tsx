@@ -1,11 +1,22 @@
 import { component$ } from '@builder.io/qwik';
-import { type DocumentHead, Link } from '@builder.io/qwik-city';
+import {
+  type DocumentHead,
+  Link,
+  type RequestEvent,
+} from '@builder.io/qwik-city';
 import { Speak, useTranslate } from 'qwik-speak';
+
+import { RouteURL } from '~/libs/api/urls';
+import { onOnlyAnonymousRoute } from '~/services/auth';
 
 import { RecoverPasswordForm } from './recover-password-form';
 
 export const head: DocumentHead = {
   title: 'runtime.recoverPassword.head.title',
+};
+
+export const onRequest = async (event: RequestEvent) => {
+  await onOnlyAnonymousRoute(event);
 };
 
 export default component$(() => (
@@ -20,7 +31,7 @@ const RecoverPassword = component$(() => {
   return (
     <>
       <RecoverPasswordForm />
-      <Link href="/login">{t('auth.backToLoginLink')}</Link>
+      <Link href={RouteURL.Login}>{t('auth.backToLoginLink')}</Link>
     </>
   );
 });

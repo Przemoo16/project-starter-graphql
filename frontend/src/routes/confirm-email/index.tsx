@@ -3,6 +3,7 @@ import { type DocumentHead, Link, routeLoader$ } from '@builder.io/qwik-city';
 import { Speak, useTranslate } from 'qwik-speak';
 
 import { isProblemPresent } from '~/libs/api/errors';
+import { RouteURL } from '~/libs/api/urls';
 import { getServerRequestSender } from '~/services/requests';
 import { confirmEmail } from '~/services/user';
 
@@ -45,7 +46,7 @@ const ConfirmEmail = component$(() => {
     <>
       {t('auth.confirmEmail')}
       <div>{message}</div>
-      <Link href="/login">{t('auth.backToLoginLink')}</Link>
+      <Link href={RouteURL.Login}>{t('auth.backToLoginLink')}</Link>
     </>
   );
 });

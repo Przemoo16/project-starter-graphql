@@ -1,12 +1,15 @@
 import { $, component$, useSignal } from '@builder.io/qwik';
 import {
   type DocumentHead,
+  type RequestEvent,
   routeLoader$,
   useNavigate,
 } from '@builder.io/qwik-city';
 import { type InitialValues } from '@modular-forms/qwik';
 import { Speak, useTranslate } from 'qwik-speak';
 
+import { RouteURL } from '~/libs/api/urls';
+import { onProtectedRoute } from '~/services/auth';
 import {
   getClientRequestSender,
   getServerRequestSender,
@@ -22,6 +25,10 @@ import {
 
 export const head: DocumentHead = {
   title: 'runtime.account.head.title',
+};
+
+export const onRequest = async (event: RequestEvent) => {
+  await onProtectedRoute(event);
 };
 
 export const useUpdateAccountFormLoader = routeLoader$<
@@ -50,7 +57,7 @@ const Account = component$(() => {
     await deleteMe(await getClientRequestSender());
     await logout(await getClientTokenStorage());
     deleteAccountPending.value = false;
-    await nav('/login', { forceReload: true });
+    await nav(RouteURL.Login, { forceReload: true });
   });
 
   return (
