@@ -12,7 +12,7 @@ export const onProtectedRoute = $(async (event: RequestEvent) => {
   const authorized = await isAuthorized(
     await getServerTokenStorage(event.cookie),
   );
-  if (authorized) {
+  if (!authorized) {
     // eslint-disable-next-line @typescript-eslint/no-throw-literal
     throw event.redirect(
       REDIRECTION_STATUS_CODE,
