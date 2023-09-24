@@ -10,6 +10,10 @@ type RequestSender = (
 const ACCESS_TOKEN_STORAGE_KEY = 'accessToken';
 const REFRESH_TOKEN_STORAGE_KEY = 'refreshToken';
 
+export const isAuthorized = $(async (storage: TokenStorage) => {
+  return Boolean(storage.get(ACCESS_TOKEN_STORAGE_KEY));
+});
+
 export const getAuthHeader = $(async (storage: TokenStorage) => {
   const accessToken = storage.get(ACCESS_TOKEN_STORAGE_KEY);
   const headers: Record<string, string> = accessToken

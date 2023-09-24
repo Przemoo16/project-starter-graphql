@@ -11,6 +11,7 @@ import { inlineTranslate, useSpeakContext, useTranslate } from 'qwik-speak';
 
 import { TextInput } from '~/components/text-input/text-input';
 import { isProblemPresent } from '~/libs/api/errors';
+import { RouteURL } from '~/libs/api/urls';
 import { getClientRequestSender } from '~/services/requests';
 import { getClientTokenStorage } from '~/services/storage';
 import { login } from '~/services/user';
@@ -49,7 +50,7 @@ export const LoginForm = component$(() => {
         throw new FormError<LoginFormSchema>(error);
       }
 
-      await nav(loc.url.searchParams.get('callbackUrl') ?? '/dashboard');
+      await nav(loc.url.searchParams.get('callbackUrl') ?? RouteURL.Dashboard);
     },
   );
 

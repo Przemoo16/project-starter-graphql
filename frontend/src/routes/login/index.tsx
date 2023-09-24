@@ -1,11 +1,22 @@
 import { component$ } from '@builder.io/qwik';
-import { type DocumentHead, Link } from '@builder.io/qwik-city';
+import {
+  type DocumentHead,
+  Link,
+  type RequestEvent,
+} from '@builder.io/qwik-city';
 import { Speak, useTranslate } from 'qwik-speak';
+
+import { RouteURL } from '~/libs/api/urls';
+import { onOnlyAnonymousRoute } from '~/services/auth';
 
 import { LoginForm } from './login-form';
 
 export const head: DocumentHead = {
   title: 'runtime.login.head.title',
+};
+
+export const onRequest = async (event: RequestEvent) => {
+  await onOnlyAnonymousRoute(event);
 };
 
 export default component$(() => (
@@ -20,8 +31,10 @@ const Login = component$(() => {
   return (
     <>
       <LoginForm />
-      <Link href="/register">{t('auth.registerLink')}</Link>
-      <Link href="/recover-password">{t('auth.recoverPasswordLink')}</Link>
+      <Link href={RouteURL.Register}>{t('auth.registerLink')}</Link>
+      <Link href={RouteURL.RecoverPassword}>
+        {t('auth.recoverPasswordLink')}
+      </Link>
     </>
   );
 });

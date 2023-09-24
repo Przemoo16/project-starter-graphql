@@ -1,6 +1,12 @@
 import { expect, test } from 'vitest';
 
-import { clearTokens, getAuthHeader, login, refreshToken } from './user';
+import {
+  clearTokens,
+  getAuthHeader,
+  isAuthorized,
+  login,
+  refreshToken,
+} from './user';
 
 class TokenStorage {
   readonly storage = new Map<string, string>();
@@ -17,6 +23,23 @@ class TokenStorage {
     this.storage.delete(key);
   }
 }
+
+test(`[isAuthorized function]: returns true if authorized`, async () => {
+  const tokenStorage = new TokenStorage();
+  tokenStorage.set('accessToken', 'access-token');
+
+  const authorized = await isAuthorized(tokenStorage);
+
+  expect(authorized).toBe(true);
+});
+
+test(`[isAuthorized function]: returns false if not authorized`, async () => {
+  const tokenStorage = new TokenStorage();
+
+  const authorized = await isAuthorized(tokenStorage);
+
+  expect(authorized).toBe(false);
+});
 
 test(`[getAuthHeader function]: returns auth header`, async () => {
   const tokenStorage = new TokenStorage();

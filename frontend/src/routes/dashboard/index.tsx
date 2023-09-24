@@ -1,12 +1,22 @@
 import { $, component$, useSignal } from '@builder.io/qwik';
-import { type DocumentHead, useNavigate } from '@builder.io/qwik-city';
+import {
+  type DocumentHead,
+  type RequestEvent,
+  useNavigate,
+} from '@builder.io/qwik-city';
 import { Speak, useTranslate } from 'qwik-speak';
 
+import { RouteURL } from '~/libs/api/urls';
+import { onProtectedRoute } from '~/services/auth';
 import { getClientTokenStorage } from '~/services/storage';
 import { logout } from '~/services/user';
 
 export const head: DocumentHead = {
   title: 'runtime.dashboard.head.title',
+};
+
+export const onRequest = async (event: RequestEvent) => {
+  await onProtectedRoute(event);
 };
 
 export default component$(() => (
@@ -24,7 +34,7 @@ const Dashboard = component$(() => {
     logoutPending.value = true;
     await logout(await getClientTokenStorage());
     logoutPending.value = false;
-    await nav('/login', { forceReload: true });
+    await nav(RouteURL.Login, { forceReload: true });
   });
 
   return (

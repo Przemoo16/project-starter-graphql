@@ -2,6 +2,8 @@ import { component$ } from '@builder.io/qwik';
 import { type DocumentHead, Link } from '@builder.io/qwik-city';
 import { Speak, useTranslate } from 'qwik-speak';
 
+import { RouteURL } from '~/libs/api/urls';
+
 import { ResetPasswordForm } from './reset-password-form';
 
 export const head: DocumentHead = {
@@ -20,7 +22,7 @@ const ResetPassword = component$(() => {
   return (
     <>
       <ResetPasswordForm />
-      <Link href="/login">{t('auth.backToLoginLink')}</Link>
+      <Link href={RouteURL.Login}>{t('auth.backToLoginLink')}</Link>
     </>
   );
 });
