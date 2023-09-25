@@ -18,18 +18,18 @@ export interface RequestConfig {
 }
 
 export interface AuthorizedRequestProps extends Omit<RequestConfig, 'headers'> {
-  getAuthHeader?: () => Promise<Record<string, string>>;
+  onGetAuthHeader?: () => Promise<Record<string, string>>;
   onUnauthorized?: () => Promise<void>;
   onInvalidTokens?: () => Promise<void>;
 }
 
 export const sendRequest = $(
   async (
-    fetcher: Fetcher,
+    onFetch: Fetcher,
     url: string,
     { query, variables, headers }: RequestConfig = {},
   ): Promise<Record<string, any>> => {
-    const { data, errors } = await fetcher(url, {
+    const { data, errors } = await onFetch(url, {
       method: 'POST',
       body: JSON.stringify({
         query,
@@ -46,19 +46,19 @@ export const sendRequest = $(
 
 export const sendAuthorizedRequest = $(
   async (
-    fetcher: Fetcher,
+    onFetch: Fetcher,
     url: string,
     {
       query,
       variables,
-      getAuthHeader = async () => ({}),
+      onGetAuthHeader = async () => ({}),
       onUnauthorized = async () => {},
       onInvalidTokens = async () => {},
     }: AuthorizedRequestProps,
   ) => {
     try {
-      const headers = await getAuthHeader();
-      return await sendRequest(fetcher, url, { query, variables, headers });
+      const headers = await onGetAuthHeader();
+      return await sendRequest(onFetch, url, { query, variables, headers });
     } catch (e) {
       if (
         !(e instanceof GraphQLError) ||
@@ -75,8 +75,8 @@ export const sendAuthorizedRequest = $(
       } catch (error) {
         await onInvalidTokens();
       }
-      const headers = await getAuthHeader();
-      return await sendRequest(fetcher, url, { query, variables, headers });
+      const headers = await onGetAuthHeader();
+      return await sendRequest(onFetch, url, { query, variables, headers });
     }
   },
 );

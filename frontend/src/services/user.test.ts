@@ -5,6 +5,7 @@ import {
   getAuthHeader,
   isAuthorized,
   login,
+  logout,
   refreshToken,
 } from './user';
 
@@ -79,7 +80,7 @@ test(`[clearTokens function]: removes tokens`, async () => {
 });
 
 test(`[login function]: saves tokens`, async () => {
-  const requestSender = async () => ({
+  const onRequest = async () => ({
     login: {
       accessToken: 'access-token',
       refreshToken: 'refresh-token',
@@ -88,28 +89,28 @@ test(`[login function]: saves tokens`, async () => {
   });
   const tokenStorage = new TokenStorage();
 
-  await login(requestSender, tokenStorage, 'test@email.com', 'testPassword');
+  await login(onRequest, tokenStorage, 'test@email.com', 'testPassword');
 
   expect(tokenStorage.get('accessToken')).toEqual('access-token');
   expect(tokenStorage.get('refreshToken')).toEqual('refresh-token');
 });
 
 test(`[login function]: doesn't save tokens on problems`, async () => {
-  const requestSender = async () => ({
+  const onRequest = async () => ({
     login: {
       problems: [{ message: 'Error' }],
     },
   });
   const tokenStorage = new TokenStorage();
 
-  await login(requestSender, tokenStorage, 'test@email.com', 'testPassword');
+  await login(onRequest, tokenStorage, 'test@email.com', 'testPassword');
 
   expect(tokenStorage.get('accessToken')).toBeNull();
   expect(tokenStorage.get('refreshToken')).toBeNull();
 });
 
 test(`[refreshToken function]: throws error if no refresh is not present`, async () => {
-  const requestSender = async () => ({
+  const onRequest = async () => ({
     refreshToken: {
       accessToken: 'access-token',
       tokenType: 'Bearer',
@@ -118,17 +119,17 @@ test(`[refreshToken function]: throws error if no refresh is not present`, async
   const tokenStorage = new TokenStorage();
 
   await expect(
-    async () => await refreshToken(requestSender, tokenStorage),
+    async () => await refreshToken(onRequest, tokenStorage),
   ).rejects.toThrowError(Error);
 });
 
 test(`[refreshToken function]: sends refresh token and saves tokens`, async () => {
-  let calledVariables: Record<string, unknown> | undefined = {};
-  const requestSender = async (
+  let variablesCalled = null;
+  const onRequest = async (
     _query: string,
     variables?: Record<string, unknown>,
   ) => {
-    calledVariables = variables;
+    variablesCalled = variables;
     return {
       refreshToken: {
         accessToken: 'access-token',
@@ -136,23 +137,40 @@ test(`[refreshToken function]: sends refresh token and saves tokens`, async () =
       },
     };
   };
-  const calledSetTokens: Array<Record<string, string>> = [];
+  const setTokensCalled: Array<Record<string, string>> = [];
   class TestTokenStorage extends TokenStorage {
     set(key: string, value: string) {
-      calledSetTokens.push({ [key]: value });
+      setTokensCalled.push({ [key]: value });
       this.storage.set(key, value);
     }
   }
   const tokenStorage = new TestTokenStorage();
   tokenStorage.set('refreshToken', 'refresh-token');
 
-  await refreshToken(requestSender, tokenStorage);
+  await refreshToken(onRequest, tokenStorage);
 
-  expect(calledVariables).toEqual({ token: 'refresh-token' });
+  expect(variablesCalled).toEqual({ token: 'refresh-token' });
   expect(tokenStorage.get('accessToken')).toEqual('access-token');
-  expect(calledSetTokens).toEqual([
+  expect(setTokensCalled).toEqual([
     { refreshToken: 'refresh-token' },
     { accessToken: 'access-token' },
     { refreshToken: 'refresh-token' },
   ]);
+});
+
+test(`[logout function]: removes tokens and redirect to the login route`, async () => {
+  const tokenStorage = new TokenStorage();
+  tokenStorage.set('accessToken', 'access-token');
+  tokenStorage.set('refreshToken', 'refresh-token');
+  let redirectUrlCalled = null;
+
+  const onRedirect = async (url: string) => {
+    redirectUrlCalled = url;
+  };
+
+  await logout(tokenStorage, onRedirect);
+
+  expect(tokenStorage.get('accessToken')).toBeNull();
+  expect(tokenStorage.get('refreshToken')).toBeNull();
+  expect(redirectUrlCalled).toEqual('/login');
 });

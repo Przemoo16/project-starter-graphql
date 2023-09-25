@@ -18,7 +18,9 @@ UserFetcher = Callable[[Request | WebSocket | None], Awaitable[User]]
 user_settings = get_settings().user
 
 
-def get_user(session: Annotated[AsyncSession, Depends(get_session)]) -> UserFetcher:
+async def get_user(
+    session: Annotated[AsyncSession, Depends(get_session)]
+) -> UserFetcher:
     return partial(
         get_confirmed_user,
         token_reader=partial(

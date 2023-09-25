@@ -6,7 +6,7 @@ import { RouteURL } from '~/libs/api/urls';
 import { getServerTokenStorage } from './storage';
 import { isAuthorized } from './user';
 
-const REDIRECTION_STATUS_CODE = 302;
+export const REDIRECTION_STATUS_CODE = 302;
 
 export const onProtectedRoute = $(async (event: RequestEvent) => {
   const authorized = await isAuthorized(
