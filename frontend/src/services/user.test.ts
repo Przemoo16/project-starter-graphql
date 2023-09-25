@@ -24,7 +24,7 @@ class TokenStorage {
   }
 }
 
-test(`[isAuthorized function]: returns true if authorized`, async () => {
+test(`[isAuthorized function]: returns true if access token is present`, async () => {
   const tokenStorage = new TokenStorage();
   tokenStorage.set('accessToken', 'access-token');
 
@@ -33,7 +33,16 @@ test(`[isAuthorized function]: returns true if authorized`, async () => {
   expect(authorized).toBe(true);
 });
 
-test(`[isAuthorized function]: returns false if not authorized`, async () => {
+test(`[isAuthorized function]: returns true if refresh token is present`, async () => {
+  const tokenStorage = new TokenStorage();
+  tokenStorage.set('refreshToken', 'refresh-token');
+
+  const authorized = await isAuthorized(tokenStorage);
+
+  expect(authorized).toBe(true);
+});
+
+test(`[isAuthorized function]: returns false if tokens are missing`, async () => {
   const tokenStorage = new TokenStorage();
 
   const authorized = await isAuthorized(tokenStorage);
@@ -99,7 +108,21 @@ test(`[login function]: doesn't save tokens on problems`, async () => {
   expect(tokenStorage.get('refreshToken')).toBeNull();
 });
 
-test(`[refreshToken function]: retrieve refresh token and saves new access token`, async () => {
+test(`[refreshToken function]: throws error if no refresh is not present`, async () => {
+  const requestSender = async () => ({
+    refreshToken: {
+      accessToken: 'access-token',
+      tokenType: 'Bearer',
+    },
+  });
+  const tokenStorage = new TokenStorage();
+
+  await expect(
+    async () => await refreshToken(requestSender, tokenStorage),
+  ).rejects.toThrowError(Error);
+});
+
+test(`[refreshToken function]: sends refresh token and saves tokens`, async () => {
   let calledVariables: Record<string, unknown> | undefined = {};
   const requestSender = async (
     _query: string,
@@ -113,11 +136,23 @@ test(`[refreshToken function]: retrieve refresh token and saves new access token
       },
     };
   };
-  const tokenStorage = new TokenStorage();
+  const calledSetTokens: Array<Record<string, string>> = [];
+  class TestTokenStorage extends TokenStorage {
+    set(key: string, value: string) {
+      calledSetTokens.push({ key: value });
+      this.storage.set(key, value);
+    }
+  }
+  const tokenStorage = new TestTokenStorage();
   tokenStorage.set('refreshToken', 'refresh-token');
 
   await refreshToken(requestSender, tokenStorage);
 
   expect(calledVariables).toEqual({ token: 'refresh-token' });
   expect(tokenStorage.get('accessToken')).toEqual('access-token');
+  expect(calledSetTokens).toEqual([
+    { refreshToken: 'refresh-token' },
+    { accessToken: 'access-token' },
+    { refreshToken: 'refresh-token' },
+  ]);
 });

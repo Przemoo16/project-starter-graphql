@@ -11,7 +11,10 @@ const ACCESS_TOKEN_STORAGE_KEY = 'accessToken';
 const REFRESH_TOKEN_STORAGE_KEY = 'refreshToken';
 
 export const isAuthorized = $(async (storage: TokenStorage) => {
-  return Boolean(storage.get(ACCESS_TOKEN_STORAGE_KEY));
+  return Boolean(
+    storage.get(ACCESS_TOKEN_STORAGE_KEY) ??
+      storage.get(REFRESH_TOKEN_STORAGE_KEY),
+  );
 });
 
 export const getAuthHeader = $(async (storage: TokenStorage) => {
@@ -109,10 +112,16 @@ export const refreshToken = $(
     }
   `;
 
+    const token = storage.get(REFRESH_TOKEN_STORAGE_KEY);
+    if (!token) {
+      throw new Error('No refresh token in the storage to perform refreshing');
+    }
     const { refreshToken } = await requestSender(mutation, {
-      token: storage.get(REFRESH_TOKEN_STORAGE_KEY),
+      token,
     });
     storage.set(ACCESS_TOKEN_STORAGE_KEY, refreshToken.accessToken);
+    // Write the token again to extend the storage expiration
+    storage.set(REFRESH_TOKEN_STORAGE_KEY, token);
     return refreshToken;
   },
 );
