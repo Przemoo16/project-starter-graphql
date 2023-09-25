@@ -6,7 +6,7 @@ import {
   ServerCookiesTokenStorage,
 } from '~/libs/tokens/storage';
 
-const TOKEN_LIFETIME_DAYS = 14;
+const TOKEN_LIFETIME_DAYS = 7; // Some browsers cap client-side cookies to 7 days of storage
 
 const getTokenLifetime = $(() => {
   const date = new Date();

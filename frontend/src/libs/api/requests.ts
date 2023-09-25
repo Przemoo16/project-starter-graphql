@@ -62,7 +62,11 @@ export const sendAuthorizedRequest = $(
     } catch (e) {
       if (
         !(e instanceof GraphQLError) ||
-        !e.errors.some(error => error.message === 'Invalid token')
+        !e.errors.some(error =>
+          ['Authentication token required', 'Invalid token'].includes(
+            error.message,
+          ),
+        )
       ) {
         throw e;
       }
