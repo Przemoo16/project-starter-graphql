@@ -139,7 +139,7 @@ test(`[refreshToken function]: sends refresh token and saves tokens`, async () =
   const calledSetTokens: Array<Record<string, string>> = [];
   class TestTokenStorage extends TokenStorage {
     set(key: string, value: string) {
-      calledSetTokens.push({ key: value });
+      calledSetTokens.push({ [key]: value });
       this.storage.set(key, value);
     }
   }
