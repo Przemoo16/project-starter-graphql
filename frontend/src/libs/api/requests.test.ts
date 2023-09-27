@@ -4,19 +4,19 @@ import { GraphQLError } from './errors';
 import { sendAuthorizedRequest, sendRequest } from './requests';
 
 test(`[sendRequest function]: returns data`, async () => {
-  const fetcher = async () => ({
+  const onFetch = async () => ({
     data: {
       foo: 'bar',
     },
   });
 
-  const data = await sendRequest(fetcher, "http://localhost'");
+  const data = await sendRequest(onFetch, "http://localhost'");
 
   expect(data).toEqual({ foo: 'bar' });
 });
 
 test(`[sendRequest function]: throws error`, async () => {
-  const fetcher = async () => ({
+  const onFetch = async () => ({
     errors: [
       {
         message: 'Error',
@@ -31,12 +31,12 @@ test(`[sendRequest function]: throws error`, async () => {
     ],
   });
   await expect(
-    async () => await sendRequest(fetcher, 'http://localhost'),
+    async () => await sendRequest(onFetch, 'http://localhost'),
   ).rejects.toThrowError(GraphQLError);
 });
 
 test(`[sendRequest function]: throws error with error details included`, async () => {
-  const fetcher = async () => ({
+  const onFetch = async () => ({
     errors: [
       {
         message: 'Error',
@@ -52,7 +52,7 @@ test(`[sendRequest function]: throws error with error details included`, async (
   });
 
   try {
-    await sendRequest(fetcher, 'http://localhost');
+    await sendRequest(onFetch, 'http://localhost');
     throw new Error();
   } catch (e) {
     const error = e as GraphQLError;
@@ -72,9 +72,9 @@ test(`[sendRequest function]: throws error with error details included`, async (
 });
 
 test(`[sendRequest function]: sends serialized body`, async () => {
-  let calledBody: string | undefined;
-  const fetcher = async (_query: string, { body }: { body?: string }) => {
-    calledBody = body;
+  let bodyCalled = null;
+  const onFetch = async (_query: string, { body }: { body?: string }) => {
+    bodyCalled = body;
     return {
       data: {
         foo: 'bar',
@@ -86,20 +86,20 @@ test(`[sendRequest function]: sends serialized body`, async () => {
     variables: { foo: 'bar' },
   };
 
-  await sendRequest(fetcher, 'http://localhost', requestConfig);
+  await sendRequest(onFetch, 'http://localhost', requestConfig);
 
-  expect(calledBody).toEqual(
+  expect(bodyCalled).toEqual(
     '{"query":"test-query","variables":{"foo":"bar"}}',
   );
 });
 
 test(`[sendRequest function]: uses Content-Type header by default`, async () => {
-  let calledHeaders: Record<string, string> | undefined = {};
-  const fetcher = async (
+  let headersCalled = null;
+  const onFetch = async (
     _url: string,
     { headers }: { headers?: Record<string, string> },
   ) => {
-    calledHeaders = headers;
+    headersCalled = headers;
     return {
       data: {
         foo: 'bar',
@@ -107,20 +107,20 @@ test(`[sendRequest function]: uses Content-Type header by default`, async () => 
     };
   };
 
-  await sendRequest(fetcher, 'http://localhost');
+  await sendRequest(onFetch, 'http://localhost');
 
-  expect(calledHeaders).toEqual({
+  expect(headersCalled).toEqual({
     'Content-Type': 'application/json',
   });
 });
 
 test(`[sendRequest function]: uses the custom headers with the default ones`, async () => {
-  let calledHeaders: Record<string, string> | undefined = {};
-  const fetcher = async (
+  let headersCalled = null;
+  const onFetch = async (
     _url: string,
     { headers }: { headers?: Record<string, string> },
   ) => {
-    calledHeaders = headers;
+    headersCalled = headers;
     return {
       data: {
         foo: 'bar',
@@ -129,44 +129,44 @@ test(`[sendRequest function]: uses the custom headers with the default ones`, as
   };
   const requestConfig = { headers: { Test: 'Header' } };
 
-  await sendRequest(fetcher, 'http://localhost', requestConfig);
+  await sendRequest(onFetch, 'http://localhost', requestConfig);
 
-  expect(calledHeaders).toEqual({
+  expect(headersCalled).toEqual({
     'Content-Type': 'application/json',
     Test: 'Header',
   });
 });
 
 test(`[sendAuthorizedRequest function]: sends request with the auth header`, async () => {
-  let calledHeaders: Record<string, string> | undefined = {};
-  const fetcher = async (
+  let headersCalled = null;
+  const onFetch = async (
     _url: string,
     { headers }: { headers?: Record<string, string> },
   ) => {
-    calledHeaders = headers;
+    headersCalled = headers;
     return {
       data: {
         foo: 'bar',
       },
     };
   };
-  const getAuthHeader = async () => ({
+  const onGetAuthHeader = async () => ({
     Authorization: 'Bearer test-token',
   });
-  const requestConfig = { getAuthHeader };
+  const requestConfig = { onGetAuthHeader };
 
-  await sendAuthorizedRequest(fetcher, 'http://localhost', requestConfig);
+  await sendAuthorizedRequest(onFetch, 'http://localhost', requestConfig);
 
-  expect(calledHeaders).toMatchObject({
+  expect(headersCalled).toMatchObject({
     Authorization: 'Bearer test-token',
   });
 });
 
 test(`[sendAuthorizedRequest function]: sends original request successfully`, async () => {
-  let fetcherCalledTimes = 0;
+  let onFetchCalledTimes = 0;
   let onUnauthorizedCalled = false;
-  const fetcher = async () => {
-    fetcherCalledTimes += 1;
+  const onFetch = async () => {
+    onFetchCalledTimes += 1;
     return {
       data: {
         foo: 'bar',
@@ -178,17 +178,17 @@ test(`[sendAuthorizedRequest function]: sends original request successfully`, as
   };
   const requestConfig = { onUnauthorized };
 
-  await sendAuthorizedRequest(fetcher, 'http://localhost', requestConfig);
+  await sendAuthorizedRequest(onFetch, 'http://localhost', requestConfig);
 
-  expect(fetcherCalledTimes).toEqual(1);
+  expect(onFetchCalledTimes).toEqual(1);
   expect(onUnauthorizedCalled).toBe(false);
 });
 
 test(`[sendAuthorizedRequest function]: doesn't handle non graphql errors`, async () => {
-  let fetcherCalledTimes = 0;
+  let onFetchCalledTimes = 0;
   let onUnauthorizedCalled = false;
-  const fetcher = async () => {
-    fetcherCalledTimes += 1;
+  const onFetch = async () => {
+    onFetchCalledTimes += 1;
     throw new Error('Connection error');
   };
   const onUnauthorized = async () => {
@@ -198,18 +198,18 @@ test(`[sendAuthorizedRequest function]: doesn't handle non graphql errors`, asyn
 
   await expect(
     async () =>
-      await sendAuthorizedRequest(fetcher, 'http://localhost', requestConfig),
+      await sendAuthorizedRequest(onFetch, 'http://localhost', requestConfig),
   ).rejects.toThrowError(/^Connection error$/);
 
-  expect(fetcherCalledTimes).toEqual(1);
+  expect(onFetchCalledTimes).toEqual(1);
   expect(onUnauthorizedCalled).toBe(false);
 });
 
 test(`[sendAuthorizedRequest function]: doesn't handle non token related errors`, async () => {
-  let fetcherCalledTimes = 0;
+  let onFetchCalledTimes = 0;
   let onUnauthorizedCalled = false;
-  const fetcher = async () => {
-    fetcherCalledTimes += 1;
+  const onFetch = async () => {
+    onFetchCalledTimes += 1;
     return {
       errors: [
         {
@@ -232,17 +232,17 @@ test(`[sendAuthorizedRequest function]: doesn't handle non token related errors`
 
   await expect(
     async () =>
-      await sendAuthorizedRequest(fetcher, 'http://localhost', requestConfig),
+      await sendAuthorizedRequest(onFetch, 'http://localhost', requestConfig),
   ).rejects.toThrowError(GraphQLError);
 
-  expect(fetcherCalledTimes).toEqual(1);
+  expect(onFetchCalledTimes).toEqual(1);
   expect(onUnauthorizedCalled).toBe(false);
 });
 
 test(`[sendAuthorizedRequest function]: calls onUnauthorized callback on token related errors`, async () => {
   let onUnauthorizedCalled = false;
   let onInvalidTokensCalled = false;
-  const fetcher = async () => ({
+  const onFetch = async () => ({
     errors: [
       {
         message: 'Invalid token',
@@ -266,7 +266,7 @@ test(`[sendAuthorizedRequest function]: calls onUnauthorized callback on token r
 
   await expect(
     async () =>
-      await sendAuthorizedRequest(fetcher, 'http://localhost', requestConfig),
+      await sendAuthorizedRequest(onFetch, 'http://localhost', requestConfig),
   ).rejects.toThrowError(GraphQLError);
 
   expect(onUnauthorizedCalled).toBe(true);
@@ -275,7 +275,7 @@ test(`[sendAuthorizedRequest function]: calls onUnauthorized callback on token r
 
 test(`[sendAuthorizedRequest function]: calls onInvalidTokens callback on onUnauthorized callback error`, async () => {
   let onInvalidTokensCalled = false;
-  const fetcher = async () => ({
+  const onFetch = async () => ({
     errors: [
       {
         message: 'Invalid token',
@@ -299,15 +299,15 @@ test(`[sendAuthorizedRequest function]: calls onInvalidTokens callback on onUnau
 
   await expect(
     async () =>
-      await sendAuthorizedRequest(fetcher, 'http://localhost', requestConfig),
+      await sendAuthorizedRequest(onFetch, 'http://localhost', requestConfig),
   ).rejects.toThrowError(GraphQLError);
   expect(onInvalidTokensCalled).toBe(true);
 });
 
 test(`[sendAuthorizedRequest function]: retry original request with new token`, async () => {
-  let getAuthHeaderCalledTimes = 0;
+  let onGetAuthHeaderCalledTimes = 0;
   const headersCalled: Array<Record<string, string> | undefined> = [];
-  const fetcher = async (
+  const onFetch = async (
     _url: string,
     { headers }: { headers?: Record<string, string> },
   ) => {
@@ -327,17 +327,17 @@ test(`[sendAuthorizedRequest function]: retry original request with new token`, 
       ],
     };
   };
-  const getAuthHeader = async () => {
+  const onGetAuthHeader = async () => {
     const token =
-      getAuthHeaderCalledTimes === 0 ? 'first-token' : 'second-token';
-    getAuthHeaderCalledTimes += 1;
+      onGetAuthHeaderCalledTimes === 0 ? 'first-token' : 'second-token';
+    onGetAuthHeaderCalledTimes += 1;
     return { Authorization: `Bearer ${token}` };
   };
-  const requestConfig = { getAuthHeader };
+  const requestConfig = { onGetAuthHeader };
 
   await expect(
     async () =>
-      await sendAuthorizedRequest(fetcher, 'http://localhost', requestConfig),
+      await sendAuthorizedRequest(onFetch, 'http://localhost', requestConfig),
   ).rejects.toThrowError(GraphQLError);
 
   expect(headersCalled).toHaveLength(2);

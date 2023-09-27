@@ -1,5 +1,6 @@
 import { $ } from '@builder.io/qwik';
 
+import { RouteURL } from '~/libs/api/urls';
 import { type TokenStorage } from '~/libs/tokens/storage';
 
 type RequestSender = (
@@ -32,7 +33,7 @@ export const clearTokens = $((storage: TokenStorage) => {
 
 export const register = $(
   async (
-    requestSender: RequestSender,
+    onRequest: RequestSender,
     fullName: string,
     email: string,
     password: string,
@@ -49,7 +50,7 @@ export const register = $(
       }
     `;
 
-    const { createUser } = await requestSender(mutation, {
+    const { createUser } = await onRequest(mutation, {
       input: {
         fullName,
         email,
@@ -62,7 +63,7 @@ export const register = $(
 
 export const login = $(
   async (
-    requestSender: RequestSender,
+    onRequest: RequestSender,
     storage: TokenStorage,
     email: string,
     password: string,
@@ -83,7 +84,7 @@ export const login = $(
       }
     `;
 
-    const { login } = await requestSender(mutation, {
+    const { login } = await onRequest(mutation, {
       input: {
         username: email,
         password,
@@ -97,12 +98,15 @@ export const login = $(
   },
 );
 
-export const logout = $(async (storage: TokenStorage) => {
-  await clearTokens(storage);
-});
+export const logout = $(
+  async (storage: TokenStorage, onRedirect: (url: string) => Promise<void>) => {
+    await clearTokens(storage);
+    await onRedirect(RouteURL.Login);
+  },
+);
 
 export const refreshToken = $(
-  async (requestSender: RequestSender, storage: TokenStorage) => {
+  async (onRequest: RequestSender, storage: TokenStorage) => {
     const mutation = `
     mutation RefreshToken($token: String!) {
       refreshToken(token: $token) {
@@ -116,7 +120,7 @@ export const refreshToken = $(
     if (!token) {
       throw new Error('No refresh token in the storage to perform refreshing');
     }
-    const { refreshToken } = await requestSender(mutation, {
+    const { refreshToken } = await onRequest(mutation, {
       token,
     });
     storage.set(ACCESS_TOKEN_STORAGE_KEY, refreshToken.accessToken);
@@ -127,7 +131,7 @@ export const refreshToken = $(
 );
 
 export const recoverPassword = $(
-  async (requestSender: RequestSender, email: string) => {
+  async (onRequest: RequestSender, email: string) => {
     const mutation = `
     mutation RecoverPassword($email: String!) {
       recoverPassword(email: $email) {
@@ -136,7 +140,7 @@ export const recoverPassword = $(
     }
   `;
 
-    const { recoverPassword } = await requestSender(mutation, {
+    const { recoverPassword } = await onRequest(mutation, {
       email,
     });
     return recoverPassword;
@@ -144,7 +148,7 @@ export const recoverPassword = $(
 );
 
 export const resetPassword = $(
-  async (requestSender: RequestSender, token: string, password: string) => {
+  async (onRequest: RequestSender, token: string, password: string) => {
     const mutation = `
       mutation ResetPassword($input: ResetPasswordInput!) {
         resetPassword(input: $input) {
@@ -157,7 +161,7 @@ export const resetPassword = $(
       }
     `;
 
-    const { resetPassword } = await requestSender(mutation, {
+    const { resetPassword } = await onRequest(mutation, {
       input: {
         token,
         password,
@@ -168,7 +172,7 @@ export const resetPassword = $(
 );
 
 export const confirmEmail = $(
-  async (requestSender: RequestSender, token: string) => {
+  async (onRequest: RequestSender, token: string) => {
     const mutation = `
     mutation ConfirmEmail($token: String!) {
       confirmEmail(token: $token) {
@@ -181,14 +185,14 @@ export const confirmEmail = $(
     }
   `;
 
-    const { confirmEmail } = await requestSender(mutation, {
+    const { confirmEmail } = await onRequest(mutation, {
       token,
     });
     return confirmEmail;
   },
 );
 
-export const getMe = $(async (requestSender: RequestSender) => {
+export const getMe = $(async (onRequest: RequestSender) => {
   const query = `
     query GetMe {
       me {
@@ -199,11 +203,11 @@ export const getMe = $(async (requestSender: RequestSender) => {
     }
   `;
 
-  return await requestSender(query);
+  return await onRequest(query);
 });
 
 export const updateMe = $(
-  async (requestSender: RequestSender, fullName: string) => {
+  async (onRequest: RequestSender, fullName: string) => {
     const mutation = `
     mutation UpdateMe($input: UpdateMeInput!) {
       updateMe(input: $input) {
@@ -216,7 +220,7 @@ export const updateMe = $(
     }
   `;
 
-    const { updateMe } = await requestSender(mutation, {
+    const { updateMe } = await onRequest(mutation, {
       input: {
         fullName,
       },
@@ -227,7 +231,7 @@ export const updateMe = $(
 
 export const changeMyPassword = $(
   async (
-    requestSender: RequestSender,
+    onRequest: RequestSender,
     currentPassword: string,
     newPassword: string,
   ) => {
@@ -243,7 +247,7 @@ export const changeMyPassword = $(
       }
     `;
 
-    const { changeMyPassword } = await requestSender(mutation, {
+    const { changeMyPassword } = await onRequest(mutation, {
       input: {
         currentPassword,
         newPassword,
@@ -253,7 +257,7 @@ export const changeMyPassword = $(
   },
 );
 
-export const deleteMe = $(async (requestSender: RequestSender) => {
+export const deleteMe = $(async (onRequest: RequestSender) => {
   const mutation = `
     mutation DeleteMe {
       deleteMe {
@@ -262,6 +266,6 @@ export const deleteMe = $(async (requestSender: RequestSender) => {
     }
   `;
 
-  const { deleteMe } = await requestSender(mutation);
+  const { deleteMe } = await onRequest(mutation);
   return deleteMe;
 });

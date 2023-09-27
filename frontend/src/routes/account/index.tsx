@@ -3,12 +3,10 @@ import {
   type DocumentHead,
   type RequestEvent,
   routeLoader$,
-  useNavigate,
 } from '@builder.io/qwik-city';
 import { type InitialValues } from '@modular-forms/qwik';
 import { Speak, useTranslate } from 'qwik-speak';
 
-import { RouteURL } from '~/libs/api/urls';
 import { onProtectedRoute } from '~/services/auth';
 import {
   getClientRequestSender,
@@ -27,16 +25,16 @@ export const head: DocumentHead = {
   title: 'runtime.account.head.title',
 };
 
-export const onRequest = async (event: RequestEvent) => {
-  await onProtectedRoute(event);
+export const onRequest = async (requestEvent: RequestEvent) => {
+  await onProtectedRoute(requestEvent);
 };
 
 export const useUpdateAccountFormLoader = routeLoader$<
   InitialValues<UpdateAccountFormSchema>
->(async ({ cookie }) => {
+>(async requestEvent => {
   const {
     me: { fullName },
-  } = await getMe(await getServerRequestSender(cookie));
+  } = await getMe(await getServerRequestSender(requestEvent));
   return { fullName };
 });
 
@@ -48,16 +46,16 @@ export default component$(() => (
 
 const Account = component$(() => {
   const t = useTranslate();
-  const nav = useNavigate();
   const deleteAccountPending = useSignal(false);
   const updateAccountFormSignal = useUpdateAccountFormLoader();
 
   const onDeleteAccount = $(async () => {
     deleteAccountPending.value = true;
     await deleteMe(await getClientRequestSender());
-    await logout(await getClientTokenStorage());
+    await logout(await getClientTokenStorage(), async (url: string) => {
+      window.location.assign(url);
+    });
     deleteAccountPending.value = false;
-    await nav(RouteURL.Login, { forceReload: true });
   });
 
   return (

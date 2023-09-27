@@ -12,10 +12,10 @@ export const head: DocumentHead = {
 };
 
 export const useConfirmEmail = routeLoader$(
-  async ({ cookie, url }) =>
+  async requestEvent =>
     await confirmEmail(
-      await getServerRequestSender(cookie),
-      url.searchParams.get('token') ?? '',
+      await getServerRequestSender(requestEvent),
+      requestEvent.url.searchParams.get('token') ?? '',
     ),
 );
 
