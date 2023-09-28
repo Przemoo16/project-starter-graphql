@@ -7,7 +7,7 @@ import {
 import { type InitialValues } from '@modular-forms/qwik';
 import { Speak, useTranslate } from 'qwik-speak';
 
-import { onProtectedRoute } from '~/services/auth';
+import { getClientLogoutRedirection, onProtectedRoute } from '~/services/auth';
 import {
   getClientRequestSender,
   getServerRequestSender,
@@ -52,9 +52,10 @@ const Account = component$(() => {
   const onDeleteAccount = $(async () => {
     deleteAccountPending.value = true;
     await deleteMe(await getClientRequestSender());
-    await logout(await getClientTokenStorage(), async (url: string) => {
-      window.location.assign(url);
-    });
+    await logout(
+      await getClientTokenStorage(),
+      await getClientLogoutRedirection(),
+    );
     deleteAccountPending.value = false;
   });
 

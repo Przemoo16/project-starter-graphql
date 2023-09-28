@@ -1,6 +1,5 @@
 import { $ } from '@builder.io/qwik';
 
-import { RouteURL } from '~/libs/api/urls';
 import { type TokenStorage } from '~/libs/tokens/storage';
 
 type RequestSender = (
@@ -98,13 +97,6 @@ export const login = $(
   },
 );
 
-export const logout = $(
-  async (storage: TokenStorage, onRedirect: (url: string) => Promise<void>) => {
-    await clearTokens(storage);
-    await onRedirect(RouteURL.Login);
-  },
-);
-
 export const refreshToken = $(
   async (onRequest: RequestSender, storage: TokenStorage) => {
     const mutation = `
@@ -127,6 +119,13 @@ export const refreshToken = $(
     // Write the token again to extend the storage expiration
     storage.set(REFRESH_TOKEN_STORAGE_KEY, token);
     return refreshToken;
+  },
+);
+
+export const logout = $(
+  async (storage: TokenStorage, onRedirect: () => Promise<void>) => {
+    await clearTokens(storage);
+    await onRedirect();
   },
 );
 

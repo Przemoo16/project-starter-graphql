@@ -2,7 +2,7 @@ import { $, component$, useSignal } from '@builder.io/qwik';
 import { type DocumentHead, type RequestEvent } from '@builder.io/qwik-city';
 import { Speak, useTranslate } from 'qwik-speak';
 
-import { onProtectedRoute } from '~/services/auth';
+import { getClientLogoutRedirection, onProtectedRoute } from '~/services/auth';
 import { getClientTokenStorage } from '~/services/storage';
 import { logout } from '~/services/user';
 
@@ -26,9 +26,10 @@ const Dashboard = component$(() => {
 
   const onLogout = $(async () => {
     logoutPending.value = true;
-    await logout(await getClientTokenStorage(), async (url: string) => {
-      window.location.assign(url);
-    });
+    await logout(
+      await getClientTokenStorage(),
+      await getClientLogoutRedirection(),
+    );
     logoutPending.value = false;
   });
 
