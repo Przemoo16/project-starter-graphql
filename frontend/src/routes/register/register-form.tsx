@@ -52,9 +52,9 @@ export const RegisterForm = component$(() => {
         let emailError = '';
         let generalError = '';
         if (isProblemPresent(problems, 'UserAlreadyExistsProblem')) {
-          emailError = inlineTranslate('auth.accountAlreadyExists', ctx);
+          emailError = inlineTranslate('register.accountAlreadyExists', ctx);
         } else {
-          generalError = inlineTranslate('auth.registerError', ctx);
+          generalError = inlineTranslate('register.registerError', ctx);
         }
         throw new FormError<RegisterFormSchema>(generalError, {
           email: emailError,
@@ -63,7 +63,7 @@ export const RegisterForm = component$(() => {
 
       reset(registerForm);
       setResponse(registerForm, {
-        message: inlineTranslate('auth.registerSuccess', ctx),
+        message: inlineTranslate('register.registerSuccess', ctx),
       });
     },
   );
@@ -162,7 +162,7 @@ export const RegisterForm = component$(() => {
       </Field>
       <div>{registerForm.response.message}</div>
       <button type="submit" disabled={registerForm.submitting}>
-        {t('auth.getStarted')}
+        {t('register.getStarted')}
       </button>
     </Form>
   );

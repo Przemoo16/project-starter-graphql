@@ -20,7 +20,7 @@ export const onRequest = async (requestEvent: RequestEvent) => {
 };
 
 export default component$(() => (
-  <Speak assets={['account', 'auth', 'validation']}>
+  <Speak assets={['account', 'auth', 'register', 'validation']}>
     <Register />
   </Speak>
 ));
@@ -31,7 +31,7 @@ const Register = component$(() => {
   return (
     <>
       <RegisterForm />
-      <Link href={RouteURL.Login}>{t('auth.loginLink')}</Link>
+      <Link href={RouteURL.Login}>{t('register.doHaveAccount')}</Link>
     </>
   );
 });

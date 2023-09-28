@@ -43,9 +43,9 @@ export const LoginForm = component$(() => {
       if (problems) {
         let error = '';
         if (isProblemPresent(problems, 'UserEmailNotConfirmedProblem')) {
-          error = inlineTranslate('auth.accountEmailNotConfirmed', ctx);
+          error = inlineTranslate('login.emailNotConfirmed', ctx);
         } else {
-          error = inlineTranslate('auth.invalidCredentials', ctx);
+          error = inlineTranslate('login.invalidCredentials', ctx);
         }
         throw new FormError<LoginFormSchema>(error);
       }
@@ -93,7 +93,7 @@ export const LoginForm = component$(() => {
       </Field>
       <div>{loginForm.response.message}</div>
       <button type="submit" disabled={loginForm.submitting}>
-        {t('auth.loginButton')}
+        {t('login.login')}
       </button>
     </Form>
   );

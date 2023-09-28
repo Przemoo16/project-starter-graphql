@@ -39,7 +39,16 @@ export const useUpdateAccountFormLoader = routeLoader$<
 });
 
 export default component$(() => (
-  <Speak assets={['account', 'validation']}>
+  <Speak
+    assets={[
+      'account',
+      'auth',
+      'changePassword',
+      'deleteAccount',
+      'updateAccount',
+      'validation',
+    ]}
+  >
     <Account />
   </Speak>
 ));
@@ -64,7 +73,7 @@ const Account = component$(() => {
       <UpdateAccountForm loader={updateAccountFormSignal} />
       <ChangePasswordForm />
       <button onClick$={onDeleteAccount} disabled={deleteAccountPending.value}>
-        {t('account.deleteAccount')}
+        {t('deleteAccount.deleteAccount')}
       </button>
     </>
   );

@@ -1,0 +1,9 @@
+{
+  "register": {
+    "accountAlreadyExists": "The account with provided email already exists",
+    "getStarted": "Get started",
+    "doHaveAccount": "Do you already have an account?",
+    "registerError": "We couldn't create your account",
+    "registerSuccess": "Your account has been created. Check your email box to activate your account"
+  }
+}

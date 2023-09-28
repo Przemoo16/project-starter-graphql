@@ -1,0 +1,8 @@
+{
+  "confirmEmail": {
+    "confirmEmail": "Confirm email",
+    "confirmEmailError": "We couldn't confirm your email. Check if the provided link is correct",
+    "confirmEmailSuccess": "Your email has been confirmed. You can now log in to your account.",
+    "emailAlreadyConfirmed": "The email has already been confirmed"
+  }
+}

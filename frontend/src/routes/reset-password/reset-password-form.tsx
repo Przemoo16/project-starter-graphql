@@ -43,13 +43,13 @@ export const ResetPasswordForm = component$(() => {
 
       if (problems) {
         throw new FormError<ResetPasswordFormSchema>(
-          inlineTranslate('auth.resetPasswordError', ctx),
+          inlineTranslate('resetPassword.resetPasswordError', ctx),
         );
       }
 
       reset(resetPasswordForm);
       setResponse(resetPasswordForm, {
-        message: inlineTranslate('auth.resetPasswordSuccess', ctx),
+        message: inlineTranslate('resetPassword.resetPasswordSuccess', ctx),
       });
     },
   );
@@ -105,7 +105,7 @@ export const ResetPasswordForm = component$(() => {
       </Field>
       <div>{resetPasswordForm.response.message}</div>
       <button type="submit" disabled={resetPasswordForm.submitting}>
-        {t('auth.resetPassword')}
+        {t('resetPassword.resetPassword')}
       </button>
     </Form>
   );

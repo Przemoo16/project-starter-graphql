@@ -1,0 +1,7 @@
+{
+  "updateAccount": {
+    "updateAccount": "Update account",
+    "updateAccountError": "We couldn't update your account",
+    "updateAccountSuccess": "Your account has been updated"
+  }
+}

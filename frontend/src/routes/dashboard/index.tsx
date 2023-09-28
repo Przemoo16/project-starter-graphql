@@ -15,7 +15,7 @@ export const onRequest = async (requestEvent: RequestEvent) => {
 };
 
 export default component$(() => (
-  <Speak assets={['account']}>
+  <Speak assets={['auth']}>
     <Dashboard />
   </Speak>
 ));
@@ -36,7 +36,7 @@ const Dashboard = component$(() => {
   return (
     <>
       <button onClick$={onLogout} disabled={logoutPending.value}>
-        {t('account.logout')}
+        {t('auth.logout')}
       </button>
     </>
   );

@@ -1,0 +1,9 @@
+{
+  "login": {
+    "emailNotConfirmed": "The email has not been confirmed. Check your email box to activate your account",
+    "invalidCredentials": "Incorrect email or password",
+    "login": "Log in",
+    "forgotPassword": "Forgot your password?",
+    "doNotHaveAccount": "Don't you have an account yet?"
+  }
+}
