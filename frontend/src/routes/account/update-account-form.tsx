@@ -42,11 +42,11 @@ export const UpdateAccountForm = component$(
 
         if (problems) {
           throw new FormError<UpdateAccountFormSchema>(
-            inlineTranslate('account.updateAccountError', ctx),
+            inlineTranslate('updateAccount.updateAccountError', ctx),
           );
         }
         setResponse(updateAccountForm, {
-          message: inlineTranslate('account.updateAccountSuccess', ctx),
+          message: inlineTranslate('updateAccount.updateAccountSuccess', ctx),
         });
       },
     );
@@ -79,7 +79,7 @@ export const UpdateAccountForm = component$(
         </UpdateAccount.Field>
         <div>{updateAccountForm.response.message}</div>
         <button type="submit" disabled={updateAccountForm.submitting}>
-          {t('account.updateAccount')}
+          {t('updateAccount.updateAccount')}
         </button>
       </UpdateAccount.Form>
     );

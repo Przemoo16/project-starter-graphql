@@ -49,23 +49,23 @@ export const ChangePasswordForm = component$(() => {
       if (problems) {
         let error = '';
         if (isProblemPresent(problems, 'InvalidPasswordProblem')) {
-          error = inlineTranslate('account.invalidCurrentPassword', ctx);
+          error = inlineTranslate('changePassword.invalidCurrentPassword', ctx);
         } else {
-          error = inlineTranslate('account.changePasswordError', ctx);
+          error = inlineTranslate('changePassword.changePasswordError', ctx);
         }
         throw new FormError<ChangePasswordFormSchema>(error);
       }
 
       reset(changePasswordForm);
       setResponse(changePasswordForm, {
-        message: inlineTranslate('account.changePasswordSuccess', ctx),
+        message: inlineTranslate('changePassword.changePasswordSuccess', ctx),
       });
     },
   );
 
-  const currentPasswordLabel = t('account.currentPassword');
-  const newPasswordLabel = t('account.newPassword');
-  const repeatNewPasswordLabel = t('account.repeatNewPassword');
+  const currentPasswordLabel = t('changePassword.currentPassword');
+  const newPasswordLabel = t('changePassword.newPassword');
+  const repeatPasswordLabel = t('auth.repeatPassword');
 
   return (
     <ChangePassword.Form onSubmit$={handleSubmit}>
@@ -121,7 +121,7 @@ export const ChangePasswordForm = component$(() => {
           <TextInput
             {...props}
             type="password"
-            label={repeatNewPasswordLabel}
+            label={repeatPasswordLabel}
             placeholder="********"
             value={field.value}
             error={field.error}
@@ -131,7 +131,7 @@ export const ChangePasswordForm = component$(() => {
       </ChangePassword.Field>
       <div>{changePasswordForm.response.message}</div>
       <button type="submit" disabled={changePasswordForm.submitting}>
-        {t('account.changePassword')}
+        {t('changePassword.changePassword')}
       </button>
     </ChangePassword.Form>
   );

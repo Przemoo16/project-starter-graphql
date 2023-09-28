@@ -1,17 +1,5 @@
 {
   "account": {
-    "changePassword": "Change password",
-    "changePasswordError": "We couldn't change your password",
-    "changePasswordSuccess": "Your password has been changed",
-    "currentPassword": "Current password",
-    "deleteAccount": "Delete account",
-    "fullName": "Full name",
-    "invalidCurrentPassword": "Invalid current password",
-    "logout": "Logout",
-    "newPassword": "New password",
-    "repeatNewPassword": "Repeat new password",
-    "updateAccount": "Update account",
-    "updateAccountError": "We couldn't update your account details",
-    "updateAccountSuccess": "Your account have been updated"
+    "fullName": "Full name"
   }
 }

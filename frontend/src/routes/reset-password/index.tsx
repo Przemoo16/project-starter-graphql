@@ -11,7 +11,7 @@ export const head: DocumentHead = {
 };
 
 export default component$(() => (
-  <Speak assets={['auth', 'validation']}>
+  <Speak assets={['auth', 'resetPassword', 'validation']}>
     <ResetPassword />
   </Speak>
 ));
@@ -22,7 +22,7 @@ const ResetPassword = component$(() => {
   return (
     <>
       <ResetPasswordForm />
-      <Link href={RouteURL.Login}>{t('auth.backToLoginLink')}</Link>
+      <Link href={RouteURL.Login}>{t('auth.backToLogin')}</Link>
     </>
   );
 });

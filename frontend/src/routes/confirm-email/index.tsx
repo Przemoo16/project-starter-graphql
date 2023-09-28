@@ -8,7 +8,7 @@ import { getServerRequestSender } from '~/services/requests';
 import { confirmEmail } from '~/services/user';
 
 export const head: DocumentHead = {
-  title: 'runtime.confirm-email.head.title',
+  title: 'runtime.confirmEmail.head.title',
 };
 
 export const useConfirmEmail = routeLoader$(
@@ -20,7 +20,7 @@ export const useConfirmEmail = routeLoader$(
 );
 
 export default component$(() => (
-  <Speak assets={['auth']}>
+  <Speak assets={['auth', 'confirmEmail']}>
     <ConfirmEmail />
   </Speak>
 ));
@@ -34,19 +34,19 @@ const ConfirmEmail = component$(() => {
   let message = '';
   if (problems) {
     if (isProblemPresent(problems, 'UserEmailAlreadyConfirmedProblem')) {
-      message = t('auth.accountEmailAlreadyConfirmed');
+      message = t('confirmEmail.emailAlreadyConfirmed');
     } else {
-      message = t('auth.confirmEmailError');
+      message = t('confirmEmail.confirmEmailError');
     }
   } else {
-    message = t('auth.confirmEmailSuccess');
+    message = t('confirmEmail.confirmEmailSuccess');
   }
 
   return (
     <>
-      {t('auth.confirmEmail')}
+      {t('confirmEmail.confirmEmail')}
       <div>{message}</div>
-      <Link href={RouteURL.Login}>{t('auth.backToLoginLink')}</Link>
+      <Link href={RouteURL.Login}>{t('auth.backToLogin')}</Link>
     </>
   );
 });

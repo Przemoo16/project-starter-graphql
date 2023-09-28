@@ -20,7 +20,7 @@ export const onRequest = async (requestEvent: RequestEvent) => {
 };
 
 export default component$(() => (
-  <Speak assets={['auth', 'validation']}>
+  <Speak assets={['auth', 'recoverPassword', 'validation']}>
     <RecoverPassword />
   </Speak>
 ));
@@ -31,7 +31,7 @@ const RecoverPassword = component$(() => {
   return (
     <>
       <RecoverPasswordForm />
-      <Link href={RouteURL.Login}>{t('auth.backToLoginLink')}</Link>
+      <Link href={RouteURL.Login}>{t('auth.backToLogin')}</Link>
     </>
   );
 });

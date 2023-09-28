@@ -31,7 +31,7 @@ export const RecoverPasswordForm = component$(() => {
 
       reset(recoverPasswordForm);
       setResponse(recoverPasswordForm, {
-        message: inlineTranslate('auth.recoverPasswordSuccess', ctx),
+        message: inlineTranslate('recoverPassword.recoverPasswordSuccess', ctx),
       });
     },
   );
@@ -61,7 +61,7 @@ export const RecoverPasswordForm = component$(() => {
       </Field>
       <div>{recoverPasswordForm.response.message}</div>
       <button type="submit" disabled={recoverPasswordForm.submitting}>
-        {t('auth.recoverPassword')}
+        {t('recoverPassword.recoverPassword')}
       </button>
     </Form>
   );
