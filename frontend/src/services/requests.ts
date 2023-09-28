@@ -1,4 +1,3 @@
-import { $ } from '@builder.io/qwik';
 import { isServer } from '@builder.io/qwik/build';
 import { type RequestEventLoader } from '@builder.io/qwik-city';
 
@@ -11,39 +10,31 @@ import { getClientLogoutRedirection, getServerLogoutRedirection } from './auth';
 import { getClientTokenStorage, getServerTokenStorage } from './storage';
 import { getAuthHeader, logout, refreshToken } from './user';
 
-export const getClientRequestSender = $(
-  async () =>
-    await getRequestSender(
-      await getClientTokenStorage(),
-      await getClientLogoutRedirection(),
-    ),
-);
+export const getClientRequestSender = () =>
+  getRequestSender(getClientTokenStorage(), getClientLogoutRedirection());
 
-export const getServerRequestSender = $(
-  async (requestEvent: RequestEventLoader) =>
-    await getRequestSender(
-      await getServerTokenStorage(requestEvent.cookie),
-      await getServerLogoutRedirection(requestEvent),
-    ),
-);
+export const getServerRequestSender = (requestEvent: RequestEventLoader) =>
+  getRequestSender(
+    getServerTokenStorage(requestEvent.cookie),
+    getServerLogoutRedirection(requestEvent),
+  );
 
-const getRequestSender = $(
-  (storage: TokenStorage, onRedirect: () => Promise<void>) =>
-    async (query: string, variables?: Record<string, unknown>) => {
-      const url = await getApiURL(isServer);
-      return await sendAuthorizedRequest(fetchAdapter, url, {
-        query,
-        variables,
-        onGetAuthHeader: async () => await getAuthHeader(storage),
-        onUnauthorized: async () =>
-          await refreshToken(
-            async (query: string, variables?: Record<string, unknown>) =>
-              await sendRequest(fetchAdapter, url, { query, variables }),
-            storage,
-          ),
-        onInvalidTokens: async () => {
-          await logout(storage, onRedirect);
-        },
-      });
-    },
-);
+const getRequestSender =
+  (storage: TokenStorage, onRedirect: () => void) =>
+  async (query: string, variables?: Record<string, unknown>) => {
+    const url = getApiURL(isServer);
+    return await sendAuthorizedRequest(fetchAdapter, url, {
+      query,
+      variables,
+      onGetAuthHeader: () => getAuthHeader(storage),
+      onUnauthorized: async () =>
+        await refreshToken(
+          async (query: string, variables?: Record<string, unknown>) =>
+            await sendRequest(fetchAdapter, url, { query, variables }),
+          storage,
+        ),
+      onInvalidTokens: () => {
+        logout(storage, onRedirect);
+      },
+    });
+  };

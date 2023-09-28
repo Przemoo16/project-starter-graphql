@@ -1,4 +1,3 @@
-import { $ } from '@builder.io/qwik';
 import { type Cookie } from '@builder.io/qwik-city';
 
 import {
@@ -8,17 +7,14 @@ import {
 
 const TOKEN_LIFETIME_DAYS = 7; // Some browsers cap client-side cookies to 7 days of storage
 
-const getTokenLifetime = $(() => {
+const getTokenLifetime = () => {
   const date = new Date();
   date.setDate(date.getDate() + TOKEN_LIFETIME_DAYS);
   return date;
-});
+};
 
-export const getClientTokenStorage = $(
-  async () => new ClientCookiesTokenStorage(await getTokenLifetime()),
-);
+export const getClientTokenStorage = () =>
+  new ClientCookiesTokenStorage(getTokenLifetime());
 
-export const getServerTokenStorage = $(
-  async (cookie: Cookie) =>
-    new ServerCookiesTokenStorage(cookie, await getTokenLifetime()),
-);
+export const getServerTokenStorage = (cookie: Cookie) =>
+  new ServerCookiesTokenStorage(cookie, getTokenLifetime());

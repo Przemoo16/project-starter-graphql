@@ -32,10 +32,9 @@ export const LoginForm = component$(() => {
 
   const handleSubmit = $<SubmitHandler<LoginFormSchema>>(
     async (values, _event) => {
-      const requestSender = await getClientRequestSender();
       const { problems } = await login(
-        requestSender,
-        await getClientTokenStorage(),
+        getClientRequestSender(),
+        getClientTokenStorage(),
         values.email,
         values.password,
       );

@@ -15,8 +15,8 @@ export const head: DocumentHead = {
   title: 'runtime.register.head.title',
 };
 
-export const onRequest = async (requestEvent: RequestEvent) => {
-  await onOnlyAnonymousRoute(requestEvent);
+export const onRequest = (requestEvent: RequestEvent) => {
+  onOnlyAnonymousRoute(requestEvent);
 };
 
 export default component$(() => (

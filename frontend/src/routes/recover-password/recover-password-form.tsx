@@ -27,7 +27,7 @@ export const RecoverPasswordForm = component$(() => {
 
   const handleSubmit = $<SubmitHandler<RecoverPasswordFormSchema>>(
     async (values, _event) => {
-      await recoverPassword(await getClientRequestSender(), values.email);
+      await recoverPassword(getClientRequestSender(), values.email);
 
       reset(recoverPasswordForm);
       setResponse(recoverPasswordForm, {

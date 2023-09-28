@@ -42,7 +42,7 @@ export const RegisterForm = component$(() => {
   const handleSubmit = $<SubmitHandler<RegisterFormSchema>>(
     async (values, _event) => {
       const { problems } = await register(
-        await getClientRequestSender(),
+        getClientRequestSender(),
         values.fullName,
         values.email,
         values.password,
