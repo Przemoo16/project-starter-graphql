@@ -10,8 +10,8 @@ export const head: DocumentHead = {
   title: 'runtime.dashboard.head.title',
 };
 
-export const onRequest = async (requestEvent: RequestEvent) => {
-  await onProtectedRoute(requestEvent);
+export const onRequest = (requestEvent: RequestEvent) => {
+  onProtectedRoute(requestEvent);
 };
 
 export default component$(() => (
@@ -24,12 +24,9 @@ const Dashboard = component$(() => {
   const t = useTranslate();
   const logoutPending = useSignal(false);
 
-  const onLogout = $(async () => {
+  const onLogout = $(() => {
     logoutPending.value = true;
-    await logout(
-      await getClientTokenStorage(),
-      await getClientLogoutRedirection(),
-    );
+    logout(getClientTokenStorage(), getClientLogoutRedirection());
     logoutPending.value = false;
   });
 

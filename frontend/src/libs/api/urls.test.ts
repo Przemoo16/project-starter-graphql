@@ -2,30 +2,30 @@ import { expect, test, vi } from 'vitest';
 
 import { getApiURL } from './urls';
 
-test(`[getApiURL function]: returns default server URL`, async () => {
-  const url = await getApiURL(true);
+test(`[getApiURL function]: returns default server URL`, () => {
+  const url = getApiURL(true);
 
   expect(url).toEqual('http://proxy/graphql');
 });
 
-test(`[getApiURL function]: returns default client URL`, async () => {
-  const url = await getApiURL(false);
+test(`[getApiURL function]: returns default client URL`, () => {
+  const url = getApiURL(false);
 
   expect(url).toEqual('http://localhost:5173/graphql');
 });
 
-test(`[getApiURL function]: returns server URL from env variable`, async () => {
+test(`[getApiURL function]: returns server URL from env variable`, () => {
   vi.stubEnv('VITE_SERVER_API_URL', 'http://server-url');
 
-  const url = await getApiURL(true);
+  const url = getApiURL(true);
 
   expect(url).toEqual('http://server-url');
 });
 
-test(`[getApiURL function]: returns client URL from env variable`, async () => {
+test(`[getApiURL function]: returns client URL from env variable`, () => {
   vi.stubEnv('VITE_CLIENT_API_URL', 'http://client-url');
 
-  const url = await getApiURL(false);
+  const url = getApiURL(false);
 
   expect(url).toEqual('http://client-url');
 });

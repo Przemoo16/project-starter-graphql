@@ -25,8 +25,8 @@ export const head: DocumentHead = {
   title: 'runtime.account.head.title',
 };
 
-export const onRequest = async (requestEvent: RequestEvent) => {
-  await onProtectedRoute(requestEvent);
+export const onRequest = (requestEvent: RequestEvent) => {
+  onProtectedRoute(requestEvent);
 };
 
 export const useUpdateAccountFormLoader = routeLoader$<
@@ -34,7 +34,7 @@ export const useUpdateAccountFormLoader = routeLoader$<
 >(async requestEvent => {
   const {
     me: { fullName },
-  } = await getMe(await getServerRequestSender(requestEvent));
+  } = await getMe(getServerRequestSender(requestEvent));
   return { fullName };
 });
 
@@ -60,11 +60,8 @@ const Account = component$(() => {
 
   const onDeleteAccount = $(async () => {
     deleteAccountPending.value = true;
-    await deleteMe(await getClientRequestSender());
-    await logout(
-      await getClientTokenStorage(),
-      await getClientLogoutRedirection(),
-    );
+    await deleteMe(getClientRequestSender());
+    logout(getClientTokenStorage(), getClientLogoutRedirection());
     deleteAccountPending.value = false;
   });
 

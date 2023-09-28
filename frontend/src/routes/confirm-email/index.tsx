@@ -14,7 +14,7 @@ export const head: DocumentHead = {
 export const useConfirmEmail = routeLoader$(
   async requestEvent =>
     await confirmEmail(
-      await getServerRequestSender(requestEvent),
+      getServerRequestSender(requestEvent),
       requestEvent.url.searchParams.get('token') ?? '',
     ),
 );

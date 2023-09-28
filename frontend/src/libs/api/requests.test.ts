@@ -150,7 +150,7 @@ test(`[sendAuthorizedRequest function]: sends request with the auth header`, asy
       },
     };
   };
-  const onGetAuthHeader = async () => ({
+  const onGetAuthHeader = () => ({
     Authorization: 'Bearer test-token',
   });
   const requestConfig = { onGetAuthHeader };
@@ -259,7 +259,7 @@ test(`[sendAuthorizedRequest function]: calls onUnauthorized callback on token r
   const onUnauthorized = async () => {
     onUnauthorizedCalled = true;
   };
-  const onInvalidTokens = async () => {
+  const onInvalidTokens = () => {
     onInvalidTokensCalled = true;
   };
   const requestConfig = { onUnauthorized, onInvalidTokens };
@@ -292,7 +292,7 @@ test(`[sendAuthorizedRequest function]: calls onInvalidTokens callback on onUnau
   const onUnauthorized = async () => {
     throw new Error();
   };
-  const onInvalidTokens = async () => {
+  const onInvalidTokens = () => {
     onInvalidTokensCalled = true;
   };
   const requestConfig = { onUnauthorized, onInvalidTokens };
@@ -327,7 +327,7 @@ test(`[sendAuthorizedRequest function]: retry original request with new token`, 
       ],
     };
   };
-  const onGetAuthHeader = async () => {
+  const onGetAuthHeader = () => {
     const token =
       onGetAuthHeaderCalledTimes === 0 ? 'first-token' : 'second-token';
     onGetAuthHeaderCalledTimes += 1;

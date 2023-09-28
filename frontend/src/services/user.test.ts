@@ -25,55 +25,55 @@ class TokenStorage {
   }
 }
 
-test(`[isAuthorized function]: returns true if access token is present`, async () => {
+test(`[isAuthorized function]: returns true if access token is present`, () => {
   const tokenStorage = new TokenStorage();
   tokenStorage.set('accessToken', 'access-token');
 
-  const authorized = await isAuthorized(tokenStorage);
+  const authorized = isAuthorized(tokenStorage);
 
   expect(authorized).toBe(true);
 });
 
-test(`[isAuthorized function]: returns true if refresh token is present`, async () => {
+test(`[isAuthorized function]: returns true if refresh token is present`, () => {
   const tokenStorage = new TokenStorage();
   tokenStorage.set('refreshToken', 'refresh-token');
 
-  const authorized = await isAuthorized(tokenStorage);
+  const authorized = isAuthorized(tokenStorage);
 
   expect(authorized).toBe(true);
 });
 
-test(`[isAuthorized function]: returns false if tokens are missing`, async () => {
+test(`[isAuthorized function]: returns false if tokens are missing`, () => {
   const tokenStorage = new TokenStorage();
 
-  const authorized = await isAuthorized(tokenStorage);
+  const authorized = isAuthorized(tokenStorage);
 
   expect(authorized).toBe(false);
 });
 
-test(`[getAuthHeader function]: returns auth header`, async () => {
+test(`[getAuthHeader function]: returns auth header`, () => {
   const tokenStorage = new TokenStorage();
   tokenStorage.set('accessToken', 'access-token');
 
-  const headers = await getAuthHeader(tokenStorage);
+  const headers = getAuthHeader(tokenStorage);
 
   expect(headers).toEqual({ Authorization: 'Bearer access-token' });
 });
 
-test(`[getAuthHeader function]: returns empty header`, async () => {
+test(`[getAuthHeader function]: returns empty header`, () => {
   const tokenStorage = new TokenStorage();
 
-  const headers = await getAuthHeader(tokenStorage);
+  const headers = getAuthHeader(tokenStorage);
 
   expect(headers).toEqual({});
 });
 
-test(`[clearTokens function]: removes tokens`, async () => {
+test(`[clearTokens function]: removes tokens`, () => {
   const tokenStorage = new TokenStorage();
   tokenStorage.set('accessToken', 'access-token');
   tokenStorage.set('refreshToken', 'refresh-token');
 
-  await clearTokens(tokenStorage);
+  clearTokens(tokenStorage);
 
   expect(tokenStorage.get('accessToken')).toBeNull();
   expect(tokenStorage.get('refreshToken')).toBeNull();
@@ -158,17 +158,17 @@ test(`[refreshToken function]: sends refresh token and saves tokens`, async () =
   ]);
 });
 
-test(`[logout function]: removes tokens and called onRedirect`, async () => {
+test(`[logout function]: removes tokens and called onRedirect`, () => {
   const tokenStorage = new TokenStorage();
   tokenStorage.set('accessToken', 'access-token');
   tokenStorage.set('refreshToken', 'refresh-token');
   let redirectUrlCalled = false;
 
-  const onRedirect = async () => {
+  const onRedirect = () => {
     redirectUrlCalled = true;
   };
 
-  await logout(tokenStorage, onRedirect);
+  logout(tokenStorage, onRedirect);
 
   expect(tokenStorage.get('accessToken')).toBeNull();
   expect(tokenStorage.get('refreshToken')).toBeNull();

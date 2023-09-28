@@ -1,4 +1,3 @@
-import { $ } from '@builder.io/qwik';
 import {
   type RequestEvent,
   type RequestEventLoader,
@@ -11,10 +10,8 @@ import { isAuthorized } from './user';
 
 export const REDIRECTION_STATUS_CODE = 302;
 
-export const onProtectedRoute = $(async (requestEvent: RequestEvent) => {
-  const authorized = await isAuthorized(
-    await getServerTokenStorage(requestEvent.cookie),
-  );
+export const onProtectedRoute = (requestEvent: RequestEvent) => {
+  const authorized = isAuthorized(getServerTokenStorage(requestEvent.cookie));
   if (!authorized) {
     // eslint-disable-next-line @typescript-eslint/no-throw-literal
     throw requestEvent.redirect(
@@ -22,25 +19,22 @@ export const onProtectedRoute = $(async (requestEvent: RequestEvent) => {
       `${RouteURL.Login}?callbackUrl=${requestEvent.url.pathname}`,
     );
   }
-});
+};
 
-export const onOnlyAnonymousRoute = $(async (requestEvent: RequestEvent) => {
-  const authorized = await isAuthorized(
-    await getServerTokenStorage(requestEvent.cookie),
-  );
+export const onOnlyAnonymousRoute = (requestEvent: RequestEvent) => {
+  const authorized = isAuthorized(getServerTokenStorage(requestEvent.cookie));
   if (authorized) {
     // eslint-disable-next-line @typescript-eslint/no-throw-literal
     throw requestEvent.redirect(REDIRECTION_STATUS_CODE, RouteURL.Dashboard);
   }
-});
+};
 
-export const getClientLogoutRedirection = $(() => async () => {
+export const getClientLogoutRedirection = () => () => {
   window.location.assign(RouteURL.Login);
-});
+};
 
-export const getServerLogoutRedirection = $(
-  (requestEvent: RequestEventLoader) => async () => {
+export const getServerLogoutRedirection =
+  (requestEvent: RequestEventLoader) => () => {
     // eslint-disable-next-line @typescript-eslint/no-throw-literal
     throw requestEvent.redirect(REDIRECTION_STATUS_CODE, RouteURL.Login);
-  },
-);
+  };

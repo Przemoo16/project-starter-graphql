@@ -36,7 +36,7 @@ export const UpdateAccountForm = component$(
     const handleSubmit = $<SubmitHandler<UpdateAccountFormSchema>>(
       async (values, _event) => {
         const { problems } = await updateMe(
-          await getClientRequestSender(),
+          getClientRequestSender(),
           values.fullName,
         );
 

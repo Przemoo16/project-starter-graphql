@@ -36,7 +36,7 @@ export const ResetPasswordForm = component$(() => {
   const handleSubmit = $<SubmitHandler<ResetPasswordFormSchema>>(
     async (values, _event) => {
       const { problems } = await resetPassword(
-        await getClientRequestSender(),
+        getClientRequestSender(),
         loc.url.searchParams.get('token') ?? '',
         values.password,
       );

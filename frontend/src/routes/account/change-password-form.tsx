@@ -41,7 +41,7 @@ export const ChangePasswordForm = component$(() => {
   const handleSubmit = $<SubmitHandler<ChangePasswordFormSchema>>(
     async (values, _event) => {
       const { problems } = await changeMyPassword(
-        await getClientRequestSender(),
+        getClientRequestSender(),
         values.currentPassword,
         values.newPassword,
       );
