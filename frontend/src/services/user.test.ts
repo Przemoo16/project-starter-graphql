@@ -158,19 +158,19 @@ test(`[refreshToken function]: sends refresh token and saves tokens`, async () =
   ]);
 });
 
-test(`[logout function]: removes tokens and redirect to the login route`, async () => {
+test(`[logout function]: removes tokens and called onRedirect`, async () => {
   const tokenStorage = new TokenStorage();
   tokenStorage.set('accessToken', 'access-token');
   tokenStorage.set('refreshToken', 'refresh-token');
-  let redirectUrlCalled = null;
+  let redirectUrlCalled = false;
 
-  const onRedirect = async (url: string) => {
-    redirectUrlCalled = url;
+  const onRedirect = async () => {
+    redirectUrlCalled = true;
   };
 
   await logout(tokenStorage, onRedirect);
 
   expect(tokenStorage.get('accessToken')).toBeNull();
   expect(tokenStorage.get('refreshToken')).toBeNull();
-  expect(redirectUrlCalled).toEqual('/login');
+  expect(redirectUrlCalled).toBe(true);
 });
