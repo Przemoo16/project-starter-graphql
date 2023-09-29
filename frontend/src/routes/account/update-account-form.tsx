@@ -12,7 +12,7 @@ import { inlineTranslate, useSpeakContext, useTranslate } from 'qwik-speak';
 
 import { TextInput } from '~/components/text-input/text-input';
 import { MAX_FULL_NAME_LENGTH } from '~/routes/schema-config';
-import { getClientRequestSender } from '~/services/requests/get-client.request-sender';
+import { getClientRequestSender } from '~/services/requests/get-client-request-sender';
 import { updateMe } from '~/services/user/update-me';
 
 export type UpdateAccountFormSchema = {

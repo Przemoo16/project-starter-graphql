@@ -9,7 +9,7 @@ import { Speak, useTranslate } from 'qwik-speak';
 
 import { getClientLogoutRedirection } from '~/services/auth/get-client-logout-redirection';
 import { onProtectedRoute } from '~/services/auth/on-protected-route';
-import { getClientRequestSender } from '~/services/requests/get-client.request-sender';
+import { getClientRequestSender } from '~/services/requests/get-client-request-sender';
 import { getServerRequestSender } from '~/services/requests/get-server-request-sender';
 import { getClientTokenStorage } from '~/services/tokens/get-client-token-storage';
 import { deleteMe } from '~/services/user/delete-me';
