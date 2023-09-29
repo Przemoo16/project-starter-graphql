@@ -1,7 +1,7 @@
 import { expect, test } from 'vitest';
 
-import { TokenStorage } from './helpers.test';
 import { refreshToken } from './refresh-token';
+import { TestTokenStorage } from './test-token-storage';
 
 test(`[refreshToken function]: throws error if no refresh is not present`, async () => {
   const onRequest = async () => ({
@@ -10,7 +10,7 @@ test(`[refreshToken function]: throws error if no refresh is not present`, async
       tokenType: 'Bearer',
     },
   });
-  const tokenStorage = new TokenStorage();
+  const tokenStorage = new TestTokenStorage();
 
   await expect(
     async () => await refreshToken(onRequest, tokenStorage),
@@ -32,13 +32,14 @@ test(`[refreshToken function]: sends refresh token and saves tokens`, async () =
     };
   };
   const setTokensCalled: Array<Record<string, string>> = [];
-  class TestTokenStorage extends TokenStorage {
+  class DummyTokenStorage extends TestTokenStorage {
     set(key: string, value: string) {
       setTokensCalled.push({ [key]: value });
       this.storage.set(key, value);
     }
   }
-  const tokenStorage = new TestTokenStorage();
+
+  const tokenStorage = new DummyTokenStorage();
   tokenStorage.set('refreshToken', 'refresh-token');
 
   await refreshToken(onRequest, tokenStorage);

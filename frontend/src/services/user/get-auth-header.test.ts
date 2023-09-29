@@ -1,10 +1,10 @@
 import { expect, test } from 'vitest';
 
 import { getAuthHeader } from './get-auth-header';
-import { TokenStorage } from './helpers.test';
+import { TestTokenStorage } from './test-token-storage';
 
 test(`[getAuthHeader function]: returns auth header`, () => {
-  const tokenStorage = new TokenStorage();
+  const tokenStorage = new TestTokenStorage();
   tokenStorage.set('accessToken', 'access-token');
 
   const headers = getAuthHeader(tokenStorage);
@@ -13,7 +13,7 @@ test(`[getAuthHeader function]: returns auth header`, () => {
 });
 
 test(`[getAuthHeader function]: returns empty header`, () => {
-  const tokenStorage = new TokenStorage();
+  const tokenStorage = new TestTokenStorage();
 
   const headers = getAuthHeader(tokenStorage);
 
