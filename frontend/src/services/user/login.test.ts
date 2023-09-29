@@ -1,7 +1,7 @@
 import { expect, test } from 'vitest';
 
-import { TokenStorage } from './helpers.test';
 import { login } from './login';
+import { TestTokenStorage } from './test-token-storage';
 
 test(`[login function]: saves tokens`, async () => {
   const onRequest = async () => ({
@@ -11,7 +11,7 @@ test(`[login function]: saves tokens`, async () => {
       tokenType: 'Bearer',
     },
   });
-  const tokenStorage = new TokenStorage();
+  const tokenStorage = new TestTokenStorage();
 
   await login(onRequest, tokenStorage, 'test@email.com', 'testPassword');
 
@@ -25,7 +25,7 @@ test(`[login function]: doesn't save tokens on problems`, async () => {
       problems: [{ message: 'Error' }],
     },
   });
-  const tokenStorage = new TokenStorage();
+  const tokenStorage = new TestTokenStorage();
 
   await login(onRequest, tokenStorage, 'test@email.com', 'testPassword');
 

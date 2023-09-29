@@ -1,10 +1,10 @@
 import { expect, test } from 'vitest';
 
-import { TokenStorage } from './helpers.test';
 import { isAuthorized } from './is-authorized';
+import { TestTokenStorage } from './test-token-storage';
 
 test(`[isAuthorized function]: returns true if access token is present`, () => {
-  const tokenStorage = new TokenStorage();
+  const tokenStorage = new TestTokenStorage();
   tokenStorage.set('accessToken', 'access-token');
 
   const authorized = isAuthorized(tokenStorage);
@@ -13,7 +13,7 @@ test(`[isAuthorized function]: returns true if access token is present`, () => {
 });
 
 test(`[isAuthorized function]: returns true if refresh token is present`, () => {
-  const tokenStorage = new TokenStorage();
+  const tokenStorage = new TestTokenStorage();
   tokenStorage.set('refreshToken', 'refresh-token');
 
   const authorized = isAuthorized(tokenStorage);
@@ -22,7 +22,7 @@ test(`[isAuthorized function]: returns true if refresh token is present`, () => 
 });
 
 test(`[isAuthorized function]: returns false if tokens are missing`, () => {
-  const tokenStorage = new TokenStorage();
+  const tokenStorage = new TestTokenStorage();
 
   const authorized = isAuthorized(tokenStorage);
 

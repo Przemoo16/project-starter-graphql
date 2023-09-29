@@ -1,10 +1,10 @@
 import { expect, test } from 'vitest';
 
 import { clearTokens } from './clear-tokens';
-import { TokenStorage } from './helpers.test';
+import { TestTokenStorage } from './test-token-storage';
 
 test(`[clearTokens function]: removes tokens`, () => {
-  const tokenStorage = new TokenStorage();
+  const tokenStorage = new TestTokenStorage();
   tokenStorage.set('accessToken', 'access-token');
   tokenStorage.set('refreshToken', 'refresh-token');
 

@@ -1,10 +1,10 @@
 import { expect, test } from 'vitest';
 
-import { TokenStorage } from './helpers.test';
 import { logout } from './logout';
+import { TestTokenStorage } from './test-token-storage';
 
 test(`[logout function]: removes tokens and called onRedirect`, () => {
-  const tokenStorage = new TokenStorage();
+  const tokenStorage = new TestTokenStorage();
   tokenStorage.set('accessToken', 'access-token');
   tokenStorage.set('refreshToken', 'refresh-token');
   let redirectUrlCalled = false;

@@ -1,4 +1,4 @@
-export class TokenStorage {
+export class TestTokenStorage {
   readonly storage = new Map<string, string>();
 
   get(key: string) {
