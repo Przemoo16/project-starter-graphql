@@ -12,7 +12,7 @@ import { inlineTranslate, useSpeakContext, useTranslate } from 'qwik-speak';
 import { TextInput } from '~/components/text-input/text-input';
 import { isProblemPresent } from '~/libs/api/is-problem-present';
 import { RouteURL } from '~/libs/api/route-url';
-import { getClientRequestSender } from '~/services/requests/get-client.request-sender';
+import { getClientRequestSender } from '~/services/requests/get-client-request-sender';
 import { getClientTokenStorage } from '~/services/tokens/get-client-token-storage';
 import { login } from '~/services/user/login';
 

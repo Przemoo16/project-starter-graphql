@@ -20,7 +20,7 @@ import {
   MAX_FULL_NAME_LENGTH,
   MIN_PASSWORD_LENGTH,
 } from '~/routes/schema-config';
-import { getClientRequestSender } from '~/services/requests/get-client.request-sender';
+import { getClientRequestSender } from '~/services/requests/get-client-request-sender';
 import { register } from '~/services/user/register';
 
 type RegisterFormSchema = {
