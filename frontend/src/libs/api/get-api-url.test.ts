@@ -1,6 +1,6 @@
 import { expect, test, vi } from 'vitest';
 
-import { getApiURL } from './urls';
+import { getApiURL } from './get-api-url';
 
 test(`[getApiURL function]: returns default server URL`, () => {
   const url = getApiURL(true);

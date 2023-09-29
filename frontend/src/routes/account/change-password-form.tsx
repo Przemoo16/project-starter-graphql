@@ -13,10 +13,10 @@ import {
 import { inlineTranslate, useSpeakContext, useTranslate } from 'qwik-speak';
 
 import { TextInput } from '~/components/text-input/text-input';
-import { isProblemPresent } from '~/libs/api/errors';
+import { isProblemPresent } from '~/libs/api/is-problem-present';
 import { MIN_PASSWORD_LENGTH } from '~/routes/schema-config';
-import { getClientRequestSender } from '~/services/requests';
-import { changeMyPassword } from '~/services/user';
+import { getClientRequestSender } from '~/services/requests/get-client.request-sender';
+import { changeMyPassword } from '~/services/user/change-my-password';
 
 type ChangePasswordFormSchema = {
   currentPassword: string;

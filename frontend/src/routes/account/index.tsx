@@ -7,13 +7,14 @@ import {
 import { type InitialValues } from '@modular-forms/qwik';
 import { Speak, useTranslate } from 'qwik-speak';
 
-import { getClientLogoutRedirection, onProtectedRoute } from '~/services/auth';
-import {
-  getClientRequestSender,
-  getServerRequestSender,
-} from '~/services/requests';
-import { getClientTokenStorage } from '~/services/storage';
-import { deleteMe, getMe, logout } from '~/services/user';
+import { getClientLogoutRedirection } from '~/services/auth/get-client-logout-redirection';
+import { onProtectedRoute } from '~/services/auth/on-protected-route';
+import { getClientRequestSender } from '~/services/requests/get-client.request-sender';
+import { getServerRequestSender } from '~/services/requests/get-server-request-sender';
+import { getClientTokenStorage } from '~/services/tokens/get-client-token-storage';
+import { deleteMe } from '~/services/user/delete-me';
+import { getMe } from '~/services/user/get-me';
+import { logout } from '~/services/user/logout';
 
 import { ChangePasswordForm } from './change-password-form';
 import {

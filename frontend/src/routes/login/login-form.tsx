@@ -10,11 +10,11 @@ import {
 import { inlineTranslate, useSpeakContext, useTranslate } from 'qwik-speak';
 
 import { TextInput } from '~/components/text-input/text-input';
-import { isProblemPresent } from '~/libs/api/errors';
-import { RouteURL } from '~/libs/api/urls';
-import { getClientRequestSender } from '~/services/requests';
-import { getClientTokenStorage } from '~/services/storage';
-import { login } from '~/services/user';
+import { isProblemPresent } from '~/libs/api/is-problem-present';
+import { RouteURL } from '~/libs/api/route-url';
+import { getClientRequestSender } from '~/services/requests/get-client.request-sender';
+import { getClientTokenStorage } from '~/services/tokens/get-client-token-storage';
+import { login } from '~/services/user/login';
 
 type LoginFormSchema = {
   email: string;
