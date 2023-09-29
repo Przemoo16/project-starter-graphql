@@ -1,6 +1,6 @@
 import { expect, test } from 'vitest';
 
-import { isProblemPresent } from './errors';
+import { isProblemPresent } from './is-problem-present';
 
 test(`[isProblemPresent function]: finds specified problem`, () => {
   const problems = [

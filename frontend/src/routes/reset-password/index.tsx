@@ -2,7 +2,7 @@ import { component$ } from '@builder.io/qwik';
 import { type DocumentHead, Link } from '@builder.io/qwik-city';
 import { Speak, useTranslate } from 'qwik-speak';
 
-import { RouteURL } from '~/libs/api/urls';
+import { RouteURL } from '~/libs/api/route-url';
 
 import { ResetPasswordForm } from './reset-password-form';
 

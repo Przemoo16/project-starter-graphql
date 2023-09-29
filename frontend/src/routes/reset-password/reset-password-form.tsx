@@ -15,8 +15,8 @@ import { inlineTranslate, useSpeakContext, useTranslate } from 'qwik-speak';
 
 import { TextInput } from '~/components/text-input/text-input';
 import { MIN_PASSWORD_LENGTH } from '~/routes/schema-config';
-import { getClientRequestSender } from '~/services/requests';
-import { resetPassword } from '~/services/user';
+import { getClientRequestSender } from '~/services/requests/get-client.request-sender';
+import { resetPassword } from '~/services/user/reset-password';
 
 type ResetPasswordFormSchema = {
   password: string;

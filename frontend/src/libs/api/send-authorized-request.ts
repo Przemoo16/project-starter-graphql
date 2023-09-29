@@ -1,44 +1,12 @@
-import { GraphQLError } from './errors';
+import { GraphQLError } from '~/libs/api/graphql-error';
 
-export type Fetcher = (
-  url: string,
-  config: {
-    method?: string;
-    body?: string;
-    headers?: Record<string, string>;
-  },
-) => Promise<any>;
+import { type Fetcher, type RequestConfig, sendRequest } from './send-request';
 
-export interface RequestConfig {
-  query?: string;
-  variables?: Record<string, unknown>;
-  headers?: Record<string, string>;
-}
-
-export interface AuthorizedRequestProps extends Omit<RequestConfig, 'headers'> {
+interface AuthorizedRequestProps extends Omit<RequestConfig, 'headers'> {
   onGetAuthHeader?: () => Record<string, string>;
   onUnauthorized?: () => Promise<void>;
   onInvalidTokens?: () => void;
 }
-
-export const sendRequest = async (
-  onFetch: Fetcher,
-  url: string,
-  { query, variables, headers }: RequestConfig = {},
-): Promise<Record<string, any>> => {
-  const { data, errors } = await onFetch(url, {
-    method: 'POST',
-    body: JSON.stringify({
-      query,
-      variables,
-    }),
-    headers: { 'Content-Type': 'application/json', ...(headers ?? {}) },
-  });
-  if (errors) {
-    throw new GraphQLError(errors);
-  }
-  return data;
-};
 
 export const sendAuthorizedRequest = async (
   onFetch: Fetcher,

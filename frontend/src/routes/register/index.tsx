@@ -6,8 +6,8 @@ import {
 } from '@builder.io/qwik-city';
 import { Speak, useTranslate } from 'qwik-speak';
 
-import { RouteURL } from '~/libs/api/urls';
-import { onOnlyAnonymousRoute } from '~/services/auth';
+import { RouteURL } from '~/libs/api/route-url';
+import { onOnlyAnonymousRoute } from '~/services/auth/on-only-anonymous-route';
 
 import { RegisterForm } from './register-form';
 

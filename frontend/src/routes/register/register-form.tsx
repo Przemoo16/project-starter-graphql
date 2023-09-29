@@ -15,13 +15,13 @@ import {
 import { inlineTranslate, useSpeakContext, useTranslate } from 'qwik-speak';
 
 import { TextInput } from '~/components/text-input/text-input';
-import { isProblemPresent } from '~/libs/api/errors';
+import { isProblemPresent } from '~/libs/api/is-problem-present';
 import {
   MAX_FULL_NAME_LENGTH,
   MIN_PASSWORD_LENGTH,
 } from '~/routes/schema-config';
-import { getClientRequestSender } from '~/services/requests';
-import { register } from '~/services/user';
+import { getClientRequestSender } from '~/services/requests/get-client.request-sender';
+import { register } from '~/services/user/register';
 
 type RegisterFormSchema = {
   fullName: string;

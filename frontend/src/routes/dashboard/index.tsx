@@ -2,9 +2,10 @@ import { $, component$, useSignal } from '@builder.io/qwik';
 import { type DocumentHead, type RequestEvent } from '@builder.io/qwik-city';
 import { Speak, useTranslate } from 'qwik-speak';
 
-import { getClientLogoutRedirection, onProtectedRoute } from '~/services/auth';
-import { getClientTokenStorage } from '~/services/storage';
-import { logout } from '~/services/user';
+import { getClientLogoutRedirection } from '~/services/auth/get-client-logout-redirection';
+import { onProtectedRoute } from '~/services/auth/on-protected-route';
+import { getClientTokenStorage } from '~/services/tokens/get-client-token-storage';
+import { logout } from '~/services/user/logout';
 
 export const head: DocumentHead = {
   title: 'runtime.dashboard.head.title',

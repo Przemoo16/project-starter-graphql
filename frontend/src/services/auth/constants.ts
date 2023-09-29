@@ -1,0 +1,1 @@
+export const REDIRECTION_STATUS_CODE = 302;

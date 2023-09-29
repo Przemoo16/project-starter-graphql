@@ -2,10 +2,10 @@ import { component$ } from '@builder.io/qwik';
 import { type DocumentHead, Link, routeLoader$ } from '@builder.io/qwik-city';
 import { Speak, useTranslate } from 'qwik-speak';
 
-import { isProblemPresent } from '~/libs/api/errors';
-import { RouteURL } from '~/libs/api/urls';
-import { getServerRequestSender } from '~/services/requests';
-import { confirmEmail } from '~/services/user';
+import { isProblemPresent } from '~/libs/api/is-problem-present';
+import { RouteURL } from '~/libs/api/route-url';
+import { getServerRequestSender } from '~/services/requests/get-server-request-sender';
+import { confirmEmail } from '~/services/user/confirm-email';
 
 export const head: DocumentHead = {
   title: 'runtime.confirmEmail.head.title',

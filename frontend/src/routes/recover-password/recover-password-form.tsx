@@ -10,8 +10,8 @@ import {
 import { inlineTranslate, useSpeakContext, useTranslate } from 'qwik-speak';
 
 import { TextInput } from '~/components/text-input/text-input';
-import { getClientRequestSender } from '~/services/requests';
-import { recoverPassword } from '~/services/user';
+import { getClientRequestSender } from '~/services/requests/get-client.request-sender';
+import { recoverPassword } from '~/services/user/recover-password';
 
 type RecoverPasswordFormSchema = {
   email: string;
