@@ -9,14 +9,14 @@ from backend.libs.security.token import (
 
 def test_create_and_read_paseto_token() -> None:
     private_key = (
-        "-----BEGIN PRIVATE KEY-----\n"
-        "MC4CAQAwBQYDK2VwBCIEICT9X3zKdFe6HxcwF1oisi7s0nLxwCTEDfhLfau7Vvsm\n"
-        "-----END PRIVATE KEY-----\n"
+        b"-----BEGIN PRIVATE KEY-----\n"
+        b"MC4CAQAwBQYDK2VwBCIEICT9X3zKdFe6HxcwF1oisi7s0nLxwCTEDfhLfau7Vvsm\n"
+        b"-----END PRIVATE KEY-----\n"
     )
     public_key = (
-        "-----BEGIN PUBLIC KEY-----\n"
-        "MCowBQYDK2VwAyEAKFjjyzUcQaSCom09ZZCNuIVqAreu03jRa72OLvmSkWI=\n"
-        "-----END PUBLIC KEY-----\n"
+        b"-----BEGIN PUBLIC KEY-----\n"
+        b"MCowBQYDK2VwAyEAKFjjyzUcQaSCom09ZZCNuIVqAreu03jRa72OLvmSkWI=\n"
+        b"-----END PUBLIC KEY-----\n"
     )
 
     token = create_paseto_token_public_v4(
@@ -33,14 +33,14 @@ def test_create_and_read_paseto_token() -> None:
 
 def test_read_paseto_token_invalid_token() -> None:
     private_key = (
-        "-----BEGIN PRIVATE KEY-----\n"
-        "MC4CAQAwBQYDK2VwBCIEICT9X3zKdFe6HxcwF1oisi7s0nLxwCTEDfhLfau7Vvsm\n"
-        "-----END PRIVATE KEY-----\n"
+        b"-----BEGIN PRIVATE KEY-----\n"
+        b"MC4CAQAwBQYDK2VwBCIEICT9X3zKdFe6HxcwF1oisi7s0nLxwCTEDfhLfau7Vvsm\n"
+        b"-----END PRIVATE KEY-----\n"
     )
     public_key = (
-        "-----BEGIN PUBLIC KEY-----\n"
-        "MCowBQYDK2VwAyEAKFjjyzUcQaSCom09ZZCNuIVqAreu03jRa72OLvmSkWI=\n"
-        "-----END PUBLIC KEY-----\n"
+        b"-----BEGIN PUBLIC KEY-----\n"
+        b"MCowBQYDK2VwAyEAKFjjyzUcQaSCom09ZZCNuIVqAreu03jRa72OLvmSkWI=\n"
+        b"-----END PUBLIC KEY-----\n"
     )
 
     token = create_paseto_token_public_v4(
