@@ -71,5 +71,5 @@ async def async_client_fixture(app: FastAPI) -> AsyncGenerator[AsyncClient, None
 
 
 @pytest.fixture(name="auth_private_key", scope="session")
-def auth_private_key_fixture() -> str:
-    return user_settings.auth_private_key.get_secret_value()
+def auth_private_key_fixture() -> bytes:
+    return user_settings.auth_private_key

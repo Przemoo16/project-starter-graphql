@@ -1,52 +1,4 @@
 services:
-  proxy:
-    image: nginx:1.25
-    networks:
-      - backend
-      - frontend
-    ports:
-      - "5173:80"
-    volumes:
-      - type: bind
-        source: ./proxy/nginx.conf
-        target: /etc/nginx/conf.d/default.conf
-    depends_on:
-      - backend
-      - frontend
-
-  frontend:
-    image: "${FRONTEND_IMAGE}"
-    build:
-      context: ./frontend
-      target: dev
-    networks:
-      - frontend
-    volumes:
-      - type: bind
-        source: ./frontend
-        target: /opt/app
-      # Ignore node_modules from the host when using bind mounts by applying the named volume
-      - type: volume
-        source: node_modules
-        target: /opt/app/node_modules
-
-  backend:
-    image: "${BACKEND_IMAGE}"
-    build:
-      context: ./backend
-      target: dev
-    networks:
-      - backend
-    volumes:
-      - type: bind
-        source: ./backend
-        target: /opt/app
-    depends_on:
-      db:
-        condition: service_healthy
-    env_file:
-      - .env
-
   db:
     image: postgres:15.4
     networks:
@@ -88,6 +40,55 @@ services:
       - backend
     ports:
       - "6379:6379"
+
+  frontend:
+    image: "${FRONTEND_IMAGE}"
+    build:
+      context: ./frontend
+      target: dev
+    networks:
+      - frontend
+    volumes:
+      - type: bind
+        source: ./frontend
+        target: /opt/app
+      # Ignore node_modules from the host when using bind mounts by applying the named volume
+      - type: volume
+        source: node_modules
+        target: /opt/app/node_modules
+
+  backend:
+    image: "${BACKEND_IMAGE}"
+    build:
+      context: ./backend
+      target: dev
+    networks:
+      - backend
+    volumes:
+      - type: bind
+        source: ./backend
+        target: /opt/app
+    depends_on:
+      db:
+        condition: service_healthy
+    env_file:
+      - .env
+
+  proxy:
+    build:
+      context: ./proxy
+    networks:
+      - backend
+      - frontend
+    ports:
+      - "5173:80"
+    volumes:
+      - type: bind
+        source: ./proxy/nginx.conf
+        target: /etc/nginx/conf.d/default.conf
+    depends_on:
+      - backend
+      - frontend
 
   celery-worker:
     image: "${BACKEND_IMAGE}"

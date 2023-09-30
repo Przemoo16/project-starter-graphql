@@ -1,7 +1,11 @@
 import pulumi
 from helpers.date import get_utc_timestamp
 from helpers.hash import generate_hash
-from helpers.string import create_image_name, create_redis_url
+from helpers.string import (
+    create_image_name,
+    create_redis_url,
+    create_token_url_template,
+)
 from modules.alb import ALB, ALBArgs
 from modules.ecr import create_ecr_repository
 from modules.ecs import ECSService, ECSServiceArgs, create_ecs_cluster
@@ -15,6 +19,7 @@ config = pulumi.Config()
 
 frontend_repository = create_ecr_repository(config.require("frontend_repository_name"))
 backend_repository = create_ecr_repository(config.require("backend_repository_name"))
+proxy_repository = create_ecr_repository(config.require("proxy_repository_name"))
 
 vpc = create_vpc("vpc")
 
@@ -51,10 +56,10 @@ cache = ElastiCache(
 )
 
 lb = ALB(
-    "frontend-lb",
+    "lb",
     ALBArgs(
         vpc_id=vpc.vpc_id,
-        target_port=config.require_int("frontend_container_port"),
+        target_port=config.require_int("proxy_container_port"),
         subnet_ids=vpc.public_subnet_ids,
     ),
 )
@@ -74,11 +79,10 @@ frontend_service = ECSService(
             frontend_repository.url, config.require("frontend_image_tag")
         ),
         container_port=config.require_int("frontend_container_port"),
-        target_group=lb.target_group,
     ),
 )
 
-backend_environment = {
+backend_environment: dict[str, pulumi.Input[str]] = {
     "DB__PASSWORD": config.require_secret("database_password"),
     "DB__USERNAME": database.username,
     "DB__NAME": database.name,
@@ -86,6 +90,19 @@ backend_environment = {
     "DB__PORT": database.port.apply(str),
     "CELERY__BROKER_URL": create_redis_url(cache.endpoint),
     "CELERY__RESULT_BACKEND": create_redis_url(cache.endpoint),
+    "USER__EMAIL_CONFIRMATION_URL_TEMPLATE": create_token_url_template(
+        lb.dns_name, "/confirm-email"
+    ),
+    "USER__RESET_PASSWORD_URL_TEMPLATE": create_token_url_template(
+        lb.dns_name, "/reset-password"
+    ),
+    "USER__AUTH_PRIVATE_KEY": config.require_secret("auth_private_key"),
+    "USER__AUTH_PUBLIC_KEY": config.require("auth_public_key"),
+    "EMAIL__SMTP_HOST": config.require("smtp_host"),
+    "EMAIL__SMTP_PORT": config.require("smtp_port"),
+    "EMAIL__SMTP_USER": config.require("smtp_user"),
+    "EMAIL__SMTP_PASSWORD": config.require_secret("smtp_password"),
+    "EMAIL__SENDER": config.require("email_sender"),
 }
 
 backend_service = ECSService(
@@ -102,6 +119,23 @@ backend_service = ECSService(
         ),
         container_port=config.require_int("backend_container_port"),
         container_environment=backend_environment,
+    ),
+)
+
+proxy_service = ECSService(
+    "proxy",
+    ECSServiceArgs(
+        cluster_arn=cluster.arn,
+        vpc_id=vpc.vpc_id,
+        subnet_ids=vpc.private_subnet_ids,
+        service_desired_count=config.require_int("proxy_service_desired_count"),
+        task_cpu=config.require("proxy_task_cpu"),
+        task_memory=config.require("proxy_task_memory"),
+        container_image=create_image_name(
+            proxy_repository.url, config.require("proxy_image_tag")
+        ),
+        container_port=config.require_int("proxy_container_port"),
+        target_group=lb.target_group,
     ),
 )
 
@@ -143,6 +177,7 @@ celery_beat_service = ECSService(
 
 pulumi.export("frontend_repository_url", frontend_repository.url)
 pulumi.export("backend_repository_url", backend_repository.url)
+pulumi.export("proxy_repository_url", proxy_repository.url)
 
 pulumi.export("vpc_id", vpc.vpc_id)
 pulumi.export("private_subnets_ids", vpc.private_subnet_ids)

@@ -13,7 +13,7 @@ TOKEN_READER = token_reader = partial(
     read_paseto_token_public_v4, key=user_settings.auth_public_key
 )
 TOKEN_CREATOR = partial(
-    create_paseto_token_public_v4, key=user_settings.auth_private_key.get_secret_value()
+    create_paseto_token_public_v4, key=user_settings.auth_private_key
 )
 PASSWORD_VALIDATOR = verify_and_update_password
 PASSWORD_HASHER = hash_password

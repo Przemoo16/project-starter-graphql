@@ -1,25 +1,4 @@
 services:
-  frontend-test:
-    image: "${FRONTEND_IMAGE}"
-    build:
-      context: ./frontend
-      target: dev
-    networks:
-      - frontend-test
-
-  backend-test:
-    image: "${BACKEND_IMAGE}"
-    build:
-      context: ./backend
-      target: dev
-    networks:
-      - backend-test
-    depends_on:
-      db-test:
-        condition: service_healthy
-    env_file:
-      - .env.test
-
   db-test:
     image: postgres:15.4
     networks:
@@ -53,6 +32,27 @@ services:
     image: redis:7.0
     networks:
       - backend-test
+
+  frontend-test:
+    image: "${FRONTEND_IMAGE}"
+    build:
+      context: ./frontend
+      target: dev
+    networks:
+      - frontend-test
+
+  backend-test:
+    image: "${BACKEND_IMAGE}"
+    build:
+      context: ./backend
+      target: dev
+    networks:
+      - backend-test
+    depends_on:
+      db-test:
+        condition: service_healthy
+    env_file:
+      - .env.test
 
   celery-worker-test:
     image: "${BACKEND_IMAGE}"
