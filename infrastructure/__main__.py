@@ -137,6 +137,7 @@ proxy_service = ECSService(
         container_port=config.require_int("proxy_container_port"),
         target_group=lb.target_group,
     ),
+    opts=pulumi.ResourceOptions(depends_on=[frontend_service, backend_service]),
 )
 
 celery_worker_service = ECSService(

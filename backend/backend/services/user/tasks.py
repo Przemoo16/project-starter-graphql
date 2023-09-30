@@ -48,7 +48,7 @@ SMTP_SERVER = SMTPServer(
 def send_confirmation_email_task(user_id: UUID, user_email: str) -> None:
     token_data = ConfirmationTokenData(user_id=user_id, user_email=user_email)
     email_data = ConfirmationEmailData(
-        url_template=str(user_settings.email_confirmation_url_template),
+        url_template=user_settings.email_confirmation_url_template,
         template_loader=load_template,
         email_sender=partial(
             send_html_email,
@@ -68,7 +68,7 @@ def send_reset_password_email_task(
 ) -> None:
     token_data = ResetPasswordTokenData(user_id=user_id, user_password=user_password)
     email_data = ResetPasswordEmailData(
-        url_template=str(user_settings.reset_password_url_template),
+        url_template=user_settings.reset_password_url_template,
         template_loader=load_template,
         email_sender=partial(
             send_html_email,
