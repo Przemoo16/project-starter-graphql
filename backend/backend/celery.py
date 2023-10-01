@@ -9,4 +9,4 @@ celery_app = Celery(
     broker=celery_settings.broker_url,
     backend=celery_settings.result_backend,
 )
-celery_app.autodiscover_tasks(["backend.services.user"])
+celery_app.autodiscover_tasks(["backend.services.monitoring", "backend.services.user"])
