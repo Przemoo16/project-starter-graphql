@@ -97,8 +97,8 @@ backend_environment: dict[str, pulumi.Input[str]] = {
     "DB__NAME": database.name,
     "DB__HOST": database.host,
     "DB__PORT": database.port.apply(str),
-    "CELERY__BROKER_URL": create_redis_url(cache.endpoint),
-    "CELERY__RESULT_BACKEND": create_redis_url(cache.endpoint),
+    "WORKER__BROKER_URL": create_redis_url(cache.endpoint),
+    "WORKER__RESULT_BACKEND": create_redis_url(cache.endpoint),
     "USER__EMAIL_CONFIRMATION_URL_TEMPLATE": create_token_url_template(
         lb.dns_name, "/confirm-email"
     ),

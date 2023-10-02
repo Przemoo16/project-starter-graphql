@@ -90,7 +90,7 @@ services:
       - backend
       - frontend
 
-  celery-worker:
+  worker:
     image: "${BACKEND_IMAGE}"
     build:
       context: ./backend
@@ -105,9 +105,9 @@ services:
       - redis
     env_file:
       - .env
-    command: "celery --app backend.celery:celery_app worker --loglevel INFO"
+    command: "celery --app backend.worker:worker_app worker --loglevel INFO"
 
-  celery-beat:
+  scheduler:
     image: "${BACKEND_IMAGE}"
     build:
       context: ./backend
@@ -122,7 +122,7 @@ services:
       - redis
     env_file:
       - .env
-    command: "celery --app backend.celery:celery_app beat --loglevel INFO"
+    command: "celery --app backend.worker:worker_app beat --loglevel INFO"
 
   flower:
     image: "${BACKEND_IMAGE}"
@@ -141,7 +141,7 @@ services:
       - redis
     env_file:
       - .env
-    command: "celery --app backend.celery:celery_app flower"
+    command: "celery --app backend.worker:worker_app flower"
 
 networks:
   frontend:

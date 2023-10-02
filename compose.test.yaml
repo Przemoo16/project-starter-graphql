@@ -54,7 +54,7 @@ services:
     env_file:
       - .env.test
 
-  celery-worker-test:
+  worker-test:
     image: "${BACKEND_IMAGE}"
     build:
       context: ./backend
@@ -65,9 +65,9 @@ services:
       - redis-test
     env_file:
       - .env.test
-    command: "celery --app backend.celery:celery_app worker --loglevel INFO"
+    command: "celery --app backend.worker:worker_app worker --loglevel INFO"
 
-  celery-beat-test:
+  scheduler-test:
     image: "${BACKEND_IMAGE}"
     build:
       context: ./backend
@@ -78,7 +78,7 @@ services:
       - redis-test
     env_file:
       - .env.test
-    command: "celery --app backend.celery:celery_app beat --loglevel INFO"
+    command: "celery --app backend.worker:worker_app beat --loglevel INFO"
 
 networks:
   frontend-test:
