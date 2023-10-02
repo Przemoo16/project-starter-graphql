@@ -1,6 +1,6 @@
 from pydantic import BaseModel
 
 
-class CelerySettings(BaseModel):
+class WorkerSettings(BaseModel):
     broker_url: str
     result_backend: str

@@ -2,7 +2,6 @@ import logging
 from functools import partial
 from uuid import UUID
 
-from backend.celery import celery_app
 from backend.config.settings import get_settings
 from backend.libs.email.message import (
     EmailParticipants,
@@ -21,6 +20,7 @@ from backend.services.user.operations.password import (
     ResetPasswordTokenData,
     send_reset_password_email,
 )
+from backend.worker import worker_app
 
 logger = logging.getLogger(__name__)
 
@@ -44,7 +44,7 @@ SMTP_SERVER = SMTPServer(
 )
 
 
-@celery_app.task  # type: ignore[misc]
+@worker_app.task  # type: ignore[misc]
 def send_confirmation_email_task(user_id: UUID, user_email: str) -> None:
     token_data = ConfirmationTokenData(user_id=user_id, user_email=user_email)
     email_data = ConfirmationEmailData(
@@ -62,7 +62,7 @@ def send_confirmation_email_task(user_id: UUID, user_email: str) -> None:
     logger.info("Sent confirmation email to %r", user_email)
 
 
-@celery_app.task  # type: ignore[misc]
+@worker_app.task  # type: ignore[misc]
 def send_reset_password_email_task(
     user_id: UUID, user_email: str, user_password: str
 ) -> None:
