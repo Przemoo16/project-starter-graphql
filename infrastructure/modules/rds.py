@@ -69,7 +69,7 @@ class RDS(pulumi.ComponentResource):
 
         self._database = aws.rds.Instance(
             name,
-            name=args.name,
+            db_name=args.name,
             port=args.port,
             engine=args.engine,
             engine_version=args.engine_version,

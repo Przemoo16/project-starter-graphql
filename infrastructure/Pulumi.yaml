@@ -51,10 +51,6 @@ config:
     description: Instance class to be used.
     default: cache.t3.micro
 
-  frontend_repository_name:
-    type: string
-    description: Name of the frontend repository.
-    default: project-starter-graphql-frontend
   frontend_image_tag:
     type: string
     description: The frontend image tag.
@@ -76,10 +72,6 @@ config:
     description: Exposed port of the frontend container.
     default: 80
 
-  backend_repository_name:
-    type: string
-    description: Name of the backend repository.
-    default: project-starter-graphql-backend
   backend_image_tag:
     type: string
     description: The backend image tag.
@@ -101,10 +93,6 @@ config:
     description: Exposed port of the backend container.
     default: 80
 
-  proxy_repository_name:
-    type: string
-    description: Name of the proxy repository.
-    default: project-starter-graphql-proxy
   proxy_image_tag:
     type: string
     description: The proxy image tag.
