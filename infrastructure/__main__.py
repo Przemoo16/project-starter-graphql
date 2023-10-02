@@ -8,7 +8,12 @@ from helpers.string import (
 )
 from modules.alb import ALB, ALBArgs
 from modules.ecr import create_ecr_repository
-from modules.ecs import ECSService, ECSServiceArgs, create_ecs_cluster
+from modules.ecs import (
+    ECSService,
+    ECSServiceArgs,
+    create_ecs_cluster,
+    create_private_dns_namespace,
+)
 from modules.elasticache import ElastiCache, ElastiCacheArgs
 from modules.network import create_vpc
 from modules.rds import RDS, RDSArgs
@@ -22,6 +27,7 @@ backend_repository = create_ecr_repository(config.require("backend_repository_na
 proxy_repository = create_ecr_repository(config.require("proxy_repository_name"))
 
 vpc = create_vpc("vpc")
+
 
 database = RDS(
     "database",
@@ -66,11 +72,14 @@ lb = ALB(
 
 cluster = create_ecs_cluster("ecs-cluster")
 
+private_dns_namespace = create_private_dns_namespace("local", vpc.vpc_id)
+
 frontend_service = ECSService(
     "frontend",
     ECSServiceArgs(
         cluster_arn=cluster.arn,
         vpc_id=vpc.vpc_id,
+        dns_namespace_id=private_dns_namespace.id,
         subnet_ids=vpc.private_subnet_ids,
         service_desired_count=config.require_int("frontend_service_desired_count"),
         task_cpu=config.require("frontend_task_cpu"),
@@ -110,6 +119,7 @@ backend_service = ECSService(
     ECSServiceArgs(
         cluster_arn=cluster.arn,
         vpc_id=vpc.vpc_id,
+        dns_namespace_id=private_dns_namespace.id,
         subnet_ids=vpc.private_subnet_ids,
         service_desired_count=config.require_int("backend_service_desired_count"),
         task_cpu=config.require("backend_task_cpu"),
@@ -122,11 +132,12 @@ backend_service = ECSService(
     ),
 )
 
-proxy_service = ECSService(
+ECSService(
     "proxy",
     ECSServiceArgs(
         cluster_arn=cluster.arn,
         vpc_id=vpc.vpc_id,
+        dns_namespace_id=private_dns_namespace.id,
         subnet_ids=vpc.private_subnet_ids,
         service_desired_count=config.require_int("proxy_service_desired_count"),
         task_cpu=config.require("proxy_task_cpu"),
@@ -140,41 +151,44 @@ proxy_service = ECSService(
     opts=pulumi.ResourceOptions(depends_on=[frontend_service, backend_service]),
 )
 
-celery_worker_service = ECSService(
-    "celery-worker",
+ECSService(
+    "worker",
     ECSServiceArgs(
         cluster_arn=cluster.arn,
         vpc_id=vpc.vpc_id,
+        dns_namespace_id=private_dns_namespace.id,
         subnet_ids=vpc.private_subnet_ids,
-        service_desired_count=config.require_int("celery_worker_service_desired_count"),
-        task_cpu=config.require("celery_worker_task_cpu"),
-        task_memory=config.require("celery_worker_task_memory"),
+        service_desired_count=config.require_int("worker_service_desired_count"),
+        task_cpu=config.require("worker_task_cpu"),
+        task_memory=config.require("worker_task_memory"),
         container_image=create_image_name(
             backend_repository.url, config.require("backend_image_tag")
         ),
-        container_port=config.require_int("celery_worker_container_port"),
-        container_command=config.require_object("celery_worker_container_command"),
+        container_port=config.require_int("worker_container_port"),
+        container_command=config.require_object("worker_container_command"),
         container_environment=backend_environment,
     ),
 )
 
-celery_beat_service = ECSService(
-    "celery-beat",
-    ECSServiceArgs(
-        cluster_arn=cluster.arn,
-        vpc_id=vpc.vpc_id,
-        subnet_ids=vpc.private_subnet_ids,
-        service_desired_count=config.require_int("celery_beat_service_desired_count"),
-        task_cpu=config.require("celery_beat_task_cpu"),
-        task_memory=config.require("celery_beat_task_memory"),
-        container_image=create_image_name(
-            backend_repository.url, config.require("backend_image_tag")
+if config.require_bool("scheduler_service_enabled"):
+    ECSService(
+        "scheduler",
+        ECSServiceArgs(
+            cluster_arn=cluster.arn,
+            vpc_id=vpc.vpc_id,
+            dns_namespace_id=private_dns_namespace.id,
+            subnet_ids=vpc.private_subnet_ids,
+            service_desired_count=config.require_int("scheduler_service_desired_count"),
+            task_cpu=config.require("scheduler_task_cpu"),
+            task_memory=config.require("scheduler_task_memory"),
+            container_image=create_image_name(
+                backend_repository.url, config.require("backend_image_tag")
+            ),
+            container_port=config.require_int("scheduler_container_port"),
+            container_command=config.require_object("scheduler_container_command"),
+            container_environment=backend_environment,
         ),
-        container_port=config.require_int("celery_beat_container_port"),
-        container_command=config.require_object("celery_beat_container_command"),
-        container_environment=backend_environment,
-    ),
-)
+    )
 
 pulumi.export("frontend_repository_url", frontend_repository.url)
 pulumi.export("backend_repository_url", backend_repository.url)
@@ -183,6 +197,8 @@ pulumi.export("proxy_repository_url", proxy_repository.url)
 pulumi.export("vpc_id", vpc.vpc_id)
 pulumi.export("private_subnets_ids", vpc.private_subnet_ids)
 pulumi.export("public_subnets_ids", vpc.public_subnet_ids)
+
+pulumi.export("private_dns_namespace_id", private_dns_namespace.id)
 
 pulumi.export("database_endpoint", database.endpoint)
 
