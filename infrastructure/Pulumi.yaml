@@ -114,25 +114,25 @@ config:
     description: Exposed port of the proxy container.
     default: 80
 
-  celery_worker_service_desired_count:
+  worker_service_desired_count:
     type: integer
-    description: Number of instances of the celery worker task to place and keep running.
+    description: Number of instances of the worker task to place and keep running.
     default: 1
-  celery_worker_task_cpu:
+  worker_task_cpu:
     type: string
-    description: The hard limit of CPU units to present for the celery worker task.
+    description: The hard limit of CPU units to present for the worker task.
     default: "1024"
-  celery_worker_task_memory:
+  worker_task_memory:
     type: string
-    description: The hard limit of memory (in MiB) to present to the celery worker task.
+    description: The hard limit of memory (in MiB) to present to the worker task.
     default: "2048"
-  celery_worker_container_port:
+  worker_container_port:
     type: integer
-    description: Exposed port of the celery worker container.
+    description: Exposed port of the worker container.
     default: 80
-  celery_worker_container_command:
+  worker_container_command:
     type: array
-    description: The command that's passed to the celery worker container.
+    description: The command that's passed to the worker container.
     items:
       type: string
     default:
@@ -143,25 +143,29 @@ config:
       - --loglevel
       - INFO
 
-  celery_beat_service_desired_count:
+  scheduler_service_enabled:
+    type: boolean
+    description: Enable scheduler service.
+    default: false # Disabled scheduler as currently there are no scheduled tasks
+  scheduler_service_desired_count:
     type: integer
-    description: Number of instances of the celery beat task to place and keep running.
-    default: 0 # Disabled celery beat as currently there are no scheduled tasks
-  celery_beat_task_cpu:
+    description: Number of instances of the scheduler task to place and keep running.
+    default: 1
+  scheduler_task_cpu:
     type: string
-    description: The hard limit of CPU units to present for the celery beat task.
+    description: The hard limit of CPU units to present for the scheduler task.
     default: "1024"
-  celery_beat_task_memory:
+  scheduler_task_memory:
     type: string
-    description: The hard limit of memory (in MiB) to present to the celery beat task.
+    description: The hard limit of memory (in MiB) to present to the scheduler task.
     default: "2048"
-  celery_beat_container_port:
+  scheduler_container_port:
     type: integer
-    description: Exposed port of the celery beat container.
+    description: Exposed port of the scheduler container.
     default: 80
-  celery_beat_container_command:
+  scheduler_container_command:
     type: array
-    description: The command that's passed to the celery beat container.
+    description: The command that's passed to the scheduler container.
     items:
       type: string
     default:
@@ -171,3 +175,12 @@ config:
       - beat
       - --loglevel
       - INFO
+
+  email_sender:
+    type: string
+    description: The email address to send emails.
+    default: test@email.com
+  smtp_port:
+    type: integer
+    description: SMTP port.
+    default: 587

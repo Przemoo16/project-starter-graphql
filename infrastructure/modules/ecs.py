@@ -10,10 +10,18 @@ def create_ecs_cluster(name: str) -> aws.ecs.Cluster:
     return aws.ecs.Cluster(name)
 
 
+def create_private_dns_namespace(
+    name: str,
+    vpc_id: pulumi.Input[str],
+) -> aws.servicediscovery.PrivateDnsNamespace:
+    return aws.servicediscovery.PrivateDnsNamespace(name, vpc=vpc_id)
+
+
 @dataclass
 class ECSServiceArgs:
     cluster_arn: pulumi.Input[str]
     vpc_id: pulumi.Input[str]
+    dns_namespace_id: pulumi.Input[str]
     subnet_ids: pulumi.Input[Sequence[pulumi.Input[str]]]
     service_desired_count: pulumi.Input[int]
     task_cpu: pulumi.Input[str]
@@ -56,9 +64,26 @@ class ECSService(pulumi.ComponentResource):
             opts=pulumi.ResourceOptions(parent=self),
         )
 
+        service_discovery_service = aws.servicediscovery.Service(
+            name,
+            dns_config=aws.servicediscovery.ServiceDnsConfigArgs(
+                namespace_id=args.dns_namespace_id,
+                dns_records=[
+                    aws.servicediscovery.ServiceDnsConfigDnsRecordArgs(
+                        ttl=10,
+                        type="A",
+                    )
+                ],
+                routing_policy="MULTIVALUE",
+            ),
+        )
+
         awsx.ecs.FargateService(
             name,
             cluster=args.cluster_arn,
+            service_registries=aws.ecs.ServiceServiceRegistriesArgs(
+                registry_arn=service_discovery_service.arn, container_name=name
+            ),
             network_configuration=aws.ecs.ServiceNetworkConfigurationArgs(
                 subnets=args.subnet_ids,
                 security_groups=[security_group.id],
@@ -71,11 +96,11 @@ class ECSService(pulumi.ComponentResource):
                     name=name,
                     image=args.container_image,
                     essential=True,
-                    port_mappings=get_port_mappings(
+                    port_mappings=_get_port_mappings(
                         args.target_group, args.container_port
                     ),
                     command=args.container_command,
-                    environment=convert_container_environment(
+                    environment=_convert_container_environment(
                         args.container_environment
                     ),
                 ),
@@ -86,11 +111,12 @@ class ECSService(pulumi.ComponentResource):
         self.register_outputs(
             {
                 "security_group_id": security_group.id,
+                "service_discovery_service_id": service_discovery_service.id,
             }
         )
 
 
-def get_port_mappings(
+def _get_port_mappings(
     target_group: pulumi.Input[aws.lb.TargetGroup] | None,
     container_port: pulumi.Input[int],
 ) -> list[awsx.ecs.TaskDefinitionPortMappingArgs]:
@@ -102,7 +128,7 @@ def get_port_mappings(
     ]
 
 
-def convert_container_environment(
+def _convert_container_environment(
     environment: Mapping[str, pulumi.Input[str]] | None
 ) -> list[awsx.ecs.TaskDefinitionKeyValuePairArgs] | None:
     if not environment:
