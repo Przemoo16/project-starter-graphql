@@ -48,7 +48,7 @@ class RDS(pulumi.ComponentResource):
         super().__init__("modules:rds:RDS", name, {}, opts)
 
         security_group = aws.ec2.SecurityGroup(
-            f"{name}-security-group",
+            name,
             vpc_id=args.vpc_id,
             ingress=[
                 aws.ec2.SecurityGroupIngressArgs(
@@ -62,13 +62,13 @@ class RDS(pulumi.ComponentResource):
         )
 
         subnet_group = aws.rds.SubnetGroup(
-            f"{name}-subnet-group",
+            name,
             subnet_ids=args.subnet_ids,
             opts=pulumi.ResourceOptions(parent=self),
         )
 
         self._database = aws.rds.Instance(
-            f"{name}-instance",
+            name,
             name=args.name,
             port=args.port,
             engine=args.engine,

@@ -28,7 +28,7 @@ class ALB(pulumi.ComponentResource):
         super().__init__("modules:alb:ALB", name, {}, opts)
 
         security_group = aws.ec2.SecurityGroup(
-            f"{name}-security-group",
+            name,
             vpc_id=args.vpc_id,
             ingress=[
                 aws.ec2.SecurityGroupIngressArgs(
@@ -50,7 +50,7 @@ class ALB(pulumi.ComponentResource):
         )
 
         self._alb = awsx.lb.ApplicationLoadBalancer(
-            f"{name}-alb",
+            name,
             security_groups=[security_group.id],
             subnet_ids=args.subnet_ids,
             default_target_group_port=args.target_port,

@@ -35,7 +35,7 @@ class ECSService(pulumi.ComponentResource):
         super().__init__("modules:ecs:ECSService", name, {}, opts)
 
         security_group = aws.ec2.SecurityGroup(
-            f"{name}-security-group",
+            name,
             vpc_id=args.vpc_id,
             ingress=[
                 aws.ec2.SecurityGroupIngressArgs(
@@ -56,8 +56,8 @@ class ECSService(pulumi.ComponentResource):
             opts=pulumi.ResourceOptions(parent=self),
         )
 
-        self.service = awsx.ecs.FargateService(
-            f"{name}-service",
+        awsx.ecs.FargateService(
+            name,
             cluster=args.cluster_arn,
             network_configuration=aws.ecs.ServiceNetworkConfigurationArgs(
                 subnets=args.subnet_ids,

@@ -29,7 +29,7 @@ class ElastiCache(pulumi.ComponentResource):
         super().__init__("modules:elasticache:ElastiCache", name, {}, opts)
 
         security_group = aws.ec2.SecurityGroup(
-            f"{name}-security-group",
+            name,
             vpc_id=args.vpc_id,
             ingress=[
                 aws.ec2.SecurityGroupIngressArgs(
@@ -43,13 +43,13 @@ class ElastiCache(pulumi.ComponentResource):
         )
 
         subnet_group = aws.elasticache.SubnetGroup(
-            f"{name}-subnet-group",
+            name,
             subnet_ids=args.subnet_ids,
             opts=pulumi.ResourceOptions(parent=self),
         )
 
         self._cache = aws.elasticache.ReplicationGroup(
-            f"{name}-replication-group",
+            name,
             port=args.port,
             description=args.description,
             engine_version=args.engine_version,
