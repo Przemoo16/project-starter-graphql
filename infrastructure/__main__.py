@@ -22,9 +22,9 @@ project = pulumi.get_project()
 stack = pulumi.get_stack()
 config = pulumi.Config()
 
-frontend_repository = create_ecr_repository(config.require("frontend_repository_name"))
-backend_repository = create_ecr_repository(config.require("backend_repository_name"))
-proxy_repository = create_ecr_repository(config.require("proxy_repository_name"))
+frontend_repository = create_ecr_repository("frontend")
+backend_repository = create_ecr_repository("backend")
+proxy_repository = create_ecr_repository("proxy")
 
 vpc = create_vpc("vpc")
 
