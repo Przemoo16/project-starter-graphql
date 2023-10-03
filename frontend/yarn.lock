@@ -260,10 +260,10 @@
     unist-util-visit "^4.0.0"
     vfile "^5.0.0"
 
-"@modular-forms/qwik@^0.20.2":
-  version "0.20.2"
-  resolved "https://registry.yarnpkg.com/@modular-forms/qwik/-/qwik-0.20.2.tgz#1029d0f7741eed989d9c4579620a782834b44f70"
-  integrity sha512-8wmud+Ds0f4x+kqjFZfT5OeQKHUzNA76G5IMuLGPmpXMclP1AWsG2fHWpc6B07agyoTA5605XpmYEUbjaHWLQg==
+"@modular-forms/qwik@^0.21.0":
+  version "0.21.0"
+  resolved "https://registry.yarnpkg.com/@modular-forms/qwik/-/qwik-0.21.0.tgz#d8cb1b1cc2903cc162dc2f277668361225fb644c"
+  integrity sha512-PJnGnXfAI9JStXZbgAByGOsTTuSkVhjb8FRDgrdHa33zoHOvC5PkA2ymxN7JK1LodKd4FC3c7ZlFv5goYFCKDA==
 
 "@nodelib/fs.scandir@2.1.5":
   version "2.1.5"
