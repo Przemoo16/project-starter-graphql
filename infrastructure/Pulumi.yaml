@@ -93,6 +93,10 @@ config:
     description: Exposed port of the backend container.
     default: 80
 
+  proxy_health_check_path:
+    type: string
+    description: Destination for the health check request.
+    default: /rest/monitoring/health
   proxy_image_tag:
     type: string
     description: The proxy image tag.
@@ -146,7 +150,7 @@ config:
   scheduler_service_enabled:
     type: boolean
     description: Enable scheduler service.
-    default: false # Disabled scheduler as currently there are no scheduled tasks
+    default: false # Disable scheduler as currently there are no scheduled tasks
   scheduler_service_desired_count:
     type: integer
     description: Number of instances of the scheduler task to place and keep running.

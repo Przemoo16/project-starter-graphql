@@ -62,7 +62,7 @@ class ElastiCache(pulumi.ComponentResource):
         self.register_outputs(
             {
                 "security_group_id": security_group.id,
-                "subnet_group_id": subnet_group.id,
-                "endpoint": self.endpoint,
+                "subnet_group_name": subnet_group.name,
+                "endpoint": self._cache.primary_endpoint_address,
             }
         )
