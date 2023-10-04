@@ -11,12 +11,13 @@ class ALBArgs:
     vpc_id: pulumi.Input[str]
     target_port: pulumi.Input[int]
     subnet_ids: pulumi.Input[Sequence[pulumi.Input[str]]]
+    health_check_path: pulumi.Input[str]
 
 
 class ALB(pulumi.ComponentResource):
     @property
-    def target_group(self) -> pulumi.Output[aws.lb.TargetGroup]:
-        return self._alb.default_target_group  # type: ignore[no-any-return]
+    def target_group(self) -> aws.lb.TargetGroup:
+        return self._target_group
 
     @property
     def dns_name(self) -> pulumi.Output[str]:
@@ -49,17 +50,37 @@ class ALB(pulumi.ComponentResource):
             opts=pulumi.ResourceOptions(parent=self),
         )
 
+        self._target_group = aws.lb.TargetGroup(
+            name,
+            port=args.target_port,
+            protocol="HTTP",
+            target_type="ip",
+            vpc_id=args.vpc_id,
+            health_check=aws.lb.TargetGroupHealthCheckArgs(path=args.health_check_path),
+            opts=pulumi.ResourceOptions(parent=self),
+        )
+
         self._alb = awsx.lb.ApplicationLoadBalancer(
             name,
             security_groups=[security_group.id],
             subnet_ids=args.subnet_ids,
-            default_target_group_port=args.target_port,
+            listener=awsx.lb.ListenerArgs(
+                port=80,
+                protocol="HTTP",
+                default_actions=[
+                    aws.lb.ListenerDefaultActionArgs(
+                        type="forward",
+                        target_group_arn=self._target_group.arn,
+                    )
+                ],
+            ),
             opts=pulumi.ResourceOptions(parent=self),
         )
 
         self.register_outputs(
             {
                 "security_group_id": security_group.id,
-                "dns_name": self.dns_name,
+                "target_group_arn": self._target_group.arn,
+                "dns_name": self._alb.load_balancer.dns_name,
             }
         )

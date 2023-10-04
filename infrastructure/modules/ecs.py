@@ -76,6 +76,7 @@ class ECSService(pulumi.ComponentResource):
                 ],
                 routing_policy="MULTIVALUE",
             ),
+            opts=pulumi.ResourceOptions(parent=self),
         )
 
         awsx.ecs.FargateService(
@@ -111,7 +112,7 @@ class ECSService(pulumi.ComponentResource):
         self.register_outputs(
             {
                 "security_group_id": security_group.id,
-                "service_discovery_service_id": service_discovery_service.id,
+                "service_discovery_service_arn": service_discovery_service.arn,
             }
         )
 

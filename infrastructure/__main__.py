@@ -26,7 +26,7 @@ frontend_repository = create_ecr_repository("frontend")
 backend_repository = create_ecr_repository("backend")
 proxy_repository = create_ecr_repository("proxy")
 
-vpc = create_vpc("vpc")
+vpc = create_vpc("main")
 
 
 database = RDS(
@@ -67,6 +67,7 @@ lb = ALB(
         vpc_id=vpc.vpc_id,
         target_port=config.require_int("proxy_container_port"),
         subnet_ids=vpc.public_subnet_ids,
+        health_check_path=config.require("proxy_health_check_path"),
     ),
 )
 
