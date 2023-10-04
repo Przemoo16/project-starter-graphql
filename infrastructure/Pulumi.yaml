@@ -95,7 +95,7 @@ config:
 
   proxy_health_check_path:
     type: string
-    description: Destination for the health check request.
+    description: Destination for the proxy health check request.
     default: /rest/monitoring/health
   proxy_image_tag:
     type: string
