@@ -17,6 +17,34 @@ def create_private_dns_namespace(
     return aws.servicediscovery.PrivateDnsNamespace(name, vpc=vpc_id)
 
 
+def get_ecs_tasks_assume_role_policy_document() -> (
+    aws.iam.AwaitableGetPolicyDocumentResult
+):
+    return aws.iam.get_policy_document(
+        statements=[
+            aws.iam.GetPolicyDocumentStatementArgs(
+                actions=["sts:AssumeRole"],
+                principals=[
+                    aws.iam.GetPolicyDocumentStatementPrincipalArgs(
+                        type="Service",
+                        identifiers=["ecs-tasks.amazonaws.com"],
+                    )
+                ],
+            )
+        ]
+    )
+
+
+def get_secrets_access_policy_document() -> aws.iam.AwaitableGetPolicyDocumentResult:
+    return aws.iam.get_policy_document(
+        statements=[
+            aws.iam.GetPolicyDocumentStatementArgs(
+                actions=["ssm:GetParameters"], resources=["*"], effect="Allow"
+            )
+        ]
+    )
+
+
 @dataclass
 class ECSServiceArgs:
     cluster_arn: pulumi.Input[str]
@@ -26,11 +54,14 @@ class ECSServiceArgs:
     service_desired_count: pulumi.Input[int]
     task_cpu: pulumi.Input[str]
     task_memory: pulumi.Input[str]
+    task_role_arn: pulumi.Input[str]
+    execution_role_arn: pulumi.Input[str]
     container_image: pulumi.Input[str]
     container_port: pulumi.Input[int]
     target_group: pulumi.Input[aws.lb.TargetGroup] | None = None
     container_command: pulumi.Input[Sequence[pulumi.Input[str]]] | None = None
     container_environment: Mapping[str, pulumi.Input[str]] | None = None
+    container_secrets: Mapping[str, pulumi.Input[str]] | None = None
 
 
 class ECSService(pulumi.ComponentResource):
@@ -93,6 +124,12 @@ class ECSService(pulumi.ComponentResource):
             task_definition_args=awsx.ecs.FargateServiceTaskDefinitionArgs(
                 cpu=args.task_cpu,
                 memory=args.task_memory,
+                task_role=awsx.awsx.DefaultRoleWithPolicyArgs(
+                    role_arn=args.task_role_arn
+                ),
+                execution_role=awsx.awsx.DefaultRoleWithPolicyArgs(
+                    role_arn=args.execution_role_arn
+                ),
                 container=awsx.ecs.TaskDefinitionContainerDefinitionArgs(
                     name=name,
                     image=args.container_image,
@@ -104,6 +141,7 @@ class ECSService(pulumi.ComponentResource):
                     environment=_convert_container_environment(
                         args.container_environment
                     ),
+                    secrets=_convert_container_secrets(args.container_secrets),
                 ),
             ),
             opts=pulumi.ResourceOptions(parent=self),
@@ -137,4 +175,15 @@ def _convert_container_environment(
     return [
         awsx.ecs.TaskDefinitionKeyValuePairArgs(name=name, value=value)
         for name, value in environment.items()
+    ]
+
+
+def _convert_container_secrets(
+    secrets: Mapping[str, pulumi.Input[str]] | None
+) -> list[awsx.ecs.TaskDefinitionSecretArgs] | None:
+    if not secrets:
+        return None
+    return [
+        awsx.ecs.TaskDefinitionSecretArgs(name=name, value_from=value_from)
+        for name, value_from in secrets.items()
     ]

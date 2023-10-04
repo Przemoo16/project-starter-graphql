@@ -33,10 +33,6 @@ config:
     type: string
     description: The instance type of the RDS instance.
     default: db.t3.medium
-  database_username:
-    type: string
-    description: Username for the master DB user.
-    default: projectStarter
 
   cache_port:
     type: integer
