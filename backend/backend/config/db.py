@@ -4,7 +4,7 @@ from sqlalchemy.engine import URL
 
 class DBSettings(BaseModel):
     password: SecretStr
-    username: str
+    username: SecretStr
     name: str
     host: str
     port: int
@@ -14,7 +14,7 @@ class DBSettings(BaseModel):
     def url(self) -> URL:
         return URL.create(
             drivername=self.driver,
-            username=self.username,
+            username=self.username.get_secret_value(),
             password=self.password.get_secret_value(),
             host=self.host,
             port=self.port,

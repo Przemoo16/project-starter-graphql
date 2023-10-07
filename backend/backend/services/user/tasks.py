@@ -39,7 +39,7 @@ RESET_PASSWORD_TOKEN_CREATOR = partial(
 SMTP_SERVER = SMTPServer(
     host=email_settings.smtp_host,
     port=email_settings.smtp_port,
-    user=email_settings.smtp_user,
+    user=email_settings.smtp_user.get_secret_value(),
     password=email_settings.smtp_password.get_secret_value(),
 )
 

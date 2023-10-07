@@ -5,7 +5,10 @@ config:
   project-starter-graphql:auth_public_key: LS0tLS1CRUdJTiBQVUJMSUMgS0VZLS0tLS0KTUNvd0JRWURLMlZ3QXlFQVNNcWNNTGVJNHFSNUpkSmllNnRxRE5EcVRYQzRiZUtuMVR4ZHBSd2ZvS2s9Ci0tLS0tRU5EIFBVQkxJQyBLRVktLS0tLQo=
   project-starter-graphql:database_password:
     secure: AAABANDLG2U7zErAFpjOMGAnm5GfW0yPDu64+f4AAbPR1NfulndjqWuNYym/5O1wzNRQUQ==
+  project-starter-graphql:database_username:
+    secure: AAABANp0KHZtYtldjiHIDAf+iPFGmKjgOXXhcly8vL/IZ4uw5zzWfhRwPh37Yw==
   project-starter-graphql:smtp_host: smtp.mailgun.org
   project-starter-graphql:smtp_password:
     secure: AAABAOspgPxeXsXicT4hOzLcuSJP64HqylJf5v3ZbOMeuoens4ezNWJTeK9Y3qBQA8c5BowxlpsUXPE82esh+ynZRk+XuKrXNrY9veHGOp9U5g==
-  project-starter-graphql:smtp_user: postmaster@sandbox92bf507118cd4142b1af3c9a8020465a.mailgun.org
+  project-starter-graphql:smtp_user:
+    secure: AAABAOUT3C21za3Sfb0ORus+49NoaGFFYiVgBd8it8xEEf9o4fAGR6GJTmk9RcQiGcj0JjiDtuCzOmJp+32aLG3yV+ptEj+ZlsijHtEdMHQL9vSzakxkNbgwykmnNA==

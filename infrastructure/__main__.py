@@ -1,4 +1,5 @@
 import pulumi
+import pulumi_aws as aws
 from helpers.date import get_utc_timestamp
 from helpers.hash import generate_hash
 from helpers.string import (
@@ -13,10 +14,14 @@ from modules.ecs import (
     ECSServiceArgs,
     create_ecs_cluster,
     create_private_dns_namespace,
+    get_ecs_tasks_assume_role_policy_document,
+    get_secrets_access_policy_document,
 )
 from modules.elasticache import ElastiCache, ElastiCacheArgs
+from modules.iam import create_policy, create_role, create_role_policy_attachment
 from modules.network import create_vpc
 from modules.rds import RDS, RDSArgs
+from modules.ssm import create_ssm_parameter
 
 project = pulumi.get_project()
 stack = pulumi.get_stack()
@@ -27,7 +32,6 @@ backend_repository = create_ecr_repository("backend")
 proxy_repository = create_ecr_repository("proxy")
 
 vpc = create_vpc("main")
-
 
 database = RDS(
     "database",
@@ -44,7 +48,7 @@ database = RDS(
         final_snapshot_identifier=(
             f"{project}-{generate_hash(get_utc_timestamp(), digest_size=16)}"
         ),
-        username=config.require("database_username"),
+        username=config.require_secret("database_username"),
         password=config.require_secret("database_password"),
     ),
 )
@@ -75,6 +79,25 @@ cluster = create_ecs_cluster("ecs-cluster")
 
 private_dns_namespace = create_private_dns_namespace("local", vpc.vpc_id)
 
+tasks_assume_role_policy_document = get_ecs_tasks_assume_role_policy_document()
+secrets_access_policy_document = get_secrets_access_policy_document()
+
+task_role = create_role("task-role", tasks_assume_role_policy_document.json)
+
+secrets_access_policy = create_policy(
+    "secrets-access-policy", secrets_access_policy_document.json
+)
+
+create_role_policy_attachment(
+    "secrets-access-role-policy-attachment", task_role.name, secrets_access_policy.arn
+)
+
+create_role_policy_attachment(
+    "task-execution-role-policy-attachment",
+    task_role.name,
+    aws.iam.ManagedPolicy.AMAZON_ECS_TASK_EXECUTION_ROLE_POLICY,
+)
+
 frontend_service = ECSService(
     "frontend",
     ECSServiceArgs(
@@ -85,6 +108,8 @@ frontend_service = ECSService(
         service_desired_count=config.require_int("frontend_service_desired_count"),
         task_cpu=config.require("frontend_task_cpu"),
         task_memory=config.require("frontend_task_memory"),
+        task_role_arn=task_role.arn,
+        execution_role_arn=task_role.arn,
         container_image=create_image_name(
             frontend_repository.url, config.require("frontend_image_tag")
         ),
@@ -92,9 +117,23 @@ frontend_service = ECSService(
     ),
 )
 
+database_username = create_ssm_parameter(
+    "database_username", config.require_secret("database_username"), "SecureString"
+)
+database_password = create_ssm_parameter(
+    "database_password", config.require_secret("database_password"), "SecureString"
+)
+auth_private_key = create_ssm_parameter(
+    "auth_private_key", config.require_secret("auth_private_key"), "SecureString"
+)
+smtp_user = create_ssm_parameter(
+    "smtp_user", config.require_secret("smtp_user"), "SecureString"
+)
+smtp_password = create_ssm_parameter(
+    "smtp_password", config.require_secret("smtp_password"), "SecureString"
+)
+
 backend_environment: dict[str, pulumi.Input[str]] = {
-    "DB__PASSWORD": config.require_secret("database_password"),
-    "DB__USERNAME": database.username,
     "DB__NAME": database.name,
     "DB__HOST": database.host,
     "DB__PORT": database.port.apply(str),
@@ -106,13 +145,18 @@ backend_environment: dict[str, pulumi.Input[str]] = {
     "USER__RESET_PASSWORD_URL_TEMPLATE": create_token_url_template(
         lb.dns_name, "/reset-password"
     ),
-    "USER__AUTH_PRIVATE_KEY": config.require_secret("auth_private_key"),
     "USER__AUTH_PUBLIC_KEY": config.require("auth_public_key"),
     "EMAIL__SMTP_HOST": config.require("smtp_host"),
     "EMAIL__SMTP_PORT": config.require("smtp_port"),
-    "EMAIL__SMTP_USER": config.require("smtp_user"),
-    "EMAIL__SMTP_PASSWORD": config.require_secret("smtp_password"),
     "EMAIL__SENDER": config.require("email_sender"),
+}
+
+backend_secrets = {
+    "DB__USERNAME": database_username.name,
+    "DB__PASSWORD": database_password.name,
+    "USER__AUTH_PRIVATE_KEY": auth_private_key.name,
+    "EMAIL__SMTP_USER": smtp_user.name,
+    "EMAIL__SMTP_PASSWORD": smtp_password.name,
 }
 
 backend_service = ECSService(
@@ -125,11 +169,14 @@ backend_service = ECSService(
         service_desired_count=config.require_int("backend_service_desired_count"),
         task_cpu=config.require("backend_task_cpu"),
         task_memory=config.require("backend_task_memory"),
+        task_role_arn=task_role.arn,
+        execution_role_arn=task_role.arn,
         container_image=create_image_name(
             backend_repository.url, config.require("backend_image_tag")
         ),
         container_port=config.require_int("backend_container_port"),
         container_environment=backend_environment,
+        container_secrets=backend_secrets,
     ),
 )
 
@@ -143,6 +190,8 @@ ECSService(
         service_desired_count=config.require_int("proxy_service_desired_count"),
         task_cpu=config.require("proxy_task_cpu"),
         task_memory=config.require("proxy_task_memory"),
+        task_role_arn=task_role.arn,
+        execution_role_arn=task_role.arn,
         container_image=create_image_name(
             proxy_repository.url, config.require("proxy_image_tag")
         ),
@@ -162,12 +211,15 @@ ECSService(
         service_desired_count=config.require_int("worker_service_desired_count"),
         task_cpu=config.require("worker_task_cpu"),
         task_memory=config.require("worker_task_memory"),
+        task_role_arn=task_role.arn,
+        execution_role_arn=task_role.arn,
         container_image=create_image_name(
             backend_repository.url, config.require("backend_image_tag")
         ),
         container_port=config.require_int("worker_container_port"),
         container_command=config.require_object("worker_container_command"),
         container_environment=backend_environment,
+        container_secrets=backend_secrets,
     ),
 )
 
@@ -182,12 +234,15 @@ if config.require_bool("scheduler_service_enabled"):
             service_desired_count=config.require_int("scheduler_service_desired_count"),
             task_cpu=config.require("scheduler_task_cpu"),
             task_memory=config.require("scheduler_task_memory"),
+            task_role_arn=task_role.arn,
+            execution_role_arn=task_role.arn,
             container_image=create_image_name(
                 backend_repository.url, config.require("backend_image_tag")
             ),
             container_port=config.require_int("scheduler_container_port"),
             container_command=config.require_object("scheduler_container_command"),
             container_environment=backend_environment,
+            container_secrets=backend_secrets,
         ),
     )
 
