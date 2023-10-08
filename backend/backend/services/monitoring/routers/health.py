@@ -1,6 +1,7 @@
 from typing import Annotated
 
 from fastapi import APIRouter, Depends, Response, status
+from fastapi.concurrency import run_in_threadpool
 from sqlalchemy import text
 from sqlalchemy.ext.asyncio import AsyncSession
 
@@ -20,9 +21,13 @@ def get_health_checks(
 
     async def check_worker() -> None:
         result = check_health_task.delay()
-        if result.get() is not True:
-            msg = "Invalid worker's task result"
-            raise AssertionError(msg)
+
+        def _check_result() -> None:
+            if result.get() is not True:
+                msg = "Invalid worker's task result"
+                raise AssertionError(msg)
+
+        await run_in_threadpool(_check_result)
 
     return [
         HealthCheck(name="database", check=check_database),
