@@ -13,7 +13,9 @@ from tests.integration.helpers.user import (
 
 
 @pytest.mark.anyio()
-async def test_login(session: AsyncSession, async_client: AsyncClient) -> None:
+async def test_login(
+    session: AsyncSession, async_client: AsyncClient, graphql_url: str
+) -> None:
     await create_confirmed_user(
         session, email="test@email.com", hashed_password=hash_password("plain_password")
     )
@@ -36,7 +38,7 @@ async def test_login(session: AsyncSession, async_client: AsyncClient) -> None:
     }
 
     response = await async_client.post(
-        "/graphql", json={"query": query, "variables": variables}
+        graphql_url, json={"query": query, "variables": variables}
     )
 
     data = response.json()["data"]["login"]
@@ -46,7 +48,9 @@ async def test_login(session: AsyncSession, async_client: AsyncClient) -> None:
 
 
 @pytest.mark.anyio()
-async def test_login_user_not_found(async_client: AsyncClient) -> None:
+async def test_login_user_not_found(
+    async_client: AsyncClient, graphql_url: str
+) -> None:
     query = """
       mutation Login($input: LoginInput!) {
         login(input: $input) {
@@ -68,7 +72,7 @@ async def test_login_user_not_found(async_client: AsyncClient) -> None:
     }
 
     response = await async_client.post(
-        "/graphql", json={"query": query, "variables": variables}
+        graphql_url, json={"query": query, "variables": variables}
     )
 
     data = response.json()["data"]["login"]["problems"][0]
@@ -77,7 +81,7 @@ async def test_login_user_not_found(async_client: AsyncClient) -> None:
 
 @pytest.mark.anyio()
 async def test_login_invalid_password(
-    session: AsyncSession, async_client: AsyncClient
+    session: AsyncSession, async_client: AsyncClient, graphql_url: str
 ) -> None:
     await create_confirmed_user(
         session, email="test@email.com", hashed_password=hash_password("plain_password")
@@ -103,7 +107,7 @@ async def test_login_invalid_password(
     }
 
     response = await async_client.post(
-        "/graphql", json={"query": query, "variables": variables}
+        graphql_url, json={"query": query, "variables": variables}
     )
 
     data = response.json()["data"]["login"]["problems"][0]
@@ -112,7 +116,7 @@ async def test_login_invalid_password(
 
 @pytest.mark.anyio()
 async def test_login_user_email_not_confirmed(
-    session: AsyncSession, async_client: AsyncClient
+    session: AsyncSession, async_client: AsyncClient, graphql_url: str
 ) -> None:
     await create_user(
         session, email="test@email.com", hashed_password=hash_password("plain_password")
@@ -138,7 +142,7 @@ async def test_login_user_email_not_confirmed(
     }
 
     response = await async_client.post(
-        "/graphql", json={"query": query, "variables": variables}
+        graphql_url, json={"query": query, "variables": variables}
     )
 
     data = response.json()["data"]["login"]["problems"][0]
@@ -146,7 +150,9 @@ async def test_login_user_email_not_confirmed(
 
 
 @pytest.mark.anyio()
-async def test_refresh_token(auth_private_key: str, async_client: AsyncClient) -> None:
+async def test_refresh_token(
+    auth_private_key: str, async_client: AsyncClient, graphql_url: str
+) -> None:
     token = create_refresh_token(
         auth_private_key, UUID("6d9c79d6-9641-4746-92d9-2cc9ebdca941")
     )
@@ -161,7 +167,7 @@ async def test_refresh_token(auth_private_key: str, async_client: AsyncClient) -
     variables = {"token": token}
 
     response = await async_client.post(
-        "/graphql", json={"query": query, "variables": variables}
+        graphql_url, json={"query": query, "variables": variables}
     )
 
     data = response.json()["data"]["refreshToken"]
@@ -170,7 +176,9 @@ async def test_refresh_token(auth_private_key: str, async_client: AsyncClient) -
 
 
 @pytest.mark.anyio()
-async def test_refresh_token_invalid_token(async_client: AsyncClient) -> None:
+async def test_refresh_token_invalid_token(
+    async_client: AsyncClient, graphql_url: str
+) -> None:
     query = """
       mutation RefreshToken($token: String!) {
         refreshToken(token: $token) {
@@ -181,7 +189,7 @@ async def test_refresh_token_invalid_token(async_client: AsyncClient) -> None:
     variables = {"token": "invalid-token"}
 
     response = await async_client.post(
-        "/graphql", json={"query": query, "variables": variables}
+        graphql_url, json={"query": query, "variables": variables}
     )
 
     errors = response.json()["errors"]

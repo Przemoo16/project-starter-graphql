@@ -12,7 +12,7 @@ from tests.integration.helpers.user import (
 
 
 @pytest.mark.anyio()
-async def test_create_user(async_client: AsyncClient) -> None:
+async def test_create_user(async_client: AsyncClient, graphql_url: str) -> None:
     query = """
       mutation CreateUser($input: UserCreateInput!) {
         createUser(input: $input) {
@@ -33,7 +33,7 @@ async def test_create_user(async_client: AsyncClient) -> None:
     }
 
     response = await async_client.post(
-        "/graphql", json={"query": query, "variables": variables}
+        graphql_url, json={"query": query, "variables": variables}
     )
 
     data = response.json()["data"]["createUser"]
@@ -43,7 +43,9 @@ async def test_create_user(async_client: AsyncClient) -> None:
 
 
 @pytest.mark.anyio()
-async def test_create_user_invalid_input(async_client: AsyncClient) -> None:
+async def test_create_user_invalid_input(
+    async_client: AsyncClient, graphql_url: str
+) -> None:
     query = """
       mutation CreateUser($input: UserCreateInput!) {
         createUser(input: $input) {
@@ -64,7 +66,7 @@ async def test_create_user_invalid_input(async_client: AsyncClient) -> None:
     }
 
     response = await async_client.post(
-        "/graphql", json={"query": query, "variables": variables}
+        graphql_url, json={"query": query, "variables": variables}
     )
 
     data = response.json()["data"]["createUser"]["problems"][0]
@@ -73,7 +75,7 @@ async def test_create_user_invalid_input(async_client: AsyncClient) -> None:
 
 @pytest.mark.anyio()
 async def test_create_user_already_exists(
-    session: AsyncSession, async_client: AsyncClient
+    session: AsyncSession, async_client: AsyncClient, graphql_url: str
 ) -> None:
     await create_user(session, email="test@email.com")
     query = """
@@ -98,7 +100,7 @@ async def test_create_user_already_exists(
     }
 
     response = await async_client.post(
-        "/graphql", json={"query": query, "variables": variables}
+        graphql_url, json={"query": query, "variables": variables}
     )
 
     data = response.json()["data"]["createUser"]["problems"][0]
@@ -107,7 +109,10 @@ async def test_create_user_already_exists(
 
 @pytest.mark.anyio()
 async def test_get_me(
-    session: AsyncSession, auth_private_key: str, async_client: AsyncClient
+    session: AsyncSession,
+    auth_private_key: str,
+    async_client: AsyncClient,
+    graphql_url: str,
 ) -> None:
     user = await create_confirmed_user(
         session, id=UUID("6d9c79d6-9641-4746-92d9-2cc9ebdca941")
@@ -122,7 +127,7 @@ async def test_get_me(
     """
 
     response = await async_client.post(
-        "/graphql", json={"query": query}, headers=auth_header
+        graphql_url, json={"query": query}, headers=auth_header
     )
 
     data = response.json()["data"]["me"]
@@ -133,7 +138,10 @@ async def test_get_me(
 
 @pytest.mark.anyio()
 async def test_update_me(
-    session: AsyncSession, auth_private_key: str, async_client: AsyncClient
+    session: AsyncSession,
+    auth_private_key: str,
+    async_client: AsyncClient,
+    graphql_url: str,
 ) -> None:
     user = await create_confirmed_user(session, full_name="Test User")
     auth_header = create_auth_header(auth_private_key, user.id)
@@ -153,7 +161,7 @@ async def test_update_me(
     }
 
     response = await async_client.post(
-        "/graphql", json={"query": query, "variables": variables}, headers=auth_header
+        graphql_url, json={"query": query, "variables": variables}, headers=auth_header
     )
 
     data = response.json()["data"]["updateMe"]
@@ -164,7 +172,10 @@ async def test_update_me(
 
 @pytest.mark.anyio()
 async def test_update_me_invalid_input(
-    session: AsyncSession, auth_private_key: str, async_client: AsyncClient
+    session: AsyncSession,
+    auth_private_key: str,
+    async_client: AsyncClient,
+    graphql_url: str,
 ) -> None:
     user = await create_confirmed_user(session)
     auth_header = create_auth_header(auth_private_key, user.id)
@@ -186,7 +197,7 @@ async def test_update_me_invalid_input(
     }
 
     response = await async_client.post(
-        "/graphql", json={"query": query, "variables": variables}, headers=auth_header
+        graphql_url, json={"query": query, "variables": variables}, headers=auth_header
     )
 
     data = response.json()["data"]["updateMe"]["problems"][0]
@@ -195,7 +206,10 @@ async def test_update_me_invalid_input(
 
 @pytest.mark.anyio()
 async def test_delete_me(
-    session: AsyncSession, auth_private_key: str, async_client: AsyncClient
+    session: AsyncSession,
+    auth_private_key: str,
+    async_client: AsyncClient,
+    graphql_url: str,
 ) -> None:
     user = await create_confirmed_user(session)
     auth_header = create_auth_header(auth_private_key, user.id)
@@ -208,7 +222,7 @@ async def test_delete_me(
     """
 
     response = await async_client.post(
-        "/graphql", json={"query": query}, headers=auth_header
+        graphql_url, json={"query": query}, headers=auth_header
     )
 
     data = response.json()["data"]["deleteMe"]

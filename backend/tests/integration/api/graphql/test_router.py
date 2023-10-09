@@ -12,12 +12,12 @@ from backend.main import get_local_app
     [(True, status.HTTP_200_OK), (False, status.HTTP_404_NOT_FOUND)],
 )
 async def test_enable_disable_graphiql(
-    debug: bool, status_code: int, engine: AsyncEngine
+    debug: bool, status_code: int, engine: AsyncEngine, graphql_url: str
 ) -> None:
     app = get_local_app(engine, debug)
 
     async with AsyncClient(app=app, base_url="http://test") as client:
-        response = await client.get("/graphql")
+        response = await client.get(graphql_url)
 
     assert response.status_code == status_code
 
@@ -25,7 +25,7 @@ async def test_enable_disable_graphiql(
 @pytest.mark.anyio()
 @pytest.mark.parametrize(("debug", "error"), [(True, False), (False, True)])
 async def test_enable_disable_schema_introspection(
-    debug: bool, error: bool, engine: AsyncEngine
+    debug: bool, error: bool, engine: AsyncEngine, graphql_url: str
 ) -> None:
     app = get_local_app(engine, debug)
     payload = {
@@ -41,6 +41,6 @@ async def test_enable_disable_schema_introspection(
     }
 
     async with AsyncClient(app=app, base_url="http://test") as client:
-        response = await client.post("/graphql", json=payload)
+        response = await client.post(graphql_url, json=payload)
 
     assert bool(response.json().get("errors")) == error

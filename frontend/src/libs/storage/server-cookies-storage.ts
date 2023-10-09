@@ -1,12 +1,14 @@
 import { type Cookie } from '@builder.io/qwik-city';
 
 export class ServerCookiesStorage {
-  cookie: Cookie;
-  lifetime: Date;
+  readonly cookie: Cookie;
+  readonly lifetime: Date;
+  readonly path: string;
 
-  constructor(cookie: Cookie, lifetime: Date) {
+  constructor(cookie: Cookie, lifetime: Date, path: string) {
     this.cookie = cookie;
     this.lifetime = lifetime;
+    this.path = path;
   }
 
   get = (key: string) => {
@@ -15,10 +17,10 @@ export class ServerCookiesStorage {
   };
 
   set = (key: string, value: string) => {
-    this.cookie.set(key, value, { path: '/', expires: this.lifetime });
+    this.cookie.set(key, value, { path: this.path, expires: this.lifetime });
   };
 
   remove = (key: string) => {
-    this.cookie.delete(key);
+    this.cookie.delete(key, { path: this.path });
   };
 }

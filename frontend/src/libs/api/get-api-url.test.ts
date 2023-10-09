@@ -5,13 +5,13 @@ import { getApiURL } from './get-api-url';
 test(`[getApiURL function]: returns default server URL`, () => {
   const url = getApiURL(true);
 
-  expect(url).toEqual('http://proxy/graphql');
+  expect(url).toEqual('http://proxy/api/graphql');
 });
 
 test(`[getApiURL function]: returns default client URL`, () => {
   const url = getApiURL(false);
 
-  expect(url).toEqual('http://localhost:5173/graphql');
+  expect(url).toEqual('http://localhost:5173/api/graphql');
 });
 
 test(`[getApiURL function]: returns server URL from env variable`, () => {
