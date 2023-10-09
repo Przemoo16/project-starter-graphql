@@ -1,6 +1,7 @@
 import { GraphQLError } from '~/libs/api/graphql-error';
 
-import { type Fetcher, type RequestConfig, sendRequest } from './send-request';
+import { type RequestConfig, sendGraphQLRequest } from './send-graphql-request';
+import { type Fetcher } from './types';
 
 interface AuthorizedRequestProps extends Omit<RequestConfig, 'headers'> {
   onGetAuthHeader?: () => Record<string, string>;
@@ -8,7 +9,7 @@ interface AuthorizedRequestProps extends Omit<RequestConfig, 'headers'> {
   onInvalidTokens?: () => void;
 }
 
-export const sendAuthorizedRequest = async (
+export const sendGraphQLAuthorizedRequest = async (
   onFetch: Fetcher,
   url: string,
   {
@@ -21,7 +22,11 @@ export const sendAuthorizedRequest = async (
 ) => {
   try {
     const headers = onGetAuthHeader();
-    return await sendRequest(onFetch, url, { query, variables, headers });
+    return await sendGraphQLRequest(onFetch, url, {
+      query,
+      variables,
+      headers,
+    });
   } catch (e) {
     if (
       !(e instanceof GraphQLError) ||
@@ -39,6 +44,10 @@ export const sendAuthorizedRequest = async (
       onInvalidTokens();
     }
     const headers = onGetAuthHeader();
-    return await sendRequest(onFetch, url, { query, variables, headers });
+    return await sendGraphQLRequest(onFetch, url, {
+      query,
+      variables,
+      headers,
+    });
   }
 };

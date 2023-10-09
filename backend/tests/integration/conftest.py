@@ -73,3 +73,13 @@ async def async_client_fixture(app: FastAPI) -> AsyncGenerator[AsyncClient, None
 @pytest.fixture(name="auth_private_key", scope="session")
 def auth_private_key_fixture() -> bytes:
     return user_settings.auth_private_key
+
+
+@pytest.fixture(name="graphql_url", scope="session")
+def graphql_url_fixture() -> str:
+    return "/api/graphql"
+
+
+@pytest.fixture(name="rest_url", scope="session")
+def rest_url_fixture() -> str:
+    return "/api/rest"

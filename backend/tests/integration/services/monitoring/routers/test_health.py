@@ -7,8 +7,8 @@ from backend.services.monitoring.routers.health import get_health_checks
 
 
 @pytest.mark.anyio()
-async def test_check_health_healthy(async_client: AsyncClient) -> None:
-    response = await async_client.get("/rest/monitoring/health")
+async def test_check_health_healthy(async_client: AsyncClient, rest_url: str) -> None:
+    response = await async_client.get(f"f{rest_url}/monitoring/health")
 
     assert response.status_code == status.HTTP_200_OK
     assert response.json() == {
@@ -18,7 +18,9 @@ async def test_check_health_healthy(async_client: AsyncClient) -> None:
 
 
 @pytest.mark.anyio()
-async def test_check_health_unhealthy(app: FastAPI, async_client: AsyncClient) -> None:
+async def test_check_health_unhealthy(
+    app: FastAPI, async_client: AsyncClient, rest_url: str
+) -> None:
     async def success_check() -> None:
         pass
 
@@ -31,7 +33,7 @@ async def test_check_health_unhealthy(app: FastAPI, async_client: AsyncClient) -
         HealthCheck(name="check_2", check=failed_check),
     ]
 
-    response = await async_client.get("/rest/monitoring/health")
+    response = await async_client.get(f"{rest_url}/monitoring/health")
 
     assert response.status_code == status.HTTP_503_SERVICE_UNAVAILABLE
     assert response.json() == {

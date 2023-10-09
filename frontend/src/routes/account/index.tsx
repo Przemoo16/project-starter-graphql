@@ -1,7 +1,7 @@
 import { $, component$, useSignal } from '@builder.io/qwik';
 import {
   type DocumentHead,
-  type RequestEvent,
+  type RequestHandler,
   routeLoader$,
 } from '@builder.io/qwik-city';
 import { type InitialValues } from '@modular-forms/qwik';
@@ -26,7 +26,7 @@ export const head: DocumentHead = {
   title: 'runtime.account.head.title',
 };
 
-export const onRequest = (requestEvent: RequestEvent) => {
+export const onRequest: RequestHandler = requestEvent => {
   onProtectedRoute(requestEvent);
 };
 

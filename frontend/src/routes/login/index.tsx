@@ -2,7 +2,7 @@ import { component$ } from '@builder.io/qwik';
 import {
   type DocumentHead,
   Link,
-  type RequestEvent,
+  type RequestHandler,
 } from '@builder.io/qwik-city';
 import { Speak, useTranslate } from 'qwik-speak';
 
@@ -15,7 +15,7 @@ export const head: DocumentHead = {
   title: 'runtime.login.head.title',
 };
 
-export const onRequest = (requestEvent: RequestEvent) => {
+export const onRequest: RequestHandler = requestEvent => {
   onOnlyAnonymousRoute(requestEvent);
 };
 

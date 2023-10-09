@@ -1,5 +1,5 @@
 import { $, component$, useSignal } from '@builder.io/qwik';
-import { type DocumentHead, type RequestEvent } from '@builder.io/qwik-city';
+import { type DocumentHead, type RequestHandler } from '@builder.io/qwik-city';
 import { Speak, useTranslate } from 'qwik-speak';
 
 import { getClientLogoutRedirection } from '~/services/auth/get-client-logout-redirection';
@@ -11,7 +11,7 @@ export const head: DocumentHead = {
   title: 'runtime.dashboard.head.title',
 };
 
-export const onRequest = (requestEvent: RequestEvent) => {
+export const onRequest: RequestHandler = requestEvent => {
   onProtectedRoute(requestEvent);
 };
 

@@ -66,7 +66,7 @@ config:
   frontend_container_port:
     type: integer
     description: Exposed port of the frontend container.
-    default: 80
+    default: 5173
 
   backend_image_tag:
     type: string
@@ -92,7 +92,7 @@ config:
   proxy_health_check_path:
     type: string
     description: Destination for the proxy health check request.
-    default: /rest/monitoring/health
+    default: /api/rest/monitoring/health
   proxy_image_tag:
     type: string
     description: The proxy image tag.

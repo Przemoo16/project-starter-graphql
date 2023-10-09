@@ -31,8 +31,8 @@ def get_local_app(engine: AsyncEngine, debug: bool = False) -> FastAPI:
 
     local_app = FastAPI(lifespan=lifespan, default_response_class=ORJSONResponse)
 
-    local_app.include_router(get_graphql_router(debug), prefix="/graphql")
-    local_app.include_router(get_rest_router(), prefix="/rest")
+    local_app.include_router(get_graphql_router(debug), prefix="/api/graphql")
+    local_app.include_router(get_rest_router(), prefix="/api/rest")
 
     return local_app
 

@@ -15,7 +15,7 @@ from tests.integration.helpers.user import (
 
 @pytest.mark.anyio()
 async def test_recover_password(
-    session: AsyncSession, async_client: AsyncClient
+    session: AsyncSession, async_client: AsyncClient, graphql_url: str
 ) -> None:
     await create_user(session, email="test@email.com")
     query = """
@@ -28,7 +28,7 @@ async def test_recover_password(
     variables = {"email": "test@email.com"}
 
     response = await async_client.post(
-        "/graphql", json={"query": query, "variables": variables}
+        graphql_url, json={"query": query, "variables": variables}
     )
 
     data = response.json()["data"]["recoverPassword"]
@@ -37,7 +37,10 @@ async def test_recover_password(
 
 @pytest.mark.anyio()
 async def test_reset_password(
-    session: AsyncSession, auth_private_key: str, async_client: AsyncClient
+    session: AsyncSession,
+    auth_private_key: str,
+    async_client: AsyncClient,
+    graphql_url: str,
 ) -> None:
     user = await create_user(session)
     token = create_reset_password_token(auth_private_key, user.id, user.hashed_password)
@@ -58,7 +61,7 @@ async def test_reset_password(
     }
 
     response = await async_client.post(
-        "/graphql", json={"query": query, "variables": variables}
+        graphql_url, json={"query": query, "variables": variables}
     )
 
     data = response.json()["data"]["resetPassword"]
@@ -67,7 +70,7 @@ async def test_reset_password(
 
 @pytest.mark.anyio()
 async def test_reset_password_invalid_input(
-    auth_private_key: str, async_client: AsyncClient
+    auth_private_key: str, async_client: AsyncClient, graphql_url: str
 ) -> None:
     token = create_reset_password_token(
         auth_private_key,
@@ -93,7 +96,7 @@ async def test_reset_password_invalid_input(
     }
 
     response = await async_client.post(
-        "/graphql", json={"query": query, "variables": variables}
+        graphql_url, json={"query": query, "variables": variables}
     )
 
     data = response.json()["data"]["resetPassword"]["problems"][0]
@@ -101,7 +104,9 @@ async def test_reset_password_invalid_input(
 
 
 @pytest.mark.anyio()
-async def test_reset_password_invalid_token(async_client: AsyncClient) -> None:
+async def test_reset_password_invalid_token(
+    async_client: AsyncClient, graphql_url: str
+) -> None:
     query = """
       mutation ResetPassword($input: ResetPasswordInput!) {
         resetPassword(input: $input) {
@@ -123,7 +128,7 @@ async def test_reset_password_invalid_token(async_client: AsyncClient) -> None:
     }
 
     response = await async_client.post(
-        "/graphql", json={"query": query, "variables": variables}
+        graphql_url, json={"query": query, "variables": variables}
     )
 
     data = response.json()["data"]["resetPassword"]["problems"][0]
@@ -132,7 +137,7 @@ async def test_reset_password_invalid_token(async_client: AsyncClient) -> None:
 
 @pytest.mark.anyio()
 async def test_reset_password_user_not_found(
-    auth_private_key: str, async_client: AsyncClient
+    auth_private_key: str, async_client: AsyncClient, graphql_url: str
 ) -> None:
     token = create_reset_password_token(
         auth_private_key,
@@ -160,7 +165,7 @@ async def test_reset_password_user_not_found(
     }
 
     response = await async_client.post(
-        "/graphql", json={"query": query, "variables": variables}
+        graphql_url, json={"query": query, "variables": variables}
     )
 
     data = response.json()["data"]["resetPassword"]["problems"][0]
@@ -169,7 +174,10 @@ async def test_reset_password_user_not_found(
 
 @pytest.mark.anyio()
 async def test_reset_password_invalid_fingerprint_same_token_used_twice(
-    session: AsyncSession, auth_private_key: str, async_client: AsyncClient
+    session: AsyncSession,
+    auth_private_key: str,
+    async_client: AsyncClient,
+    graphql_url: str,
 ) -> None:
     user = await create_user(session)
     token = create_reset_password_token(auth_private_key, user.id, user.hashed_password)
@@ -193,9 +201,9 @@ async def test_reset_password_invalid_fingerprint_same_token_used_twice(
         }
     }
 
-    await async_client.post("/graphql", json={"query": query, "variables": variables})
+    await async_client.post(graphql_url, json={"query": query, "variables": variables})
     response = await async_client.post(
-        "/graphql", json={"query": query, "variables": variables}
+        graphql_url, json={"query": query, "variables": variables}
     )
 
     data = response.json()["data"]["resetPassword"]["problems"][0]
@@ -204,7 +212,10 @@ async def test_reset_password_invalid_fingerprint_same_token_used_twice(
 
 @pytest.mark.anyio()
 async def test_change_my_password(
-    session: AsyncSession, auth_private_key: str, async_client: AsyncClient
+    session: AsyncSession,
+    auth_private_key: str,
+    async_client: AsyncClient,
+    graphql_url: str,
 ) -> None:
     user = await create_confirmed_user(
         session, hashed_password=hash_password("plain_password")
@@ -227,7 +238,7 @@ async def test_change_my_password(
     }
 
     response = await async_client.post(
-        "/graphql", json={"query": query, "variables": variables}, headers=auth_header
+        graphql_url, json={"query": query, "variables": variables}, headers=auth_header
     )
 
     data = response.json()["data"]["changeMyPassword"]
@@ -236,7 +247,10 @@ async def test_change_my_password(
 
 @pytest.mark.anyio()
 async def test_change_my_password_invalid_input(
-    session: AsyncSession, auth_private_key: str, async_client: AsyncClient
+    session: AsyncSession,
+    auth_private_key: str,
+    async_client: AsyncClient,
+    graphql_url: str,
 ) -> None:
     user = await create_confirmed_user(session)
     auth_header = create_auth_header(auth_private_key, user.id)
@@ -259,7 +273,7 @@ async def test_change_my_password_invalid_input(
     }
 
     response = await async_client.post(
-        "/graphql", json={"query": query, "variables": variables}, headers=auth_header
+        graphql_url, json={"query": query, "variables": variables}, headers=auth_header
     )
 
     data = response.json()["data"]["changeMyPassword"]["problems"][0]
@@ -268,7 +282,10 @@ async def test_change_my_password_invalid_input(
 
 @pytest.mark.anyio()
 async def test_change_my_password_invalid_password(
-    session: AsyncSession, auth_private_key: str, async_client: AsyncClient
+    session: AsyncSession,
+    auth_private_key: str,
+    async_client: AsyncClient,
+    graphql_url: str,
 ) -> None:
     user = await create_confirmed_user(
         session, hashed_password=hash_password("plain_password")
@@ -295,7 +312,7 @@ async def test_change_my_password_invalid_password(
     }
 
     response = await async_client.post(
-        "/graphql", json={"query": query, "variables": variables}, headers=auth_header
+        graphql_url, json={"query": query, "variables": variables}, headers=auth_header
     )
 
     data = response.json()["data"]["changeMyPassword"]["problems"][0]

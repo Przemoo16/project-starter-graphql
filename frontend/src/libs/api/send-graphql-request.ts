@@ -1,13 +1,6 @@
 import { GraphQLError } from '~/libs/api/graphql-error';
 
-export type Fetcher = (
-  url: string,
-  config: {
-    method?: string;
-    body?: string;
-    headers?: Record<string, string>;
-  },
-) => Promise<any>;
+import { type Fetcher } from './types';
 
 export interface RequestConfig {
   query?: string;
@@ -15,7 +8,7 @@ export interface RequestConfig {
   headers?: Record<string, string>;
 }
 
-export const sendRequest = async (
+export const sendGraphQLRequest = async (
   onFetch: Fetcher,
   url: string,
   { query, variables, headers }: RequestConfig = {},
@@ -27,6 +20,7 @@ export const sendRequest = async (
       variables,
     }),
     headers: { 'Content-Type': 'application/json', ...(headers ?? {}) },
+    withCredentials: false,
   });
   if (errors) {
     throw new GraphQLError(errors);
