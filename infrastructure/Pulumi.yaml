@@ -32,7 +32,7 @@ config:
   database_instance_class:
     type: string
     description: The instance type of the RDS instance.
-    default: db.t3.medium
+    default: db.t3.micro
 
   cache_port:
     type: integer
@@ -58,11 +58,11 @@ config:
   frontend_task_cpu:
     type: string
     description: The hard limit of CPU units to present for the frontend task.
-    default: "1024"
+    default: "512"
   frontend_task_memory:
     type: string
     description: The hard limit of memory (in MiB) to present to the frontend task.
-    default: "2048"
+    default: "1024"
   frontend_container_port:
     type: integer
     description: Exposed port of the frontend container.
@@ -79,11 +79,11 @@ config:
   backend_task_cpu:
     type: string
     description: The hard limit of CPU units to present for the backend task.
-    default: "1024"
+    default: "512"
   backend_task_memory:
     type: string
     description: The hard limit of memory (in MiB) to present to the backend task.
-    default: "2048"
+    default: "1024"
   backend_container_port:
     type: integer
     description: Exposed port of the backend container.
@@ -104,11 +104,11 @@ config:
   proxy_task_cpu:
     type: string
     description: The hard limit of CPU units to present for the proxy task.
-    default: "1024"
+    default: "512"
   proxy_task_memory:
     type: string
     description: The hard limit of memory (in MiB) to present to the proxy task.
-    default: "2048"
+    default: "1024"
   proxy_container_port:
     type: integer
     description: Exposed port of the proxy container.
@@ -121,11 +121,11 @@ config:
   worker_task_cpu:
     type: string
     description: The hard limit of CPU units to present for the worker task.
-    default: "1024"
+    default: "512"
   worker_task_memory:
     type: string
     description: The hard limit of memory (in MiB) to present to the worker task.
-    default: "2048"
+    default: "1024"
   worker_container_port:
     type: integer
     description: Exposed port of the worker container.
@@ -154,11 +154,11 @@ config:
   scheduler_task_cpu:
     type: string
     description: The hard limit of CPU units to present for the scheduler task.
-    default: "1024"
+    default: "512"
   scheduler_task_memory:
     type: string
     description: The hard limit of memory (in MiB) to present to the scheduler task.
-    default: "2048"
+    default: "1024"
   scheduler_container_port:
     type: integer
     description: Exposed port of the scheduler container.

@@ -50,7 +50,7 @@ class ECSServiceArgs:
     cluster_arn: pulumi.Input[str]
     vpc_id: pulumi.Input[str]
     dns_namespace_id: pulumi.Input[str]
-    subnet_ids: pulumi.Input[Sequence[pulumi.Input[str]]]
+    subnet_ids: pulumi.Input[Sequence[str]]
     service_desired_count: pulumi.Input[int]
     task_cpu: pulumi.Input[str]
     task_memory: pulumi.Input[str]
@@ -59,7 +59,7 @@ class ECSServiceArgs:
     container_image: pulumi.Input[str]
     container_port: pulumi.Input[int]
     target_group: pulumi.Input[aws.lb.TargetGroup] | None = None
-    container_command: pulumi.Input[Sequence[pulumi.Input[str]]] | None = None
+    container_command: pulumi.Input[Sequence[str]] | None = None
     container_environment: Mapping[str, pulumi.Input[str]] | None = None
     container_secrets: Mapping[str, pulumi.Input[str]] | None = None
 

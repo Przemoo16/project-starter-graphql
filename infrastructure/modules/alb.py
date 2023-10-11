@@ -10,7 +10,7 @@ import pulumi_awsx as awsx
 class ALBArgs:
     vpc_id: pulumi.Input[str]
     target_port: pulumi.Input[int]
-    subnet_ids: pulumi.Input[Sequence[pulumi.Input[str]]]
+    subnet_ids: pulumi.Input[Sequence[str]]
     health_check_path: pulumi.Input[str]
 
 
