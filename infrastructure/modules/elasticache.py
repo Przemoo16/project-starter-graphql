@@ -8,7 +8,7 @@ import pulumi_aws as aws
 @dataclass
 class ElastiCacheArgs:
     vpc_id: pulumi.Input[str]
-    subnet_ids: pulumi.Input[Sequence[pulumi.Input[str]]]
+    subnet_ids: pulumi.Input[Sequence[str]]
     port: pulumi.Input[int]
     description: pulumi.Input[str]
     engine_version: pulumi.Input[str]

@@ -8,7 +8,7 @@ import pulumi_aws as aws
 @dataclass
 class RDSArgs:
     vpc_id: pulumi.Input[str]
-    subnet_ids: pulumi.Input[Sequence[pulumi.Input[str]]]
+    subnet_ids: pulumi.Input[Sequence[str]]
     name: pulumi.Input[str]
     port: pulumi.Input[int]
     engine: pulumi.Input[str]
