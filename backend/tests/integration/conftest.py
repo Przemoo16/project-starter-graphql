@@ -59,7 +59,10 @@ def app_instance_fixture(engine: AsyncEngine) -> FastAPI:
 def app_fixture(
     app_instance: FastAPI, session: AsyncSession
 ) -> Generator[FastAPI, None, None]:
-    app_instance.dependency_overrides[get_session] = lambda: session
+    async def get_test_session() -> AsyncSession:
+        return session
+
+    app_instance.dependency_overrides[get_session] = get_test_session
     yield app_instance
     app_instance.dependency_overrides.clear()
 

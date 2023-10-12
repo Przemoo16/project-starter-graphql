@@ -21,6 +21,12 @@ async def test_check_health_healthy(async_client: AsyncClient, rest_url: str) ->
 async def test_check_health_unhealthy(
     app: FastAPI, async_client: AsyncClient, rest_url: str
 ) -> None:
+    async def get_test_health_checks() -> list[HealthCheck]:
+        return [
+            HealthCheck(name="check_1", check=success_check),
+            HealthCheck(name="check_2", check=failed_check),
+        ]
+
     async def success_check() -> None:
         pass
 
@@ -28,10 +34,7 @@ async def test_check_health_unhealthy(
         msg = "Failed"
         raise Exception(msg)  # noqa: TRY002 # pylint: disable=broad-exception-raised
 
-    app.dependency_overrides[get_health_checks] = lambda: [
-        HealthCheck(name="check_1", check=success_check),
-        HealthCheck(name="check_2", check=failed_check),
-    ]
+    app.dependency_overrides[get_health_checks] = get_test_health_checks
 
     response = await async_client.get(f"{rest_url}/monitoring/health")
 

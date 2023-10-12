@@ -13,7 +13,7 @@ from backend.services.monitoring.tasks import check_health_task
 router = APIRouter()
 
 
-def get_health_checks(
+async def get_health_checks(
     session: Annotated[AsyncSession, Depends(get_session)]
 ) -> list[HealthCheck]:
     async def check_database() -> None:
@@ -22,12 +22,12 @@ def get_health_checks(
     async def check_worker() -> None:
         result = check_health_task.delay()
 
-        def _check_result() -> None:
+        def check_result() -> None:
             if result.get() is not True:
                 msg = "Invalid worker's task result"
                 raise AssertionError(msg)
 
-        await run_in_threadpool(_check_result)
+        await run_in_threadpool(check_result)
 
     return [
         HealthCheck(name="database", check=check_database),
