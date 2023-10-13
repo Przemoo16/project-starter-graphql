@@ -8,7 +8,7 @@ RUN apt-get update \
 
 WORKDIR /opt/app
 
-EXPOSE 5173
+EXPOSE 80
 
 
 FROM base as deps

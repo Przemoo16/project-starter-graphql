@@ -6,6 +6,7 @@ from helpers.string import (
     create_image_name,
     create_redis_url,
     create_token_url_template,
+    create_upstream,
 )
 from modules.alb import ALB, ALBArgs
 from modules.ecr import create_ecr_repository
@@ -180,7 +181,16 @@ backend_service = ECSService(
     ),
 )
 
-ECSService(
+proxy_environment = {
+    "FRONTEND_UPSTREAM": create_upstream(
+        frontend_service.service_discovery_name, private_dns_namespace.name
+    ),
+    "BACKEND_UPSTREAM": create_upstream(
+        backend_service.service_discovery_name, private_dns_namespace.name
+    ),
+}
+
+proxy_service = ECSService(
     "proxy",
     ECSServiceArgs(
         cluster_arn=cluster.arn,
@@ -197,6 +207,7 @@ ECSService(
         ),
         container_port=config.require_int("proxy_container_port"),
         target_group=lb.target_group,
+        container_environment=proxy_environment,
     ),
     opts=pulumi.ResourceOptions(depends_on=[frontend_service, backend_service]),
 )
@@ -254,7 +265,7 @@ pulumi.export("vpc_id", vpc.vpc_id)
 pulumi.export("private_subnets_ids", vpc.private_subnet_ids)
 pulumi.export("public_subnets_ids", vpc.public_subnet_ids)
 
-pulumi.export("private_dns_namespace_id", private_dns_namespace.id)
+pulumi.export("private_dns_namespace_name", private_dns_namespace.name)
 
 pulumi.export("database_endpoint", database.endpoint)
 
