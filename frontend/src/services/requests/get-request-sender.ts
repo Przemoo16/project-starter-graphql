@@ -1,7 +1,7 @@
 import { isServer } from '@builder.io/qwik/build';
 
 import { fetchAdapter } from '~/libs/api/fetchers';
-import { getApiURL } from '~/libs/api/get-api-url';
+import { getApiGraphQLUrl } from '~/libs/api/get-api-url';
 import { sendGraphQLAuthorizedRequest } from '~/libs/api/send-graphql-authorized-request';
 import { sendGraphQLRequest } from '~/libs/api/send-graphql-request';
 import { type TokenStorage } from '~/libs/storage/types';
@@ -12,7 +12,7 @@ import { refreshToken } from '~/services/user/refresh-token';
 export const getRequestSender =
   (storage: TokenStorage, onRedirect: () => void) =>
   async (query: string, variables?: Record<string, unknown>) => {
-    const url = getApiURL(isServer);
+    const url = getApiGraphQLUrl(isServer);
     return await sendGraphQLAuthorizedRequest(fetchAdapter, url, {
       query,
       variables,

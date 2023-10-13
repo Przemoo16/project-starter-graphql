@@ -15,3 +15,9 @@ def create_token_url_template(
     base_url: pulumi.Input[str], path: str
 ) -> pulumi.Output[str]:
     return pulumi.Output.concat(base_url, path, "?token={token}")
+
+
+def create_upstream(
+    url: pulumi.Input[str], namespace: pulumi.Input[str]
+) -> pulumi.Output[str]:
+    return pulumi.Output.concat("http://", url, ".", namespace)

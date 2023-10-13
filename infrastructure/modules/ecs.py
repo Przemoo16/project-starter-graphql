@@ -65,6 +65,10 @@ class ECSServiceArgs:
 
 
 class ECSService(pulumi.ComponentResource):
+    @property
+    def service_discovery_name(self) -> pulumi.Output[str]:
+        return self._service_discovery_service.name  # type: ignore[no-any-return]
+
     def __init__(
         self,
         name: str,
@@ -95,7 +99,7 @@ class ECSService(pulumi.ComponentResource):
             opts=pulumi.ResourceOptions(parent=self),
         )
 
-        service_discovery_service = aws.servicediscovery.Service(
+        self._service_discovery_service = aws.servicediscovery.Service(
             name,
             dns_config=aws.servicediscovery.ServiceDnsConfigArgs(
                 namespace_id=args.dns_namespace_id,
@@ -114,7 +118,7 @@ class ECSService(pulumi.ComponentResource):
             name,
             cluster=args.cluster_arn,
             service_registries=aws.ecs.ServiceServiceRegistriesArgs(
-                registry_arn=service_discovery_service.arn, container_name=name
+                registry_arn=self._service_discovery_service.arn, container_name=name
             ),
             network_configuration=aws.ecs.ServiceNetworkConfigurationArgs(
                 subnets=args.subnet_ids,
@@ -150,7 +154,7 @@ class ECSService(pulumi.ComponentResource):
         self.register_outputs(
             {
                 "security_group_id": security_group.id,
-                "service_discovery_service_arn": service_discovery_service.arn,
+                "service_discovery_service_name": self._service_discovery_service.name,
             }
         )
 
