@@ -1,21 +1,21 @@
 import { expect, test } from 'vitest';
 
 import { getAuthHeader } from './get-auth-header';
-import { TestTokenStorage } from './test-token-storage';
+import { TestStorage } from './test-storage';
 
 test(`[getAuthHeader function]: returns auth header`, () => {
-  const tokenStorage = new TestTokenStorage();
-  tokenStorage.set('accessToken', 'access-token');
+  const storage = new TestStorage();
+  storage.set('accessToken', 'access-token');
 
-  const headers = getAuthHeader(tokenStorage);
+  const headers = getAuthHeader(storage);
 
   expect(headers).toEqual({ Authorization: 'Bearer access-token' });
 });
 
 test(`[getAuthHeader function]: returns empty header`, () => {
-  const tokenStorage = new TestTokenStorage();
+  const storage = new TestStorage();
 
-  const headers = getAuthHeader(tokenStorage);
+  const headers = getAuthHeader(storage);
 
   expect(headers).toEqual({});
 });

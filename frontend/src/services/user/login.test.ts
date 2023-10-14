@@ -1,7 +1,7 @@
 import { expect, test } from 'vitest';
 
 import { login } from './login';
-import { TestTokenStorage } from './test-token-storage';
+import { TestStorage } from './test-storage';
 
 test(`[login function]: saves tokens`, async () => {
   const onRequest = async () => ({
@@ -11,12 +11,12 @@ test(`[login function]: saves tokens`, async () => {
       tokenType: 'Bearer',
     },
   });
-  const tokenStorage = new TestTokenStorage();
+  const storage = new TestStorage();
 
-  await login(onRequest, tokenStorage, 'test@email.com', 'testPassword');
+  await login(onRequest, storage, 'test@email.com', 'testPassword');
 
-  expect(tokenStorage.get('accessToken')).toEqual('access-token');
-  expect(tokenStorage.get('refreshToken')).toEqual('refresh-token');
+  expect(storage.get('accessToken')).toEqual('access-token');
+  expect(storage.get('refreshToken')).toEqual('refresh-token');
 });
 
 test(`[login function]: doesn't save tokens on problems`, async () => {
@@ -25,10 +25,10 @@ test(`[login function]: doesn't save tokens on problems`, async () => {
       problems: [{ message: 'Error' }],
     },
   });
-  const tokenStorage = new TestTokenStorage();
+  const storage = new TestStorage();
 
-  await login(onRequest, tokenStorage, 'test@email.com', 'testPassword');
+  await login(onRequest, storage, 'test@email.com', 'testPassword');
 
-  expect(tokenStorage.get('accessToken')).toBeNull();
-  expect(tokenStorage.get('refreshToken')).toBeNull();
+  expect(storage.get('accessToken')).toBeNull();
+  expect(storage.get('refreshToken')).toBeNull();
 });

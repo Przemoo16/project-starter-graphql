@@ -1,4 +1,4 @@
-import { type TokenStorage } from '~/libs/storage/types';
+import { type Storage } from '~/libs/storage/types';
 
 import {
   ACCESS_TOKEN_STORAGE_KEY,
@@ -8,7 +8,7 @@ import { type RequestSender } from './types';
 
 export const refreshToken = async (
   onRequest: RequestSender,
-  storage: TokenStorage,
+  storage: Storage,
 ) => {
   const mutation = `
     mutation RefreshToken($token: String!) {

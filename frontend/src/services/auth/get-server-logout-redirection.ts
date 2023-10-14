@@ -1,11 +1,17 @@
-import { type RequestEventLoader } from '@builder.io/qwik-city';
+import { type RedirectMessage } from '@builder.io/qwik-city/middleware/request-handler';
 
 import { RouteURL } from '~/libs/api/route-url';
 
 import { REDIRECTION_STATUS_CODE } from './constants';
 
-export const getServerLogoutRedirection =
-  (requestEvent: RequestEventLoader) => () => {
-    // eslint-disable-next-line @typescript-eslint/no-throw-literal
-    throw requestEvent.redirect(REDIRECTION_STATUS_CODE, RouteURL.Login);
-  };
+type RedirectCode = 300 | 301 | 302 | 303 | 304 | 305 | 307 | 308;
+
+export type Redirection = (
+  statusCode: RedirectCode,
+  url: string,
+) => RedirectMessage;
+
+export const getServerLogoutRedirection = (onRedirect: Redirection) => () => {
+  // eslint-disable-next-line @typescript-eslint/no-throw-literal
+  throw onRedirect(REDIRECTION_STATUS_CODE, RouteURL.Login);
+};

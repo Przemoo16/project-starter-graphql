@@ -1,9 +1,9 @@
 import { expect, test } from 'vitest';
 
 import { GraphQLError } from './graphql-error';
-import { sendGraphQLAuthorizedRequest } from './send-graphql-authorized-request';
+import { sendGraphQLAuthenticatedRequest } from './send-graphql-authenticated-request';
 
-test(`[sendGraphQLAuthorizedRequest function]: sends request with the auth header`, async () => {
+test(`[sendGraphQLAuthenticatedRequest function]: sends request with the auth header`, async () => {
   let headersCalled = null;
   const onFetch = async (
     _url: string,
@@ -21,7 +21,7 @@ test(`[sendGraphQLAuthorizedRequest function]: sends request with the auth heade
   });
   const requestConfig = { onGetAuthHeader };
 
-  await sendGraphQLAuthorizedRequest(
+  await sendGraphQLAuthenticatedRequest(
     onFetch,
     'http://localhost',
     requestConfig,
@@ -32,7 +32,7 @@ test(`[sendGraphQLAuthorizedRequest function]: sends request with the auth heade
   });
 });
 
-test(`[sendGraphQLAuthorizedRequest function]: sends original request successfully`, async () => {
+test(`[sendGraphQLAuthenticatedRequest function]: sends original request successfully`, async () => {
   let onFetchCalledTimes = 0;
   let onUnauthorizedCalled = false;
   const onFetch = async () => {
@@ -48,7 +48,7 @@ test(`[sendGraphQLAuthorizedRequest function]: sends original request successful
   };
   const requestConfig = { onUnauthorized };
 
-  await sendGraphQLAuthorizedRequest(
+  await sendGraphQLAuthenticatedRequest(
     onFetch,
     'http://localhost',
     requestConfig,
@@ -58,7 +58,7 @@ test(`[sendGraphQLAuthorizedRequest function]: sends original request successful
   expect(onUnauthorizedCalled).toBe(false);
 });
 
-test(`[sendGraphQLAuthorizedRequest function]: doesn't handle non graphql errors`, async () => {
+test(`[sendGraphQLAuthenticatedRequest function]: doesn't handle non graphql errors`, async () => {
   let onFetchCalledTimes = 0;
   let onUnauthorizedCalled = false;
   const onFetch = async () => {
@@ -72,7 +72,7 @@ test(`[sendGraphQLAuthorizedRequest function]: doesn't handle non graphql errors
 
   await expect(
     async () =>
-      await sendGraphQLAuthorizedRequest(
+      await sendGraphQLAuthenticatedRequest(
         onFetch,
         'http://localhost',
         requestConfig,
@@ -83,7 +83,7 @@ test(`[sendGraphQLAuthorizedRequest function]: doesn't handle non graphql errors
   expect(onUnauthorizedCalled).toBe(false);
 });
 
-test(`[sendGraphQLAuthorizedRequest function]: doesn't handle non token related errors`, async () => {
+test(`[sendGraphQLAuthenticatedRequest function]: doesn't handle non token related errors`, async () => {
   let onFetchCalledTimes = 0;
   let onUnauthorizedCalled = false;
   const onFetch = async () => {
@@ -110,7 +110,7 @@ test(`[sendGraphQLAuthorizedRequest function]: doesn't handle non token related 
 
   await expect(
     async () =>
-      await sendGraphQLAuthorizedRequest(
+      await sendGraphQLAuthenticatedRequest(
         onFetch,
         'http://localhost',
         requestConfig,
@@ -121,7 +121,7 @@ test(`[sendGraphQLAuthorizedRequest function]: doesn't handle non token related 
   expect(onUnauthorizedCalled).toBe(false);
 });
 
-test(`[sendGraphQLAuthorizedRequest function]: calls onUnauthorized callback on token related errors`, async () => {
+test(`[sendGraphQLAuthenticatedRequest function]: calls onUnauthorized callback on token related errors`, async () => {
   let onUnauthorizedCalled = false;
   let onInvalidTokensCalled = false;
   const onFetch = async () => ({
@@ -148,7 +148,7 @@ test(`[sendGraphQLAuthorizedRequest function]: calls onUnauthorized callback on 
 
   await expect(
     async () =>
-      await sendGraphQLAuthorizedRequest(
+      await sendGraphQLAuthenticatedRequest(
         onFetch,
         'http://localhost',
         requestConfig,
@@ -159,7 +159,7 @@ test(`[sendGraphQLAuthorizedRequest function]: calls onUnauthorized callback on 
   expect(onInvalidTokensCalled).toBe(false);
 });
 
-test(`[sendGraphQLAuthorizedRequest function]: calls onInvalidTokens callback on onUnauthorized callback error`, async () => {
+test(`[sendGraphQLAuthenticatedRequest function]: calls onInvalidTokens callback on onUnauthorized callback error`, async () => {
   let onInvalidTokensCalled = false;
   const onFetch = async () => ({
     errors: [
@@ -185,7 +185,7 @@ test(`[sendGraphQLAuthorizedRequest function]: calls onInvalidTokens callback on
 
   await expect(
     async () =>
-      await sendGraphQLAuthorizedRequest(
+      await sendGraphQLAuthenticatedRequest(
         onFetch,
         'http://localhost',
         requestConfig,
@@ -194,7 +194,7 @@ test(`[sendGraphQLAuthorizedRequest function]: calls onInvalidTokens callback on
   expect(onInvalidTokensCalled).toBe(true);
 });
 
-test(`[sendGraphQLAuthorizedRequest function]: retry original request with new token`, async () => {
+test(`[sendGraphQLAuthenticatedRequest function]: retry original request with new token`, async () => {
   let onGetAuthHeaderCalledTimes = 0;
   const headersCalled: Array<Record<string, string> | undefined> = [];
   const onFetch = async (
@@ -227,7 +227,7 @@ test(`[sendGraphQLAuthorizedRequest function]: retry original request with new t
 
   await expect(
     async () =>
-      await sendGraphQLAuthorizedRequest(
+      await sendGraphQLAuthenticatedRequest(
         onFetch,
         'http://localhost',
         requestConfig,
