@@ -3,13 +3,13 @@ import { GraphQLError } from '~/libs/api/graphql-error';
 import { type RequestConfig, sendGraphQLRequest } from './send-graphql-request';
 import { type Fetcher } from './types';
 
-interface AuthorizedRequestProps extends Omit<RequestConfig, 'headers'> {
+interface AuthenticatedRequestProps extends Omit<RequestConfig, 'headers'> {
   onGetAuthHeader?: () => Record<string, string>;
   onUnauthorized?: () => Promise<void>;
   onInvalidTokens?: () => void;
 }
 
-export const sendGraphQLAuthorizedRequest = async (
+export const sendGraphQLAuthenticatedRequest = async (
   onFetch: Fetcher,
   url: string,
   {
@@ -18,7 +18,7 @@ export const sendGraphQLAuthorizedRequest = async (
     onGetAuthHeader = () => ({}),
     onUnauthorized = async () => {},
     onInvalidTokens = () => {},
-  }: AuthorizedRequestProps,
+  }: AuthenticatedRequestProps,
 ) => {
   try {
     const headers = onGetAuthHeader();

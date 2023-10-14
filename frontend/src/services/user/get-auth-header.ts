@@ -1,8 +1,8 @@
-import { type TokenStorage } from '~/libs/storage/types';
+import { type Storage } from '~/libs/storage/types';
 
 import { ACCESS_TOKEN_STORAGE_KEY } from './constants';
 
-export const getAuthHeader = (storage: TokenStorage) => {
+export const getAuthHeader = (storage: Storage) => {
   const accessToken = storage.get(ACCESS_TOKEN_STORAGE_KEY);
   const headers: Record<string, string> = accessToken
     ? { Authorization: `Bearer ${accessToken}` }

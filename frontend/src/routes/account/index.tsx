@@ -12,6 +12,7 @@ import { onProtectedRoute } from '~/services/auth/on-protected-route';
 import { getClientRequestSender } from '~/services/requests/get-client-request-sender';
 import { getServerRequestSender } from '~/services/requests/get-server-request-sender';
 import { getClientTokenStorage } from '~/services/tokens/get-client-token-storage';
+import { getServerTokenStorage } from '~/services/tokens/get-server-token-storage';
 import { deleteMe } from '~/services/user/delete-me';
 import { getMe } from '~/services/user/get-me';
 import { logout } from '~/services/user/logout';
@@ -32,10 +33,13 @@ export const onRequest: RequestHandler = requestEvent => {
 
 export const useUpdateAccountFormLoader = routeLoader$<
   InitialValues<UpdateAccountFormSchema>
->(async requestEvent => {
+>(async ({ cookie, redirect }) => {
   const {
     me: { fullName },
-  } = await getMe(getServerRequestSender(requestEvent));
+  } = await getMe(
+    getServerRequestSender(cookie, redirect),
+    getServerTokenStorage(cookie),
+  );
   return { fullName };
 });
 

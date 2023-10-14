@@ -1,15 +1,15 @@
 import { expect, test } from 'vitest';
 
 import { clearTokens } from './clear-tokens';
-import { TestTokenStorage } from './test-token-storage';
+import { TestStorage } from './test-storage';
 
 test(`[clearTokens function]: removes tokens`, () => {
-  const tokenStorage = new TestTokenStorage();
-  tokenStorage.set('accessToken', 'access-token');
-  tokenStorage.set('refreshToken', 'refresh-token');
+  const storage = new TestStorage();
+  storage.set('accessToken', 'access-token');
+  storage.set('refreshToken', 'refresh-token');
 
-  clearTokens(tokenStorage);
+  clearTokens(storage);
 
-  expect(tokenStorage.get('accessToken')).toBeNull();
-  expect(tokenStorage.get('refreshToken')).toBeNull();
+  expect(storage.get('accessToken')).toBeNull();
+  expect(storage.get('refreshToken')).toBeNull();
 });
