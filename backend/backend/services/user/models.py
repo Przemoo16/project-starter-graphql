@@ -1,7 +1,7 @@
 from datetime import datetime
 from uuid import UUID, uuid4
 
-from sqlalchemy import String
+from sqlalchemy import DateTime, String
 from sqlalchemy.orm import Mapped, mapped_column
 
 from backend.libs.db.functions import utcnow
@@ -16,8 +16,12 @@ class User(Base):
     hashed_password: Mapped[str] = mapped_column(String(128))
     full_name: Mapped[str] = mapped_column(String(128))
     confirmed_email: Mapped[bool] = mapped_column(default=False)
-    last_login: Mapped[datetime | None] = mapped_column(default=None)
-    created_at: Mapped[datetime] = mapped_column(server_default=utcnow())
+    last_login: Mapped[datetime | None] = mapped_column(
+        DateTime(timezone=True), default=None
+    )
+    created_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True), server_default=utcnow()
+    )
     updated_at: Mapped[datetime] = mapped_column(
-        server_default=utcnow(), onupdate=utcnow()
+        DateTime(timezone=True), server_default=utcnow(), onupdate=utcnow()
     )
