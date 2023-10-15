@@ -25,7 +25,7 @@ export default component$(() => {
    * Don't remove the `<head>` and `<body>` elements.
    */
 
-  // TODO: Ideally it this done on the server before rendering component, however
+  // FIXME: Ideally it this done on the server before rendering component, however
   // I couldn't find the way to execute it only once on page enter.
   useVisibleTask$(async () => {
     await checkTokenValidity(new BrowserStorage(sessionStorage), async () => {

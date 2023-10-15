@@ -5,5 +5,5 @@ export const head: DocumentHead = {
   title: 'runtime.404.head.title',
 };
 
-// TODO: The custom 404 page doesn't work: https://github.com/BuilderIO/qwik/issues/5030
+// FIXME: The custom 404 page doesn't work: https://github.com/BuilderIO/qwik/issues/5030
 export default component$(() => <>Not found</>);

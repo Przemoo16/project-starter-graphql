@@ -1,16 +1,16 @@
 """
 Init tables.
 
-Revision ID: 31b17b043ee3
+Revision ID: 70354f8a2bd9
 Revises:
-Create Date: 2023-08-04 19:38:07.558803
+Create Date: 2023-10-14 20:23:56.696708
 
 """
 import sqlalchemy as sa
 from alembic import op
 
 # revision identifiers, used by Alembic.
-revision = "31b17b043ee3"
+revision = "70354f8a2bd9"
 down_revision = None
 branch_labels = None
 depends_on = None
@@ -25,16 +25,16 @@ def upgrade() -> None:
         sa.Column("hashed_password", sa.String(length=128), nullable=False),
         sa.Column("full_name", sa.String(length=128), nullable=False),
         sa.Column("confirmed_email", sa.Boolean(), nullable=False),
-        sa.Column("last_login", sa.DateTime(), nullable=True),
+        sa.Column("last_login", sa.DateTime(timezone=True), nullable=True),
         sa.Column(
             "created_at",
-            sa.DateTime(),
+            sa.DateTime(timezone=True),
             server_default=sa.text("TIMEZONE('utc', CURRENT_TIMESTAMP)"),
             nullable=False,
         ),
         sa.Column(
             "updated_at",
-            sa.DateTime(),
+            sa.DateTime(timezone=True),
             server_default=sa.text("TIMEZONE('utc', CURRENT_TIMESTAMP)"),
             nullable=False,
         ),

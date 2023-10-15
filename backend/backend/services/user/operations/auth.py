@@ -1,7 +1,7 @@
 import logging
 from collections.abc import Callable, Mapping
 from dataclasses import dataclass
-from datetime import datetime
+from datetime import UTC, datetime
 from typing import Any
 from uuid import UUID
 
@@ -123,7 +123,7 @@ def _validate_user_email_is_confirmed(user: User) -> None:
 
 async def _login_user(user: User, crud: UserCRUDProtocol) -> User:
     return await crud.update_and_refresh(
-        user, UserUpdateData(last_login=datetime.utcnow())
+        user, UserUpdateData(last_login=datetime.now(UTC))
     )
 
 

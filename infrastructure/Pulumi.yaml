@@ -20,7 +20,7 @@ config:
   database_engine_version:
     type: string
     description: The database engine version to use.
-    default: "15.3"
+    default: "16.0"
   database_storage_type:
     type: string
     description: The database storage type.
