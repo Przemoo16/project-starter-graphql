@@ -3,3 +3,5 @@ export interface Storage {
   set: (key: string, value: string) => void;
   remove: (key: string) => void;
 }
+
+export type SameSite = 'strict' | 'lax' | 'none';
