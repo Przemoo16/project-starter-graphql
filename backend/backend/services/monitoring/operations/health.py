@@ -6,7 +6,6 @@ from backend.services.monitoring.exceptions import HealthError
 
 logger = logging.getLogger(__name__)
 
-
 HEALTHY_FLAG = "OK"
 
 
