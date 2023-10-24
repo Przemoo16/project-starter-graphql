@@ -1,5 +1,5 @@
 import logging
-from collections.abc import Callable, Mapping
+from collections.abc import Awaitable, Callable, Mapping
 from dataclasses import dataclass
 from gettext import gettext as _
 from typing import Any, Protocol
@@ -22,10 +22,11 @@ from backend.services.user.schemas import PasswordChangeSchema, PasswordResetSch
 
 logger = logging.getLogger(__name__)
 
-PasswordValidator = Callable[[str, str], tuple[bool, str | None]]
+AsyncPasswordValidator = Callable[[str, str], Awaitable[tuple[bool, str | None]]]
 PasswordHasher = Callable[[str], str]
+AsyncPasswordHasher = Callable[[str], Awaitable[str]]
 TokenCreator = Callable[[Mapping[str, Any]], str]
-TokenReader = Callable[[str], dict[str, Any]]
+AsyncTokenReader = Callable[[str], Awaitable[dict[str, Any]]]
 
 
 class TemplateLoader(Protocol):
@@ -51,8 +52,8 @@ class ResetPasswordEmailData:
 
 @dataclass
 class PasswordManager:
-    validator: PasswordValidator
-    hasher: PasswordHasher
+    validator: AsyncPasswordValidator
+    hasher: AsyncPasswordHasher
 
 
 @dataclass
@@ -124,23 +125,23 @@ def _send_reset_password_email(
 
 async def reset_password(
     data: PasswordResetSchema,
-    token_reader: TokenReader,
+    token_reader: AsyncTokenReader,
     password_manager: PasswordManager,
     crud: UserCRUDProtocol,
 ) -> None:
-    payload = _decode_reset_password_token(data.token, token_reader)
+    payload = await _decode_reset_password_token(data.token, token_reader)
     user = await _get_user_by_id(payload.user_id, crud)
-    _validate_token_fingerprint(
+    await _validate_token_fingerprint(
         user.hashed_password, payload.fingerprint, password_manager.validator
     )
     await _set_password(user, data.password, password_manager.hasher, crud)
 
 
-def _decode_reset_password_token(
-    token: str, token_reader: TokenReader
+async def _decode_reset_password_token(
+    token: str, token_reader: AsyncTokenReader
 ) -> ResetPasswordTokenPayload:
     try:
-        data = token_reader(token)
+        data = await token_reader(token)
     except InvalidTokenError as exc:
         logger.info("The token is invalid")
         raise InvalidResetPasswordTokenError from exc
@@ -163,10 +164,10 @@ async def _get_user_by_id(user_id: UUID, crud: UserCRUDProtocol) -> User:
         raise UserNotFoundError from exc
 
 
-def _validate_token_fingerprint(
-    hashed_password: str, fingerprint: str, password_validator: PasswordValidator
+async def _validate_token_fingerprint(
+    hashed_password: str, fingerprint: str, password_validator: AsyncPasswordValidator
 ) -> None:
-    is_valid, _ = password_validator(hashed_password, fingerprint)
+    is_valid, _ = await password_validator(hashed_password, fingerprint)
     if not is_valid:
         logger.info("The token has invalid fingerprint")
         raise InvalidResetPasswordTokenFingerprintError
@@ -175,12 +176,14 @@ def _validate_token_fingerprint(
 async def _set_password(
     user: User,
     password: SecretStr,
-    password_hasher: PasswordHasher,
+    password_hasher: AsyncPasswordHasher,
     crud: UserCRUDProtocol,
 ) -> None:
     await crud.update(
         user,
-        UserUpdateData(hashed_password=password_hasher(password.get_secret_value())),
+        UserUpdateData(
+            hashed_password=await password_hasher(password.get_secret_value())
+        ),
     )
 
 
@@ -190,7 +193,7 @@ async def change_password(
     password_manager: PasswordManager,
     crud: UserCRUDProtocol,
 ) -> None:
-    _validate_password(
+    await _validate_password(
         user,
         data.current_password,
         password_validator=password_manager.validator,
@@ -198,10 +201,12 @@ async def change_password(
     await _set_password(user, data.new_password, password_manager.hasher, crud)
 
 
-def _validate_password(
-    user: User, password: SecretStr, password_validator: PasswordValidator
+async def _validate_password(
+    user: User, password: SecretStr, password_validator: AsyncPasswordValidator
 ) -> None:
-    is_valid, _ = password_validator(password.get_secret_value(), user.hashed_password)
+    is_valid, _ = await password_validator(
+        password.get_secret_value(), user.hashed_password
+    )
     if not is_valid:
         logger.info("Invalid password for the user %r", user.email)
         raise InvalidPasswordError

@@ -1,5 +1,5 @@
 import logging
-from collections.abc import Callable
+from collections.abc import Awaitable, Callable
 
 from backend.libs.db.crud import NoObjectFoundError
 from backend.services.user.crud import (
@@ -14,12 +14,12 @@ from backend.services.user.schemas import UserCreateSchema, UserUpdateSchema
 
 logger = logging.getLogger(__name__)
 
-PasswordHasher = Callable[[str], str]
+AsyncPasswordHasher = Callable[[str], Awaitable[str]]
 
 
 async def create_user(
     data: UserCreateSchema,
-    password_hasher: PasswordHasher,
+    password_hasher: AsyncPasswordHasher,
     crud: UserCRUDProtocol,
     success_callback: Callable[[User], None] = lambda _: None,
 ) -> User:
@@ -28,7 +28,7 @@ async def create_user(
     except NoObjectFoundError:
         create_data = UserCreateData(
             **data.model_dump(exclude={"password"}),
-            hashed_password=password_hasher(data.password.get_secret_value()),
+            hashed_password=await password_hasher(data.password.get_secret_value()),
         )
         user = await crud.create_and_refresh(create_data)
         success_callback(user)

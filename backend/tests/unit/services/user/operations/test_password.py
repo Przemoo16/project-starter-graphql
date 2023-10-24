@@ -28,10 +28,10 @@ from tests.unit.helpers.user import UserCRUD, create_user
 
 @pytest.fixture(name="password_manager")
 def password_manager_fixture() -> PasswordManager:
-    def validate_password(*_: str) -> tuple[bool, None]:
+    async def validate_password(*_: str) -> tuple[bool, None]:
         return True, None
 
-    def hash_password(_: str) -> str:
+    async def hash_password(_: str) -> str:
         return "hashed_password"
 
     return PasswordManager(validator=validate_password, hasher=hash_password)
@@ -117,14 +117,14 @@ async def test_reset_password(password_manager: PasswordManager) -> None:
         hashed_password="hashed_password",
     )
 
-    def read_token(_: str) -> dict[str, str]:
+    async def read_token(_: str) -> dict[str, str]:
         return {
             "sub": "6d9c79d6-9641-4746-92d9-2cc9ebdca941",
             "fingerprint": "test-fingerprint",
             "type": "reset-password",
         }
 
-    def hash_password(_: str) -> str:
+    async def hash_password(_: str) -> str:
         return "new_hashed_password"
 
     password_manager.hasher = hash_password
@@ -140,7 +140,7 @@ async def test_reset_password(password_manager: PasswordManager) -> None:
 async def test_reset_password_invalid_token(password_manager: PasswordManager) -> None:
     data = PasswordResetSchema(token="test-token", password="plain_password")
 
-    def read_token(_: str) -> dict[str, str]:
+    async def read_token(_: str) -> dict[str, str]:
         raise InvalidTokenError
 
     crud = UserCRUD()
@@ -155,7 +155,7 @@ async def test_reset_password_invalid_token_type(
 ) -> None:
     data = PasswordResetSchema(token="test-token", password="plain_password")
 
-    def read_token(_: str) -> dict[str, str]:
+    async def read_token(_: str) -> dict[str, str]:
         return {
             "sub": "6d9c79d6-9641-4746-92d9-2cc9ebdca941",
             "fingerprint": "test-fingerprint",
@@ -172,7 +172,7 @@ async def test_reset_password_invalid_token_type(
 async def test_reset_password_user_not_found(password_manager: PasswordManager) -> None:
     data = PasswordResetSchema(token="test-token", password="plain_password")
 
-    def read_token(_: str) -> dict[str, str]:
+    async def read_token(_: str) -> dict[str, str]:
         return {
             "sub": "6d9c79d6-9641-4746-92d9-2cc9ebdca941",
             "fingerprint": "test-fingerprint",
@@ -191,14 +191,14 @@ async def test_reset_password_invalid_fingerprint(
 ) -> None:
     data = PasswordResetSchema(token="test-token", password="plain_password")
 
-    def read_token(_: str) -> dict[str, str]:
+    async def read_token(_: str) -> dict[str, str]:
         return {
             "sub": "6d9c79d6-9641-4746-92d9-2cc9ebdca941",
             "fingerprint": "test-fingerprint",
             "type": "reset-password",
         }
 
-    def validate_password(*_: str) -> tuple[bool, None]:
+    async def validate_password(*_: str) -> tuple[bool, None]:
         return False, None
 
     password_manager.validator = validate_password
@@ -218,7 +218,7 @@ async def test_change_password(password_manager: PasswordManager) -> None:
         current_password="plain_password", new_password="new_password"
     )
 
-    def hash_password(_: str) -> str:
+    async def hash_password(_: str) -> str:
         return "new_hashed_password"
 
     password_manager.hasher = hash_password
@@ -238,7 +238,7 @@ async def test_change_password_invalid_password(
         current_password="plain_password", new_password="new_password"
     )
 
-    def validate_password(*_: str) -> tuple[bool, None]:
+    async def validate_password(*_: str) -> tuple[bool, None]:
         return False, None
 
     password_manager.validator = validate_password

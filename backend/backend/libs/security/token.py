@@ -4,6 +4,8 @@ from typing import Any
 import orjson
 from pyseto import DecryptError, Key, Paseto, VerifyError
 
+from backend.libs.types.asynchronous import AsyncExecutor
+
 
 class InvalidTokenError(Exception):
     pass
@@ -24,6 +26,20 @@ def create_paseto_token_public_v4(
     return token.decode("utf-8")  # type: ignore[no-any-return]
 
 
+async def async_create_paseto_token_public_v4(
+    payload: Mapping[str, Any],
+    expiration: int,
+    key: bytes | str,
+    executor: AsyncExecutor,
+) -> str:
+    return await executor(
+        create_paseto_token_public_v4,
+        payload,
+        expiration,
+        key,
+    )
+
+
 def read_paseto_token_public_v4(token: str, key: bytes | str) -> dict[str, Any]:
     paseto_key = Key.new(version=4, purpose="public", key=key)
     try:
@@ -35,3 +51,9 @@ def read_paseto_token_public_v4(token: str, key: bytes | str) -> dict[str, Any]:
     except (DecryptError, VerifyError, ValueError) as exc:
         raise InvalidTokenError() from exc
     return decoded_token.payload  # type: ignore[no-any-return]
+
+
+async def async_read_paseto_token_public_v4(
+    token: str, key: bytes | str, executor: AsyncExecutor
+) -> dict[str, Any]:
+    return await executor(read_paseto_token_public_v4, token, key)

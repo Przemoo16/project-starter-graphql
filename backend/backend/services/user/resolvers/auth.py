@@ -6,10 +6,10 @@ from strawberry import argument
 from backend.config.settings import get_settings
 from backend.libs.api.context import Info
 from backend.services.user.context import (
-    PASSWORD_HASHER,
-    PASSWORD_VALIDATOR,
-    TOKEN_CREATOR,
-    TOKEN_READER,
+    ASYNC_PASSWORD_HASHER,
+    ASYNC_PASSWORD_VALIDATOR,
+    ASYNC_TOKEN_CREATOR,
+    ASYNC_TOKEN_READER,
 )
 from backend.services.user.crud import UserCRUD
 from backend.services.user.exceptions import (
@@ -39,10 +39,12 @@ from backend.services.user.types.auth import (
 user_settings = get_settings().user
 
 ACCESS_TOKEN_CREATOR = partial(
-    TOKEN_CREATOR, expiration=int(user_settings.access_token_lifetime.total_seconds())
+    ASYNC_TOKEN_CREATOR,
+    expiration=int(user_settings.access_token_lifetime.total_seconds()),
 )
 REFRESH_TOKEN_CREATOR = partial(
-    TOKEN_CREATOR, expiration=int(user_settings.refresh_token_lifetime.total_seconds())
+    ASYNC_TOKEN_CREATOR,
+    expiration=int(user_settings.refresh_token_lifetime.total_seconds()),
 )
 
 
@@ -53,8 +55,8 @@ async def login_resolver(
         email=login_input.username, password=login_input.password
     )
     password_manager = PasswordManager(
-        validator=PASSWORD_VALIDATOR,
-        hasher=PASSWORD_HASHER,
+        validator=ASYNC_PASSWORD_VALIDATOR,
+        hasher=ASYNC_PASSWORD_HASHER,
     )
     tokens_manager = AuthTokensManager(
         access_token_creator=ACCESS_TOKEN_CREATOR,
@@ -81,9 +83,11 @@ class RefreshTokenError(Exception):
     pass
 
 
-def refresh_token_resolver(token: str) -> RefreshTokenResponse:
+async def refresh_token_resolver(token: str) -> RefreshTokenResponse:
     try:
-        access_token = refresh_token(token, TOKEN_READER, ACCESS_TOKEN_CREATOR)
+        access_token = await refresh_token(
+            token, ASYNC_TOKEN_READER, ACCESS_TOKEN_CREATOR
+        )
     except InvalidRefreshTokenError as exc:
         msg = "Invalid token"
         raise RefreshTokenError(msg) from exc

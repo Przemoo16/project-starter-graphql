@@ -12,7 +12,7 @@ from tests.unit.helpers.user import UserCRUD
 from tests.unit.helpers.user import create_user as create_user_helper
 
 
-def hash_test_password(_: str) -> str:
+async def hash_test_password(_: str) -> str:
     return "hashed_password"
 
 
@@ -23,7 +23,7 @@ async def test_create_user() -> None:
     )
     crud = UserCRUD()
 
-    def hash_password(_: str) -> str:
+    async def hash_password(_: str) -> str:
         return "hashed_password"
 
     user = await create_user(data, hash_password, crud)

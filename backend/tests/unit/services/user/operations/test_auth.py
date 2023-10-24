@@ -24,16 +24,16 @@ from backend.services.user.schemas import CredentialsSchema
 from tests.unit.helpers.user import UserCRUD, create_confirmed_user, create_user
 
 
-def create_test_token(_: Mapping[str, Any]) -> str:
+async def create_test_token(_: Mapping[str, Any]) -> str:
     return "test-token"
 
 
 @pytest.fixture(name="password_manager")
 def password_manager_fixture() -> PasswordManager:
-    def validate_password(*_: str) -> tuple[bool, None]:
+    async def validate_password(*_: str) -> tuple[bool, None]:
         return True, None
 
-    def hash_password(_: str) -> str:
+    async def hash_password(_: str) -> str:
         return "hashed_password"
 
     return PasswordManager(validator=validate_password, hasher=hash_password)
@@ -50,7 +50,7 @@ def tokens_manager_fixture() -> AuthTokensManager:
 async def test_login_create_tokens(password_manager: PasswordManager) -> None:
     credentials = CredentialsSchema(email="test@email.com", password="plain_password")
 
-    def create_token(payload: Mapping[str, Any]) -> str:
+    async def create_token(payload: Mapping[str, Any]) -> str:
         return "-".join(f"{key}:{value}" for key, value in payload.items())
 
     tokens_manager = AuthTokensManager(
@@ -77,7 +77,7 @@ async def test_login_update_password_hash(
 ) -> None:
     credentials = CredentialsSchema(email="test@email.com", password="plain_password")
 
-    def validate_password(*_: str) -> tuple[bool, str]:
+    async def validate_password(*_: str) -> tuple[bool, str]:
         return True, "new_hashed_password"
 
     password_manager.validator = validate_password
@@ -97,7 +97,7 @@ async def test_login_do_not_update_password_hash(
 ) -> None:
     credentials = CredentialsSchema(email="test@email.com", password="plain_password")
 
-    def validate_password(*_: str) -> tuple[bool, None]:
+    async def validate_password(*_: str) -> tuple[bool, None]:
         return True, None
 
     password_manager.validator = validate_password
@@ -142,7 +142,7 @@ async def test_login_user_not_found_password_hasher_called(
     credentials = CredentialsSchema(email="test@email.com", password="plain_password")
     hasher_called = False
 
-    def hash_password(_: str) -> str:
+    async def hash_password(_: str) -> str:
         nonlocal hasher_called
         hasher_called = True
         return "hashed_password"
@@ -162,7 +162,7 @@ async def test_login_user_found_password_hasher_not_called(
     credentials = CredentialsSchema(email="test@email.com", password="plain_password")
     hasher_called = False
 
-    def hash_password(_: str) -> str:
+    async def hash_password(_: str) -> str:
         nonlocal hasher_called
         hasher_called = True
         return "hashed_password"
@@ -181,7 +181,7 @@ async def test_login_invalid_password(
 ) -> None:
     credentials = CredentialsSchema(email="test@email.com", password="plain_password")
 
-    def validate_password(*_: str) -> tuple[bool, None]:
+    async def validate_password(*_: str) -> tuple[bool, None]:
         return False, None
 
     password_manager.validator = validate_password
@@ -206,7 +206,7 @@ async def test_login_user_email_not_confirmed(
 async def test_get_confirmed_user_from_headers() -> None:
     headers = {"Authorization": "Bearer test-token"}
 
-    def read_token(_: str) -> dict[str, str]:
+    async def read_token(_: str) -> dict[str, str]:
         return {
             "sub": "6d9c79d6-9641-4746-92d9-2cc9ebdca941",
             "type": "access",
@@ -227,7 +227,7 @@ async def test_get_confirmed_user_from_headers() -> None:
 async def test_get_confirmed_user_from_headers_missing_token() -> None:
     headers: dict[str, str] = {}
 
-    def read_token(_: str) -> dict[str, str]:
+    async def read_token(_: str) -> dict[str, str]:
         return {
             "sub": "6d9c79d6-9641-4746-92d9-2cc9ebdca941",
             "type": "access",
@@ -243,7 +243,7 @@ async def test_get_confirmed_user_from_headers_missing_token() -> None:
 async def test_get_confirmed_user_from_headers_invalid_token() -> None:
     headers = {"Authorization": "Bearer test-token"}
 
-    def read_token(_: str) -> dict[str, str]:
+    async def read_token(_: str) -> dict[str, str]:
         raise InvalidTokenError
 
     crud = UserCRUD()
@@ -256,7 +256,7 @@ async def test_get_confirmed_user_from_headers_invalid_token() -> None:
 async def test_get_confirmed_user_from_headers_invalid_token_type() -> None:
     headers = {"Authorization": "Bearer test-token"}
 
-    def read_token(_: str) -> dict[str, str]:
+    async def read_token(_: str) -> dict[str, str]:
         return {
             "sub": "6d9c79d6-9641-4746-92d9-2cc9ebdca941",
             "type": "invalid-type",
@@ -272,7 +272,7 @@ async def test_get_confirmed_user_from_headers_invalid_token_type() -> None:
 async def test_get_confirmed_user_from_headers_user_not_found() -> None:
     headers = {"Authorization": "Bearer test-token"}
 
-    def read_token(_: str) -> dict[str, str]:
+    async def read_token(_: str) -> dict[str, str]:
         return {
             "sub": "6d9c79d6-9641-4746-92d9-2cc9ebdca941",
             "type": "access",
@@ -288,7 +288,7 @@ async def test_get_confirmed_user_from_headers_user_not_found() -> None:
 async def test_get_confirmed_user_from_headers_user_email_not_confirmed() -> None:
     headers = {"Authorization": "Bearer test-token"}
 
-    def read_token(_: str) -> dict[str, str]:
+    async def read_token(_: str) -> dict[str, str]:
         return {
             "sub": "6d9c79d6-9641-4746-92d9-2cc9ebdca941",
             "type": "access",
@@ -302,41 +302,44 @@ async def test_get_confirmed_user_from_headers_user_email_not_confirmed() -> Non
         await get_confirmed_user_from_headers(headers, read_token, crud)
 
 
-def test_refresh_token() -> None:
+@pytest.mark.anyio()
+async def test_refresh_token() -> None:
     token = "test-token"
 
-    def read_token(_: str) -> dict[str, str]:
+    async def read_token(_: str) -> dict[str, str]:
         return {
             "sub": "6d9c79d6-9641-4746-92d9-2cc9ebdca941",
             "type": "refresh",
         }
 
-    def create_token(payload: Mapping[str, Any]) -> str:
+    async def create_token(payload: Mapping[str, Any]) -> str:
         return "-".join(f"{key}:{value}" for key, value in payload.items())
 
-    access_token = refresh_token(token, read_token, create_token)
+    access_token = await refresh_token(token, read_token, create_token)
 
     assert access_token == "sub:6d9c79d6-9641-4746-92d9-2cc9ebdca941-type:access"
 
 
-def test_refresh_token_invalid_token() -> None:
+@pytest.mark.anyio()
+async def test_refresh_token_invalid_token() -> None:
     token = "test-token"
 
-    def read_token(_: str) -> dict[str, str]:
+    async def read_token(_: str) -> dict[str, str]:
         raise InvalidTokenError
 
     with pytest.raises(InvalidRefreshTokenError):
-        refresh_token(token, read_token, create_test_token)
+        await refresh_token(token, read_token, create_test_token)
 
 
-def test_refresh_token_invalid_token_type() -> None:
+@pytest.mark.anyio()
+async def test_refresh_token_invalid_token_type() -> None:
     token = "test-token"
 
-    def read_token(_: str) -> dict[str, str]:
+    async def read_token(_: str) -> dict[str, str]:
         return {
             "sub": "6d9c79d6-9641-4746-92d9-2cc9ebdca941",
             "type": "invalid-type",
         }
 
     with pytest.raises(InvalidRefreshTokenError):
-        refresh_token(token, read_token, create_test_token)
+        await refresh_token(token, read_token, create_test_token)

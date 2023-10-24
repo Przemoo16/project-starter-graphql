@@ -1,5 +1,5 @@
 import logging
-from collections.abc import Callable, Mapping
+from collections.abc import Awaitable, Callable, Mapping
 from dataclasses import dataclass
 from gettext import gettext as _
 from typing import Any, Protocol
@@ -19,7 +19,7 @@ from backend.services.user.models import User
 logger = logging.getLogger(__name__)
 
 TokenCreator = Callable[[Mapping[str, Any]], str]
-TokenReader = Callable[[str], dict[str, Any]]
+AsyncTokenReader = Callable[[str], Awaitable[dict[str, Any]]]
 
 
 class TemplateLoader(Protocol):
@@ -91,19 +91,19 @@ def _send_confirmation_email(
 
 
 async def confirm_email(
-    token: str, token_reader: TokenReader, crud: UserCRUDProtocol
+    token: str, token_reader: AsyncTokenReader, crud: UserCRUDProtocol
 ) -> None:
-    payload = _decode_email_confirmation_token(token, token_reader)
+    payload = await _decode_email_confirmation_token(token, token_reader)
     user = await _get_user_by_id_and_email(payload.user_id, payload.user_email, crud)
     _validate_user_email_is_not_already_confirmed(user)
     await _confirm_email(user, crud)
 
 
-def _decode_email_confirmation_token(
-    token: str, token_reader: TokenReader
+async def _decode_email_confirmation_token(
+    token: str, token_reader: AsyncTokenReader
 ) -> ConfirmationTokenPayload:
     try:
-        data = token_reader(token)
+        data = await token_reader(token)
     except InvalidTokenError as exc:
         logger.info("The token is invalid")
         raise InvalidEmailConfirmationTokenError from exc
