@@ -28,7 +28,7 @@ class RDS(pulumi.ComponentResource):
 
     @property
     def name(self) -> pulumi.Output[str]:
-        return self._database.name  # type: ignore[no-any-return]
+        return self._database.db_name  # type: ignore[no-any-return]
 
     @property
     def host(self) -> pulumi.Output[str]:
@@ -91,7 +91,7 @@ class RDS(pulumi.ComponentResource):
                 "security_group_id": security_group.id,
                 "subnet_group_name": subnet_group.name,
                 "username": self._database.username,
-                "name": self._database.name,
+                "name": self._database.db_name,
                 "host": self._database.address,
                 "port": self._database.port,
                 "endpoint": self._database.endpoint,
