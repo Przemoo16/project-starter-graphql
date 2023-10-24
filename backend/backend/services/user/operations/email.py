@@ -1,30 +1,27 @@
 import logging
-from collections.abc import Awaitable, Callable, Mapping
+from collections.abc import Callable
 from dataclasses import dataclass
 from gettext import gettext as _
-from typing import Any, Protocol
 from uuid import UUID
 
 from backend.libs.db.crud import NoObjectFoundError
 from backend.libs.email.message import HTMLMessage
 from backend.libs.security.token import InvalidTokenError
-from backend.services.user.crud import UserCRUDProtocol, UserFilters, UserUpdateData
+from backend.services.user.crud import UserFilters, UserUpdateData
 from backend.services.user.exceptions import (
     InvalidEmailConfirmationTokenError,
     UserEmailAlreadyConfirmedError,
     UserNotFoundError,
 )
 from backend.services.user.models import User
+from backend.services.user.operations.types import (
+    AsyncTokenReader,
+    TemplateLoader,
+    TokenCreator,
+    UserCRUDProtocol,
+)
 
 logger = logging.getLogger(__name__)
-
-TokenCreator = Callable[[Mapping[str, Any]], str]
-AsyncTokenReader = Callable[[str], Awaitable[dict[str, Any]]]
-
-
-class TemplateLoader(Protocol):
-    def __call__(self, name: str, **kwargs: Any) -> str:
-        ...
 
 
 EMAIL_CONFIRMATION_TOKEN_TYPE = "email-confirmation"  # nosec
