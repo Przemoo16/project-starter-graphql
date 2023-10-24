@@ -2,7 +2,7 @@ from dataclasses import dataclass
 from datetime import datetime
 from uuid import UUID
 
-from backend.libs.db.crud import CRUD, UNSET, CRUDProtocol, UnsetType
+from backend.libs.db.crud import CRUD, UNSET, UnsetType
 from backend.services.user.models import User
 
 
@@ -27,7 +27,5 @@ class UserFilters:
     id: UUID | UnsetType = UNSET
     email: str | UnsetType = UNSET
 
-
-UserCRUDProtocol = CRUDProtocol[User, UserCreateData, UserUpdateData, UserFilters]
 
 UserCRUD = CRUD[User, UserCreateData, UserUpdateData, UserFilters]

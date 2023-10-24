@@ -1,5 +1,5 @@
 import logging
-from collections.abc import Awaitable, Callable, Mapping
+from collections.abc import Mapping
 from dataclasses import dataclass
 from datetime import UTC, datetime
 from typing import Any
@@ -10,7 +10,7 @@ from pydantic import SecretStr
 from backend.libs.api.headers import BearerTokenNotFoundError, read_bearer_token
 from backend.libs.db.crud import NoObjectFoundError
 from backend.libs.security.token import InvalidTokenError
-from backend.services.user.crud import UserCRUDProtocol, UserFilters, UserUpdateData
+from backend.services.user.crud import UserFilters, UserUpdateData
 from backend.services.user.exceptions import (
     InvalidAccessTokenError,
     InvalidPasswordError,
@@ -20,14 +20,17 @@ from backend.services.user.exceptions import (
     UserNotFoundError,
 )
 from backend.services.user.models import User
+from backend.services.user.operations.types import (
+    AsyncPasswordHasher,
+    AsyncPasswordValidator,
+    AsyncTokenCreator,
+    AsyncTokenReader,
+    UserCRUDProtocol,
+)
 from backend.services.user.schemas import CredentialsSchema
 
 logger = logging.getLogger(__name__)
 
-AsyncPasswordValidator = Callable[[str, str], Awaitable[tuple[bool, str | None]]]
-AsyncPasswordHasher = Callable[[str], Awaitable[str]]
-AsyncTokenCreator = Callable[[Mapping[str, Any]], Awaitable[str]]
-AsyncTokenReader = Callable[[str], Awaitable[dict[str, Any]]]
 
 ACCESS_TOKEN_TYPE = "access"  # nosec
 REFRESH_TOKEN_TYPE = "refresh"  # nosec

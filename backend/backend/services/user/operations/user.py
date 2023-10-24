@@ -1,20 +1,14 @@
 import logging
-from collections.abc import Awaitable, Callable
+from collections.abc import Callable
 
 from backend.libs.db.crud import NoObjectFoundError
-from backend.services.user.crud import (
-    UserCreateData,
-    UserCRUDProtocol,
-    UserFilters,
-    UserUpdateData,
-)
+from backend.services.user.crud import UserCreateData, UserFilters, UserUpdateData
 from backend.services.user.exceptions import UserAlreadyExistsError
 from backend.services.user.models import User
+from backend.services.user.operations.types import AsyncPasswordHasher, UserCRUDProtocol
 from backend.services.user.schemas import UserCreateSchema, UserUpdateSchema
 
 logger = logging.getLogger(__name__)
-
-AsyncPasswordHasher = Callable[[str], Awaitable[str]]
 
 
 async def create_user(

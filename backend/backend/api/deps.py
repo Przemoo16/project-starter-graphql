@@ -1,7 +1,6 @@
-from collections.abc import Awaitable, Callable, Mapping
-from typing import Any, Protocol
+from collections.abc import Mapping
+from typing import Protocol
 
-from backend.services.user.crud import UserCRUDProtocol
 from backend.services.user.exceptions import (
     InvalidAccessTokenError,
     MissingAccessTokenError,
@@ -10,6 +9,7 @@ from backend.services.user.exceptions import (
 )
 from backend.services.user.models import User
 from backend.services.user.operations.auth import get_confirmed_user_from_headers
+from backend.services.user.operations.types import AsyncTokenReader, UserCRUDProtocol
 
 
 class Request(Protocol):
@@ -23,9 +23,7 @@ class UnauthorizedError(Exception):
 
 
 async def get_confirmed_user(
-    request: Request | None,
-    token_reader: Callable[[str], Awaitable[dict[str, Any]]],
-    crud: UserCRUDProtocol,
+    request: Request | None, token_reader: AsyncTokenReader, crud: UserCRUDProtocol
 ) -> User:
     if not request:
         msg = "Authentication token required"
