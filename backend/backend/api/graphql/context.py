@@ -9,7 +9,7 @@ from backend.api.deps import get_confirmed_user
 from backend.config.settings import get_settings
 from backend.db import get_session
 from backend.libs.api.context import Context
-from backend.libs.security.token import read_paseto_token_public_v4
+from backend.services.user.context import ASYNC_TOKEN_READER
 from backend.services.user.crud import UserCRUD
 from backend.services.user.models import User
 
@@ -23,9 +23,7 @@ async def get_user(
 ) -> UserFetcher:
     return partial(
         get_confirmed_user,
-        token_reader=partial(
-            read_paseto_token_public_v4, key=user_settings.auth_public_key
-        ),
+        token_reader=ASYNC_TOKEN_READER,
         crud=UserCRUD(model=User, session=session),
     )
 

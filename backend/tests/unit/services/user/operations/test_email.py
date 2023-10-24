@@ -68,7 +68,7 @@ async def test_confirm_email() -> None:
         confirmed_email=False,
     )
 
-    def read_token(_: str) -> dict[str, str]:
+    async def read_token(_: str) -> dict[str, str]:
         return {
             "sub": "6d9c79d6-9641-4746-92d9-2cc9ebdca941",
             "email": "test@email.com",
@@ -86,7 +86,7 @@ async def test_confirm_email() -> None:
 async def test_confirm_email_invalid_token() -> None:
     token = "test-token"
 
-    def read_token(_: str) -> dict[str, str]:
+    async def read_token(_: str) -> dict[str, str]:
         raise InvalidTokenError
 
     crud = UserCRUD()
@@ -99,7 +99,7 @@ async def test_confirm_email_invalid_token() -> None:
 async def test_confirm_email_invalid_token_type() -> None:
     token = "test-token"
 
-    def read_token(_: str) -> dict[str, str]:
+    async def read_token(_: str) -> dict[str, str]:
         return {
             "sub": "6d9c79d6-9641-4746-92d9-2cc9ebdca941",
             "email": "test@email.com",
@@ -116,7 +116,7 @@ async def test_confirm_email_invalid_token_type() -> None:
 async def test_confirm_email_user_id_not_found() -> None:
     token = "test-token"
 
-    def read_token(_: str) -> dict[str, str]:
+    async def read_token(_: str) -> dict[str, str]:
         return {
             "sub": "e85b027d-67be-48ea-a11a-40e34d57442b",
             "email": "test@email.com",
@@ -137,7 +137,7 @@ async def test_confirm_email_user_id_not_found() -> None:
 async def test_confirm_email_user_email_not_found() -> None:
     token = "test-token"
 
-    def read_token(_: str) -> dict[str, str]:
+    async def read_token(_: str) -> dict[str, str]:
         return {
             "sub": "6d9c79d6-9641-4746-92d9-2cc9ebdca941",
             "email": "invalid@email.com",
@@ -158,7 +158,7 @@ async def test_confirm_email_user_email_not_found() -> None:
 async def test_confirm_email_user_email_already_confirmed() -> None:
     token = "test-token"
 
-    def read_token(_: str) -> dict[str, str]:
+    async def read_token(_: str) -> dict[str, str]:
         return {
             "sub": "6d9c79d6-9641-4746-92d9-2cc9ebdca941",
             "email": "test@email.com",

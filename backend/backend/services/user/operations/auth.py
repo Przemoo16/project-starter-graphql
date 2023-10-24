@@ -1,5 +1,5 @@
 import logging
-from collections.abc import Callable, Mapping
+from collections.abc import Awaitable, Callable, Mapping
 from dataclasses import dataclass
 from datetime import UTC, datetime
 from typing import Any
@@ -24,10 +24,10 @@ from backend.services.user.schemas import CredentialsSchema
 
 logger = logging.getLogger(__name__)
 
-PasswordValidator = Callable[[str, str], tuple[bool, str | None]]
-PasswordHasher = Callable[[str], str]
-TokenCreator = Callable[[Mapping[str, Any]], str]
-TokenReader = Callable[[str], dict[str, Any]]
+AsyncPasswordValidator = Callable[[str, str], Awaitable[tuple[bool, str | None]]]
+AsyncPasswordHasher = Callable[[str], Awaitable[str]]
+AsyncTokenCreator = Callable[[Mapping[str, Any]], Awaitable[str]]
+AsyncTokenReader = Callable[[str], Awaitable[dict[str, Any]]]
 
 ACCESS_TOKEN_TYPE = "access"  # nosec
 REFRESH_TOKEN_TYPE = "refresh"  # nosec
@@ -35,14 +35,14 @@ REFRESH_TOKEN_TYPE = "refresh"  # nosec
 
 @dataclass
 class PasswordManager:
-    validator: PasswordValidator
-    hasher: PasswordHasher
+    validator: AsyncPasswordValidator
+    hasher: AsyncPasswordHasher
 
 
 @dataclass
 class AuthTokensManager:
-    access_token_creator: TokenCreator
-    refresh_token_creator: TokenCreator
+    access_token_creator: AsyncTokenCreator
+    refresh_token_creator: AsyncTokenCreator
 
 
 @dataclass
@@ -64,7 +64,7 @@ async def login(
     user = await _authenticate_user(credentials, password_manager, crud)
     _validate_user_email_is_confirmed(user)
     logged_user = await _login_user(user, crud)
-    return _create_auth_tokens(logged_user.id, tokens_manager)
+    return await _create_auth_tokens(logged_user.id, tokens_manager)
 
 
 async def _authenticate_user(
@@ -73,7 +73,7 @@ async def _authenticate_user(
     crud: UserCRUDProtocol,
 ) -> User:
     user = await _get_user_by_credentials(credentials, password_manager.hasher, crud)
-    if updated_password_hash := _validate_password(
+    if updated_password_hash := await _validate_password(
         user, credentials.password, password_manager.validator
     ):
         user = await _update_password_hash(user, updated_password_hash, crud)
@@ -83,22 +83,22 @@ async def _authenticate_user(
 
 async def _get_user_by_credentials(
     credentials: CredentialsSchema,
-    password_hasher: PasswordHasher,
+    password_hasher: AsyncPasswordHasher,
     crud: UserCRUDProtocol,
 ) -> User:
     try:
         return await crud.read_one(UserFilters(email=credentials.email))
     except NoObjectFoundError as exc:
         # Run the password hasher to mitigate timing attack
-        password_hasher(credentials.password.get_secret_value())
+        await password_hasher(credentials.password.get_secret_value())
         logger.info("User %r not found", credentials.email)
         raise UserNotFoundError from exc
 
 
-def _validate_password(
-    user: User, password: SecretStr, password_validator: PasswordValidator
+async def _validate_password(
+    user: User, password: SecretStr, password_validator: AsyncPasswordValidator
 ) -> str | None:
-    is_valid, updated_password_hash = password_validator(
+    is_valid, updated_password_hash = await password_validator(
         password.get_secret_value(), user.hashed_password
     )
     if not is_valid:
@@ -127,28 +127,28 @@ async def _login_user(user: User, crud: UserCRUDProtocol) -> User:
     )
 
 
-def _create_auth_tokens(
+async def _create_auth_tokens(
     user_id: UUID, tokens_manager: AuthTokensManager
 ) -> tuple[str, str]:
     return (
-        _create_access_token(user_id, tokens_manager.access_token_creator),
-        _create_refresh_token(user_id, tokens_manager.refresh_token_creator),
+        await _create_access_token(user_id, tokens_manager.access_token_creator),
+        await _create_refresh_token(user_id, tokens_manager.refresh_token_creator),
     )
 
 
-def _create_access_token(user_id: UUID, token_creator: TokenCreator) -> str:
-    return token_creator({"sub": str(user_id), "type": ACCESS_TOKEN_TYPE})
+async def _create_access_token(user_id: UUID, token_creator: AsyncTokenCreator) -> str:
+    return await token_creator({"sub": str(user_id), "type": ACCESS_TOKEN_TYPE})
 
 
-def _create_refresh_token(user_id: UUID, token_creator: TokenCreator) -> str:
-    return token_creator({"sub": str(user_id), "type": REFRESH_TOKEN_TYPE})
+async def _create_refresh_token(user_id: UUID, token_creator: AsyncTokenCreator) -> str:
+    return await token_creator({"sub": str(user_id), "type": REFRESH_TOKEN_TYPE})
 
 
 async def get_confirmed_user_from_headers(
-    headers: Mapping[Any, str], token_reader: TokenReader, crud: UserCRUDProtocol
+    headers: Mapping[Any, str], token_reader: AsyncTokenReader, crud: UserCRUDProtocol
 ) -> User:
     token = _read_access_token_from_header(headers)
-    payload = _decode_access_token(token, token_reader)
+    payload = await _decode_access_token(token, token_reader)
     user = await _get_user_by_id(payload.user_id, crud)
     _validate_user_email_is_confirmed(user)
     return user
@@ -161,9 +161,11 @@ def _read_access_token_from_header(headers: Mapping[Any, str]) -> str:
         raise MissingAccessTokenError from exc
 
 
-def _decode_access_token(token: str, token_reader: TokenReader) -> AccessTokenPayload:
+async def _decode_access_token(
+    token: str, token_reader: AsyncTokenReader
+) -> AccessTokenPayload:
     try:
-        data = token_reader(token)
+        data = await token_reader(token)
     except InvalidTokenError as exc:
         logger.info("The token is invalid")
         raise InvalidAccessTokenError from exc
@@ -184,16 +186,18 @@ async def _get_user_by_id(user_id: UUID, crud: UserCRUDProtocol) -> User:
         raise UserNotFoundError from exc
 
 
-def refresh_token(
-    token: str, token_reader: TokenReader, token_creator: TokenCreator
+async def refresh_token(
+    token: str, token_reader: AsyncTokenReader, token_creator: AsyncTokenCreator
 ) -> str:
-    payload = _decode_refresh_token(token, token_reader)
-    return _create_access_token(payload.user_id, token_creator)
+    payload = await _decode_refresh_token(token, token_reader)
+    return await _create_access_token(payload.user_id, token_creator)
 
 
-def _decode_refresh_token(token: str, token_reader: TokenReader) -> RefreshTokenPayload:
+async def _decode_refresh_token(
+    token: str, token_reader: AsyncTokenReader
+) -> RefreshTokenPayload:
     try:
-        data = token_reader(token)
+        data = await token_reader(token)
     except InvalidTokenError as exc:
         logger.info("The token is invalid")
         raise InvalidRefreshTokenError from exc

@@ -1,4 +1,4 @@
-from collections.abc import Callable, Mapping
+from collections.abc import Awaitable, Callable, Mapping
 from typing import Any, Protocol
 
 from backend.services.user.crud import UserCRUDProtocol
@@ -24,7 +24,7 @@ class UnauthorizedError(Exception):
 
 async def get_confirmed_user(
     request: Request | None,
-    token_reader: Callable[[str], dict[str, Any]],
+    token_reader: Callable[[str], Awaitable[dict[str, Any]]],
     crud: UserCRUDProtocol,
 ) -> User:
     if not request:

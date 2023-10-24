@@ -18,7 +18,7 @@ async def test_get_confirmed_user() -> None:
     user = create_confirmed_user(id=UUID("6d9c79d6-9641-4746-92d9-2cc9ebdca941"))
     crud = UserCRUD(existing_user=user)
 
-    def read_token(_: str) -> dict[str, str]:
+    async def read_token(_: str) -> dict[str, str]:
         return {
             "sub": "6d9c79d6-9641-4746-92d9-2cc9ebdca941",
             "type": "access",
@@ -34,7 +34,7 @@ async def test_get_confirmed_user_no_request() -> None:
     request = None
     crud = UserCRUD()
 
-    def read_token(_: str) -> dict[str, str]:
+    async def read_token(_: str) -> dict[str, str]:
         return {
             "sub": "6d9c79d6-9641-4746-92d9-2cc9ebdca941",
             "type": "access",
@@ -49,7 +49,7 @@ async def test_get_confirmed_user_missing_token() -> None:
     request = Request(headers={})
     crud = UserCRUD()
 
-    def read_token(_: str) -> dict[str, str]:
+    async def read_token(_: str) -> dict[str, str]:
         return {
             "sub": "6d9c79d6-9641-4746-92d9-2cc9ebdca941",
             "type": "access",
@@ -64,7 +64,7 @@ async def test_get_confirmed_user_invalid_token() -> None:
     request = Request(headers={"Authorization": "Bearer test-token"})
     crud = UserCRUD()
 
-    def read_token(_: str) -> dict[str, str]:
+    async def read_token(_: str) -> dict[str, str]:
         return {
             "sub": "6d9c79d6-9641-4746-92d9-2cc9ebdca941",
             "type": "invalid-token",
@@ -79,7 +79,7 @@ async def test_get_confirmed_user_not_found() -> None:
     request = Request(headers={"Authorization": "Bearer test-token"})
     crud = UserCRUD()
 
-    def read_token(_: str) -> dict[str, str]:
+    async def read_token(_: str) -> dict[str, str]:
         return {
             "sub": "6d9c79d6-9641-4746-92d9-2cc9ebdca941",
             "type": "access",
@@ -96,7 +96,7 @@ async def test_get_confirmed_user_email_not_confirmed() -> None:
         existing_user=create_user(id=UUID("6d9c79d6-9641-4746-92d9-2cc9ebdca941"))
     )
 
-    def read_token(_: str) -> dict[str, str]:
+    async def read_token(_: str) -> dict[str, str]:
         return {
             "sub": "6d9c79d6-9641-4746-92d9-2cc9ebdca941",
             "type": "access",
