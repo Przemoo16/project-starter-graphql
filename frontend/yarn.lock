@@ -12,18 +12,18 @@
   resolved "https://registry.yarnpkg.com/@alloc/quick-lru/-/quick-lru-5.2.0.tgz#7bf68b20c0a350f936915fcae06f58e32007ce30"
   integrity sha512-UrcABB+4bUrFABwbluTIBErXwvbsU/V7TZWfmbgJfbkwiBuziS9gxdODUyuiecfdGQ85jglMW6juS3+z5TsKLw==
 
-"@builder.io/qwik-city@^1.2.12":
-  version "1.2.13"
-  resolved "https://registry.yarnpkg.com/@builder.io/qwik-city/-/qwik-city-1.2.13.tgz#ae06ce642cc0302541a13ddf36901b343eddac33"
-  integrity sha512-RiNHnxGYeovQ4roa61z/FHDXizDHY2ewK02Hj+8syZsAAOoeaMm0ze05mBYBYBAJxk3exDwl6IFYR9eUvprBjg==
+"@builder.io/qwik-city@^1.2.14":
+  version "1.2.14"
+  resolved "https://registry.yarnpkg.com/@builder.io/qwik-city/-/qwik-city-1.2.14.tgz#4f8ce76c7cc0743306151bcb76cf1342698ade0c"
+  integrity sha512-+irXLn/5YcX6MLcXe0MJRws+vG1KatcFyVcwfi/mDypwHCUQi2snz5TYqWUyEjRcELPsI8j2XY6FlCd5eq3nQA==
   dependencies:
     "@mdx-js/mdx" "2.3.0"
-    "@types/mdx" "2.0.5"
+    "@types/mdx" "^2.0.8"
     source-map "0.7.4"
     svgo "^3.0.2"
     vfile "^6.0.1"
-    vite-imagetools "^5.0.5"
-    zod "^3.21.4"
+    vite-imagetools "^5.0.9"
+    zod "^3.22.4"
 
 "@builder.io/qwik@^1.2.14":
   version "1.2.14"
@@ -380,15 +380,10 @@
   dependencies:
     "@types/unist" "^2"
 
-"@types/mdx@2.0.5":
-  version "2.0.5"
-  resolved "https://registry.yarnpkg.com/@types/mdx/-/mdx-2.0.5.tgz#9a85a8f70c7c4d9e695a21d5ae5c93645eda64b1"
-  integrity sha512-76CqzuD6Q7LC+AtbPqrvD9AqsN0k8bsYo2bM2J8pmNldP1aIPAbzUQ7QbobyXL4eLr1wK5x8FZFe8eF/ubRuBg==
-
-"@types/mdx@^2.0.0":
-  version "2.0.8"
-  resolved "https://registry.yarnpkg.com/@types/mdx/-/mdx-2.0.8.tgz#585229ff7057ab30c5e4a23fe126858881d818e5"
-  integrity sha512-r7/zWe+f9x+zjXqGxf821qz++ld8tp6Z4jUS6qmPZUXH6tfh4riXOhAqb12tWGWAevCFtMt1goLWkQMqIJKpsA==
+"@types/mdx@^2.0.0", "@types/mdx@^2.0.8":
+  version "2.0.9"
+  resolved "https://registry.yarnpkg.com/@types/mdx/-/mdx-2.0.9.tgz#80971e367bb884350ab5b2ce8fc06b34960170e7"
+  integrity sha512-OKMdj17y8Cs+k1r0XFyp59ChSOwf8ODGtMQ4mnpfz5eFDk1aO41yN3pSKGuvVzmWAkFp37seubY1tzOVpwfWwg==
 
 "@types/ms@*":
   version "0.7.32"
@@ -1842,10 +1837,10 @@ ignore@^5.2.0, ignore@^5.2.4:
   resolved "https://registry.yarnpkg.com/ignore/-/ignore-5.2.4.tgz#a291c0c6178ff1b960befe47fcdec301674a6324"
   integrity sha512-MAb38BcSbH0eHNBxn7ql2NH/kX33OkB3lZ1BNdh7ENeRChHTYsTvWrMubiIAMNS2llXEEgZ1MUOBtXChP3kaFQ==
 
-imagetools-core@^4.0.6:
-  version "4.0.6"
-  resolved "https://registry.yarnpkg.com/imagetools-core/-/imagetools-core-4.0.6.tgz#6c78bf97fa89cb7de65f4db4db5dd05d7f64dfbc"
-  integrity sha512-yaPVrHS/zImtuk4O3hyAQkSZP70zlRV+iPoq/XE7+7AKhZgUCaiALfXWltLEbG6prAgVi4pPUVNw/obn9LVKkw==
+imagetools-core@^4.1.0:
+  version "4.1.0"
+  resolved "https://registry.yarnpkg.com/imagetools-core/-/imagetools-core-4.1.0.tgz#9d3fb1f7d61f2bc0d46913a336a18aaf4d919ca5"
+  integrity sha512-GDMgj3zhQ3g6Ga3yWBSmdJC7mM8UePgHiZsVQZ8sUWgAk2UzRyGlFV5qdv0topv63vE86KaK6MmAbjVUVibOzA==
   dependencies:
     sharp "^0.32.4"
 
@@ -3833,13 +3828,13 @@ vfile@^6.0.1:
     unist-util-stringify-position "^4.0.0"
     vfile-message "^4.0.0"
 
-vite-imagetools@^5.0.5:
-  version "5.0.9"
-  resolved "https://registry.yarnpkg.com/vite-imagetools/-/vite-imagetools-5.0.9.tgz#651710dd451403e76ffeb04e29b24c430c90cb20"
-  integrity sha512-j2qnLDmKJXV4LAUoHlL+8g9RO+LgmeZYoOzhDl+GTrTRpha5XCO1r0zlCuhGK3+3oWx/Cdl1NebU0oXRYwt5MA==
+vite-imagetools@^5.0.9:
+  version "5.1.2"
+  resolved "https://registry.yarnpkg.com/vite-imagetools/-/vite-imagetools-5.1.2.tgz#5423dde419e561d798bcd5ed4a8c14a17685c202"
+  integrity sha512-r8WVrrmYSmctm1IEMJuYSo3jGH93W6mf0NK3+85rmG+BJBO05E/YsbWw/lhE1nPBHgYb8liPC2ID3jSzGiPzJw==
   dependencies:
     "@rollup/pluginutils" "^5.0.2"
-    imagetools-core "^4.0.6"
+    imagetools-core "^4.1.0"
 
 vite-node@0.34.6:
   version "0.34.6"
@@ -3965,7 +3960,7 @@ yocto-queue@^1.0.0:
   resolved "https://registry.yarnpkg.com/yocto-queue/-/yocto-queue-1.0.0.tgz#7f816433fb2cbc511ec8bf7d263c3b58a1a3c251"
   integrity sha512-9bnSc/HEW2uRy67wc+T8UwauLuPJVn28jb+GtJY16iiKWyvmYJRXVT4UamsAEGQfPohgr2q4Tq0sQbQlxTfi1g==
 
-zod@^3.21.4:
+zod@^3.22.4:
   version "3.22.4"
   resolved "https://registry.yarnpkg.com/zod/-/zod-3.22.4.tgz#f31c3a9386f61b1f228af56faa9255e845cf3fff"
   integrity sha512-iC+8Io04lddc+mVqQ9AZ7OQ2MrUKGN+oIQyq1vemgt46jwCwLfhq7/pwnBnNXXXZb8VTVLKwp9EDkx+ryxIWmg==
