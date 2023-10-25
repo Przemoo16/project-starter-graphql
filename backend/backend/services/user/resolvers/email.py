@@ -6,7 +6,6 @@ from backend.services.user.exceptions import (
     UserEmailAlreadyConfirmedError,
     UserNotFoundError,
 )
-from backend.services.user.models import User as UserModel
 from backend.services.user.operations.email import confirm_email
 from backend.services.user.types.email import (
     ConfirmEmailFailure,
@@ -18,7 +17,7 @@ from backend.services.user.types.email import (
 
 
 async def confirm_email_resolver(info: Info, token: str) -> ConfirmEmailResponse:
-    crud = UserCRUD(model=UserModel, session=info.context.session)
+    crud = UserCRUD(session=info.context.session)
 
     try:
         await confirm_email(token, ASYNC_TOKEN_READER, crud)

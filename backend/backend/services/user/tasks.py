@@ -28,14 +28,7 @@ _settings = get_settings()
 email_settings = _settings.email
 user_settings = _settings.user
 
-CONFIRMATION_TOKEN_CREATOR = partial(
-    TOKEN_CREATOR,
-    expiration=int(user_settings.email_confirmation_token_lifetime.total_seconds()),
-)
-RESET_PASSWORD_TOKEN_CREATOR = partial(
-    TOKEN_CREATOR,
-    expiration=int(user_settings.reset_password_token_lifetime.total_seconds()),
-)
+TEMPLATE_LOADER = load_template
 SMTP_SERVER = SMTPServer(
     host=email_settings.smtp_host,
     port=email_settings.smtp_port,
@@ -47,9 +40,13 @@ SMTP_SERVER = SMTPServer(
 @worker_app.task  # type: ignore[misc]
 def send_confirmation_email_task(user_id: UUID, user_email: str) -> None:
     token_data = ConfirmationTokenData(user_id=user_id, user_email=user_email)
+    token_creator = partial(
+        TOKEN_CREATOR,
+        expiration=int(user_settings.email_confirmation_token_lifetime.total_seconds()),
+    )
     email_data = ConfirmationEmailData(
         url_template=user_settings.email_confirmation_url_template,
-        template_loader=load_template,
+        template_loader=TEMPLATE_LOADER,
         email_sender=partial(
             send_html_email,
             participants=EmailParticipants(
@@ -58,7 +55,7 @@ def send_confirmation_email_task(user_id: UUID, user_email: str) -> None:
             smtp_server=SMTP_SERVER,
         ),
     )
-    send_confirmation_email(token_data, CONFIRMATION_TOKEN_CREATOR, email_data)
+    send_confirmation_email(token_data, token_creator, email_data)
     logger.info("Sent confirmation email to %r", user_email)
 
 
@@ -67,9 +64,13 @@ def send_reset_password_email_task(
     user_id: UUID, user_email: str, user_password: str
 ) -> None:
     token_data = ResetPasswordTokenData(user_id=user_id, user_password=user_password)
+    token_creator = partial(
+        TOKEN_CREATOR,
+        expiration=int(user_settings.reset_password_token_lifetime.total_seconds()),
+    )
     email_data = ResetPasswordEmailData(
         url_template=user_settings.reset_password_url_template,
-        template_loader=load_template,
+        template_loader=TEMPLATE_LOADER,
         email_sender=partial(
             send_html_email,
             participants=EmailParticipants(
@@ -78,7 +79,5 @@ def send_reset_password_email_task(
             smtp_server=SMTP_SERVER,
         ),
     )
-    send_reset_password_email(
-        token_data, RESET_PASSWORD_TOKEN_CREATOR, PASSWORD_HASHER, email_data
-    )
+    send_reset_password_email(token_data, token_creator, PASSWORD_HASHER, email_data)
     logger.info("Sent reset password email to %r", user_email)

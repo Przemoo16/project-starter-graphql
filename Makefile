@@ -13,7 +13,9 @@ distclean:
 integration-test-backend:
 	$(COMPOSE_TEST) up -d
 	$(COMPOSE_TEST) exec --no-TTY backend-test pytest tests/integration; \
-	$(COMPOSE_TEST) down --volumes
+	exit_status=$$?; \
+	$(COMPOSE_TEST) down; \
+	exit $$exit_status
 
 lint:
 	pre-commit run --all-files --show-diff-on-failure

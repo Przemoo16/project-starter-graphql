@@ -1,5 +1,6 @@
 from dataclasses import dataclass
 from datetime import datetime
+from functools import partial
 from uuid import UUID
 
 from backend.libs.db.crud import CRUD, UNSET, UnsetType
@@ -28,4 +29,4 @@ class UserFilters:
     email: str | UnsetType = UNSET
 
 
-UserCRUD = CRUD[User, UserCreateData, UserUpdateData, UserFilters]
+UserCRUD = partial(CRUD[User, UserCreateData, UserUpdateData, UserFilters], User)

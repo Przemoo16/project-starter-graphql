@@ -24,7 +24,7 @@ async def get_user(
     return partial(
         get_confirmed_user,
         token_reader=ASYNC_TOKEN_READER,
-        crud=UserCRUD(model=User, session=session),
+        crud=UserCRUD(session=session),
     )
 
 
