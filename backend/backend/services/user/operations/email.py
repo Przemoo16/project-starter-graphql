@@ -101,7 +101,7 @@ async def _read_email_confirmation_token(
     token: str, token_reader: AsyncTokenReader
 ) -> ConfirmationTokenPayload:
     payload = await _read_token(token, token_reader)
-    _validate_confirmation_token_type(payload["type"])
+    _validate_token_type(payload["type"])
     return ConfirmationTokenPayload(
         user_id=UUID(payload["sub"]), user_email=payload["email"]
     )
@@ -115,7 +115,7 @@ async def _read_token(token: str, token_reader: AsyncTokenReader) -> dict[str, A
         raise InvalidEmailConfirmationTokenError from exc
 
 
-def _validate_confirmation_token_type(token_type: str) -> None:
+def _validate_token_type(token_type: str) -> None:
     if token_type != EMAIL_CONFIRMATION_TOKEN_TYPE:
         logger.info(
             "The token is not an email-confirmation token, actual type: %r", token_type

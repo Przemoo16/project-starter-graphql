@@ -139,7 +139,7 @@ async def _read_reset_password_token(
     token: str, token_reader: AsyncTokenReader
 ) -> ResetPasswordTokenPayload:
     payload = await _read_token(token, token_reader)
-    _validate_reset_password_token_type(payload["type"])
+    _validate_token_type(payload["type"])
     return ResetPasswordTokenPayload(
         user_id=UUID(payload["sub"]), fingerprint=payload["fingerprint"]
     )
@@ -153,7 +153,7 @@ async def _read_token(token: str, token_reader: AsyncTokenReader) -> dict[str, A
         raise InvalidResetPasswordTokenError from exc
 
 
-def _validate_reset_password_token_type(token_type: str) -> None:
+def _validate_token_type(token_type: str) -> None:
     if token_type != RESET_PASSWORD_TOKEN_TYPE:
         logger.info(
             "The token is not a reset-password token, actual type: %r", token_type
