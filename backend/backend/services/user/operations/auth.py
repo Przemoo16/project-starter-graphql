@@ -151,7 +151,7 @@ async def get_confirmed_user_from_headers(
     headers: Mapping[Any, str], token_reader: AsyncTokenReader, crud: UserCRUDProtocol
 ) -> User:
     token = _read_access_token_from_header(headers)
-    payload = await _decode_access_token(token, token_reader)
+    payload = await _read_access_token(token, token_reader)
     user = await _get_user_by_id(payload.user_id, crud)
     _validate_user_email_is_confirmed(user)
     return user
@@ -164,21 +164,33 @@ def _read_access_token_from_header(headers: Mapping[Any, str]) -> str:
         raise MissingAccessTokenError from exc
 
 
-async def _decode_access_token(
+async def _read_access_token(
     token: str, token_reader: AsyncTokenReader
 ) -> AccessTokenPayload:
+    error = InvalidAccessTokenError
+    payload = await _read_token(token, token_reader, error)
+    _validate_token_type(payload["type"], ACCESS_TOKEN_TYPE, error)
+    return AccessTokenPayload(user_id=UUID(payload["sub"]))
+
+
+async def _read_token(
+    token: str, token_reader: AsyncTokenReader, error: type[Exception]
+) -> dict[str, Any]:
     try:
-        data = await token_reader(token)
+        return await token_reader(token)
     except InvalidTokenError as exc:
         logger.info("The token is invalid")
-        raise InvalidAccessTokenError from exc
-    if data["type"] != ACCESS_TOKEN_TYPE:
+        raise error from exc
+
+
+def _validate_token_type(
+    token_type: str, expected_type: str, error: type[Exception]
+) -> None:
+    if token_type != expected_type:
         logger.info(
-            "The token is not an access token, actual type: %r",
-            data["type"],
+            "The token is not an %r token, actual type: %r", expected_type, token_type
         )
-        raise InvalidAccessTokenError
-    return AccessTokenPayload(user_id=UUID(data["sub"]))
+        raise error
 
 
 async def _get_user_by_id(user_id: UUID, crud: UserCRUDProtocol) -> User:
@@ -192,22 +204,14 @@ async def _get_user_by_id(user_id: UUID, crud: UserCRUDProtocol) -> User:
 async def refresh_token(
     token: str, token_reader: AsyncTokenReader, token_creator: AsyncTokenCreator
 ) -> str:
-    payload = await _decode_refresh_token(token, token_reader)
+    payload = await _read_refresh_token(token, token_reader)
     return await _create_access_token(payload.user_id, token_creator)
 
 
-async def _decode_refresh_token(
+async def _read_refresh_token(
     token: str, token_reader: AsyncTokenReader
 ) -> RefreshTokenPayload:
-    try:
-        data = await token_reader(token)
-    except InvalidTokenError as exc:
-        logger.info("The token is invalid")
-        raise InvalidRefreshTokenError from exc
-    if data["type"] != REFRESH_TOKEN_TYPE:
-        logger.info(
-            "The token is not a refresh token, actual type: %r",
-            data["type"],
-        )
-        raise InvalidRefreshTokenError
-    return RefreshTokenPayload(user_id=UUID(data["sub"]))
+    error = InvalidRefreshTokenError
+    payload = await _read_token(token, token_reader, error)
+    _validate_token_type(payload["type"], REFRESH_TOKEN_TYPE, error)
+    return RefreshTokenPayload(user_id=UUID(payload["sub"]))
