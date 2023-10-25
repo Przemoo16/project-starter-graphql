@@ -2,6 +2,7 @@ import logging
 from collections.abc import Callable
 from dataclasses import dataclass
 from gettext import gettext as _
+from typing import Any
 from uuid import UUID
 
 from backend.libs.db.crud import NoObjectFoundError
@@ -90,27 +91,36 @@ def _send_confirmation_email(
 async def confirm_email(
     token: str, token_reader: AsyncTokenReader, crud: UserCRUDProtocol
 ) -> None:
-    payload = await _decode_email_confirmation_token(token, token_reader)
+    payload = await _read_email_confirmation_token(token, token_reader)
     user = await _get_user_by_id_and_email(payload.user_id, payload.user_email, crud)
     _validate_user_email_is_not_already_confirmed(user)
     await _confirm_email(user, crud)
 
 
-async def _decode_email_confirmation_token(
+async def _read_email_confirmation_token(
     token: str, token_reader: AsyncTokenReader
 ) -> ConfirmationTokenPayload:
+    payload = await _read_token(token, token_reader)
+    _validate_confirmation_token_type(payload["type"])
+    return ConfirmationTokenPayload(
+        user_id=UUID(payload["sub"]), user_email=payload["email"]
+    )
+
+
+async def _read_token(token: str, token_reader: AsyncTokenReader) -> dict[str, Any]:
     try:
-        data = await token_reader(token)
+        return await token_reader(token)
     except InvalidTokenError as exc:
         logger.info("The token is invalid")
         raise InvalidEmailConfirmationTokenError from exc
-    if data["type"] != EMAIL_CONFIRMATION_TOKEN_TYPE:
+
+
+def _validate_confirmation_token_type(token_type: str) -> None:
+    if token_type != EMAIL_CONFIRMATION_TOKEN_TYPE:
         logger.info(
-            "The token is not an email confirmation token, actual type: %r",
-            data["type"],
+            "The token is not an email-confirmation token, actual type: %r", token_type
         )
         raise InvalidEmailConfirmationTokenError
-    return ConfirmationTokenPayload(user_id=UUID(data["sub"]), user_email=data["email"])
 
 
 async def _get_user_by_id_and_email(

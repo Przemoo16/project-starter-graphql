@@ -2,6 +2,7 @@ import logging
 from collections.abc import Callable
 from dataclasses import dataclass
 from gettext import gettext as _
+from typing import Any
 from uuid import UUID
 
 from pydantic import SecretStr
@@ -126,7 +127,7 @@ async def reset_password(
     password_manager: PasswordManager,
     crud: UserCRUDProtocol,
 ) -> None:
-    payload = await _decode_reset_password_token(data.token, token_reader)
+    payload = await _read_reset_password_token(data.token, token_reader)
     user = await _get_user_by_id(payload.user_id, crud)
     await _validate_token_fingerprint(
         user.hashed_password, payload.fingerprint, password_manager.validator
@@ -134,23 +135,30 @@ async def reset_password(
     await _set_password(user, data.password, password_manager.hasher, crud)
 
 
-async def _decode_reset_password_token(
+async def _read_reset_password_token(
     token: str, token_reader: AsyncTokenReader
 ) -> ResetPasswordTokenPayload:
+    payload = await _read_token(token, token_reader)
+    _validate_reset_password_token_type(payload["type"])
+    return ResetPasswordTokenPayload(
+        user_id=UUID(payload["sub"]), fingerprint=payload["fingerprint"]
+    )
+
+
+async def _read_token(token: str, token_reader: AsyncTokenReader) -> dict[str, Any]:
     try:
-        data = await token_reader(token)
+        return await token_reader(token)
     except InvalidTokenError as exc:
         logger.info("The token is invalid")
         raise InvalidResetPasswordTokenError from exc
-    if data["type"] != RESET_PASSWORD_TOKEN_TYPE:
+
+
+def _validate_reset_password_token_type(token_type: str) -> None:
+    if token_type != RESET_PASSWORD_TOKEN_TYPE:
         logger.info(
-            "The token is not a reset password token, actual type: %r",
-            data["type"],
+            "The token is not a reset-password token, actual type: %r", token_type
         )
         raise InvalidResetPasswordTokenError
-    return ResetPasswordTokenPayload(
-        user_id=UUID(data["sub"]), fingerprint=data["fingerprint"]
-    )
 
 
 async def _get_user_by_id(user_id: UUID, crud: UserCRUDProtocol) -> User:
