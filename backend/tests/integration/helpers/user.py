@@ -5,18 +5,18 @@ from uuid import UUID
 import orjson
 from passlib.context import CryptContext
 from pyseto import Key, Paseto
-from sqlalchemy.ext.asyncio import AsyncSession
 
 from backend.services.user.models import User
+from tests.integration.conftest import AsyncSession
 from tests.integration.helpers.db import save_to_db
 
 
-async def create_confirmed_user(session: AsyncSession, **kwargs: Any) -> User:
+async def create_confirmed_user(db: AsyncSession, **kwargs: Any) -> User:
     kwargs["confirmed_email"] = True
-    return await create_user(session, **kwargs)
+    return await create_user(db, **kwargs)
 
 
-async def create_user(session: AsyncSession, **kwargs: Any) -> User:
+async def create_user(db: AsyncSession, **kwargs: Any) -> User:
     if "email" not in kwargs:
         kwargs["email"] = "test_helper_user@email.com"
     if "hashed_password" not in kwargs:
@@ -24,7 +24,7 @@ async def create_user(session: AsyncSession, **kwargs: Any) -> User:
     if "full_name" not in kwargs:
         kwargs["full_name"] = "Test Helper User"
     user = User(**kwargs)
-    return await save_to_db(session, user)
+    return await save_to_db(db, user)
 
 
 _pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")

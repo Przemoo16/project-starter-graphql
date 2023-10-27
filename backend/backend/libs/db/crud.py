@@ -2,10 +2,10 @@ from dataclasses import asdict
 from typing import Any, Generic, Optional, Protocol, TypeVar
 
 from sqlalchemy.exc import NoResultFound
-from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import DeclarativeBase
 from sqlalchemy.sql import Select, select
 
+from backend.libs.db.session import AsyncSession
 from backend.libs.types.dataclass import Dataclass
 
 Model = TypeVar("Model", bound=DeclarativeBase)
@@ -57,9 +57,9 @@ class CRUDProtocol(
 
 
 class CRUD(Generic[Model, CreateData_contra, UpdateData_contra, Filters_contra]):
-    def __init__(self, model: type[Model], session: AsyncSession):
+    def __init__(self, model: type[Model], db: AsyncSession):
         self.model = model
-        self.session = session
+        self.db = db
 
     async def create(self, data: CreateData_contra) -> None:
         created_obj = self._create_obj(data)
@@ -75,7 +75,7 @@ class CRUD(Generic[Model, CreateData_contra, UpdateData_contra, Filters_contra])
 
     async def read_one(self, filters: Filters_contra) -> Model:
         statement = self._build_where_statement(select(self.model), filters)
-        result = await self.session.execute(statement)
+        result = await self.db.execute(statement)
         try:
             return result.scalars().one()
         except NoResultFound as exc:
@@ -98,17 +98,17 @@ class CRUD(Generic[Model, CreateData_contra, UpdateData_contra, Filters_contra])
         return obj
 
     async def delete(self, obj: Model) -> None:
-        await self.session.delete(obj)
-        await self.session.commit()
+        await self.db.delete(obj)
+        await self.db.commit()
 
     async def _commit(self, obj: Model) -> Model:
-        self.session.add(obj)
-        await self.session.commit()
+        self.db.add(obj)
+        await self.db.commit()
         return obj
 
     async def _commit_and_refresh(self, obj: Model) -> Model:
         obj = await self._commit(obj)
-        await self.session.refresh(obj)
+        await self.db.refresh(obj)
         return obj
 
     def _build_where_statement(

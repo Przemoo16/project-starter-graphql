@@ -3,21 +3,21 @@ from functools import cached_property
 from typing import Any
 
 from fastapi import Request, WebSocket
-from sqlalchemy.ext.asyncio import AsyncSession
 from strawberry.fastapi import BaseContext
 from strawberry.types import Info as BaseInfo
 
+from backend.libs.db.session import AsyncSession
 from backend.services.user.models import User
 
 
 class Context(BaseContext):
     def __init__(
         self,
-        session: AsyncSession,
+        db: AsyncSession,
         user_fetcher: Callable[[Request | WebSocket | None], Awaitable[User]],
     ):
         super().__init__()
-        self.session = session
+        self.db = db
         self._user_fetcher = user_fetcher
 
     @cached_property

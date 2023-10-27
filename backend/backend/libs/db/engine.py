@@ -4,6 +4,8 @@ from sqlalchemy.engine import URL
 from sqlalchemy.ext.asyncio import AsyncEngine
 from sqlalchemy.ext.asyncio import create_async_engine as aio_create_async_engine
 
+__all__ = ["AsyncEngine"]
+
 logger = logging.getLogger(__name__)
 
 

@@ -1,9 +1,8 @@
 from uuid import UUID
 
 import pytest
-from httpx import AsyncClient
-from sqlalchemy.ext.asyncio import AsyncSession
 
+from tests.integration.conftest import AsyncClient, AsyncSession
 from tests.integration.helpers.user import (
     create_confirmed_user,
     create_refresh_token,
@@ -13,11 +12,9 @@ from tests.integration.helpers.user import (
 
 
 @pytest.mark.anyio()
-async def test_login(
-    session: AsyncSession, async_client: AsyncClient, graphql_url: str
-) -> None:
+async def test_login(db: AsyncSession, client: AsyncClient, graphql_url: str) -> None:
     await create_confirmed_user(
-        session, email="test@email.com", hashed_password=hash_password("plain_password")
+        db, email="test@email.com", hashed_password=hash_password("plain_password")
     )
     query = """
       mutation Login($input: LoginInput!) {
@@ -37,7 +34,7 @@ async def test_login(
         },
     }
 
-    response = await async_client.post(
+    response = await client.post(
         graphql_url, json={"query": query, "variables": variables}
     )
 
@@ -48,9 +45,7 @@ async def test_login(
 
 
 @pytest.mark.anyio()
-async def test_login_user_not_found(
-    async_client: AsyncClient, graphql_url: str
-) -> None:
+async def test_login_user_not_found(client: AsyncClient, graphql_url: str) -> None:
     query = """
       mutation Login($input: LoginInput!) {
         login(input: $input) {
@@ -71,7 +66,7 @@ async def test_login_user_not_found(
         },
     }
 
-    response = await async_client.post(
+    response = await client.post(
         graphql_url, json={"query": query, "variables": variables}
     )
 
@@ -81,10 +76,10 @@ async def test_login_user_not_found(
 
 @pytest.mark.anyio()
 async def test_login_invalid_password(
-    session: AsyncSession, async_client: AsyncClient, graphql_url: str
+    db: AsyncSession, client: AsyncClient, graphql_url: str
 ) -> None:
     await create_confirmed_user(
-        session, email="test@email.com", hashed_password=hash_password("plain_password")
+        db, email="test@email.com", hashed_password=hash_password("plain_password")
     )
     query = """
       mutation Login($input: LoginInput!) {
@@ -106,7 +101,7 @@ async def test_login_invalid_password(
         },
     }
 
-    response = await async_client.post(
+    response = await client.post(
         graphql_url, json={"query": query, "variables": variables}
     )
 
@@ -116,10 +111,10 @@ async def test_login_invalid_password(
 
 @pytest.mark.anyio()
 async def test_login_user_email_not_confirmed(
-    session: AsyncSession, async_client: AsyncClient, graphql_url: str
+    db: AsyncSession, client: AsyncClient, graphql_url: str
 ) -> None:
     await create_user(
-        session, email="test@email.com", hashed_password=hash_password("plain_password")
+        db, email="test@email.com", hashed_password=hash_password("plain_password")
     )
     query = """
       mutation Login($input: LoginInput!) {
@@ -141,7 +136,7 @@ async def test_login_user_email_not_confirmed(
         },
     }
 
-    response = await async_client.post(
+    response = await client.post(
         graphql_url, json={"query": query, "variables": variables}
     )
 
@@ -151,7 +146,7 @@ async def test_login_user_email_not_confirmed(
 
 @pytest.mark.anyio()
 async def test_refresh_token(
-    auth_private_key: str, async_client: AsyncClient, graphql_url: str
+    auth_private_key: str, client: AsyncClient, graphql_url: str
 ) -> None:
     token = create_refresh_token(
         auth_private_key, UUID("6d9c79d6-9641-4746-92d9-2cc9ebdca941")
@@ -166,7 +161,7 @@ async def test_refresh_token(
     """
     variables = {"token": token}
 
-    response = await async_client.post(
+    response = await client.post(
         graphql_url, json={"query": query, "variables": variables}
     )
 
@@ -177,7 +172,7 @@ async def test_refresh_token(
 
 @pytest.mark.anyio()
 async def test_refresh_token_invalid_token(
-    async_client: AsyncClient, graphql_url: str
+    client: AsyncClient, graphql_url: str
 ) -> None:
     query = """
       mutation RefreshToken($token: String!) {
@@ -188,7 +183,7 @@ async def test_refresh_token_invalid_token(
     """
     variables = {"token": "invalid-token"}
 
-    response = await async_client.post(
+    response = await client.post(
         graphql_url, json={"query": query, "variables": variables}
     )
 

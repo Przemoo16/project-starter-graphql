@@ -42,7 +42,7 @@ from backend.services.user.types.password import (
 
 
 async def recover_password_resolver(info: Info, email: str) -> RecoverPasswordResponse:
-    crud = UserCRUD(session=info.context.session)
+    crud = UserCRUD(db=info.context.db)
 
     def send_reset_password_email(user: User) -> None:
         send_reset_password_email_task.delay(
@@ -68,7 +68,7 @@ async def reset_password_resolver(
         validator=ASYNC_PASSWORD_VALIDATOR,
         hasher=ASYNC_PASSWORD_HASHER,
     )
-    crud = UserCRUD(session=info.context.session)
+    crud = UserCRUD(db=info.context.db)
 
     try:
         await reset_password(schema, ASYNC_TOKEN_READER, password_manager, crud)
@@ -97,7 +97,7 @@ async def change_my_password_resolver(
         validator=ASYNC_PASSWORD_VALIDATOR,
         hasher=ASYNC_PASSWORD_HASHER,
     )
-    crud = UserCRUD(session=info.context.session)
+    crud = UserCRUD(db=info.context.db)
 
     try:
         await change_password(user, schema, password_manager, crud)

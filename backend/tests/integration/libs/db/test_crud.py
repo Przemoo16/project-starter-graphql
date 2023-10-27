@@ -1,12 +1,11 @@
 from dataclasses import dataclass
 
 import pytest
-from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import Mapped, mapped_column
 from sqlalchemy.orm.attributes import instance_state
 
 from backend.libs.db.crud import CRUD, UNSET, NoObjectFoundError, UnsetType
-from tests.integration.conftest import Base
+from tests.integration.conftest import AsyncSession, Base
 from tests.integration.helpers.db import save_to_db
 
 
@@ -39,17 +38,17 @@ DummyCRUD = CRUD[Dummy, DummyCreate, DummyUpdate, DummyFilters]
 
 
 @pytest.fixture(name="crud")
-def crud_fixture(session: AsyncSession) -> DummyCRUD:
-    return DummyCRUD(model=Dummy, session=session)
+def crud_fixture(db: AsyncSession) -> DummyCRUD:
+    return DummyCRUD(model=Dummy, db=db)
 
 
 @pytest.mark.anyio()
-async def test_create(crud: DummyCRUD, session: AsyncSession) -> None:
+async def test_create(crud: DummyCRUD, db: AsyncSession) -> None:
     data = DummyCreate(id=1, name="Created")
 
     await crud.create(data)
 
-    retrieved_obj = await session.get(Dummy, 1)
+    retrieved_obj = await db.get(Dummy, 1)
     assert retrieved_obj
     assert retrieved_obj.name == "Created"
 
@@ -64,8 +63,8 @@ async def test_create_and_refresh(crud: DummyCRUD) -> None:
 
 
 @pytest.mark.anyio()
-async def test_read_one(crud: DummyCRUD, session: AsyncSession) -> None:
-    await save_to_db(session, Dummy(id=1))
+async def test_read_one(crud: DummyCRUD, db: AsyncSession) -> None:
+    await save_to_db(db, Dummy(id=1))
     filters = DummyFilters(id=1)
 
     db_obj = await crud.read_one(filters)
@@ -74,10 +73,8 @@ async def test_read_one(crud: DummyCRUD, session: AsyncSession) -> None:
 
 
 @pytest.mark.anyio()
-async def test_read_one_object_not_found(
-    crud: DummyCRUD, session: AsyncSession
-) -> None:
-    await save_to_db(session, Dummy(id=1))
+async def test_read_one_object_not_found(crud: DummyCRUD, db: AsyncSession) -> None:
+    await save_to_db(db, Dummy(id=1))
     filters = DummyFilters(id=2)
 
     with pytest.raises(NoObjectFoundError):
@@ -85,14 +82,14 @@ async def test_read_one_object_not_found(
 
 
 @pytest.mark.anyio()
-async def test_update(crud: DummyCRUD, session: AsyncSession) -> None:
+async def test_update(crud: DummyCRUD, db: AsyncSession) -> None:
     initial_obj = Dummy(id=1, name="Test", age=25)
-    await save_to_db(session, initial_obj)
+    await save_to_db(db, initial_obj)
     data = DummyUpdate(name="Updated")
 
     await crud.update(initial_obj, data)
 
-    retrieved_obj = await session.get(Dummy, 1)
+    retrieved_obj = await db.get(Dummy, 1)
     assert retrieved_obj
     assert retrieved_obj.name == "Updated"
     assert retrieved_obj.age == 25
@@ -119,10 +116,10 @@ async def test_update_and_refresh(crud: DummyCRUD) -> None:
 
 
 @pytest.mark.anyio()
-async def test_delete(crud: DummyCRUD, session: AsyncSession) -> None:
+async def test_delete(crud: DummyCRUD, db: AsyncSession) -> None:
     initial_obj = Dummy(id=1)
-    await save_to_db(session, initial_obj)
+    await save_to_db(db, initial_obj)
 
     await crud.delete(initial_obj)
 
-    assert not await session.get(Dummy, 1)
+    assert not await db.get(Dummy, 1)

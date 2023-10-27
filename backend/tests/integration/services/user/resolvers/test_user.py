@@ -1,9 +1,8 @@
 from uuid import UUID
 
 import pytest
-from httpx import AsyncClient
-from sqlalchemy.ext.asyncio import AsyncSession
 
+from tests.integration.conftest import AsyncClient, AsyncSession
 from tests.integration.helpers.user import (
     create_auth_header,
     create_confirmed_user,
@@ -12,7 +11,7 @@ from tests.integration.helpers.user import (
 
 
 @pytest.mark.anyio()
-async def test_create_user(async_client: AsyncClient, graphql_url: str) -> None:
+async def test_create_user(client: AsyncClient, graphql_url: str) -> None:
     query = """
       mutation CreateUser($input: UserCreateInput!) {
         createUser(input: $input) {
@@ -32,7 +31,7 @@ async def test_create_user(async_client: AsyncClient, graphql_url: str) -> None:
         }
     }
 
-    response = await async_client.post(
+    response = await client.post(
         graphql_url, json={"query": query, "variables": variables}
     )
 
@@ -43,9 +42,7 @@ async def test_create_user(async_client: AsyncClient, graphql_url: str) -> None:
 
 
 @pytest.mark.anyio()
-async def test_create_user_invalid_input(
-    async_client: AsyncClient, graphql_url: str
-) -> None:
+async def test_create_user_invalid_input(client: AsyncClient, graphql_url: str) -> None:
     query = """
       mutation CreateUser($input: UserCreateInput!) {
         createUser(input: $input) {
@@ -65,7 +62,7 @@ async def test_create_user_invalid_input(
         }
     }
 
-    response = await async_client.post(
+    response = await client.post(
         graphql_url, json={"query": query, "variables": variables}
     )
 
@@ -75,9 +72,9 @@ async def test_create_user_invalid_input(
 
 @pytest.mark.anyio()
 async def test_create_user_already_exists(
-    session: AsyncSession, async_client: AsyncClient, graphql_url: str
+    db: AsyncSession, client: AsyncClient, graphql_url: str
 ) -> None:
-    await create_user(session, email="test@email.com")
+    await create_user(db, email="test@email.com")
     query = """
       mutation CreateUser($input: UserCreateInput!) {
         createUser(input: $input) {
@@ -99,7 +96,7 @@ async def test_create_user_already_exists(
         }
     }
 
-    response = await async_client.post(
+    response = await client.post(
         graphql_url, json={"query": query, "variables": variables}
     )
 
@@ -109,13 +106,13 @@ async def test_create_user_already_exists(
 
 @pytest.mark.anyio()
 async def test_get_me(
-    session: AsyncSession,
+    db: AsyncSession,
     auth_private_key: str,
-    async_client: AsyncClient,
+    client: AsyncClient,
     graphql_url: str,
 ) -> None:
     user = await create_confirmed_user(
-        session, id=UUID("6d9c79d6-9641-4746-92d9-2cc9ebdca941")
+        db, id=UUID("6d9c79d6-9641-4746-92d9-2cc9ebdca941")
     )
     auth_header = create_auth_header(auth_private_key, user.id)
     query = """
@@ -126,7 +123,7 @@ async def test_get_me(
       }
     """
 
-    response = await async_client.post(
+    response = await client.post(
         graphql_url, json={"query": query}, headers=auth_header
     )
 
@@ -138,12 +135,12 @@ async def test_get_me(
 
 @pytest.mark.anyio()
 async def test_update_me(
-    session: AsyncSession,
+    db: AsyncSession,
     auth_private_key: str,
-    async_client: AsyncClient,
+    client: AsyncClient,
     graphql_url: str,
 ) -> None:
-    user = await create_confirmed_user(session, full_name="Test User")
+    user = await create_confirmed_user(db, full_name="Test User")
     auth_header = create_auth_header(auth_private_key, user.id)
     query = """
       mutation UpdateMe($input: UpdateMeInput!) {
@@ -160,7 +157,7 @@ async def test_update_me(
         }
     }
 
-    response = await async_client.post(
+    response = await client.post(
         graphql_url, json={"query": query, "variables": variables}, headers=auth_header
     )
 
@@ -172,12 +169,12 @@ async def test_update_me(
 
 @pytest.mark.anyio()
 async def test_update_me_invalid_input(
-    session: AsyncSession,
+    db: AsyncSession,
     auth_private_key: str,
-    async_client: AsyncClient,
+    client: AsyncClient,
     graphql_url: str,
 ) -> None:
-    user = await create_confirmed_user(session)
+    user = await create_confirmed_user(db)
     auth_header = create_auth_header(auth_private_key, user.id)
     query = """
       mutation UpdateMe($input: UpdateMeInput!) {
@@ -196,7 +193,7 @@ async def test_update_me_invalid_input(
         }
     }
 
-    response = await async_client.post(
+    response = await client.post(
         graphql_url, json={"query": query, "variables": variables}, headers=auth_header
     )
 
@@ -206,12 +203,12 @@ async def test_update_me_invalid_input(
 
 @pytest.mark.anyio()
 async def test_delete_me(
-    session: AsyncSession,
+    db: AsyncSession,
     auth_private_key: str,
-    async_client: AsyncClient,
+    client: AsyncClient,
     graphql_url: str,
 ) -> None:
-    user = await create_confirmed_user(session)
+    user = await create_confirmed_user(db)
     auth_header = create_auth_header(auth_private_key, user.id)
     query = """
       mutation DeleteMe {
@@ -221,7 +218,7 @@ async def test_delete_me(
       }
     """
 
-    response = await async_client.post(
+    response = await client.post(
         graphql_url, json={"query": query}, headers=auth_header
     )
 
