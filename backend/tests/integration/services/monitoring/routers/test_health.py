@@ -1,14 +1,14 @@
 import pytest
 from fastapi import FastAPI, status
-from httpx import AsyncClient
+from tests.integration.conftest import AsyncClient
 
 from backend.services.monitoring.operations.health import HealthCheck
 from backend.services.monitoring.routers.health import get_health_checks
 
 
 @pytest.mark.anyio()
-async def test_check_health_healthy(async_client: AsyncClient, rest_url: str) -> None:
-    response = await async_client.get(f"{rest_url}/monitoring/health")
+async def test_check_health_healthy(client: AsyncClient, rest_url: str) -> None:
+    response = await client.get(f"{rest_url}/monitoring/health")
 
     assert response.status_code == status.HTTP_200_OK
     assert response.json() == {
@@ -19,7 +19,7 @@ async def test_check_health_healthy(async_client: AsyncClient, rest_url: str) ->
 
 @pytest.mark.anyio()
 async def test_check_health_unhealthy(
-    app: FastAPI, async_client: AsyncClient, rest_url: str
+    app: FastAPI, client: AsyncClient, rest_url: str
 ) -> None:
     async def get_test_health_checks() -> list[HealthCheck]:
         return [
@@ -36,7 +36,7 @@ async def test_check_health_unhealthy(
 
     app.dependency_overrides[get_health_checks] = get_test_health_checks
 
-    response = await async_client.get(f"{rest_url}/monitoring/health")
+    response = await client.get(f"{rest_url}/monitoring/health")
 
     assert response.status_code == status.HTTP_503_SERVICE_UNAVAILABLE
     assert response.json() == {

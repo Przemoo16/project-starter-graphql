@@ -5,7 +5,7 @@ from fastapi.concurrency import run_in_threadpool
 from sqlalchemy import text
 
 from backend.config.settings import get_settings
-from backend.db import get_session
+from backend.db import get_db
 from backend.libs.db.session import AsyncSession
 from backend.services.monitoring.exceptions import HealthError
 from backend.services.monitoring.operations.health import HealthCheck, check_health
@@ -17,10 +17,10 @@ router = APIRouter()
 
 
 async def get_health_checks(
-    session: Annotated[AsyncSession, Depends(get_session)]
+    db: Annotated[AsyncSession, Depends(get_db)]
 ) -> list[HealthCheck]:
     async def check_database() -> None:
-        await session.execute(text("SELECT 1"))
+        await db.execute(text("SELECT 1"))
 
     async def check_worker() -> None:
         result = check_health_task.delay()

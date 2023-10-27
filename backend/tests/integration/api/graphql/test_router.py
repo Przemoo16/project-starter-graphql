@@ -12,9 +12,9 @@ from tests.integration.conftest import AsyncEngine
     [(True, status.HTTP_200_OK), (False, status.HTTP_404_NOT_FOUND)],
 )
 async def test_enable_disable_graphiql(
-    debug: bool, status_code: int, engine: AsyncEngine, graphql_url: str
+    debug: bool, status_code: int, db_engine: AsyncEngine, graphql_url: str
 ) -> None:
-    app = get_local_app(engine, debug)
+    app = get_local_app(db_engine, debug)
 
     async with AsyncClient(app=app, base_url="http://test") as client:
         response = await client.get(graphql_url)
@@ -25,18 +25,18 @@ async def test_enable_disable_graphiql(
 @pytest.mark.anyio()
 @pytest.mark.parametrize(("debug", "error"), [(True, False), (False, True)])
 async def test_enable_disable_schema_introspection(
-    debug: bool, error: bool, engine: AsyncEngine, graphql_url: str
+    debug: bool, error: bool, db_engine: AsyncEngine, graphql_url: str
 ) -> None:
-    app = get_local_app(engine, debug)
+    app = get_local_app(db_engine, debug)
     payload = {
         "query": """
-            query {
-              __schema {
-                types {
-                  name
-                }
+          query {
+            __schema {
+              types {
+                name
               }
             }
+          }
         """
     }
 

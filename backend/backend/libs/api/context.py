@@ -13,11 +13,11 @@ from backend.services.user.models import User
 class Context(BaseContext):
     def __init__(
         self,
-        session: AsyncSession,
+        db: AsyncSession,
         user_fetcher: Callable[[Request | WebSocket | None], Awaitable[User]],
     ):
         super().__init__()
-        self.session = session
+        self.db = db
         self._user_fetcher = user_fetcher
 
     @cached_property

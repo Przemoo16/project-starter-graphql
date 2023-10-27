@@ -17,7 +17,7 @@ from backend.services.user.types.email import (
 
 
 async def confirm_email_resolver(info: Info, token: str) -> ConfirmEmailResponse:
-    crud = UserCRUD(session=info.context.session)
+    crud = UserCRUD(db=info.context.db)
 
     try:
         await confirm_email(token, ASYNC_TOKEN_READER, crud)

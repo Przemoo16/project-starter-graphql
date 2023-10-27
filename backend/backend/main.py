@@ -22,11 +22,11 @@ logging.basicConfig(
 )
 
 
-def get_local_app(engine: AsyncEngine, debug: bool = False) -> FastAPI:
+def get_local_app(db_engine: AsyncEngine, debug: bool = False) -> FastAPI:
     @asynccontextmanager
     async def lifespan(_: FastAPI) -> AsyncGenerator[None, None]:
         yield
-        await dispose_async_engine(engine)
+        await dispose_async_engine(db_engine)
 
     local_app = FastAPI(lifespan=lifespan, default_response_class=ORJSONResponse)
 
@@ -37,5 +37,5 @@ def get_local_app(engine: AsyncEngine, debug: bool = False) -> FastAPI:
 
 
 def get_app() -> FastAPI:
-    engine = get_engine()
-    return get_local_app(engine, app_settings.dev_mode)
+    db_engine = get_engine()
+    return get_local_app(db_engine, app_settings.dev_mode)

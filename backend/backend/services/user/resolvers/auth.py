@@ -61,7 +61,7 @@ async def login_resolver(
         access_token_creator=ACCESS_TOKEN_CREATOR,
         refresh_token_creator=REFRESH_TOKEN_CREATOR,
     )
-    crud = UserCRUD(session=info.context.session)
+    crud = UserCRUD(db=info.context.db)
 
     try:
         access_token, refresh_token_ = await login(
