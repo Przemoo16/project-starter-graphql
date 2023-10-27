@@ -114,11 +114,10 @@ def _send_reset_password_email(
     subject = _("Reset password")
     html_message = template_loader("reset-password.html", link=link)
     plain_message = _("Click the link to reset your password: {link}").format(link=link)
-    email_sender(
-        HTMLMessage(
-            subject=subject, html_message=html_message, plain_message=plain_message
-        )
+    message = HTMLMessage(
+        subject=subject, html_message=html_message, plain_message=plain_message
     )
+    email_sender(message)
 
 
 async def reset_password(
@@ -156,7 +155,9 @@ async def _read_token(token: str, token_reader: AsyncTokenReader) -> dict[str, A
 def _validate_token_type(token_type: str) -> None:
     if token_type != RESET_PASSWORD_TOKEN_TYPE:
         logger.info(
-            "The token is not a reset-password token, actual type: %r", token_type
+            "The token is not a %r token, actual type: %r",
+            RESET_PASSWORD_TOKEN_TYPE,
+            token_type,
         )
         raise InvalidResetPasswordTokenError
 
@@ -184,12 +185,8 @@ async def _set_password(
     password_hasher: AsyncPasswordHasher,
     crud: UserCRUDProtocol,
 ) -> None:
-    await crud.update(
-        user,
-        UserUpdateData(
-            hashed_password=await password_hasher(password.get_secret_value())
-        ),
-    )
+    hashed_password = await password_hasher(password.get_secret_value())
+    await crud.update(user, UserUpdateData(hashed_password=hashed_password))
 
 
 async def change_password(

@@ -20,10 +20,9 @@ async def create_user(
     try:
         await crud.read_one(UserFilters(email=data.email))
     except NoObjectFoundError:
-        create_data = UserCreateData(
-            **data.model_dump(exclude={"password"}),
-            hashed_password=await password_hasher(data.password.get_secret_value()),
-        )
+        data_dict = data.model_dump(exclude={"password"})
+        hashed_password = await password_hasher(data.password.get_secret_value())
+        create_data = UserCreateData(**data_dict, hashed_password=hashed_password)
         user = await crud.create_and_refresh(create_data)
         success_callback(user)
         return user
@@ -34,7 +33,8 @@ async def create_user(
 async def update_user(
     user: User, data: UserUpdateSchema, crud: UserCRUDProtocol
 ) -> User:
-    update_data = UserUpdateData(**data.model_dump(exclude_unset=True))
+    data_dict = data.model_dump(exclude_unset=True)
+    update_data = UserUpdateData(**data_dict)
     return await crud.update_and_refresh(user, update_data)
 
 

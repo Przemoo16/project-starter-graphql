@@ -18,7 +18,6 @@ from backend.services.user.exceptions import (
     UserEmailNotConfirmedError,
     UserNotFoundError,
 )
-from backend.services.user.models import User
 from backend.services.user.operations.auth import (
     AuthTokensManager,
     PasswordManager,
@@ -62,7 +61,7 @@ async def login_resolver(
         access_token_creator=ACCESS_TOKEN_CREATOR,
         refresh_token_creator=REFRESH_TOKEN_CREATOR,
     )
-    crud = UserCRUD(model=User, session=info.context.session)
+    crud = UserCRUD(session=info.context.session)
 
     try:
         access_token, refresh_token_ = await login(

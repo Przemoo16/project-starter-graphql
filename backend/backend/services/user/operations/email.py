@@ -81,11 +81,10 @@ def _send_confirmation_email(
     subject = _("Confirm email")
     html_message = template_loader("email-confirmation.html", link=link)
     plain_message = _("Click the link to confirm your email: {link}").format(link=link)
-    email_sender(
-        HTMLMessage(
-            subject=subject, html_message=html_message, plain_message=plain_message
-        )
+    message = HTMLMessage(
+        subject=subject, html_message=html_message, plain_message=plain_message
     )
+    email_sender(message)
 
 
 async def confirm_email(
@@ -118,7 +117,9 @@ async def _read_token(token: str, token_reader: AsyncTokenReader) -> dict[str, A
 def _validate_token_type(token_type: str) -> None:
     if token_type != EMAIL_CONFIRMATION_TOKEN_TYPE:
         logger.info(
-            "The token is not an email-confirmation token, actual type: %r", token_type
+            "The token is not an %r token, actual type: %r",
+            EMAIL_CONFIRMATION_TOKEN_TYPE,
+            token_type,
         )
         raise InvalidEmailConfirmationTokenError
 

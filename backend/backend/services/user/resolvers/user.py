@@ -33,7 +33,7 @@ async def create_user_resolver(
     except ValidationError as exc:
         return CreateUserFailure(problems=from_pydantic_error(exc))
 
-    crud = UserCRUD(model=UserModel, session=info.context.session)
+    crud = UserCRUD(session=info.context.session)
 
     def send_confirmation_email(user: UserModel) -> None:
         send_confirmation_email_task.delay(user_id=user.id, user_email=user.email)
@@ -62,7 +62,7 @@ async def update_me_resolver(
     except ValidationError as exc:
         return UpdateMeFailure(problems=from_pydantic_error(exc))
 
-    crud = UserCRUD(model=UserModel, session=info.context.session)
+    crud = UserCRUD(session=info.context.session)
 
     updated_user = await update_user(user, schema, crud)
     return User.from_model(updated_user)
@@ -70,7 +70,7 @@ async def update_me_resolver(
 
 async def delete_me_resolver(info: Info) -> DeleteMeResponse:
     user = await info.context.user
-    crud = UserCRUD(model=UserModel, session=info.context.session)
+    crud = UserCRUD(session=info.context.session)
 
     await delete_user(user, crud)
     return DeleteMeResponse()
