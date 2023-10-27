@@ -2,10 +2,10 @@ from dataclasses import asdict
 from typing import Any, Generic, Optional, Protocol, TypeVar
 
 from sqlalchemy.exc import NoResultFound
-from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import DeclarativeBase
 from sqlalchemy.sql import Select, select
 
+from backend.libs.db.session import AsyncSession
 from backend.libs.types.dataclass import Dataclass
 
 Model = TypeVar("Model", bound=DeclarativeBase)

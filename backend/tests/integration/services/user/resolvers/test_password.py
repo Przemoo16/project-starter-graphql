@@ -2,8 +2,8 @@ from uuid import UUID
 
 import pytest
 from httpx import AsyncClient
-from sqlalchemy.ext.asyncio import AsyncSession
 
+from tests.integration.conftest import AsyncSession
 from tests.integration.helpers.user import (
     create_auth_header,
     create_confirmed_user,

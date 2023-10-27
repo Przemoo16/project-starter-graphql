@@ -3,10 +3,10 @@ from functools import cached_property
 from typing import Any
 
 from fastapi import Request, WebSocket
-from sqlalchemy.ext.asyncio import AsyncSession
 from strawberry.fastapi import BaseContext
 from strawberry.types import Info as BaseInfo
 
+from backend.libs.db.session import AsyncSession
 from backend.services.user.models import User
 
 

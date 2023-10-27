@@ -1,12 +1,11 @@
 from dataclasses import dataclass
 
 import pytest
-from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import Mapped, mapped_column
 from sqlalchemy.orm.attributes import instance_state
 
 from backend.libs.db.crud import CRUD, UNSET, NoObjectFoundError, UnsetType
-from tests.integration.conftest import Base
+from tests.integration.conftest import AsyncSession, Base
 from tests.integration.helpers.db import save_to_db
 
 

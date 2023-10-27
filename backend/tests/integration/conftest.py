@@ -3,16 +3,23 @@ from collections.abc import AsyncGenerator, Generator
 import pytest
 from fastapi import FastAPI
 from httpx import AsyncClient
-from sqlalchemy.ext.asyncio import AsyncEngine, AsyncSession, async_sessionmaker
 
 from backend.config.settings import get_settings
 from backend.db import get_session
-from backend.libs.db.engine import create_async_engine, dispose_async_engine
-from backend.libs.db.session import create_async_session_factory
+from backend.libs.db.engine import (
+    AsyncEngine,
+    create_async_engine,
+    dispose_async_engine,
+)
+from backend.libs.db.session import (
+    AsyncSession,
+    AsyncSessionMaker,
+    create_async_session_factory,
+)
 from backend.main import get_local_app
 from backend.models import Base
 
-__all__ = ["Base"]
+__all__ = ["AsyncEngine", "AsyncSession", "Base"]
 
 _settings = get_settings()
 db_settings = _settings.db
@@ -27,9 +34,7 @@ async def engine_fixture() -> AsyncGenerator[AsyncEngine, None]:
 
 
 @pytest.fixture(name="session_factory", scope="session")
-async def session_factory_fixture(
-    engine: AsyncEngine,
-) -> async_sessionmaker[AsyncSession]:
+async def session_factory_fixture(engine: AsyncEngine) -> AsyncSessionMaker:
     return create_async_session_factory(engine)
 
 
@@ -44,7 +49,7 @@ async def _create_tables_fixture(engine: AsyncEngine) -> AsyncGenerator[None, No
 
 @pytest.fixture(name="session")
 async def session_fixture(
-    session_factory: async_sessionmaker[AsyncSession], _create_tables: None
+    session_factory: AsyncSessionMaker, _create_tables: None
 ) -> AsyncGenerator[AsyncSession, None]:
     async with session_factory() as session:
         yield session

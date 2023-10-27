@@ -1,9 +1,9 @@
 import pytest
 from fastapi import status
 from httpx import AsyncClient
-from sqlalchemy.ext.asyncio import AsyncEngine
 
 from backend.main import get_local_app
+from tests.integration.conftest import AsyncEngine
 
 
 @pytest.mark.anyio()

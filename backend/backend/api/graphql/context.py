@@ -3,12 +3,12 @@ from functools import partial
 from typing import Annotated
 
 from fastapi import Depends, Request, WebSocket
-from sqlalchemy.ext.asyncio import AsyncSession
 
 from backend.api.deps import get_confirmed_user
 from backend.config.settings import get_settings
 from backend.db import get_session
 from backend.libs.api.context import Context
+from backend.libs.db.session import AsyncSession
 from backend.services.user.context import ASYNC_TOKEN_READER
 from backend.services.user.crud import UserCRUD
 from backend.services.user.models import User

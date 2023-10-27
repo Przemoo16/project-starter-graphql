@@ -1,7 +1,8 @@
 from typing import TypeVar
 
-from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import DeclarativeBase
+
+from tests.integration.conftest import AsyncSession
 
 Obj = TypeVar("Obj", bound=DeclarativeBase)
 

@@ -5,9 +5,9 @@ from uuid import UUID
 import orjson
 from passlib.context import CryptContext
 from pyseto import Key, Paseto
-from sqlalchemy.ext.asyncio import AsyncSession
 
 from backend.services.user.models import User
+from tests.integration.conftest import AsyncSession
 from tests.integration.helpers.db import save_to_db
 
 

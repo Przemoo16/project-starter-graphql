@@ -4,13 +4,12 @@ from contextlib import asynccontextmanager
 
 from fastapi import FastAPI
 from fastapi.responses import ORJSONResponse
-from sqlalchemy.ext.asyncio import AsyncEngine
 
 from backend.api.graphql.router import get_router as get_graphql_router
 from backend.api.rest.router import get_router as get_rest_router
 from backend.config.settings import get_settings
 from backend.db import get_engine
-from backend.libs.db.engine import dispose_async_engine
+from backend.libs.db.engine import AsyncEngine, dispose_async_engine
 
 app_settings = get_settings().app
 
