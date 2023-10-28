@@ -9,8 +9,21 @@ on:
     paths:
       - backend/**
 jobs:
+  set-context:
+    name: Set context
+    runs-on: ubuntu-latest
+    outputs:
+      test-image: ${{ steps.set-variables.outputs.test-image }}
+
+    steps:
+      - id: set-variables
+        name: Set variables
+        run: |
+          echo "test-image=ghcr.io/przemoo16/project-starter-graphql-backend" >> $GITHUB_OUTPUT
+
   call-build-push-image:
     name: Build and Push image
+    needs: [set-context]
 
     permissions:
       contents: read
@@ -21,11 +34,15 @@ jobs:
       cache-key: backend
       context: "{{defaultContext}}:backend"
       target: dev
-      images: ghcr.io/przemoo16/project-starter-graphql-backend
+      images: ${{ needs.set-context.outputs.test-image }}
+      registry: ghcr.io
+    secrets:
+      registry-username: ${{ github.actor }}
+      registry-password: ${{ secrets.GITHUB_TOKEN }}
 
   call-test-image-unit:
     name: Run unit tests
-    needs: [call-build-push-image]
+    needs: [set-context, call-build-push-image]
 
     permissions:
       contents: read
@@ -33,11 +50,11 @@ jobs:
 
     uses: ./.github/workflows/test-image.yaml
     with:
-      command: BACKEND_IMAGE=ghcr.io/przemoo16/project-starter-graphql-backend:${{ needs.call-build-push-image.outputs.image-tag }} make unit-test-backend
+      command: BACKEND_IMAGE=${{ needs.set-context.outputs.test-image }}:${{ needs.call-build-push-image.outputs.image-tag }} make unit-test-backend
 
   call-test-image-integration:
     name: Run integration tests
-    needs: [call-build-push-image]
+    needs: [set-context, call-build-push-image]
 
     permissions:
       contents: read
@@ -45,15 +62,15 @@ jobs:
 
     uses: ./.github/workflows/test-image.yaml
     with:
-      command: BACKEND_IMAGE=ghcr.io/przemoo16/project-starter-graphql-backend:${{ needs.call-build-push-image.outputs.image-tag }} make integration-test-backend
+      command: BACKEND_IMAGE=${{ needs.set-context.outputs.test-image }}:${{ needs.call-build-push-image.outputs.image-tag }} make integration-test-backend
 
   call-scan-image:
     name: Scan image
-    needs: [call-build-push-image]
+    needs: [set-context, call-build-push-image]
 
     permissions:
       packages: read
 
     uses: ./.github/workflows/scan-image.yaml
     with:
-      image: ghcr.io/przemoo16/project-starter-graphql-backend:${{ needs.call-build-push-image.outputs.image-tag }}
+      image: ${{ needs.set-context.outputs.test-image }}:${{ needs.call-build-push-image.outputs.image-tag }}

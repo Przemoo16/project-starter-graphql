@@ -11,8 +11,7 @@ distclean:
 	$(COMPOSE_TEST) down --rmi local --volumes --remove-orphans
 
 integration-test-backend:
-	$(COMPOSE_TEST) up -d
-	$(COMPOSE_TEST) exec --no-TTY backend-test pytest tests/integration; \
+	$(COMPOSE_TEST) run --no-TTY --rm backend-test pytest tests/integration; \
 	exit_status=$$?; \
 	$(COMPOSE_TEST) down; \
 	exit $$exit_status
