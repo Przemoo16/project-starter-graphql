@@ -51,6 +51,10 @@ services:
     depends_on:
       db-test:
         condition: service_healthy
+      worker-test:
+        condition: service_started
+      scheduler-test:
+        condition: service_started
     env_file:
       - .env.test
 
