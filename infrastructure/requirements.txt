@@ -1,5 +1,5 @@
 mypy==1.6.1
 pulumi==3.90.0
-pulumi-aws==6.6.0
+pulumi-aws==6.6.1
 pulumi-awsx==2.0.2
 pylint==3.0.2
