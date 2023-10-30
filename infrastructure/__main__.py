@@ -112,7 +112,7 @@ frontend_service = ECSService(
         task_role_arn=task_role.arn,
         execution_role_arn=task_role.arn,
         container_image=create_image_name(
-            frontend_repository.url, config.require("frontend_image_tag")
+            frontend_repository.url, config.require("version")
         ),
         container_port=config.require_int("frontend_container_port"),
     ),
@@ -173,7 +173,7 @@ backend_service = ECSService(
         task_role_arn=task_role.arn,
         execution_role_arn=task_role.arn,
         container_image=create_image_name(
-            backend_repository.url, config.require("backend_image_tag")
+            backend_repository.url, config.require("version")
         ),
         container_port=config.require_int("backend_container_port"),
         container_environment=backend_environment,
@@ -203,7 +203,7 @@ proxy_service = ECSService(
         task_role_arn=task_role.arn,
         execution_role_arn=task_role.arn,
         container_image=create_image_name(
-            proxy_repository.url, config.require("proxy_image_tag")
+            proxy_repository.url, config.require("version")
         ),
         container_port=config.require_int("proxy_container_port"),
         target_group=lb.target_group,
@@ -225,7 +225,7 @@ ECSService(
         task_role_arn=task_role.arn,
         execution_role_arn=task_role.arn,
         container_image=create_image_name(
-            backend_repository.url, config.require("backend_image_tag")
+            backend_repository.url, config.require("version")
         ),
         container_port=config.require_int("worker_container_port"),
         container_command=config.require_object("worker_container_command"),
@@ -248,7 +248,7 @@ if config.require_bool("scheduler_service_enabled"):
             task_role_arn=task_role.arn,
             execution_role_arn=task_role.arn,
             container_image=create_image_name(
-                backend_repository.url, config.require("backend_image_tag")
+                backend_repository.url, config.require("version")
             ),
             container_port=config.require_int("scheduler_container_port"),
             container_command=config.require_object("scheduler_container_command"),

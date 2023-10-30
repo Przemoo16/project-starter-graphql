@@ -47,10 +47,6 @@ config:
     description: Instance class to be used.
     default: cache.t3.micro
 
-  frontend_image_tag:
-    type: string
-    description: The frontend image tag.
-    default: latest
   frontend_service_desired_count:
     type: integer
     description: Number of instances of the frontend task to place and keep running.
@@ -68,10 +64,6 @@ config:
     description: Exposed port of the frontend container.
     default: 80
 
-  backend_image_tag:
-    type: string
-    description: The backend image tag.
-    default: latest
   backend_service_desired_count:
     type: integer
     description: Number of instances of the backend task to place and keep running.
@@ -93,10 +85,6 @@ config:
     type: string
     description: Destination for the proxy health check request.
     default: /api/rest/monitoring/health
-  proxy_image_tag:
-    type: string
-    description: The proxy image tag.
-    default: latest
   proxy_service_desired_count:
     type: integer
     description: Number of instances of the proxy task to place and keep running.
