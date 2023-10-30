@@ -71,6 +71,10 @@ services:
     depends_on:
       db:
         condition: service_healthy
+      worker:
+        condition: service_started
+      scheduler:
+        condition: service_started
     env_file:
       - .env
 
