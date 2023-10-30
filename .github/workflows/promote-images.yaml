@@ -2,6 +2,7 @@ name: Promote Images
 on:
   push:
     tags:
+      - "[0-9]+.[0-9]+.[0-9]+"
 jobs:
   set-context:
     name: Set context

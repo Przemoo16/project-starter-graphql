@@ -7,7 +7,7 @@ def create_ecr_repository(name: str) -> awsx.ecr.Repository:
         lifecycle_policy=awsx.ecr.LifecyclePolicyArgs(
             rules=[
                 awsx.ecr.LifecyclePolicyRuleArgs(
-                    tag_status=awsx.ecr.LifecycleTagStatus.TAGGED,
+                    tag_status=awsx.ecr.LifecycleTagStatus.ANY,
                     description="Keep last 5 tagged images",
                     maximum_number_of_images=5,
                 ),
