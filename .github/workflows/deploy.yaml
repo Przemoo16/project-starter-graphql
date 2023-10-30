@@ -1,10 +1,10 @@
 name: Deploy
 on:
   workflow_dispatch:
-inputs:
-  version:
-    type: string
-    description: Deployment version
+    inputs:
+      version:
+        type: string
+        description: Deployment version
 jobs:
   set-context:
     name: Set context
