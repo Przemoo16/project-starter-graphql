@@ -1,10 +1,7 @@
-name: Deploy
+name: Promote Images
 on:
-  workflow_dispatch:
-    inputs:
-      version:
-        type: string
-        description: Deployment version
+  push:
+    tags:
 jobs:
   set-context:
     name: Set context
@@ -40,7 +37,7 @@ jobs:
       images: ${{ needs.set-context.outputs.backend-image }}
       registry: ${{ needs.set-context.outputs.registry }}
       tags: |
-        type=raw,value=${{ github.event.inputs.version }}
+        type=semver,pattern={{version}}
     secrets:
       registry-username: ${{ secrets.AWS_ACCESS_KEY_ID }}
       registry-password: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
@@ -60,7 +57,7 @@ jobs:
       images: ${{ needs.set-context.outputs.frontend-image }}
       registry: ${{ needs.set-context.outputs.registry }}
       tags: |
-        type=raw,value=${{ github.event.inputs.version }}
+        type=semver,pattern={{version}}
     secrets:
       registry-username: ${{ secrets.AWS_ACCESS_KEY_ID }}
       registry-password: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
@@ -80,7 +77,7 @@ jobs:
       images: ${{ needs.set-context.outputs.proxy-image }}
       registry: ${{ needs.set-context.outputs.registry }}
       tags: |
-        type=raw,value=${{ github.event.inputs.version }}
+        type=semver,pattern={{version}}
     secrets:
       registry-username: ${{ secrets.AWS_ACCESS_KEY_ID }}
       registry-password: ${{ secrets.AWS_SECRET_ACCESS_KEY }}

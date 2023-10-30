@@ -9,3 +9,5 @@
   internet.
 - Restructure the project so it is easier to pass different resources like having
   a generic ECS security group that is passed as ingress to database or cache.
+- Use the `role-to-assume` feature when pushing images to ECR instead of AWS secrets
+  (as done in the infrastructure-preview job).

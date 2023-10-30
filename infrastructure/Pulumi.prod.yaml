@@ -12,3 +12,4 @@ config:
     secure: AAABAOspgPxeXsXicT4hOzLcuSJP64HqylJf5v3ZbOMeuoens4ezNWJTeK9Y3qBQA8c5BowxlpsUXPE82esh+ynZRk+XuKrXNrY9veHGOp9U5g==
   project-starter-graphql:smtp_user:
     secure: AAABAOUT3C21za3Sfb0ORus+49NoaGFFYiVgBd8it8xEEf9o4fAGR6GJTmk9RcQiGcj0JjiDtuCzOmJp+32aLG3yV+ptEj+ZlsijHtEdMHQL9vSzakxkNbgwykmnNA==
+  project-starter-graphql:version: latest
