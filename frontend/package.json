@@ -35,7 +35,7 @@
     "eslint-plugin-import": "^2.29.0",
     "eslint-plugin-n": "^16.2.0",
     "eslint-plugin-promise": "^6.0.0",
-    "eslint-plugin-qwik": "^1.2.14",
+    "eslint-plugin-qwik": "^1.2.15",
     "eslint-plugin-simple-import-sort": "^10.0.0",
     "js-cookie": "^3.0.5",
     "postcss": "8.4.31",
