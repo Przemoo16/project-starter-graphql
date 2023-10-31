@@ -1,5 +1,7 @@
 #!/bin/bash
 
+echo test
+
 set -euo pipefail
 
 alembic upgrade head
