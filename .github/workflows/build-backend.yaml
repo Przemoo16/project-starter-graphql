@@ -87,7 +87,7 @@ jobs:
         call-test-image-integration,
         call-scan-image,
       ]
-    if: github.event_name == "push"
+    if: github.event_name == 'push'
 
     permissions:
       contents: read
