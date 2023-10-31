@@ -69,7 +69,7 @@ jobs:
   call-build-push-final-image:
     name: Build and Push final image
     needs: [set-context, call-test-image-unit, call-scan-image]
-    if: github.event_name == "push"
+    if: github.event_name == 'push'
 
     permissions:
       contents: read
