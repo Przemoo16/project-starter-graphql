@@ -41,17 +41,17 @@ export const RegisterForm = component$(() => {
 
   const handleSubmit = $<SubmitHandler<RegisterFormSchema>>(
     async (values, _event) => {
-      const { problems } = await register(
+      const data = await register(
         getClientRequestSender(),
         values.fullName,
         values.email,
         values.password,
       );
 
-      if (problems) {
+      if ('problems' in data) {
         let emailError = '';
         let generalError = '';
-        if (isProblemPresent(problems, 'UserAlreadyExistsProblem')) {
+        if (isProblemPresent(data.problems, 'UserAlreadyExistsProblem')) {
           emailError = inlineTranslate('register.accountAlreadyExists', ctx);
         } else {
           generalError = inlineTranslate('register.registerError', ctx);

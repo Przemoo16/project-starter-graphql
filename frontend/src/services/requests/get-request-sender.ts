@@ -1,10 +1,10 @@
 import { isServer } from '@builder.io/qwik/build';
 
 import { fetchAdapter } from '~/libs/api/fetchers';
-import { getApiGraphQLUrl } from '~/libs/api/get-api-url';
 import { sendGraphQLAuthenticatedRequest } from '~/libs/api/send-graphql-authenticated-request';
 import { sendGraphQLRequest } from '~/libs/api/send-graphql-request';
 import { type Storage } from '~/libs/storage/types';
+import { getApiGraphQLUrl } from '~/services/requests/get-api-url';
 import { getAuthHeader } from '~/services/user/get-auth-header';
 import { logout } from '~/services/user/logout';
 import { refreshToken } from '~/services/user/refresh-token';
@@ -23,7 +23,7 @@ export const getRequestSender =
             await sendGraphQLRequest(fetchAdapter, url, { query, variables }),
           storage,
         ),
-      onInvalidTokens: () => {
+      onInvalidTokens: async () => {
         logout(storage, onRedirect);
       },
     });

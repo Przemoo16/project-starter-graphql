@@ -40,15 +40,15 @@ export const ChangePasswordForm = component$(() => {
 
   const handleSubmit = $<SubmitHandler<ChangePasswordFormSchema>>(
     async (values, _event) => {
-      const { problems } = await changeMyPassword(
+      const data = await changeMyPassword(
         getClientRequestSender(),
         values.currentPassword,
         values.newPassword,
       );
 
-      if (problems) {
+      if ('problems' in data) {
         let error = '';
-        if (isProblemPresent(problems, 'InvalidPasswordProblem')) {
+        if (isProblemPresent(data.problems, 'InvalidPasswordProblem')) {
           error = inlineTranslate('changePassword.invalidCurrentPassword', ctx);
         } else {
           error = inlineTranslate('changePassword.changePasswordError', ctx);

@@ -5,8 +5,8 @@ import { type Fetcher } from './types';
 
 interface AuthenticatedRequestProps extends Omit<RequestConfig, 'headers'> {
   onGetAuthHeader?: () => Record<string, string>;
-  onUnauthorized?: () => Promise<void>;
-  onInvalidTokens?: () => void;
+  onUnauthorized?: () => Promise<unknown>;
+  onInvalidTokens?: () => Promise<unknown>;
 }
 
 export const sendGraphQLAuthenticatedRequest = async (
@@ -17,7 +17,7 @@ export const sendGraphQLAuthenticatedRequest = async (
     variables,
     onGetAuthHeader = () => ({}),
     onUnauthorized = async () => {},
-    onInvalidTokens = () => {},
+    onInvalidTokens = async () => {},
   }: AuthenticatedRequestProps,
 ) => {
   try {
@@ -41,7 +41,7 @@ export const sendGraphQLAuthenticatedRequest = async (
     try {
       await onUnauthorized();
     } catch (error) {
-      onInvalidTokens();
+      await onInvalidTokens();
     }
     const headers = onGetAuthHeader();
     return await sendGraphQLRequest(onFetch, url, {

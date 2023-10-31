@@ -1,4 +1,5 @@
 import { type Storage } from '~/libs/storage/types';
+import { type RefreshTokenResponse } from '~/services/graphql';
 
 import {
   ACCESS_TOKEN_STORAGE_KEY,
@@ -9,7 +10,7 @@ import { type RequestSender } from './types';
 export const refreshToken = async (
   onRequest: RequestSender,
   storage: Storage,
-) => {
+): Promise<RefreshTokenResponse> => {
   const mutation = `
     mutation RefreshToken($token: String!) {
       refreshToken(token: $token) {

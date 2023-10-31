@@ -1,5 +1,5 @@
 interface Problem {
-  __typename: string;
+  __typename?: string;
 }
 
 export const isProblemPresent = (problems: Problem[], type: string) =>

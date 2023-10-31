@@ -34,13 +34,10 @@ export const onRequest: RequestHandler = requestEvent => {
 export const useUpdateAccountFormLoader = routeLoader$<
   InitialValues<UpdateAccountFormSchema>
 >(async ({ cookie, redirect }) => {
-  const {
-    me: { fullName },
-  } = await getMe(
+  return await getMe(
     getServerRequestSender(cookie, redirect),
     getServerTokenStorage(cookie),
   );
-  return { fullName };
 });
 
 export default component$(() => (

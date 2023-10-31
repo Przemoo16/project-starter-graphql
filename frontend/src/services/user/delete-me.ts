@@ -1,6 +1,10 @@
+import { type DeleteMeResponse } from '~/services/graphql';
+
 import { type RequestSender } from './types';
 
-export const deleteMe = async (onRequest: RequestSender) => {
+export const deleteMe = async (
+  onRequest: RequestSender,
+): Promise<DeleteMeResponse> => {
   const mutation = `
     mutation DeleteMe {
       deleteMe {

@@ -1,6 +1,6 @@
 dist/
-node_modules/
 server/
 
 src/entry.*.tsx
 src/routes/service-worker.ts
+src/services/graphql.ts
