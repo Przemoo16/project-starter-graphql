@@ -1,4 +1,5 @@
 import { type Storage } from '~/libs/storage/types';
+import { type LoginResponse } from '~/services/graphql';
 
 import {
   ACCESS_TOKEN_STORAGE_KEY,
@@ -11,7 +12,7 @@ export const login = async (
   storage: Storage,
   email: string,
   password: string,
-) => {
+): Promise<LoginResponse> => {
   const mutation = `
       mutation Login($input: LoginInput!) {
         login(input: $input) {

@@ -29,11 +29,11 @@ const ConfirmEmail = component$(() => {
   const signal = useConfirmEmail();
   const t = useTranslate();
 
-  const { problems } = signal.value;
+  const data = signal.value;
 
   let message = '';
-  if (problems) {
-    if (isProblemPresent(problems, 'UserEmailAlreadyConfirmedProblem')) {
+  if ('problems' in data) {
+    if (isProblemPresent(data.problems, 'UserEmailAlreadyConfirmedProblem')) {
       message = t('confirmEmail.emailAlreadyConfirmed');
     } else {
       message = t('confirmEmail.confirmEmailError');

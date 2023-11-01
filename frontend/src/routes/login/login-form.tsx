@@ -32,16 +32,16 @@ export const LoginForm = component$(() => {
 
   const handleSubmit = $<SubmitHandler<LoginFormSchema>>(
     async (values, _event) => {
-      const { problems } = await login(
+      const data = await login(
         getClientRequestSender(),
         getClientTokenStorage(),
         values.email,
         values.password,
       );
 
-      if (problems) {
+      if ('problems' in data) {
         let error = '';
-        if (isProblemPresent(problems, 'UserEmailNotConfirmedProblem')) {
+        if (isProblemPresent(data.problems, 'UserEmailNotConfirmedProblem')) {
           error = inlineTranslate('login.emailNotConfirmed', ctx);
         } else {
           error = inlineTranslate('login.invalidCredentials', ctx);

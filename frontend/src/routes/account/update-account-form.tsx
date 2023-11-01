@@ -35,12 +35,9 @@ export const UpdateAccountForm = component$(
 
     const handleSubmit = $<SubmitHandler<UpdateAccountFormSchema>>(
       async (values, _event) => {
-        const { problems } = await updateMe(
-          getClientRequestSender(),
-          values.fullName,
-        );
+        const data = await updateMe(getClientRequestSender(), values.fullName);
 
-        if (problems) {
+        if ('problems' in data) {
           throw new FormError<UpdateAccountFormSchema>(
             inlineTranslate('updateAccount.updateAccountError', ctx),
           );

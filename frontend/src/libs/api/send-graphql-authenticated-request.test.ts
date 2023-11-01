@@ -141,7 +141,7 @@ test(`[sendGraphQLAuthenticatedRequest function]: calls onUnauthorized callback 
   const onUnauthorized = async () => {
     onUnauthorizedCalled = true;
   };
-  const onInvalidTokens = () => {
+  const onInvalidTokens = async () => {
     onInvalidTokensCalled = true;
   };
   const requestConfig = { onUnauthorized, onInvalidTokens };
@@ -178,7 +178,7 @@ test(`[sendGraphQLAuthenticatedRequest function]: calls onInvalidTokens callback
   const onUnauthorized = async () => {
     throw new Error();
   };
-  const onInvalidTokens = () => {
+  const onInvalidTokens = async () => {
     onInvalidTokensCalled = true;
   };
   const requestConfig = { onUnauthorized, onInvalidTokens };
