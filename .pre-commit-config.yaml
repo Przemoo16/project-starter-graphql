@@ -103,7 +103,7 @@ repos:
         require_serial: true
         pass_filenames: false
       - id: typescript-frontend
-        name: eslint (typescript)
+        name: typescript (frontend)
         entry: docker compose run --no-TTY --rm --no-deps frontend yarn run tsc
         language: system
         files: ^frontend/
