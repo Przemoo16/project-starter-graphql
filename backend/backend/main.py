@@ -11,14 +11,14 @@ from backend.config.settings import get_settings
 from backend.db import get_engine
 from backend.libs.db.engine import AsyncEngine, dispose_async_engine
 
-app_settings = get_settings().app
+_app_settings = get_settings().app
 
 logging.basicConfig(
     format=(
         "%(threadName)s(%(thread)d): %(asctime)s - %(levelname)s - "
         "%(name)s:%(lineno)d - %(message)s"
     ),
-    level=app_settings.logging_level,
+    level=_app_settings.logging_level,
 )
 
 
@@ -38,4 +38,4 @@ def get_local_app(db_engine: AsyncEngine, debug: bool = False) -> FastAPI:
 
 def get_app() -> FastAPI:
     db_engine = get_engine()
-    return get_local_app(db_engine, app_settings.dev_mode)
+    return get_local_app(db_engine, _app_settings.dev_mode)
