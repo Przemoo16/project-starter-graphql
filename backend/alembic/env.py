@@ -6,12 +6,11 @@ from sqlalchemy import pool
 from sqlalchemy.engine import Connection
 from sqlalchemy.ext.asyncio import async_engine_from_config
 
-from backend.config.settings import get_settings
+from backend.config.settings import settings
 from backend.models import Base
 
 
 def get_url() -> str:
-    settings = get_settings()
     return settings.db.url.render_as_string(hide_password=False)
 
 

@@ -4,14 +4,14 @@ from fastapi import APIRouter, Depends, Response, status
 from fastapi.concurrency import run_in_threadpool
 from sqlalchemy import text
 
-from backend.config.settings import get_settings
+from backend.config.settings import settings
 from backend.db import get_db
 from backend.libs.db.session import AsyncSession
 from backend.services.monitoring.exceptions import HealthError
 from backend.services.monitoring.operations.health import HealthCheck, check_health
 from backend.services.monitoring.tasks import check_health_task
 
-_monitoring_settings = get_settings().monitoring
+_monitoring_settings = settings.monitoring
 
 router = APIRouter()
 

@@ -1,8 +1,8 @@
 from pydantic import BaseModel, EmailStr, Field, SecretStr
 
-from backend.config.settings import get_settings
+from backend.config.settings import settings
 
-_user_settings = get_settings().user
+_user_settings = settings.user
 
 
 class UserCreateSchema(BaseModel):

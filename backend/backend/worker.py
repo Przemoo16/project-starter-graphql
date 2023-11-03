@@ -1,8 +1,8 @@
 from celery import Celery
 
-from backend.config.settings import get_settings
+from backend.config.settings import settings
 
-_worker_settings = get_settings().worker
+_worker_settings = settings.worker
 
 worker_app = Celery(
     "celery",

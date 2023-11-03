@@ -5,7 +5,7 @@ from email.mime.text import MIMEText
 from smtplib import SMTP
 from ssl import create_default_context
 
-logger = logging.getLogger(__name__)
+_logger = logging.getLogger(__name__)
 
 _ssl_context = create_default_context()
 
@@ -35,7 +35,7 @@ def send_html_email(
     message: HTMLMessage, participants: EmailParticipants, smtp_server: SMTPServer
 ) -> None:
     built_message = build_html_message(message, participants)
-    send_email(built_message, participants, smtp_server)
+    _send_email(built_message, participants, smtp_server)
 
 
 def build_html_message(message: HTMLMessage, participants: EmailParticipants) -> str:
@@ -48,7 +48,7 @@ def build_html_message(message: HTMLMessage, participants: EmailParticipants) ->
     return built_message.as_string()
 
 
-def send_email(
+def _send_email(
     message: str, participants: EmailParticipants, smtp_server: SMTPServer
 ) -> None:
     with SMTP(smtp_server.host, smtp_server.port) as server:
@@ -57,4 +57,4 @@ def send_email(
         server.ehlo()
         server.login(smtp_server.user, smtp_server.password)
         response = server.sendmail(participants.sender, participants.receiver, message)
-        logger.debug("Email response: %r", response)
+        _logger.debug("Email response: %r", response)

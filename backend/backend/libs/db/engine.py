@@ -6,11 +6,11 @@ from sqlalchemy.ext.asyncio import create_async_engine as aio_create_async_engin
 
 __all__ = ["AsyncEngine"]
 
-logger = logging.getLogger(__name__)
+_logger = logging.getLogger(__name__)
 
 
 def create_async_engine(url: URL) -> AsyncEngine:
-    logger.debug(
+    _logger.debug(
         "Creating an async database engine with the connection string %r",
         url.render_as_string(),
     )
@@ -18,5 +18,5 @@ def create_async_engine(url: URL) -> AsyncEngine:
 
 
 async def dispose_async_engine(engine: AsyncEngine) -> None:
-    logger.debug("Disposing the async database engine")
+    _logger.debug("Disposing the async database engine")
     await engine.dispose()

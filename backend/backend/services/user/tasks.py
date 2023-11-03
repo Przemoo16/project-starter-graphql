@@ -2,14 +2,17 @@ import logging
 from functools import partial
 from uuid import UUID
 
-from backend.config.settings import get_settings
+from backend.config.settings import settings
 from backend.libs.email.message import (
     EmailParticipants,
     SMTPServer,
     send_html_email,
 )
-from backend.services.user.context import PASSWORD_HASHER, TOKEN_CREATOR
-from backend.services.user.jinja import load_template
+from backend.services.user.context import (
+    password_hasher,
+    template_loader,
+    token_creator,
+)
 from backend.services.user.operations.email import (
     ConfirmationEmailData,
     ConfirmationTokenData,
@@ -22,14 +25,13 @@ from backend.services.user.operations.password import (
 )
 from backend.worker import worker_app
 
-logger = logging.getLogger(__name__)
+_logger = logging.getLogger(__name__)
 
-_settings = get_settings()
-_email_settings = _settings.email
-_user_settings = _settings.user
+_email_settings = settings.email
+_user_settings = settings.user
 
-TEMPLATE_LOADER = load_template
-SMTP_SERVER = SMTPServer(
+_smtp_server = partial(
+    SMTPServer,
     host=_email_settings.smtp_host,
     port=_email_settings.smtp_port,
     user=_email_settings.smtp_user.get_secret_value(),
@@ -40,25 +42,25 @@ SMTP_SERVER = SMTPServer(
 @worker_app.task  # type: ignore[misc]
 def send_confirmation_email_task(user_id: UUID, user_email: str) -> None:
     token_data = ConfirmationTokenData(user_id=user_id, user_email=user_email)
-    token_creator = partial(
-        TOKEN_CREATOR,
+    confirmation_email_token_creator = partial(
+        token_creator,
         expiration=int(
             _user_settings.email_confirmation_token_lifetime.total_seconds()
         ),
     )
     email_data = ConfirmationEmailData(
         url_template=_user_settings.email_confirmation_url_template,
-        template_loader=TEMPLATE_LOADER,
+        template_loader=template_loader,
         email_sender=partial(
             send_html_email,
             participants=EmailParticipants(
                 sender=_email_settings.sender, receiver=user_email
             ),
-            smtp_server=SMTP_SERVER,
+            smtp_server=_smtp_server(),
         ),
     )
-    send_confirmation_email(token_data, token_creator, email_data)
-    logger.info("Sent confirmation email to %r", user_email)
+    send_confirmation_email(token_data, confirmation_email_token_creator, email_data)
+    _logger.info("Sent confirmation email to %r", user_email)
 
 
 @worker_app.task  # type: ignore[misc]
@@ -66,20 +68,22 @@ def send_reset_password_email_task(
     user_id: UUID, user_email: str, user_password: str
 ) -> None:
     token_data = ResetPasswordTokenData(user_id=user_id, user_password=user_password)
-    token_creator = partial(
-        TOKEN_CREATOR,
+    reset_password_token_creator = partial(
+        token_creator,
         expiration=int(_user_settings.reset_password_token_lifetime.total_seconds()),
     )
     email_data = ResetPasswordEmailData(
         url_template=_user_settings.reset_password_url_template,
-        template_loader=TEMPLATE_LOADER,
+        template_loader=template_loader,
         email_sender=partial(
             send_html_email,
             participants=EmailParticipants(
                 sender=_email_settings.sender, receiver=user_email
             ),
-            smtp_server=SMTP_SERVER,
+            smtp_server=_smtp_server(),
         ),
     )
-    send_reset_password_email(token_data, token_creator, PASSWORD_HASHER, email_data)
-    logger.info("Sent reset password email to %r", user_email)
+    send_reset_password_email(
+        token_data, reset_password_token_creator, password_hasher, email_data
+    )
+    _logger.info("Sent reset password email to %r", user_email)

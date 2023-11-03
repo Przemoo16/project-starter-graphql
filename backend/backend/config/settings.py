@@ -20,8 +20,4 @@ class Settings(BaseSettings):
     model_config = SettingsConfigDict(env_nested_delimiter="__")
 
 
-_settings = Settings()
-
-
-def get_settings() -> Settings:
-    return _settings
+settings = Settings()

@@ -2,7 +2,7 @@ from functools import partial
 
 from fastapi.concurrency import run_in_threadpool
 
-from backend.config.settings import get_settings
+from backend.config.settings import settings
 from backend.libs.security.password import (
     async_hash_password,
     async_verify_and_update_password,
@@ -15,28 +15,30 @@ from backend.libs.security.token import (
     create_paseto_token_public_v4,
     read_paseto_token_public_v4,
 )
+from backend.services.user.jinja import load_template
 
-_user_settings = get_settings().user
+_user_settings = settings.user
 
 
-TOKEN_CREATOR = partial(
+token_creator = partial(
     create_paseto_token_public_v4, key=_user_settings.auth_private_key
 )
-ASYNC_TOKEN_CREATOR = partial(
+async_token_creator = partial(
     async_create_paseto_token_public_v4,
     key=_user_settings.auth_private_key,
     executor=run_in_threadpool,
 )
-TOKEN_READER = partial(read_paseto_token_public_v4, key=_user_settings.auth_public_key)
-ASYNC_TOKEN_READER = partial(
+token_reader = partial(read_paseto_token_public_v4, key=_user_settings.auth_public_key)
+async_token_reader = partial(
     async_read_paseto_token_public_v4,
     key=_user_settings.auth_public_key,
     executor=run_in_threadpool,
 )
 
-PASSWORD_VALIDATOR = verify_and_update_password
-ASYNC_PASSWORD_VALIDATOR = partial(
+password_validator = verify_and_update_password
+async_password_validator = partial(
     async_verify_and_update_password, executor=run_in_threadpool
 )
-PASSWORD_HASHER = hash_password
-ASYNC_PASSWORD_HASHER = partial(async_hash_password, executor=run_in_threadpool)
+password_hasher = hash_password
+async_password_hasher = partial(async_hash_password, executor=run_in_threadpool)
+template_loader = load_template

@@ -1,3 +1,3 @@
-import gettext
+from gettext import translation
 
-translations = gettext.translation("base", localedir="backend/locales", fallback=True)
+translations = translation("base", localedir="backend/locales", fallback=True)

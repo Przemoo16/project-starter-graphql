@@ -7,11 +7,11 @@ from fastapi.responses import ORJSONResponse
 
 from backend.api.graphql.router import get_router as get_graphql_router
 from backend.api.rest.router import get_router as get_rest_router
-from backend.config.settings import get_settings
-from backend.db import get_engine
+from backend.config.settings import settings
+from backend.db import engine
 from backend.libs.db.engine import AsyncEngine, dispose_async_engine
 
-_app_settings = get_settings().app
+_app_settings = settings.app
 
 logging.basicConfig(
     format=(
@@ -37,5 +37,4 @@ def get_local_app(db_engine: AsyncEngine, debug: bool = False) -> FastAPI:
 
 
 def get_app() -> FastAPI:
-    db_engine = get_engine()
-    return get_local_app(db_engine, _app_settings.dev_mode)
+    return get_local_app(engine, _app_settings.dev_mode)

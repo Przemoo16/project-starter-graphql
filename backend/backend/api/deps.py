@@ -12,7 +12,7 @@ from backend.services.user.operations.auth import get_confirmed_user_from_header
 from backend.services.user.operations.types import AsyncTokenReader, UserCRUDProtocol
 
 
-class Request(Protocol):
+class _Request(Protocol):
     @property
     def headers(self) -> Mapping[str, str]:
         ...
@@ -23,7 +23,7 @@ class UnauthorizedError(Exception):
 
 
 async def get_confirmed_user(
-    request: Request | None, token_reader: AsyncTokenReader, crud: UserCRUDProtocol
+    request: _Request | None, token_reader: AsyncTokenReader, crud: UserCRUDProtocol
 ) -> User:
     if not request:
         msg = "Authentication token required"

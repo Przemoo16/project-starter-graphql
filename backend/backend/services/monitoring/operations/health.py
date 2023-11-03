@@ -4,9 +4,9 @@ from dataclasses import dataclass
 
 from backend.services.monitoring.exceptions import HealthError
 
-logger = logging.getLogger(__name__)
+_logger = logging.getLogger(__name__)
 
-HEALTHY_FLAG = "OK"
+_HEALTHY_FLAG = "OK"
 
 
 @dataclass
@@ -17,7 +17,7 @@ class HealthCheck:
 
 async def check_health(checks: Iterable[HealthCheck]) -> dict[str, str]:
     report = await _get_health_report(checks)
-    validate_health(report)
+    _validate_health(report)
     return report
 
 
@@ -29,11 +29,11 @@ async def _get_check_message(check: HealthCheck) -> str:
     try:
         await check.check()
     except Exception as exc:  # pylint: disable=broad-exception-caught
-        logging.exception("The %r check failed", check.name)
+        _logger.exception("The %r check failed", check.name)
         return str(exc)
-    return HEALTHY_FLAG
+    return _HEALTHY_FLAG
 
 
-def validate_health(report: Mapping[str, str]) -> None:
-    if any(health != HEALTHY_FLAG for health in report.values()):
+def _validate_health(report: Mapping[str, str]) -> None:
+    if any(health != _HEALTHY_FLAG for health in report.values()):
         raise HealthError(dict(report))
