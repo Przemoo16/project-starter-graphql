@@ -16,21 +16,21 @@ from backend.libs.security.token import (
     read_paseto_token_public_v4,
 )
 
-user_settings = get_settings().user
+_user_settings = get_settings().user
 
 
 TOKEN_CREATOR = partial(
-    create_paseto_token_public_v4, key=user_settings.auth_private_key
+    create_paseto_token_public_v4, key=_user_settings.auth_private_key
 )
 ASYNC_TOKEN_CREATOR = partial(
     async_create_paseto_token_public_v4,
-    key=user_settings.auth_private_key,
+    key=_user_settings.auth_private_key,
     executor=run_in_threadpool,
 )
-TOKEN_READER = partial(read_paseto_token_public_v4, key=user_settings.auth_public_key)
+TOKEN_READER = partial(read_paseto_token_public_v4, key=_user_settings.auth_public_key)
 ASYNC_TOKEN_READER = partial(
     async_read_paseto_token_public_v4,
-    key=user_settings.auth_public_key,
+    key=_user_settings.auth_public_key,
     executor=run_in_threadpool,
 )
 

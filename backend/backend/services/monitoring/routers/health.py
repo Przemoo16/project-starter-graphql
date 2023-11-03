@@ -11,7 +11,7 @@ from backend.services.monitoring.exceptions import HealthError
 from backend.services.monitoring.operations.health import HealthCheck, check_health
 from backend.services.monitoring.tasks import check_health_task
 
-monitoring_settings = get_settings().monitoring
+_monitoring_settings = get_settings().monitoring
 
 router = APIRouter()
 
@@ -24,7 +24,7 @@ async def get_health_checks(
 
     async def check_worker() -> None:
         result = check_health_task.delay()
-        timeout = monitoring_settings.worker_health_check_timeout.total_seconds()
+        timeout = _monitoring_settings.worker_health_check_timeout.total_seconds()
 
         def check_result() -> None:
             if result.get(timeout=timeout) is not True:

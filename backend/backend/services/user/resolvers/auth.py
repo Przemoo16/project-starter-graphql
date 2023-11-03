@@ -35,15 +35,15 @@ from backend.services.user.types.auth import (
     UserEmailNotConfirmedProblem,
 )
 
-user_settings = get_settings().user
+_user_settings = get_settings().user
 
 ACCESS_TOKEN_CREATOR = partial(
     ASYNC_TOKEN_CREATOR,
-    expiration=int(user_settings.access_token_lifetime.total_seconds()),
+    expiration=int(_user_settings.access_token_lifetime.total_seconds()),
 )
 REFRESH_TOKEN_CREATOR = partial(
     ASYNC_TOKEN_CREATOR,
-    expiration=int(user_settings.refresh_token_lifetime.total_seconds()),
+    expiration=int(_user_settings.refresh_token_lifetime.total_seconds()),
 )
 
 
