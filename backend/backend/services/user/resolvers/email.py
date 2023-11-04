@@ -1,5 +1,5 @@
 from backend.libs.api.context import Info
-from backend.services.user.context import ASYNC_TOKEN_READER
+from backend.services.user.context import async_token_reader
 from backend.services.user.crud import UserCRUD
 from backend.services.user.exceptions import (
     InvalidEmailConfirmationTokenError,
@@ -20,7 +20,7 @@ async def confirm_email_resolver(info: Info, token: str) -> ConfirmEmailResponse
     crud = UserCRUD(db=info.context.db)
 
     try:
-        await confirm_email(token, ASYNC_TOKEN_READER, crud)
+        await confirm_email(token, async_token_reader, crud)
     except (InvalidEmailConfirmationTokenError, UserNotFoundError):
         return ConfirmEmailFailure(problems=[InvalidEmailConfirmationTokenProblem()])
     except UserEmailAlreadyConfirmedError:

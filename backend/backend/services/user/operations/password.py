@@ -29,10 +29,10 @@ from backend.services.user.operations.types import (
 )
 from backend.services.user.schemas import PasswordChangeSchema, PasswordResetSchema
 
-logger = logging.getLogger(__name__)
+_logger = logging.getLogger(__name__)
 
 
-RESET_PASSWORD_TOKEN_TYPE = "reset-password"  # nosec
+_RESET_PASSWORD_TOKEN_TYPE = "reset-password"  # nosec
 
 
 @dataclass
@@ -55,7 +55,7 @@ class PasswordManager:
 
 
 @dataclass
-class ResetPasswordTokenPayload:
+class _ResetPasswordTokenPayload:
     user_id: UUID
     fingerprint: str
 
@@ -68,7 +68,7 @@ async def recover_password(
     try:
         user = await crud.read_one(UserFilters(email=email))
     except NoObjectFoundError:
-        logger.info("User %r not found", email)
+        _logger.info("User %r not found", email)
         return
     success_callback(user)
 
@@ -97,7 +97,7 @@ def _create_reset_password_token(
         {
             "sub": str(token_data.user_id),
             "fingerprint": password_hasher(token_data.user_password),
-            "type": RESET_PASSWORD_TOKEN_TYPE,
+            "type": _RESET_PASSWORD_TOKEN_TYPE,
         }
     )
 
@@ -136,10 +136,10 @@ async def reset_password(
 
 async def _read_reset_password_token(
     token: str, token_reader: AsyncTokenReader
-) -> ResetPasswordTokenPayload:
+) -> _ResetPasswordTokenPayload:
     payload = await _read_token(token, token_reader)
     _validate_token_type(payload["type"])
-    return ResetPasswordTokenPayload(
+    return _ResetPasswordTokenPayload(
         user_id=UUID(payload["sub"]), fingerprint=payload["fingerprint"]
     )
 
@@ -148,15 +148,15 @@ async def _read_token(token: str, token_reader: AsyncTokenReader) -> dict[str, A
     try:
         return await token_reader(token)
     except InvalidTokenError as exc:
-        logger.info("The token is invalid")
+        _logger.info("The token is invalid")
         raise InvalidResetPasswordTokenError from exc
 
 
 def _validate_token_type(token_type: str) -> None:
-    if token_type != RESET_PASSWORD_TOKEN_TYPE:
-        logger.info(
+    if token_type != _RESET_PASSWORD_TOKEN_TYPE:
+        _logger.info(
             "The token is not a %r token, actual type: %r",
-            RESET_PASSWORD_TOKEN_TYPE,
+            _RESET_PASSWORD_TOKEN_TYPE,
             token_type,
         )
         raise InvalidResetPasswordTokenError
@@ -166,7 +166,7 @@ async def _get_user_by_id(user_id: UUID, crud: UserCRUDProtocol) -> User:
     try:
         return await crud.read_one(UserFilters(id=user_id))
     except NoObjectFoundError as exc:
-        logger.info("User with id %r not found", user_id)
+        _logger.info("User with id %r not found", user_id)
         raise UserNotFoundError from exc
 
 
@@ -175,7 +175,7 @@ async def _validate_token_fingerprint(
 ) -> None:
     is_valid, _ = await password_validator(hashed_password, fingerprint)
     if not is_valid:
-        logger.info("The token has invalid fingerprint")
+        _logger.info("The token has invalid fingerprint")
         raise InvalidResetPasswordTokenFingerprintError
 
 
@@ -210,5 +210,5 @@ async def _validate_password(
         password.get_secret_value(), user.hashed_password
     )
     if not is_valid:
-        logger.info("Invalid password for the user %r", user.email)
+        _logger.info("Invalid password for the user %r", user.email)
         raise InvalidPasswordError

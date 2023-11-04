@@ -1,12 +1,12 @@
 from collections.abc import Callable
 from typing import ParamSpec, Protocol, TypeVar
 
-T = TypeVar("T")
-P = ParamSpec("P")
+_T = TypeVar("_T")
+_P = ParamSpec("_P")
 
 
 class AsyncExecutor(Protocol):
     async def __call__(
-        self, func: Callable[P, T], *args: P.args, **kwargs: P.kwargs
-    ) -> T:
+        self, func: Callable[_P, _T], *args: _P.args, **kwargs: _P.kwargs
+    ) -> _T:
         ...

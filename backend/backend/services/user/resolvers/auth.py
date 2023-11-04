@@ -3,13 +3,13 @@ from typing import Annotated
 
 from strawberry import argument
 
-from backend.config.settings import get_settings
+from backend.config.settings import settings
 from backend.libs.api.context import Info
 from backend.services.user.context import (
-    ASYNC_PASSWORD_HASHER,
-    ASYNC_PASSWORD_VALIDATOR,
-    ASYNC_TOKEN_CREATOR,
-    ASYNC_TOKEN_READER,
+    async_password_hasher,
+    async_password_validator,
+    async_token_creator,
+    async_token_reader,
 )
 from backend.services.user.crud import UserCRUD
 from backend.services.user.exceptions import (
@@ -35,14 +35,14 @@ from backend.services.user.types.auth import (
     UserEmailNotConfirmedProblem,
 )
 
-_user_settings = get_settings().user
+_user_settings = settings.user
 
-ACCESS_TOKEN_CREATOR = partial(
-    ASYNC_TOKEN_CREATOR,
+_access_token_creator = partial(
+    async_token_creator,
     expiration=int(_user_settings.access_token_lifetime.total_seconds()),
 )
-REFRESH_TOKEN_CREATOR = partial(
-    ASYNC_TOKEN_CREATOR,
+_refresh_token_creator = partial(
+    async_token_creator,
     expiration=int(_user_settings.refresh_token_lifetime.total_seconds()),
 )
 
@@ -54,12 +54,12 @@ async def login_resolver(
         email=login_input.username, password=login_input.password
     )
     password_manager = PasswordManager(
-        validator=ASYNC_PASSWORD_VALIDATOR,
-        hasher=ASYNC_PASSWORD_HASHER,
+        validator=async_password_validator,
+        hasher=async_password_hasher,
     )
     tokens_manager = AuthTokensManager(
-        access_token_creator=ACCESS_TOKEN_CREATOR,
-        refresh_token_creator=REFRESH_TOKEN_CREATOR,
+        access_token_creator=_access_token_creator,
+        refresh_token_creator=_refresh_token_creator,
     )
     crud = UserCRUD(db=info.context.db)
 
@@ -85,7 +85,7 @@ class RefreshTokenError(Exception):
 async def refresh_token_resolver(token: str) -> RefreshTokenResponse:
     try:
         access_token = await refresh_token(
-            token, ASYNC_TOKEN_READER, ACCESS_TOKEN_CREATOR
+            token, async_token_reader, _access_token_creator
         )
     except InvalidRefreshTokenError as exc:
         msg = "Invalid token"

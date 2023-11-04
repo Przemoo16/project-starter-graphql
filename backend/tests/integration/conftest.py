@@ -4,7 +4,7 @@ import pytest
 from fastapi import FastAPI
 from httpx import AsyncClient
 
-from backend.config.settings import get_settings
+from backend.config.settings import settings
 from backend.db import get_db
 from backend.libs.db.engine import (
     AsyncEngine,
@@ -21,14 +21,13 @@ from backend.models import Base
 
 __all__ = ["AsyncClient", "AsyncEngine", "AsyncSession", "Base"]
 
-_settings = get_settings()
-db_settings = _settings.db
-user_settings = _settings.user
+_db_settings = settings.db
+_user_settings = settings.user
 
 
 @pytest.fixture(name="db_engine", scope="session")
 async def db_engine_fixture() -> AsyncGenerator[AsyncEngine, None]:
-    engine = create_async_engine(db_settings.url)
+    engine = create_async_engine(_db_settings.url)
     yield engine
     await dispose_async_engine(engine)
 
@@ -80,7 +79,7 @@ async def client_fixture(app: FastAPI) -> AsyncGenerator[AsyncClient, None]:
 
 @pytest.fixture(name="auth_private_key", scope="session")
 def auth_private_key_fixture() -> bytes:
-    return user_settings.auth_private_key
+    return _user_settings.auth_private_key
 
 
 @pytest.fixture(name="graphql_url", scope="session")

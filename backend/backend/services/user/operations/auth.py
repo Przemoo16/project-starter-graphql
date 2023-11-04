@@ -29,11 +29,11 @@ from backend.services.user.operations.types import (
 )
 from backend.services.user.schemas import CredentialsSchema
 
-logger = logging.getLogger(__name__)
+_logger = logging.getLogger(__name__)
 
 
-ACCESS_TOKEN_TYPE = "access"  # nosec
-REFRESH_TOKEN_TYPE = "refresh"  # nosec
+_ACCESS_TOKEN_TYPE = "access"  # nosec
+_REFRESH_TOKEN_TYPE = "refresh"  # nosec
 
 
 @dataclass
@@ -49,12 +49,12 @@ class AuthTokensManager:
 
 
 @dataclass
-class AccessTokenPayload:
+class _AccessTokenPayload:
     user_id: UUID
 
 
 @dataclass
-class RefreshTokenPayload:
+class _RefreshTokenPayload:
     user_id: UUID
 
 
@@ -80,7 +80,7 @@ async def _authenticate_user(
         user, credentials.password, password_manager.validator
     ):
         user = await _update_password_hash(user, updated_password_hash, crud)
-        logger.info("Updated password hash for the user %r", user.email)
+        _logger.info("Updated password hash for the user %r", user.email)
     return user
 
 
@@ -94,7 +94,7 @@ async def _get_user_by_credentials(
     except NoObjectFoundError as exc:
         # Run the password hasher to mitigate timing attack
         await password_hasher(credentials.password.get_secret_value())
-        logger.info("User %r not found", credentials.email)
+        _logger.info("User %r not found", credentials.email)
         raise UserNotFoundError from exc
 
 
@@ -105,7 +105,7 @@ async def _validate_password(
         password.get_secret_value(), user.hashed_password
     )
     if not is_valid:
-        logger.info("Invalid password for the user %r", user.email)
+        _logger.info("Invalid password for the user %r", user.email)
         raise InvalidPasswordError
     return updated_password_hash
 
@@ -120,7 +120,7 @@ async def _update_password_hash(
 
 def _validate_user_email_is_confirmed(user: User) -> None:
     if not user.confirmed_email:
-        logger.info("User email %r not confirmed", user.email)
+        _logger.info("User email %r not confirmed", user.email)
         raise UserEmailNotConfirmedError
 
 
@@ -140,11 +140,11 @@ async def _create_auth_tokens(
 
 
 async def _create_access_token(user_id: UUID, token_creator: AsyncTokenCreator) -> str:
-    return await token_creator({"sub": str(user_id), "type": ACCESS_TOKEN_TYPE})
+    return await token_creator({"sub": str(user_id), "type": _ACCESS_TOKEN_TYPE})
 
 
 async def _create_refresh_token(user_id: UUID, token_creator: AsyncTokenCreator) -> str:
-    return await token_creator({"sub": str(user_id), "type": REFRESH_TOKEN_TYPE})
+    return await token_creator({"sub": str(user_id), "type": _REFRESH_TOKEN_TYPE})
 
 
 async def get_confirmed_user_from_headers(
@@ -166,11 +166,11 @@ def _read_access_token_from_header(headers: Mapping[Any, str]) -> str:
 
 async def _read_access_token(
     token: str, token_reader: AsyncTokenReader
-) -> AccessTokenPayload:
+) -> _AccessTokenPayload:
     error = InvalidAccessTokenError
     payload = await _read_token(token, token_reader, error)
-    _validate_token_type(payload["type"], ACCESS_TOKEN_TYPE, error)
-    return AccessTokenPayload(user_id=UUID(payload["sub"]))
+    _validate_token_type(payload["type"], _ACCESS_TOKEN_TYPE, error)
+    return _AccessTokenPayload(user_id=UUID(payload["sub"]))
 
 
 async def _read_token(
@@ -179,7 +179,7 @@ async def _read_token(
     try:
         return await token_reader(token)
     except InvalidTokenError as exc:
-        logger.info("The token is invalid")
+        _logger.info("The token is invalid")
         raise error from exc
 
 
@@ -187,7 +187,7 @@ def _validate_token_type(
     token_type: str, expected_type: str, error: type[Exception]
 ) -> None:
     if token_type != expected_type:
-        logger.info(
+        _logger.info(
             "The token is not an %r token, actual type: %r", expected_type, token_type
         )
         raise error
@@ -197,7 +197,7 @@ async def _get_user_by_id(user_id: UUID, crud: UserCRUDProtocol) -> User:
     try:
         return await crud.read_one(UserFilters(id=user_id))
     except NoObjectFoundError as exc:
-        logger.info("User with id %r not found", user_id)
+        _logger.info("User with id %r not found", user_id)
         raise UserNotFoundError from exc
 
 
@@ -210,8 +210,8 @@ async def refresh_token(
 
 async def _read_refresh_token(
     token: str, token_reader: AsyncTokenReader
-) -> RefreshTokenPayload:
+) -> _RefreshTokenPayload:
     error = InvalidRefreshTokenError
     payload = await _read_token(token, token_reader, error)
-    _validate_token_type(payload["type"], REFRESH_TOKEN_TYPE, error)
-    return RefreshTokenPayload(user_id=UUID(payload["sub"]))
+    _validate_token_type(payload["type"], _REFRESH_TOKEN_TYPE, error)
+    return _RefreshTokenPayload(user_id=UUID(payload["sub"]))

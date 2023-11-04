@@ -8,7 +8,7 @@ from backend.services.user.models import User
 from backend.services.user.operations.types import AsyncPasswordHasher, UserCRUDProtocol
 from backend.services.user.schemas import UserCreateSchema, UserUpdateSchema
 
-logger = logging.getLogger(__name__)
+_logger = logging.getLogger(__name__)
 
 
 async def create_user(
@@ -26,7 +26,7 @@ async def create_user(
         user = await crud.create_and_refresh(create_data)
         success_callback(user)
         return user
-    logger.info("User %r already exists", data.email)
+    _logger.info("User %r already exists", data.email)
     raise UserAlreadyExistsError
 
 

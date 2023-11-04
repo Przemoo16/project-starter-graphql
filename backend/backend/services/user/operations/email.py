@@ -22,10 +22,10 @@ from backend.services.user.operations.types import (
     UserCRUDProtocol,
 )
 
-logger = logging.getLogger(__name__)
+_logger = logging.getLogger(__name__)
 
 
-EMAIL_CONFIRMATION_TOKEN_TYPE = "email-confirmation"  # nosec
+_EMAIL_CONFIRMATION_TOKEN_TYPE = "email-confirmation"  # nosec
 
 
 @dataclass
@@ -42,7 +42,7 @@ class ConfirmationEmailData:
 
 
 @dataclass
-class ConfirmationTokenPayload:
+class _ConfirmationTokenPayload:
     user_id: UUID
     user_email: str
 
@@ -64,7 +64,7 @@ def _create_email_confirmation_token(
         {
             "sub": str(token_data.user_id),
             "email": token_data.user_email,
-            "type": EMAIL_CONFIRMATION_TOKEN_TYPE,
+            "type": _EMAIL_CONFIRMATION_TOKEN_TYPE,
         }
     )
 
@@ -98,10 +98,10 @@ async def confirm_email(
 
 async def _read_email_confirmation_token(
     token: str, token_reader: AsyncTokenReader
-) -> ConfirmationTokenPayload:
+) -> _ConfirmationTokenPayload:
     payload = await _read_token(token, token_reader)
     _validate_token_type(payload["type"])
-    return ConfirmationTokenPayload(
+    return _ConfirmationTokenPayload(
         user_id=UUID(payload["sub"]), user_email=payload["email"]
     )
 
@@ -110,15 +110,15 @@ async def _read_token(token: str, token_reader: AsyncTokenReader) -> dict[str, A
     try:
         return await token_reader(token)
     except InvalidTokenError as exc:
-        logger.info("The token is invalid")
+        _logger.info("The token is invalid")
         raise InvalidEmailConfirmationTokenError from exc
 
 
 def _validate_token_type(token_type: str) -> None:
-    if token_type != EMAIL_CONFIRMATION_TOKEN_TYPE:
-        logger.info(
+    if token_type != _EMAIL_CONFIRMATION_TOKEN_TYPE:
+        _logger.info(
             "The token is not an %r token, actual type: %r",
-            EMAIL_CONFIRMATION_TOKEN_TYPE,
+            _EMAIL_CONFIRMATION_TOKEN_TYPE,
             token_type,
         )
         raise InvalidEmailConfirmationTokenError
@@ -130,13 +130,13 @@ async def _get_user_by_id_and_email(
     try:
         return await crud.read_one(UserFilters(id=user_id, email=user_email))
     except NoObjectFoundError as exc:
-        logger.info("User with id %r and email %r not found", user_id, user_email)
+        _logger.info("User with id %r and email %r not found", user_id, user_email)
         raise UserNotFoundError from exc
 
 
 def _validate_user_email_is_not_already_confirmed(user: User) -> None:
     if user.confirmed_email:
-        logger.info("User email %r already confirmed", user.email)
+        _logger.info("User email %r already confirmed", user.email)
         raise UserEmailAlreadyConfirmedError
 
 
