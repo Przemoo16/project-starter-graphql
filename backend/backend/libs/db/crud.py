@@ -58,8 +58,8 @@ class CRUDProtocol(
 
 class CRUD(Generic[Model, CreateData_contra, UpdateData_contra, Filters_contra]):
     def __init__(self, model: type[Model], db: AsyncSession):
-        self.model = model
-        self.db = db
+        self._model = model
+        self._db = db
 
     async def create(self, data: CreateData_contra) -> None:
         created_obj = self._create_obj(data)
@@ -71,11 +71,11 @@ class CRUD(Generic[Model, CreateData_contra, UpdateData_contra, Filters_contra])
 
     def _create_obj(self, data: CreateData_contra) -> Model:
         data_dict = asdict(data)
-        return self.model(**data_dict)
+        return self._model(**data_dict)
 
     async def read_one(self, filters: Filters_contra) -> Model:
-        statement = self._build_where_statement(select(self.model), filters)
-        result = await self.db.execute(statement)
+        statement = self._build_where_statement(select(self._model), filters)
+        result = await self._db.execute(statement)
         try:
             return result.scalars().one()
         except NoResultFound as exc:
@@ -98,17 +98,17 @@ class CRUD(Generic[Model, CreateData_contra, UpdateData_contra, Filters_contra])
         return obj
 
     async def delete(self, obj: Model) -> None:
-        await self.db.delete(obj)
-        await self.db.commit()
+        await self._db.delete(obj)
+        await self._db.commit()
 
     async def _commit(self, obj: Model) -> Model:
-        self.db.add(obj)
-        await self.db.commit()
+        self._db.add(obj)
+        await self._db.commit()
         return obj
 
     async def _commit_and_refresh(self, obj: Model) -> Model:
         obj = await self._commit(obj)
-        await self.db.refresh(obj)
+        await self._db.refresh(obj)
         return obj
 
     def _build_where_statement(
@@ -118,5 +118,5 @@ class CRUD(Generic[Model, CreateData_contra, UpdateData_contra, Filters_contra])
         for field, value in filters_dict.items():
             if is_unset(value):
                 continue
-            statement = statement.where(getattr(self.model, field) == value)
+            statement = statement.where(getattr(self._model, field) == value)
         return statement

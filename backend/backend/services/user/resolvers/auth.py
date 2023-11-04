@@ -47,6 +47,10 @@ _refresh_token_creator = partial(
 )
 
 
+class _RefreshTokenError(Exception):
+    pass
+
+
 async def login_resolver(
     info: Info, login_input: Annotated[LoginInput, argument(name="input")]
 ) -> LoginResponse:
@@ -78,10 +82,6 @@ async def login_resolver(
     )
 
 
-class RefreshTokenError(Exception):
-    pass
-
-
 async def refresh_token_resolver(token: str) -> RefreshTokenResponse:
     try:
         access_token = await refresh_token(
@@ -89,7 +89,7 @@ async def refresh_token_resolver(token: str) -> RefreshTokenResponse:
         )
     except InvalidRefreshTokenError as exc:
         msg = "Invalid token"
-        raise RefreshTokenError(msg) from exc
+        raise _RefreshTokenError(msg) from exc
     return RefreshTokenResponse(
         access_token=access_token,
         token_type="Bearer",  # nosec
