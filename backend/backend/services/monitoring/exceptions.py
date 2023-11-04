@@ -1,4 +1,6 @@
+from dataclasses import dataclass
+
+
+@dataclass
 class HealthError(Exception):
-    def __init__(self, report: dict[str, str]):
-        super().__init__()
-        self.report = report
+    report: dict[str, str]

@@ -30,19 +30,19 @@ class UserCRUD(  # pylint: disable=abstract-method
     CRUDStub[User, UserCreateData, UserUpdateData, UserFilters]
 ):
     def __init__(self, existing_user: User | None = None):
-        self.existing_user = existing_user
+        self._existing_user = existing_user
 
     async def create_and_refresh(self, data: UserCreateData) -> User:
         return create_user(**asdict(data))
 
     async def read_one(self, filters: UserFilters) -> User:
         filters_dict = asdict(filters)
-        if self.existing_user and all(
-            getattr(self.existing_user, field) == value
+        if self._existing_user and all(
+            getattr(self._existing_user, field) == value
             for field, value in filters_dict.items()
             if not is_unset(value)
         ):
-            return self.existing_user
+            return self._existing_user
         raise NoObjectFoundError
 
     async def update(self, obj: User, data: UserUpdateData) -> None:

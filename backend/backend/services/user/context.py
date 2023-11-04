@@ -41,4 +41,5 @@ async_password_validator = partial(
 )
 password_hasher = hash_password
 async_password_hasher = partial(async_hash_password, executor=run_in_threadpool)
+
 template_loader = load_template
