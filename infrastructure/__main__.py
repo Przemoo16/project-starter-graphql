@@ -17,11 +17,11 @@ from modules.ecs import (
     get_ecs_tasks_assume_role_policy_document,
     get_secrets_access_policy_document,
 )
-from modules.elasticache import ElastiCache, ElastiCacheArgs
 from modules.iam import create_policy, create_role, create_role_policy_attachment
 from modules.rds import RDS, RDSArgs
 from modules.ssm import create_ssm_parameter
 from resources.ecr import backend_repository, frontend_repository, proxy_repository
+from resources.elasticache import cache
 from resources.network import vpc
 
 project = pulumi.get_project()
@@ -46,18 +46,6 @@ database = RDS(
         ),
         username=config.require_secret("database_username"),
         password=config.require_secret("database_password"),
-    ),
-)
-
-cache = ElastiCache(
-    "cache",
-    ElastiCacheArgs(
-        vpc_id=vpc.vpc_id,
-        subnet_ids=vpc.private_subnet_ids,
-        port=config.require_int("cache_port"),
-        description=(f"Redis cache for the {stack!r} stack in the {project!r} project"),
-        engine_version=config.require("cache_engine_version"),
-        node_type=config.require("cache_node_type"),
     ),
 )
 
@@ -133,8 +121,8 @@ backend_environment: dict[str, pulumi.Input[str]] = {
     "DB__NAME": database.name,
     "DB__HOST": database.host,
     "DB__PORT": database.port.apply(str),
-    "WORKER__BROKER_URL": create_redis_url(cache.endpoint),
-    "WORKER__RESULT_BACKEND": create_redis_url(cache.endpoint),
+    "WORKER__BROKER_URL": create_redis_url(cache.primary_endpoint_address),
+    "WORKER__RESULT_BACKEND": create_redis_url(cache.primary_endpoint_address),
     "USER__EMAIL_CONFIRMATION_URL_TEMPLATE": create_token_url_template(
         lb.dns_name, "/confirm-email"
     ),
@@ -264,7 +252,7 @@ pulumi.export("private_dns_namespace_name", private_dns_namespace.name)
 
 pulumi.export("database_endpoint", database.endpoint)
 
-pulumi.export("cache_endpoint", cache.endpoint)
+pulumi.export("cache_endpoint", cache.primary_endpoint_address)
 
 pulumi.export("lb_dns_name", lb.dns_name)
 
