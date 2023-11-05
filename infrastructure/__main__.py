@@ -9,7 +9,6 @@ from helpers.string import (
     create_upstream,
 )
 from modules.alb import ALB, ALBArgs
-from modules.ecr import create_ecr_repository
 from modules.ecs import (
     ECSService,
     ECSServiceArgs,
@@ -20,19 +19,15 @@ from modules.ecs import (
 )
 from modules.elasticache import ElastiCache, ElastiCacheArgs
 from modules.iam import create_policy, create_role, create_role_policy_attachment
-from modules.network import create_vpc
 from modules.rds import RDS, RDSArgs
 from modules.ssm import create_ssm_parameter
+from resources.ecr import backend_repository, frontend_repository, proxy_repository
+from resources.network import vpc
 
 project = pulumi.get_project()
 stack = pulumi.get_stack()
 config = pulumi.Config()
 
-frontend_repository = create_ecr_repository("frontend")
-backend_repository = create_ecr_repository("backend")
-proxy_repository = create_ecr_repository("proxy")
-
-vpc = create_vpc("main")
 
 database = RDS(
     "database",

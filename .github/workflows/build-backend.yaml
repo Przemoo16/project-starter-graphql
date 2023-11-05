@@ -101,6 +101,7 @@ jobs:
       registry: ${{ needs.set-context.outputs.registry }}
       tags: |
         type=semver,pattern={{version}}
+    # Use the `role-to-assume` feature as done in the preview infrastructure job
     secrets:
       registry-username: ${{ secrets.AWS_ACCESS_KEY_ID }}
       registry-password: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
