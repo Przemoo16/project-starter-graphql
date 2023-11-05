@@ -26,7 +26,7 @@ _subnet_group = SubnetGroup(
     subnet_ids=vpc_private_subnet_ids,
 )
 
-_cache = ReplicationGroup(
+_replication_group = ReplicationGroup(
     _RESOURCE_NAME,
     port=_config.require_int("cache_port"),
     description="Redis cache",
@@ -36,4 +36,4 @@ _cache = ReplicationGroup(
     subnet_group_name=_subnet_group.name,
 )
 
-cache_endpoint = _cache.primary_endpoint_address
+cache_endpoint = _replication_group.primary_endpoint_address

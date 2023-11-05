@@ -40,7 +40,7 @@ lb_target_group = aws.lb.TargetGroup(
     ),
 )
 
-_lb = awsx.lb.ApplicationLoadBalancer(
+_alb = awsx.lb.ApplicationLoadBalancer(
     _RESOURCE_NAME,
     security_groups=[_security_group.id],
     subnet_ids=vpc_public_subnet_ids,
@@ -56,4 +56,4 @@ _lb = awsx.lb.ApplicationLoadBalancer(
     ),
 )
 
-dns_name = _lb.load_balancer.dns_name
+dns_name = _alb.load_balancer.dns_name

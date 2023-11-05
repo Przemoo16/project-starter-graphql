@@ -6,7 +6,7 @@ from pulumi_awsx.ecr import (
 )
 
 
-def _create_ecr_repository(name: str) -> Repository:
+def _create_repository(name: str) -> Repository:
     return Repository(
         name,
         lifecycle_policy=LifecyclePolicyArgs(
@@ -22,9 +22,9 @@ def _create_ecr_repository(name: str) -> Repository:
     )
 
 
-_frontend_repository = _create_ecr_repository("frontend")
-_backend_repository = _create_ecr_repository("backend")
-_proxy_repository = _create_ecr_repository("proxy")
+_frontend_repository = _create_repository("frontend")
+_backend_repository = _create_repository("backend")
+_proxy_repository = _create_repository("proxy")
 
 frontend_repository_url = _frontend_repository.url
 backend_repository_url = _backend_repository.url
