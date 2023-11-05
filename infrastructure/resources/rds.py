@@ -28,7 +28,7 @@ _subnet_group = SubnetGroup(
     subnet_ids=vpc_private_subnet_ids,
 )
 
-_database = Instance(
+_instance = Instance(
     _RESOURCE_NAME,
     db_name=_config.require("database_name"),
     port=_config.require_int("database_port"),
@@ -37,7 +37,9 @@ _database = Instance(
     storage_type=_config.require("database_storage_type"),
     allocated_storage=_config.require_int("database_allocated_storage"),
     instance_class=_config.require("database_instance_class"),
-    final_snapshot_identifier=f"{generate_hash(get_utc_timestamp(), digest_size=16)}",
+    final_snapshot_identifier=(
+        f"snapshot-{generate_hash(get_utc_timestamp(), digest_size=16)}"
+    ),
     username=_config.require_secret("database_username"),
     password=_config.require_secret("database_password"),
     vpc_security_group_ids=[_security_group.id],
@@ -45,7 +47,7 @@ _database = Instance(
     opts=ResourceOptions(ignore_changes=["final_snapshot_identifier"]),
 )
 
-database_name = _database.db_name
-database_host = _database.address
-database_port = _database.port
-database_endpoint = _database.endpoint
+database_name = _instance.db_name
+database_host = _instance.address
+database_port = _instance.port
+database_endpoint = _instance.endpoint
