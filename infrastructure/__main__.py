@@ -1,7 +1,5 @@
 import pulumi
 import pulumi_aws as aws
-from helpers.date import get_utc_timestamp
-from helpers.hash import generate_hash
 from helpers.string import (
     create_image_name,
     create_redis_url,
@@ -17,7 +15,6 @@ from modules.ecs import (
     get_secrets_access_policy_document,
 )
 from modules.iam import create_policy, create_role, create_role_policy_attachment
-from modules.rds import RDS, RDSArgs
 from modules.ssm import create_ssm_parameter
 from resources.alb import dns_name, lb_target_group
 from resources.ecr import (
@@ -27,31 +24,10 @@ from resources.ecr import (
 )
 from resources.elasticache import cache_endpoint
 from resources.network import vpc_id, vpc_private_subnet_ids, vpc_public_subnet_ids
+from resources.rds import database_endpoint, database_host, database_name, database_port
 
-project = pulumi.get_project()
-stack = pulumi.get_stack()
 config = pulumi.Config()
 
-
-database = RDS(
-    "database",
-    RDSArgs(
-        vpc_id=vpc_id,
-        subnet_ids=vpc_private_subnet_ids,
-        name=config.require("database_name"),
-        port=config.require_int("database_port"),
-        engine=config.require("database_engine"),
-        engine_version=config.require("database_engine_version"),
-        storage_type=config.require("database_storage_type"),
-        allocated_storage=config.require_int("database_allocated_storage"),
-        instance_class=config.require("database_instance_class"),
-        final_snapshot_identifier=(
-            f"{project}-{generate_hash(get_utc_timestamp(), digest_size=16)}"
-        ),
-        username=config.require_secret("database_username"),
-        password=config.require_secret("database_password"),
-    ),
-)
 cluster = create_ecs_cluster("ecs-cluster")
 
 private_dns_namespace = create_private_dns_namespace("local", vpc_id)
@@ -111,9 +87,9 @@ smtp_password = create_ssm_parameter(
 )
 
 backend_environment: dict[str, pulumi.Input[str]] = {
-    "DB__NAME": database.name,
-    "DB__HOST": database.host,
-    "DB__PORT": database.port.apply(str),
+    "DB__NAME": database_name,
+    "DB__HOST": database_host,
+    "DB__PORT": database_port.apply(str),
     "WORKER__BROKER_URL": create_redis_url(cache_endpoint),
     "WORKER__RESULT_BACKEND": create_redis_url(cache_endpoint),
     "USER__EMAIL_CONFIRMATION_URL_TEMPLATE": create_token_url_template(
@@ -243,7 +219,7 @@ pulumi.export("public_subnets_ids", vpc_public_subnet_ids)
 
 pulumi.export("private_dns_namespace_name", private_dns_namespace.name)
 
-pulumi.export("database_endpoint", database.endpoint)
+pulumi.export("database_endpoint", database_endpoint)
 
 pulumi.export("cache_endpoint", cache_endpoint)
 
