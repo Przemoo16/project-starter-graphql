@@ -22,6 +22,10 @@ def _create_ecr_repository(name: str) -> Repository:
     )
 
 
-frontend_repository = _create_ecr_repository("frontend")
-backend_repository = _create_ecr_repository("backend")
-proxy_repository = _create_ecr_repository("proxy")
+_frontend_repository = _create_ecr_repository("frontend")
+_backend_repository = _create_ecr_repository("backend")
+_proxy_repository = _create_ecr_repository("proxy")
+
+frontend_repository_url = _frontend_repository.url
+backend_repository_url = _backend_repository.url
+proxy_repository_url = _proxy_repository.url
