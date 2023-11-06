@@ -3,6 +3,7 @@ from helpers.hash import generate_hash
 from pulumi import Config, ResourceOptions
 from pulumi_aws.ec2 import SecurityGroup, SecurityGroupIngressArgs
 from pulumi_aws.rds import Instance, SubnetGroup
+from pulumi_aws.ssm import Parameter
 
 from resources.network import vpc_id, vpc_private_subnet_ids
 
@@ -28,6 +29,17 @@ _subnet_group = SubnetGroup(
     subnet_ids=vpc_private_subnet_ids,
 )
 
+_database_username = Parameter(
+    "database_username",
+    type="SecureString",
+    value=_config.require_secret("database_username"),
+)
+_database_password = Parameter(
+    "database_password",
+    type="SecureString",
+    value=_config.require_secret("database_password"),
+)
+
 _instance = Instance(
     _RESOURCE_NAME,
     db_name=_config.require("database_name"),
@@ -40,14 +52,18 @@ _instance = Instance(
     final_snapshot_identifier=(
         f"snapshot-{generate_hash(get_utc_timestamp(), digest_size=16)}"
     ),
-    username=_config.require_secret("database_username"),
-    password=_config.require_secret("database_password"),
+    username=_database_username.value,
+    password=_database_password.value,
     vpc_security_group_ids=[_security_group.id],
     db_subnet_group_name=_subnet_group.name,
     opts=ResourceOptions(ignore_changes=["final_snapshot_identifier"]),
 )
 
+
 database_name = _instance.db_name
 database_host = _instance.address
 database_port = _instance.port
 database_endpoint = _instance.endpoint
+
+database_username_parameter_name = _database_username.name
+database_password_parameter_name = _database_password.name

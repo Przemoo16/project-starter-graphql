@@ -15,7 +15,7 @@ from modules.ecs import (
     get_secrets_access_policy_document,
 )
 from modules.iam import create_policy, create_role, create_role_policy_attachment
-from modules.ssm import create_ssm_parameter
+from pulumi_aws.ssm import Parameter
 from resources.alb import dns_name, lb_target_group
 from resources.ecr import (
     backend_repository_url,
@@ -24,7 +24,14 @@ from resources.ecr import (
 )
 from resources.elasticache import cache_endpoint
 from resources.network import vpc_id, vpc_private_subnet_ids, vpc_public_subnet_ids
-from resources.rds import database_endpoint, database_host, database_name, database_port
+from resources.rds import (
+    database_endpoint,
+    database_host,
+    database_name,
+    database_password_parameter_name,
+    database_port,
+    database_username_parameter_name,
+)
 
 config = pulumi.Config()
 
@@ -70,20 +77,17 @@ frontend_service = ECSService(
     ),
 )
 
-database_username = create_ssm_parameter(
-    "database_username", config.require_secret("database_username"), "SecureString"
+
+auth_private_key = Parameter(
+    "auth_private_key",
+    value=config.require_secret("auth_private_key"),
+    type="SecureString",
 )
-database_password = create_ssm_parameter(
-    "database_password", config.require_secret("database_password"), "SecureString"
+smtp_user = Parameter(
+    "smtp_user", value=config.require_secret("smtp_user"), type="SecureString"
 )
-auth_private_key = create_ssm_parameter(
-    "auth_private_key", config.require_secret("auth_private_key"), "SecureString"
-)
-smtp_user = create_ssm_parameter(
-    "smtp_user", config.require_secret("smtp_user"), "SecureString"
-)
-smtp_password = create_ssm_parameter(
-    "smtp_password", config.require_secret("smtp_password"), "SecureString"
+smtp_password = Parameter(
+    "smtp_password", value=config.require_secret("smtp_password"), type="SecureString"
 )
 
 backend_environment: dict[str, pulumi.Input[str]] = {
@@ -105,8 +109,8 @@ backend_environment: dict[str, pulumi.Input[str]] = {
 }
 
 backend_secrets = {
-    "DB__USERNAME": database_username.name,
-    "DB__PASSWORD": database_password.name,
+    "DB__USERNAME": database_username_parameter_name,
+    "DB__PASSWORD": database_password_parameter_name,
     "USER__AUTH_PRIVATE_KEY": auth_private_key.name,
     "EMAIL__SMTP_USER": smtp_user.name,
     "EMAIL__SMTP_PASSWORD": smtp_password.name,
