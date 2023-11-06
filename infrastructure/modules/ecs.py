@@ -6,45 +6,6 @@ import pulumi_aws as aws
 import pulumi_awsx as awsx
 
 
-def create_ecs_cluster(name: str) -> aws.ecs.Cluster:
-    return aws.ecs.Cluster(name)
-
-
-def create_private_dns_namespace(
-    name: str,
-    vpc_id: pulumi.Input[str],
-) -> aws.servicediscovery.PrivateDnsNamespace:
-    return aws.servicediscovery.PrivateDnsNamespace(name, vpc=vpc_id)
-
-
-def get_ecs_tasks_assume_role_policy_document() -> (
-    aws.iam.AwaitableGetPolicyDocumentResult
-):
-    return aws.iam.get_policy_document(
-        statements=[
-            aws.iam.GetPolicyDocumentStatementArgs(
-                actions=["sts:AssumeRole"],
-                principals=[
-                    aws.iam.GetPolicyDocumentStatementPrincipalArgs(
-                        type="Service",
-                        identifiers=["ecs-tasks.amazonaws.com"],
-                    )
-                ],
-            )
-        ]
-    )
-
-
-def get_secrets_access_policy_document() -> aws.iam.AwaitableGetPolicyDocumentResult:
-    return aws.iam.get_policy_document(
-        statements=[
-            aws.iam.GetPolicyDocumentStatementArgs(
-                actions=["ssm:GetParameters"], resources=["*"], effect="Allow"
-            )
-        ]
-    )
-
-
 @dataclass
 class ECSServiceArgs:
     cluster_arn: pulumi.Input[str]
