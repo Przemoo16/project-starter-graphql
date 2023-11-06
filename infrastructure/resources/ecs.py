@@ -4,7 +4,7 @@ from helpers.string import (
     create_token_url_template,
     create_upstream,
 )
-from modules.ecs import ECSService, ECSServiceArgs
+from modules.ecs import ECSServiceArgs, create_ecs_service
 from pulumi import Config, Input, ResourceOptions
 from pulumi_aws.ecs import Cluster
 from pulumi_aws.iam import (
@@ -83,7 +83,7 @@ RolePolicyAttachment(
     role=_task_role.name,
 )
 
-_frontend_service = ECSService(
+_frontend_service = create_ecs_service(
     "frontend",
     ECSServiceArgs(
         cluster_arn=_cluster.arn,
@@ -141,7 +141,7 @@ _backend_secrets = {
     "EMAIL__SMTP_PASSWORD": _smtp_password.name,
 }
 
-_backend_service = ECSService(
+_backend_service = create_ecs_service(
     "backend",
     ECSServiceArgs(
         cluster_arn=_cluster.arn,
@@ -162,7 +162,7 @@ _backend_service = ECSService(
     ),
 )
 
-ECSService(
+create_ecs_service(
     "proxy",
     ECSServiceArgs(
         cluster_arn=_cluster.arn,
@@ -188,10 +188,12 @@ ECSService(
             ),
         },
     ),
-    opts=ResourceOptions(depends_on=[_frontend_service, _backend_service]),
+    opts=ResourceOptions(
+        depends_on=[_frontend_service.fargate_service, _backend_service.fargate_service]
+    ),
 )
 
-ECSService(
+create_ecs_service(
     "worker",
     ECSServiceArgs(
         cluster_arn=_cluster.arn,
@@ -214,7 +216,7 @@ ECSService(
 )
 
 if _config.require_bool("scheduler_service_enabled"):
-    ECSService(
+    create_ecs_service(
         "scheduler",
         ECSServiceArgs(
             cluster_arn=_cluster.arn,
