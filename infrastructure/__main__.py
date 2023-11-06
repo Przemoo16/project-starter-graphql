@@ -14,7 +14,7 @@ from modules.ecs import (
     get_ecs_tasks_assume_role_policy_document,
     get_secrets_access_policy_document,
 )
-from modules.iam import create_policy, create_role, create_role_policy_attachment
+from pulumi_aws.iam import Policy, Role, RolePolicyAttachment
 from pulumi_aws.ssm import Parameter
 from resources.alb import dns_name, lb_target_group
 from resources.ecr import (
@@ -42,20 +42,22 @@ private_dns_namespace = create_private_dns_namespace("local", vpc_id)
 tasks_assume_role_policy_document = get_ecs_tasks_assume_role_policy_document()
 secrets_access_policy_document = get_secrets_access_policy_document()
 
-task_role = create_role("task-role", tasks_assume_role_policy_document.json)
+task_role = Role("task-role", assume_role_policy=tasks_assume_role_policy_document.json)
 
-secrets_access_policy = create_policy(
-    "secrets-access-policy", secrets_access_policy_document.json
+secrets_access_policy = Policy(
+    "secrets-access-policy", policy=secrets_access_policy_document.json
 )
 
-create_role_policy_attachment(
-    "secrets-access-role-policy-attachment", task_role.name, secrets_access_policy.arn
+RolePolicyAttachment(
+    "secrets-access-role-policy-attachment",
+    policy_arn=secrets_access_policy.arn,
+    role=task_role.name,
 )
 
-create_role_policy_attachment(
+RolePolicyAttachment(
     "task-execution-role-policy-attachment",
-    task_role.name,
-    aws.iam.ManagedPolicy.AMAZON_ECS_TASK_EXECUTION_ROLE_POLICY,
+    policy_arn=aws.iam.ManagedPolicy.AMAZON_ECS_TASK_EXECUTION_ROLE_POLICY,
+    role=task_role.name,
 )
 
 frontend_service = ECSService(
