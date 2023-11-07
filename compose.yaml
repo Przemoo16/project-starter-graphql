@@ -57,6 +57,40 @@ services:
         source: node_modules
         target: /opt/app/node_modules
 
+  worker:
+    image: "${BACKEND_IMAGE}"
+    build:
+      context: ./backend
+      target: dev
+    networks:
+      - backend
+    volumes:
+      - type: bind
+        source: ./backend
+        target: /opt/app
+    depends_on:
+      - redis
+    env_file:
+      - .env
+    command: "celery --app backend.worker:worker_app worker --loglevel INFO"
+
+  scheduler:
+    image: "${BACKEND_IMAGE}"
+    build:
+      context: ./backend
+      target: dev
+    networks:
+      - backend
+    volumes:
+      - type: bind
+        source: ./backend
+        target: /opt/app
+    depends_on:
+      - redis
+    env_file:
+      - .env
+    command: "celery --app backend.worker:worker_app beat --loglevel INFO"
+
   backend:
     image: "${BACKEND_IMAGE}"
     build:
@@ -93,40 +127,6 @@ services:
     depends_on:
       - backend
       - frontend
-
-  worker:
-    image: "${BACKEND_IMAGE}"
-    build:
-      context: ./backend
-      target: dev
-    networks:
-      - backend
-    volumes:
-      - type: bind
-        source: ./backend
-        target: /opt/app
-    depends_on:
-      - redis
-    env_file:
-      - .env
-    command: "celery --app backend.worker:worker_app worker --loglevel INFO"
-
-  scheduler:
-    image: "${BACKEND_IMAGE}"
-    build:
-      context: ./backend
-      target: dev
-    networks:
-      - backend
-    volumes:
-      - type: bind
-        source: ./backend
-        target: /opt/app
-    depends_on:
-      - redis
-    env_file:
-      - .env
-    command: "celery --app backend.worker:worker_app beat --loglevel INFO"
 
   flower:
     image: "${BACKEND_IMAGE}"

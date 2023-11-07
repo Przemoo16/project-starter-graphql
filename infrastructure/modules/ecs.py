@@ -29,6 +29,7 @@ from pulumi_awsx.ecs import (
 class ECSServiceArgs:
     cluster_arn: Input[str]
     vpc_id: Input[str]
+    ingress_security_groups_ids: Sequence[Input[str]]
     dns_namespace_id: Input[str]
     subnet_ids: Input[Sequence[str]]
     service_desired_count: Input[int]
@@ -42,6 +43,7 @@ class ECSServiceArgs:
     container_command: Input[Sequence[str]] | None = None
     container_environment: Mapping[str, Input[str]] | None = None
     container_secrets: Mapping[str, Input[str]] | None = None
+    security_groups_ids: Sequence[Input[str]] | None = None
 
 
 @dataclass
@@ -61,7 +63,7 @@ def create_ecs_service(
                 from_port=args.container_port,
                 to_port=args.container_port,
                 protocol="tcp",
-                cidr_blocks=["0.0.0.0/0"],
+                security_groups=args.ingress_security_groups_ids,
             )
         ],
         egress=[
@@ -96,7 +98,7 @@ def create_ecs_service(
         ),
         network_configuration=ServiceNetworkConfigurationArgs(
             subnets=args.subnet_ids,
-            security_groups=[security_group.id],
+            security_groups=[security_group.id, *(args.security_groups_ids or [])],
         ),
         desired_count=args.service_desired_count,
         task_definition_args=FargateServiceTaskDefinitionArgs(

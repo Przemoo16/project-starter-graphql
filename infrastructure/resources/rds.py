@@ -1,7 +1,11 @@
 from helpers.date import get_utc_timestamp
 from helpers.hash import generate_hash
 from pulumi import Config, ResourceOptions
-from pulumi_aws.ec2 import SecurityGroup, SecurityGroupIngressArgs
+from pulumi_aws.ec2 import (
+    SecurityGroup,
+    SecurityGroupEgressArgs,
+    SecurityGroupIngressArgs,
+)
 from pulumi_aws.rds import Instance, SubnetGroup
 from pulumi_aws.ssm import Parameter
 
@@ -11,6 +15,8 @@ _RESOURCE_NAME = "database"
 
 _config = Config()
 
+_access_security_group = SecurityGroup(f"{_RESOURCE_NAME}-access", vpc_id=vpc_id)
+
 _security_group = SecurityGroup(
     _RESOURCE_NAME,
     vpc_id=vpc_id,
@@ -19,6 +25,14 @@ _security_group = SecurityGroup(
             from_port=_config.require_int("database_port"),
             to_port=_config.require_int("database_port"),
             protocol="tcp",
+            security_groups=[_access_security_group.id],
+        )
+    ],
+    egress=[
+        SecurityGroupEgressArgs(
+            from_port=0,
+            to_port=0,
+            protocol="-1",
             cidr_blocks=["0.0.0.0/0"],
         )
     ],
@@ -59,6 +73,7 @@ _instance = Instance(
     opts=ResourceOptions(ignore_changes=["final_snapshot_identifier"]),
 )
 
+database_access_security_group_id = _access_security_group.id
 
 database_name = _instance.db_name
 database_host = _instance.address
