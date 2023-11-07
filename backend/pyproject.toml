@@ -22,7 +22,7 @@ pydantic-settings = "^2.0.3"
 pyseto = "^1.7.5"
 redis = "^5.0.1"
 sqlalchemy = "^2.0.23"
-strawberry-graphql = { extras = ["fastapi"], version = "^0.211.1" }
+strawberry-graphql = { extras = ["fastapi"], version = "^0.211.2" }
 uvicorn = { extras = ["standard"], version = "^0.24.0" }
 
 [tool.poetry.group.dev]
