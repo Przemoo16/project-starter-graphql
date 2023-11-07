@@ -2664,10 +2664,10 @@ eslint-plugin-promise@^6.0.0:
   resolved "https://registry.yarnpkg.com/eslint-plugin-promise/-/eslint-plugin-promise-6.1.1.tgz#269a3e2772f62875661220631bd4dafcb4083816"
   integrity sha512-tjqWDwVZQo7UIPMeDReOpUgHCmCiH+ePnVT+5zVapL0uuHnegBUs2smM13CzOs2Xb5+MHMRFTs9v24yjba4Oig==
 
-eslint-plugin-qwik@^1.2.15:
-  version "1.2.15"
-  resolved "https://registry.yarnpkg.com/eslint-plugin-qwik/-/eslint-plugin-qwik-1.2.15.tgz#4e1ca8f3771952d4c8fa6469ed25b6774d80a36c"
-  integrity sha512-1bmKSI51MnKAgHnXHepBqJt9OHJUGa3psrj9YhbnOnZ/eERWIZWewcomszleHwInAvDeRGdv5nHUpeWE2Rd5/w==
+eslint-plugin-qwik@^1.2.17:
+  version "1.2.17"
+  resolved "https://registry.yarnpkg.com/eslint-plugin-qwik/-/eslint-plugin-qwik-1.2.17.tgz#1ec24bf7a6694e6074cdd04cedcda03bcd057fc9"
+  integrity sha512-Q6gwahd8np5s7/SwWrgvhzAgymqHmiuXdgUvIgnDt0N0fZvdEJQUYQtTOpwMpRj8+E53oKLVk3vogeRki6QbFw==
   dependencies:
     jsx-ast-utils "^3.3.5"
 
