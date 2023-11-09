@@ -1,4 +1,4 @@
-from pulumi import Config
+from pulumi import Config, Output
 from pulumi_aws.ec2 import (
     SecurityGroup,
     SecurityGroupEgressArgs,
@@ -11,8 +11,8 @@ from pulumi_aws.lb import (
 )
 from pulumi_awsx.lb import ApplicationLoadBalancer, ListenerArgs
 
-from resources.ecs_access import ecs_access_security_group_id
-from resources.network import vpc_id, vpc_public_subnet_ids
+from resources.network import network_id, network_public_subnet_ids
+from resources.services_access import services_access_security_group_id
 
 _RESOURCE_NAME = "lb"
 
@@ -20,7 +20,7 @@ _config = Config()
 
 _security_group = SecurityGroup(
     _RESOURCE_NAME,
-    vpc_id=vpc_id,
+    vpc_id=network_id,
     ingress=[
         SecurityGroupIngressArgs(
             from_port=80,
@@ -50,7 +50,7 @@ lb_target_group = TargetGroup(
     port=_config.require_int("proxy_container_port"),
     protocol="HTTP",
     target_type="ip",
-    vpc_id=vpc_id,
+    vpc_id=network_id,
     health_check=TargetGroupHealthCheckArgs(
         path=_config.require("proxy_health_check_path")
     ),
@@ -58,8 +58,8 @@ lb_target_group = TargetGroup(
 
 _alb = ApplicationLoadBalancer(
     _RESOURCE_NAME,
-    security_groups=[_security_group.id, ecs_access_security_group_id],
-    subnet_ids=vpc_public_subnet_ids,
+    security_groups=[_security_group.id, services_access_security_group_id],
+    subnet_ids=network_public_subnet_ids,
     listener=ListenerArgs(
         port=80,
         protocol="HTTP",
@@ -72,4 +72,4 @@ _alb = ApplicationLoadBalancer(
     ),
 )
 
-lb_dns_name = _alb.load_balancer.dns_name
+lb_dns_name: Output[str] = _alb.load_balancer.dns_name

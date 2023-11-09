@@ -26,44 +26,61 @@ from pulumi_awsx.ecs import (
 
 
 @dataclass
-class ECSServiceArgs:
-    cluster_arn: Input[str]
+class NetworkConfig:
     vpc_id: Input[str]
+    subnet_ids: Input[Sequence[str]]
     ingress_security_groups_ids: Sequence[Input[str]]
     dns_namespace_id: Input[str]
-    subnet_ids: Input[Sequence[str]]
-    service_desired_count: Input[int]
-    task_cpu: Input[str]
-    task_memory: Input[str]
-    task_role_arn: Input[str]
-    execution_role_arn: Input[str]
-    container_image: Input[str]
-    container_port: Input[int]
-    target_group: Input[TargetGroup] | None = None
-    container_command: Input[Sequence[str]] | None = None
-    container_environment: Mapping[str, Input[str]] | None = None
-    container_secrets: Mapping[str, Input[str]] | None = None
     security_groups_ids: Sequence[Input[str]] | None = None
 
 
 @dataclass
-class ECSService:
+class ServiceConfig:
+    cluster_arn: Input[str]
+    desired_count: Input[int]
+
+
+@dataclass
+class TaskConfig:
+    cpu: Input[str]
+    memory: Input[str]
+    task_role_arn: Input[str]
+    execution_role_arn: Input[str]
+
+
+@dataclass
+class ContainerConfig:
+    image: Input[str]
+    port: Input[int]
+    target_group: Input[TargetGroup] | None = None
+    command: Input[Sequence[str]] | None = None
+    environment: Mapping[str, Input[str]] | None = None
+    secrets: Mapping[str, Input[str]] | None = None
+
+
+@dataclass
+class _ECSService:
     service_discovery_name: str
     fargate_service: FargateService
 
 
-def create_ecs_service(
-    name: str, args: ECSServiceArgs, opts: ResourceOptions | None = None
-) -> ECSService:
+def create_ecs_service(  # pylint: disable=too-many-arguments
+    name: str,
+    network: NetworkConfig,
+    service: ServiceConfig,
+    task: TaskConfig,
+    container: ContainerConfig,
+    service_opts: ResourceOptions | None = None,
+) -> _ECSService:
     security_group = SecurityGroup(
         name,
-        vpc_id=args.vpc_id,
+        vpc_id=network.vpc_id,
         ingress=[
             SecurityGroupIngressArgs(
-                from_port=args.container_port,
-                to_port=args.container_port,
+                from_port=container.port,
+                to_port=container.port,
                 protocol="tcp",
-                security_groups=args.ingress_security_groups_ids,
+                security_groups=network.ingress_security_groups_ids,
             )
         ],
         egress=[
@@ -79,7 +96,7 @@ def create_ecs_service(
     service_discovery_service = Service(
         name,
         dns_config=ServiceDnsConfigArgs(
-            namespace_id=args.dns_namespace_id,
+            namespace_id=network.dns_namespace_id,
             dns_records=[
                 ServiceDnsConfigDnsRecordArgs(
                     ttl=10,
@@ -92,36 +109,36 @@ def create_ecs_service(
 
     fargate_service = FargateService(
         name,
-        cluster=args.cluster_arn,
+        cluster=service.cluster_arn,
         service_registries=ServiceServiceRegistriesArgs(
             registry_arn=service_discovery_service.arn, container_name=name
         ),
         network_configuration=ServiceNetworkConfigurationArgs(
-            subnets=args.subnet_ids,
-            security_groups=[security_group.id, *(args.security_groups_ids or [])],
+            subnets=network.subnet_ids,
+            security_groups=[security_group.id, *(network.security_groups_ids or [])],
         ),
-        desired_count=args.service_desired_count,
+        desired_count=service.desired_count,
         task_definition_args=FargateServiceTaskDefinitionArgs(
-            cpu=args.task_cpu,
-            memory=args.task_memory,
-            task_role=DefaultRoleWithPolicyArgs(role_arn=args.task_role_arn),
-            execution_role=DefaultRoleWithPolicyArgs(role_arn=args.execution_role_arn),
+            cpu=task.cpu,
+            memory=task.memory,
+            task_role=DefaultRoleWithPolicyArgs(role_arn=task.task_role_arn),
+            execution_role=DefaultRoleWithPolicyArgs(role_arn=task.execution_role_arn),
             container=TaskDefinitionContainerDefinitionArgs(
                 name=name,
-                image=args.container_image,
+                image=container.image,
                 essential=True,
                 port_mappings=_get_port_mappings(
-                    args.target_group, args.container_port
+                    container.target_group, container.port
                 ),
-                command=args.container_command,
-                environment=_convert_container_environment(args.container_environment),
-                secrets=_convert_container_secrets(args.container_secrets),
+                command=container.command,
+                environment=_convert_container_environment(container.environment),
+                secrets=_convert_container_secrets(container.secrets),
             ),
         ),
-        opts=opts,
+        opts=service_opts,
     )
 
-    return ECSService(
+    return _ECSService(
         service_discovery_name=service_discovery_service.name,
         fargate_service=fargate_service,
     )

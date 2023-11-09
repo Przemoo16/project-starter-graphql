@@ -1,17 +1,17 @@
 # pylint: disable=unused-import
 # ruff: noqa: F401
-import resources.ecs
-import resources.ecs_access
 import resources.network
+import resources.services
+import resources.services_access
 from pulumi import export
-from resources.alb import lb_dns_name
-from resources.ecr import (
+from resources.cache import cache_endpoint
+from resources.database import database_endpoint
+from resources.lb import lb_dns_name
+from resources.repository import (
     backend_repository_url,
     frontend_repository_url,
     proxy_repository_url,
 )
-from resources.elasticache import cache_endpoint
-from resources.rds import database_endpoint
 
 export("frontend_repository_url", frontend_repository_url)
 export("backend_repository_url", backend_repository_url)
