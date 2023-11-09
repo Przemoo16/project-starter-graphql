@@ -19,15 +19,17 @@ from pulumi_aws.iam import (
 from pulumi_aws.servicediscovery import PrivateDnsNamespace
 from pulumi_aws.ssm import Parameter
 
-from resources.alb import dns_name, lb_target_group
+from resources.alb import lb_dns_name, lb_target_group
 from resources.ecr import (
     backend_repository_url,
     frontend_repository_url,
     proxy_repository_url,
 )
-from resources.elasticache import cache_endpoint
+from resources.ecs_access import ecs_access_security_group_id
+from resources.elasticache import cache_access_security_group_id, cache_endpoint
 from resources.network import vpc_id, vpc_private_subnet_ids
 from resources.rds import (
+    database_access_security_group_id,
     database_host,
     database_name,
     database_password_parameter_name,
@@ -36,10 +38,6 @@ from resources.rds import (
 )
 
 _config = Config()
-
-_cluster = Cluster("ecs-cluster")
-
-_private_dns_namespace = PrivateDnsNamespace("local", vpc=vpc_id)
 
 _tasks_assume_role_policy_document = get_policy_document(
     statements=[
@@ -83,11 +81,17 @@ RolePolicyAttachment(
     role=_task_role.name,
 )
 
+_cluster = Cluster("ecs-cluster")
+
+_private_dns_namespace = PrivateDnsNamespace("local", vpc=vpc_id)
+
+
 _frontend_service = create_ecs_service(
     "frontend",
     ECSServiceArgs(
         cluster_arn=_cluster.arn,
         vpc_id=vpc_id,
+        ingress_security_groups_ids=[ecs_access_security_group_id],
         dns_namespace_id=_private_dns_namespace.id,
         subnet_ids=vpc_private_subnet_ids,
         service_desired_count=_config.require_int("frontend_service_desired_count"),
@@ -99,6 +103,7 @@ _frontend_service = create_ecs_service(
             frontend_repository_url, _config.require("version")
         ),
         container_port=_config.require_int("frontend_container_port"),
+        security_groups_ids=[ecs_access_security_group_id],
     ),
 )
 
@@ -115,6 +120,12 @@ _smtp_password = Parameter(
     "smtp_password", value=_config.require_secret("smtp_password"), type="SecureString"
 )
 
+_backend_security_groups_ids = [
+    ecs_access_security_group_id,
+    database_access_security_group_id,
+    cache_access_security_group_id,
+]
+
 _backend_environment: dict[str, Input[str]] = {
     "DB__NAME": database_name,
     "DB__HOST": database_host,
@@ -122,10 +133,10 @@ _backend_environment: dict[str, Input[str]] = {
     "WORKER__BROKER_URL": create_redis_url(cache_endpoint),
     "WORKER__RESULT_BACKEND": create_redis_url(cache_endpoint),
     "USER__EMAIL_CONFIRMATION_URL_TEMPLATE": create_token_url_template(
-        dns_name, "/confirm-email"
+        lb_dns_name, "/confirm-email"
     ),
     "USER__RESET_PASSWORD_URL_TEMPLATE": create_token_url_template(
-        dns_name, "/reset-password"
+        lb_dns_name, "/reset-password"
     ),
     "USER__AUTH_PUBLIC_KEY": _config.require("auth_public_key"),
     "EMAIL__SMTP_HOST": _config.require("smtp_host"),
@@ -141,11 +152,63 @@ _backend_secrets = {
     "EMAIL__SMTP_PASSWORD": _smtp_password.name,
 }
 
+_worker_service = create_ecs_service(
+    "worker",
+    ECSServiceArgs(
+        cluster_arn=_cluster.arn,
+        vpc_id=vpc_id,
+        ingress_security_groups_ids=[ecs_access_security_group_id],
+        dns_namespace_id=_private_dns_namespace.id,
+        subnet_ids=vpc_private_subnet_ids,
+        service_desired_count=_config.require_int("worker_service_desired_count"),
+        task_cpu=_config.require("worker_task_cpu"),
+        task_memory=_config.require("worker_task_memory"),
+        task_role_arn=_task_role.arn,
+        execution_role_arn=_task_role.arn,
+        container_image=create_image_name(
+            backend_repository_url, _config.require("version")
+        ),
+        container_port=_config.require_int("worker_container_port"),
+        container_command=_config.require_object("worker_container_command"),
+        container_environment=_backend_environment,
+        container_secrets=_backend_secrets,
+        security_groups_ids=_backend_security_groups_ids,
+    ),
+)
+
+if _config.require_bool("scheduler_service_enabled"):
+    create_ecs_service(
+        "scheduler",
+        ECSServiceArgs(
+            cluster_arn=_cluster.arn,
+            vpc_id=vpc_id,
+            ingress_security_groups_ids=[ecs_access_security_group_id],
+            dns_namespace_id=_private_dns_namespace.id,
+            subnet_ids=vpc_private_subnet_ids,
+            service_desired_count=_config.require_int(
+                "scheduler_service_desired_count"
+            ),
+            task_cpu=_config.require("scheduler_task_cpu"),
+            task_memory=_config.require("scheduler_task_memory"),
+            task_role_arn=_task_role.arn,
+            execution_role_arn=_task_role.arn,
+            container_image=create_image_name(
+                backend_repository_url, _config.require("version")
+            ),
+            container_port=_config.require_int("scheduler_container_port"),
+            container_command=_config.require_object("scheduler_container_command"),
+            container_environment=_backend_environment,
+            container_secrets=_backend_secrets,
+            security_groups_ids=_backend_security_groups_ids,
+        ),
+    )
+
 _backend_service = create_ecs_service(
     "backend",
     ECSServiceArgs(
         cluster_arn=_cluster.arn,
         vpc_id=vpc_id,
+        ingress_security_groups_ids=[ecs_access_security_group_id],
         dns_namespace_id=_private_dns_namespace.id,
         subnet_ids=vpc_private_subnet_ids,
         service_desired_count=_config.require_int("backend_service_desired_count"),
@@ -159,6 +222,10 @@ _backend_service = create_ecs_service(
         container_port=_config.require_int("backend_container_port"),
         container_environment=_backend_environment,
         container_secrets=_backend_secrets,
+        security_groups_ids=_backend_security_groups_ids,
+    ),
+    opts=ResourceOptions(
+        depends_on=[_worker_service.fargate_service]  # TODO: Add scheduler
     ),
 )
 
@@ -167,6 +234,7 @@ create_ecs_service(
     ECSServiceArgs(
         cluster_arn=_cluster.arn,
         vpc_id=vpc_id,
+        ingress_security_groups_ids=[ecs_access_security_group_id],
         dns_namespace_id=_private_dns_namespace.id,
         subnet_ids=vpc_private_subnet_ids,
         service_desired_count=_config.require_int("proxy_service_desired_count"),
@@ -187,57 +255,9 @@ create_ecs_service(
                 _backend_service.service_discovery_name, _private_dns_namespace.name
             ),
         },
+        security_groups_ids=[ecs_access_security_group_id],
     ),
     opts=ResourceOptions(
         depends_on=[_frontend_service.fargate_service, _backend_service.fargate_service]
     ),
 )
-
-create_ecs_service(
-    "worker",
-    ECSServiceArgs(
-        cluster_arn=_cluster.arn,
-        vpc_id=vpc_id,
-        dns_namespace_id=_private_dns_namespace.id,
-        subnet_ids=vpc_private_subnet_ids,
-        service_desired_count=_config.require_int("worker_service_desired_count"),
-        task_cpu=_config.require("worker_task_cpu"),
-        task_memory=_config.require("worker_task_memory"),
-        task_role_arn=_task_role.arn,
-        execution_role_arn=_task_role.arn,
-        container_image=create_image_name(
-            backend_repository_url, _config.require("version")
-        ),
-        container_port=_config.require_int("worker_container_port"),
-        container_command=_config.require_object("worker_container_command"),
-        container_environment=_backend_environment,
-        container_secrets=_backend_secrets,
-    ),
-)
-
-if _config.require_bool("scheduler_service_enabled"):
-    create_ecs_service(
-        "scheduler",
-        ECSServiceArgs(
-            cluster_arn=_cluster.arn,
-            vpc_id=vpc_id,
-            dns_namespace_id=_private_dns_namespace.id,
-            subnet_ids=vpc_private_subnet_ids,
-            service_desired_count=_config.require_int(
-                "scheduler_service_desired_count"
-            ),
-            task_cpu=_config.require("scheduler_task_cpu"),
-            task_memory=_config.require("scheduler_task_memory"),
-            task_role_arn=_task_role.arn,
-            execution_role_arn=_task_role.arn,
-            container_image=create_image_name(
-                backend_repository_url, _config.require("version")
-            ),
-            container_port=_config.require_int("scheduler_container_port"),
-            container_command=_config.require_object("scheduler_container_command"),
-            container_environment=_backend_environment,
-            container_secrets=_backend_secrets,
-        ),
-    )
-
-private_dns_namespace_name = _private_dns_namespace.name

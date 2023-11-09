@@ -41,23 +41,6 @@ services:
     networks:
       - frontend-test
 
-  backend-test:
-    image: "${BACKEND_IMAGE}"
-    build:
-      context: ./backend
-      target: dev
-    networks:
-      - backend-test
-    depends_on:
-      db-test:
-        condition: service_healthy
-      worker-test:
-        condition: service_started
-      scheduler-test:
-        condition: service_started
-    env_file:
-      - .env.test
-
   worker-test:
     image: "${BACKEND_IMAGE}"
     build:
@@ -83,6 +66,23 @@ services:
     env_file:
       - .env.test
     command: "celery --app backend.worker:worker_app beat --loglevel INFO"
+
+  backend-test:
+    image: "${BACKEND_IMAGE}"
+    build:
+      context: ./backend
+      target: dev
+    networks:
+      - backend-test
+    depends_on:
+      db-test:
+        condition: service_healthy
+      worker-test:
+        condition: service_started
+      scheduler-test:
+        condition: service_started
+    env_file:
+      - .env.test
 
 networks:
   frontend-test:
