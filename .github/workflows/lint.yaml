@@ -19,6 +19,7 @@ jobs:
       - name: Set up Python
         uses: actions/setup-python@v4
         with:
+          # FIXME: Change to python 3.12 after pulumi works with it
           python-version: "3.11"
 
       - name: Install pre-commit

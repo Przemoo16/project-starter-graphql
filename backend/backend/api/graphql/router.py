@@ -19,7 +19,12 @@ class _Router(GraphQLRouter[Any, None]):
 
 def get_router(debug: bool = False) -> _Router:
     schema = _get_schema(debug)
-    return _Router(schema, graphiql=debug, context_getter=get_context)
+    graphql_ide = "graphiql" if debug else None
+    return _Router(
+        schema,
+        graphql_ide=graphql_ide,  # type: ignore[arg-type]
+        context_getter=get_context,
+    )
 
 
 def _get_schema(debug: bool = False) -> Schema:
