@@ -70,6 +70,33 @@ _alb = ApplicationLoadBalancer(
             )
         ],
     ),
+    # TODO: Uncomment the following when
+    # listeners=[
+    #     ListenerArgs(
+    #         port=80,
+    #         protocol="HTTP",
+    #         default_actions=[
+    #             ListenerDefaultActionArgs(
+    #                 type="redirect",
+    #                 redirect=ListenerDefaultActionRedirectArgs(
+    #                     status_code="HTTP_301", port="443", protocol="HTTPS"
+    #                 ),
+    #             )
+    #         ],
+    #     ),
+    #     ListenerArgs(
+    #         port=443,
+    #         protocol="HTTPS",
+    #         ssl_policy="ELBSecurityPolicy-TLS13-1-2-2021-06",
+    #         certificate_arn="", # TODO: Provide certificate
+    #         default_actions=[
+    #             ListenerDefaultActionArgs(
+    #                 type="forward",
+    #                 target_group_arn=lb_target_group.arn,
+    #             )
+    #         ],
+    #     ),
+    # ],
 )
 
 lb_dns_name: Output[str] = _alb.load_balancer.dns_name
