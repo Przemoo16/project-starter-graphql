@@ -33,10 +33,10 @@ export const onRequest: RequestHandler = requestEvent => {
 
 export const useUpdateAccountFormLoader = routeLoader$<
   InitialValues<UpdateAccountFormSchema>
->(async ({ cookie, redirect }) => {
+>(async requestEvent => {
   return await getMe(
-    getServerRequestSender(cookie, redirect),
-    getServerTokenStorage(cookie),
+    getServerRequestSender(requestEvent),
+    getServerTokenStorage(requestEvent.cookie),
   );
 });
 
