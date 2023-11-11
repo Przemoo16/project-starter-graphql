@@ -70,7 +70,7 @@ _alb = ApplicationLoadBalancer(
             )
         ],
     ),
-    # TODO: Uncomment the following when
+    # FIXME: Uncomment the following when having certificate
     # listeners=[
     #     ListenerArgs(
     #         port=80,
@@ -88,7 +88,7 @@ _alb = ApplicationLoadBalancer(
     #         port=443,
     #         protocol="HTTPS",
     #         ssl_policy="ELBSecurityPolicy-TLS13-1-2-2021-06",
-    #         certificate_arn="", # TODO: Provide certificate
+    #         certificate_arn="", # FIXME: Provide certificate
     #         default_actions=[
     #             ListenerDefaultActionArgs(
     #                 type="forward",

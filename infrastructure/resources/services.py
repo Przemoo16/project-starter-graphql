@@ -244,7 +244,7 @@ _backend_service = create_ecs_service(
         secrets=_backend_secrets,
     ),
     service_opts=ResourceOptions(
-        # TODO: Add scheduler after turning it on
+        # FIXME: Add scheduler after turning it on
         depends_on=[_worker_service.fargate_service]
     ),
 )
