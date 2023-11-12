@@ -12,7 +12,7 @@ from pulumi_aws.lb import (
 from pulumi_awsx.lb import ApplicationLoadBalancer, ListenerArgs
 
 from resources.network import network_id, network_public_subnet_ids
-from resources.services_access import services_access_security_group_id
+from resources.services.security_groups import proxy_access_security_group_id
 
 _RESOURCE_NAME = "lb"
 
@@ -45,7 +45,7 @@ _security_group = SecurityGroup(
     ],
 )
 
-lb_target_group = TargetGroup(
+_target_group = TargetGroup(
     _RESOURCE_NAME,
     port=_config.require_int("proxy_container_port"),
     protocol="HTTP",
@@ -58,7 +58,7 @@ lb_target_group = TargetGroup(
 
 _alb = ApplicationLoadBalancer(
     _RESOURCE_NAME,
-    security_groups=[_security_group.id, services_access_security_group_id],
+    security_groups=[_security_group.id, proxy_access_security_group_id],
     subnet_ids=network_public_subnet_ids,
     listener=ListenerArgs(
         port=80,
@@ -66,7 +66,7 @@ _alb = ApplicationLoadBalancer(
         default_actions=[
             ListenerDefaultActionArgs(
                 type="forward",
-                target_group_arn=lb_target_group.arn,
+                target_group_arn=_target_group.arn,
             )
         ],
     ),
@@ -99,4 +99,5 @@ _alb = ApplicationLoadBalancer(
     # ],
 )
 
+lb_target_group = _target_group
 lb_dns_name: Output[str] = _alb.load_balancer.dns_name
