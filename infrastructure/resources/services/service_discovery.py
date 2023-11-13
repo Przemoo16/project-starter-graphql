@@ -26,15 +26,15 @@ def _create_service(name: str) -> Service:
     )
 
 
-_frontend_service = _create_service("frontend")
 _backend_service = _create_service("backend")
+_frontend_service = _create_service("frontend")
 _proxy_service = _create_service("proxy")
 
 private_dns_namespace_name = _private_dns_namespace.name
 
-frontend_service_arn = _frontend_service.arn
-frontend_service_name = _frontend_service.name
 backend_service_arn = _backend_service.arn
 backend_service_name = _backend_service.name
+frontend_service_arn = _frontend_service.arn
+frontend_service_name = _frontend_service.name
 proxy_service_arn = _proxy_service.arn
 proxy_service_name = _proxy_service.name

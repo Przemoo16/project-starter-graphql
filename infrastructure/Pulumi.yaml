@@ -64,44 +64,6 @@ config:
     description: Exposed port of the frontend container.
     default: 80
 
-  backend_service_desired_count:
-    type: integer
-    description: Number of instances of the backend task to place and keep running.
-    default: 1
-  backend_task_cpu:
-    type: string
-    description: The hard limit of CPU units to present for the backend task.
-    default: "512"
-  backend_task_memory:
-    type: string
-    description: The hard limit of memory (in MiB) to present to the backend task.
-    default: "1024"
-  backend_container_port:
-    type: integer
-    description: Exposed port of the backend container.
-    default: 80
-
-  proxy_health_check_path:
-    type: string
-    description: Destination for the proxy health check request.
-    default: /api/rest/monitoring/health
-  proxy_service_desired_count:
-    type: integer
-    description: Number of instances of the proxy task to place and keep running.
-    default: 1
-  proxy_task_cpu:
-    type: string
-    description: The hard limit of CPU units to present for the proxy task.
-    default: "512"
-  proxy_task_memory:
-    type: string
-    description: The hard limit of memory (in MiB) to present to the proxy task.
-    default: "1024"
-  proxy_container_port:
-    type: integer
-    description: Exposed port of the proxy container.
-    default: 80
-
   worker_service_desired_count:
     type: integer
     description: Number of instances of the worker task to place and keep running.
@@ -155,6 +117,44 @@ config:
       - beat
       - --loglevel
       - INFO
+
+  backend_service_desired_count:
+    type: integer
+    description: Number of instances of the backend task to place and keep running.
+    default: 1
+  backend_task_cpu:
+    type: string
+    description: The hard limit of CPU units to present for the backend task.
+    default: "512"
+  backend_task_memory:
+    type: string
+    description: The hard limit of memory (in MiB) to present to the backend task.
+    default: "1024"
+  backend_container_port:
+    type: integer
+    description: Exposed port of the backend container.
+    default: 80
+
+  proxy_health_check_path:
+    type: string
+    description: Destination for the proxy health check request.
+    default: /api/rest/monitoring/health
+  proxy_service_desired_count:
+    type: integer
+    description: Number of instances of the proxy task to place and keep running.
+    default: 1
+  proxy_task_cpu:
+    type: string
+    description: The hard limit of CPU units to present for the proxy task.
+    default: "512"
+  proxy_task_memory:
+    type: string
+    description: The hard limit of memory (in MiB) to present to the proxy task.
+    default: "1024"
+  proxy_container_port:
+    type: integer
+    description: Exposed port of the proxy container.
+    default: 80
 
   email_sender:
     type: string

@@ -33,14 +33,6 @@ services:
     networks:
       - backend-test
 
-  frontend-test:
-    image: "${FRONTEND_IMAGE}"
-    build:
-      context: ./frontend
-      target: dev
-    networks:
-      - frontend-test
-
   worker-test:
     image: "${BACKEND_IMAGE}"
     build:
@@ -83,6 +75,14 @@ services:
         condition: service_started
     env_file:
       - .env.test
+
+  frontend-test:
+    image: "${FRONTEND_IMAGE}"
+    build:
+      context: ./frontend
+      target: dev
+    networks:
+      - frontend-test
 
 networks:
   frontend-test:
