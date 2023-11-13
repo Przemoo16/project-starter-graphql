@@ -59,49 +59,6 @@ from resources.services.service_discovery import (
 
 _config = Config()
 
-
-_frontend_fargate_service = FargateService(
-    "frontend",
-    cluster=cluster_arn,
-    service_registries=ServiceServiceRegistriesArgs(
-        registry_arn=frontend_service_arn, container_name="frontend"
-    ),
-    network_configuration=ServiceNetworkConfigurationArgs(
-        subnets=network_private_subnet_ids,
-        security_groups=[
-            frontend_security_group_id,
-            proxy_access_security_group_id,
-        ],
-    ),
-    desired_count=_config.require_int("frontend_service_desired_count"),
-    task_definition_args=FargateServiceTaskDefinitionArgs(
-        cpu=_config.require("frontend_task_cpu"),
-        memory=_config.require("frontend_task_memory"),
-        task_role=DefaultRoleWithPolicyArgs(role_arn=task_role_arn),
-        execution_role=DefaultRoleWithPolicyArgs(role_arn=task_role_arn),
-        container=TaskDefinitionContainerDefinitionArgs(
-            name="frontend",
-            image=create_image_name(
-                frontend_repository_url, _config.require("version")
-            ),
-            essential=True,
-            environment=[
-                TaskDefinitionKeyValuePairArgs(
-                    name="SERVER_GRAPHQL_API_URL",
-                    value=Output.concat(
-                        create_url_from_namespace(
-                            proxy_service_name,
-                            private_dns_namespace_name,
-                        ),
-                        "/api/graphql",
-                    ),
-                ),
-            ],
-        ),
-    ),
-)
-
-
 _auth_private_key_parameter = Parameter(
     "auth_private_key",
     value=_config.require_secret("auth_private_key"),
@@ -254,6 +211,48 @@ _backend_fargate_service = FargateService(
     # FIXME: Add scheduler after turning it on
     opts=ResourceOptions(depends_on=[_worker_fargate_service]),
 )
+
+_frontend_fargate_service = FargateService(
+    "frontend",
+    cluster=cluster_arn,
+    service_registries=ServiceServiceRegistriesArgs(
+        registry_arn=frontend_service_arn, container_name="frontend"
+    ),
+    network_configuration=ServiceNetworkConfigurationArgs(
+        subnets=network_private_subnet_ids,
+        security_groups=[
+            frontend_security_group_id,
+            proxy_access_security_group_id,
+        ],
+    ),
+    desired_count=_config.require_int("frontend_service_desired_count"),
+    task_definition_args=FargateServiceTaskDefinitionArgs(
+        cpu=_config.require("frontend_task_cpu"),
+        memory=_config.require("frontend_task_memory"),
+        task_role=DefaultRoleWithPolicyArgs(role_arn=task_role_arn),
+        execution_role=DefaultRoleWithPolicyArgs(role_arn=task_role_arn),
+        container=TaskDefinitionContainerDefinitionArgs(
+            name="frontend",
+            image=create_image_name(
+                frontend_repository_url, _config.require("version")
+            ),
+            essential=True,
+            environment=[
+                TaskDefinitionKeyValuePairArgs(
+                    name="SERVER_GRAPHQL_API_URL",
+                    value=Output.concat(
+                        create_url_from_namespace(
+                            proxy_service_name,
+                            private_dns_namespace_name,
+                        ),
+                        "/api/graphql",
+                    ),
+                ),
+            ],
+        ),
+    ),
+)
+
 
 FargateService(
     "proxy",

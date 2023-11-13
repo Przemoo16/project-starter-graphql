@@ -41,22 +41,6 @@ services:
     ports:
       - "6379:6379"
 
-  frontend:
-    image: "${FRONTEND_IMAGE}"
-    build:
-      context: ./frontend
-      target: dev
-    networks:
-      - frontend
-    volumes:
-      - type: bind
-        source: ./frontend
-        target: /opt/app
-      # Ignore node_modules from the host when using bind mounts by applying the named volume
-      - type: volume
-        source: node_modules
-        target: /opt/app/node_modules
-
   worker:
     image: "${BACKEND_IMAGE}"
     build:
@@ -111,6 +95,22 @@ services:
         condition: service_started
     env_file:
       - .env
+
+  frontend:
+    image: "${FRONTEND_IMAGE}"
+    build:
+      context: ./frontend
+      target: dev
+    networks:
+      - frontend
+    volumes:
+      - type: bind
+        source: ./frontend
+        target: /opt/app
+      # Ignore node_modules from the host when using bind mounts by applying the named volume
+      - type: volume
+        source: node_modules
+        target: /opt/app/node_modules
 
   proxy:
     build:
