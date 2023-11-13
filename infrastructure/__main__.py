@@ -2,12 +2,11 @@
 # ruff: noqa: F401
 import resources.network
 import resources.services
-import resources.services_access
 from pulumi import export
 from resources.cache import cache_endpoint
 from resources.database import database_endpoint
 from resources.lb import lb_dns_name
-from resources.repository import (
+from resources.repositories import (
     backend_repository_url,
     frontend_repository_url,
     proxy_repository_url,
