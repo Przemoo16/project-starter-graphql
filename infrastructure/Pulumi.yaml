@@ -114,10 +114,6 @@ config:
     type: string
     description: The hard limit of memory (in MiB) to present to the worker task.
     default: "1024"
-  worker_container_port:
-    type: integer
-    description: Exposed port of the worker container.
-    default: 80
   worker_container_command:
     type: array
     description: The command that's passed to the worker container.
@@ -147,10 +143,6 @@ config:
     type: string
     description: The hard limit of memory (in MiB) to present to the scheduler task.
     default: "1024"
-  scheduler_container_port:
-    type: integer
-    description: Exposed port of the scheduler container.
-    default: 80
   scheduler_container_command:
     type: array
     description: The command that's passed to the scheduler container.

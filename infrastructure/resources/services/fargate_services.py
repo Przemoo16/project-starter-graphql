@@ -85,11 +85,6 @@ _frontend_fargate_service = FargateService(
                 frontend_repository_url, _config.require("version")
             ),
             essential=True,
-            port_mappings=[
-                TaskDefinitionPortMappingArgs(
-                    container_port=_config.require_int("frontend_container_port"),
-                )
-            ],
             environment=[
                 TaskDefinitionKeyValuePairArgs(
                     name="SERVER_GRAPHQL_API_URL",
@@ -188,11 +183,6 @@ _worker_fargate_service = FargateService(
             name="worker",
             image=create_image_name(backend_repository_url, _config.require("version")),
             essential=True,
-            port_mappings=[
-                TaskDefinitionPortMappingArgs(
-                    container_port=_config.require_int("worker_container_port"),
-                )
-            ],
             command=_config.require_object("worker_container_command"),
             environment=_backend_environment,
             secrets=_backend_secrets,
@@ -225,11 +215,6 @@ if _config.require_bool("scheduler_service_enabled"):
                     backend_repository_url, _config.require("version")
                 ),
                 essential=True,
-                port_mappings=[
-                    TaskDefinitionPortMappingArgs(
-                        container_port=_config.require_int("scheduler_container_port"),
-                    )
-                ],
                 command=_config.require_object("scheduler_container_command"),
                 environment=_backend_environment,
                 secrets=_backend_secrets,
@@ -262,11 +247,6 @@ _backend_fargate_service = FargateService(
             name="backend",
             image=create_image_name(backend_repository_url, _config.require("version")),
             essential=True,
-            port_mappings=[
-                TaskDefinitionPortMappingArgs(
-                    container_port=_config.require_int("backend_container_port"),
-                )
-            ],
             environment=_backend_environment,
             secrets=_backend_secrets,
         ),
