@@ -1,4 +1,4 @@
-mypy==1.6.1
+mypy==1.7.0
 pulumi==3.92.0
 pulumi-aws==6.8.0
 pulumi-awsx==2.1.1
