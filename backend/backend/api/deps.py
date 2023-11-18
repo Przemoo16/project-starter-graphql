@@ -1,5 +1,5 @@
 from collections.abc import Mapping
-from typing import Protocol
+from typing import Any, Protocol
 
 from backend.services.user.exceptions import (
     InvalidAccessTokenError,
@@ -14,7 +14,7 @@ from backend.services.user.operations.types import AsyncTokenReader, UserCRUDPro
 
 class _Request(Protocol):
     @property
-    def headers(self) -> Mapping[str, str]:
+    def headers(self) -> Mapping[Any, str]:
         ...
 
 
