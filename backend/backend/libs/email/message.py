@@ -1,11 +1,8 @@
-import logging
 from dataclasses import dataclass
 from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
 from smtplib import SMTP
 from ssl import create_default_context
-
-_logger = logging.getLogger(__name__)
 
 _ssl_context = create_default_context()
 
@@ -56,5 +53,4 @@ def _send_email(
         server.starttls(context=_ssl_context)
         server.ehlo()
         server.login(smtp_server.user, smtp_server.password)
-        response = server.sendmail(participants.sender, participants.receiver, message)
-        _logger.debug("Email response: %r", response)
+        server.sendmail(participants.sender, participants.receiver, message)
