@@ -4965,10 +4965,10 @@ queue-tick@^1.0.1:
   resolved "https://registry.yarnpkg.com/queue-tick/-/queue-tick-1.0.1.tgz#f6f07ac82c1fd60f82e098b417a80e52f1f4c142"
   integrity sha512-kJt5qhMxoszgU/62PLP1CJytzd2NKetjSRnyuj31fDd3Rlcz3fzlFdFLD1SItunPwyqEOkca6GbV612BWfaBag==
 
-qwik-speak@^0.16.0:
-  version "0.16.0"
-  resolved "https://registry.yarnpkg.com/qwik-speak/-/qwik-speak-0.16.0.tgz#e091f79123e7a4bd2aa3bb01cd26db5037c5a153"
-  integrity sha512-k0ibVDBiifbcKPRmO4f9UqL9t1t5VFqchwBLr63GRUG2ZQeP+edddHVWx2Ds9Gz68THZu9nQgREEZWEnxSp+WQ==
+qwik-speak@^0.17.0:
+  version "0.17.0"
+  resolved "https://registry.yarnpkg.com/qwik-speak/-/qwik-speak-0.17.0.tgz#dfcf5ec8305969806d29e21acce455c52e16cb82"
+  integrity sha512-CsYYEI88MZrR2hNn0VAcewgrBkSQaMo65rNPtTlXW/4Pq0T8JqYGoUudNKf841mxLjZO63Zh3ybB0wJOK+E81g==
 
 rc@^1.2.7:
   version "1.2.8"
