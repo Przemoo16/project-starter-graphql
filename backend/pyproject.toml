@@ -12,14 +12,14 @@ authors = ["Przemek Kanach <kanach16@gmail.com>"]
 python = "^3.12"
 alembic = "^1.12.1"
 asyncpg = "^0.29.0"
-celery = "^5.3.5"
+celery = "^5.3.6"
 fastapi = "^0.104.1"
 jinja2 = "^3.1.2"
 orjson = "^3.9.10"
 passlib = { extras = ["bcrypt"], version = "^1.7.4" }
-pydantic = { extras = ["email"], version = "^2.4.2" }
-pydantic-settings = "^2.0.3"
-pyseto = "^1.7.5"
+pydantic = { extras = ["email"], version = "^2.5.2" }
+pydantic-settings = "^2.1.0"
+pyseto = "^1.7.7"
 redis = "^5.0.1"
 sqlalchemy = "^2.0.23"
 strawberry-graphql = { extras = ["fastapi"], version = "^0.213.0" }
@@ -31,8 +31,8 @@ optional = true
 [tool.poetry.group.dev.dependencies]
 anyio = "^3.7.1"
 flower = "^2.0.1"
-httpx = "^0.25.1"
-mypy = "^1.6.1"
+httpx = "^0.25.2"
+mypy = "^1.7.1"
 pylint = "^3.0.2"
 pytest = "^7.4.3"
 pytest-cov = "^4.1.0"
