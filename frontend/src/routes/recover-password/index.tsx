@@ -4,29 +4,33 @@ import {
   Link,
   type RequestHandler,
 } from '@builder.io/qwik-city';
-import { Speak, useTranslate } from 'qwik-speak';
+import { inlineTranslate, useSpeak } from 'qwik-speak';
 
 import { RouteURL } from '~/libs/api/route-url';
 import { onOnlyAnonymousRoute } from '~/services/auth/on-only-anonymous-route';
 
 import { RecoverPasswordForm } from './recover-password-form';
 
-export const head: DocumentHead = {
-  title: 'runtime.recoverPassword.head.title',
+export const head: DocumentHead = () => {
+  const t = inlineTranslate();
+
+  return {
+    title: t('head.recoverPassword.title'),
+  };
 };
 
 export const onRequest: RequestHandler = requestEvent => {
   onOnlyAnonymousRoute(requestEvent);
 };
 
-export default component$(() => (
-  <Speak assets={['auth', 'recoverPassword', 'validation']}>
-    <RecoverPassword />
-  </Speak>
-));
+export default component$(() => {
+  useSpeak({ assets: ['auth', 'recoverPassword', 'validation'] });
+
+  return <RecoverPassword />;
+});
 
 const RecoverPassword = component$(() => {
-  const t = useTranslate();
+  const t = inlineTranslate();
 
   return (
     <>

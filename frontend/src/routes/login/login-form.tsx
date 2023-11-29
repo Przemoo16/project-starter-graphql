@@ -7,7 +7,7 @@ import {
   type SubmitHandler,
   useForm,
 } from '@modular-forms/qwik';
-import { inlineTranslate, useSpeakContext, useTranslate } from 'qwik-speak';
+import { inlineTranslate } from 'qwik-speak';
 
 import { TextInput } from '~/components/text-input/text-input';
 import { isProblemPresent } from '~/libs/api/is-problem-present';
@@ -22,8 +22,7 @@ type LoginFormSchema = {
 };
 
 export const LoginForm = component$(() => {
-  const t = useTranslate();
-  const ctx = useSpeakContext();
+  const t = inlineTranslate();
   const nav = useNavigate();
   const loc = useLocation();
   const [loginForm, { Form, Field }] = useForm<LoginFormSchema>({
@@ -32,6 +31,8 @@ export const LoginForm = component$(() => {
 
   const handleSubmit = $<SubmitHandler<LoginFormSchema>>(
     async (values, _event) => {
+      const t = inlineTranslate();
+
       const data = await login(
         getClientRequestSender(),
         getClientTokenStorage(),
@@ -42,9 +43,9 @@ export const LoginForm = component$(() => {
       if ('problems' in data) {
         let error = '';
         if (isProblemPresent(data.problems, 'UserEmailNotConfirmedProblem')) {
-          error = inlineTranslate('login.emailNotConfirmed', ctx);
+          error = t('login.emailNotConfirmed');
         } else {
-          error = inlineTranslate('login.invalidCredentials', ctx);
+          error = t('login.invalidCredentials');
         }
         throw new FormError<LoginFormSchema>(error);
       }

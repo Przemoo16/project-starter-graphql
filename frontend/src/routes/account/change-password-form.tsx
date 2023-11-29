@@ -10,7 +10,7 @@ import {
   type SubmitHandler,
   useForm,
 } from '@modular-forms/qwik';
-import { inlineTranslate, useSpeakContext, useTranslate } from 'qwik-speak';
+import { inlineTranslate } from 'qwik-speak';
 
 import { TextInput } from '~/components/text-input/text-input';
 import { isProblemPresent } from '~/libs/api/is-problem-present';
@@ -25,8 +25,7 @@ type ChangePasswordFormSchema = {
 };
 
 export const ChangePasswordForm = component$(() => {
-  const t = useTranslate();
-  const ctx = useSpeakContext();
+  const t = inlineTranslate();
   const [changePasswordForm, ChangePassword] =
     useForm<ChangePasswordFormSchema>({
       loader: {
@@ -40,6 +39,8 @@ export const ChangePasswordForm = component$(() => {
 
   const handleSubmit = $<SubmitHandler<ChangePasswordFormSchema>>(
     async (values, _event) => {
+      const t = inlineTranslate();
+
       const data = await changeMyPassword(
         getClientRequestSender(),
         values.currentPassword,
@@ -49,16 +50,16 @@ export const ChangePasswordForm = component$(() => {
       if ('problems' in data) {
         let error = '';
         if (isProblemPresent(data.problems, 'InvalidPasswordProblem')) {
-          error = inlineTranslate('changePassword.invalidCurrentPassword', ctx);
+          error = t('changePassword.invalidCurrentPassword');
         } else {
-          error = inlineTranslate('changePassword.changePasswordError', ctx);
+          error = t('changePassword.changePasswordError');
         }
         throw new FormError<ChangePasswordFormSchema>(error);
       }
 
       reset(changePasswordForm);
       setResponse(changePasswordForm, {
-        message: inlineTranslate('changePassword.changePasswordSuccess', ctx),
+        message: t('changePassword.changePasswordSuccess'),
       });
     },
   );

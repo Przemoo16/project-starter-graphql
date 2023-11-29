@@ -1,14 +1,18 @@
 import { component$ } from '@builder.io/qwik';
 import { type DocumentHead, Link, routeLoader$ } from '@builder.io/qwik-city';
-import { Speak, useTranslate } from 'qwik-speak';
+import { inlineTranslate, useSpeak } from 'qwik-speak';
 
 import { isProblemPresent } from '~/libs/api/is-problem-present';
 import { RouteURL } from '~/libs/api/route-url';
 import { getServerRequestSender } from '~/services/requests/get-server-request-sender';
 import { confirmEmail } from '~/services/user/confirm-email';
 
-export const head: DocumentHead = {
-  title: 'runtime.confirmEmail.head.title',
+export const head: DocumentHead = () => {
+  const t = inlineTranslate();
+
+  return {
+    title: t('head.confirmEmail.title'),
+  };
 };
 
 export const useConfirmEmail = routeLoader$(async requestEvent => {
@@ -18,15 +22,15 @@ export const useConfirmEmail = routeLoader$(async requestEvent => {
   );
 });
 
-export default component$(() => (
-  <Speak assets={['auth', 'confirmEmail']}>
-    <ConfirmEmail />
-  </Speak>
-));
+export default component$(() => {
+  useSpeak({ assets: ['auth', 'confirmEmail'] });
+
+  return <ConfirmEmail />;
+});
 
 const ConfirmEmail = component$(() => {
   const signal = useConfirmEmail();
-  const t = useTranslate();
+  const t = inlineTranslate();
 
   const data = signal.value;
 

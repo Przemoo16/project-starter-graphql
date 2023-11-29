@@ -4,29 +4,33 @@ import {
   Link,
   type RequestHandler,
 } from '@builder.io/qwik-city';
-import { Speak, useTranslate } from 'qwik-speak';
+import { inlineTranslate, useSpeak } from 'qwik-speak';
 
 import { RouteURL } from '~/libs/api/route-url';
 import { onOnlyAnonymousRoute } from '~/services/auth/on-only-anonymous-route';
 
 import { LoginForm } from './login-form';
 
-export const head: DocumentHead = {
-  title: 'runtime.login.head.title',
+export const head: DocumentHead = () => {
+  const t = inlineTranslate();
+
+  return {
+    title: t('head.login.title'),
+  };
 };
 
 export const onRequest: RequestHandler = requestEvent => {
   onOnlyAnonymousRoute(requestEvent);
 };
 
-export default component$(() => (
-  <Speak assets={['auth', 'login', 'validation']}>
-    <Login />
-  </Speak>
-));
+export default component$(() => {
+  useSpeak({ assets: ['auth', 'login', 'validation'] });
+
+  return <Login />;
+});
 
 const Login = component$(() => {
-  const t = useTranslate();
+  const t = inlineTranslate();
 
   return (
     <>

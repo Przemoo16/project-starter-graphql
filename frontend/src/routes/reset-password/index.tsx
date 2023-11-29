@@ -1,23 +1,27 @@
 import { component$ } from '@builder.io/qwik';
 import { type DocumentHead, Link } from '@builder.io/qwik-city';
-import { Speak, useTranslate } from 'qwik-speak';
+import { inlineTranslate, useSpeak } from 'qwik-speak';
 
 import { RouteURL } from '~/libs/api/route-url';
 
 import { ResetPasswordForm } from './reset-password-form';
 
-export const head: DocumentHead = {
-  title: 'runtime.resetPassword.head.title',
+export const head: DocumentHead = () => {
+  const t = inlineTranslate();
+
+  return {
+    title: t('head.resetPassword.title'),
+  };
 };
 
-export default component$(() => (
-  <Speak assets={['auth', 'resetPassword', 'validation']}>
-    <ResetPassword />
-  </Speak>
-));
+export default component$(() => {
+  useSpeak({ assets: ['auth', 'resetPassword', 'validation'] });
+
+  return <ResetPassword />;
+});
 
 const ResetPassword = component$(() => {
-  const t = useTranslate();
+  const t = inlineTranslate();
 
   return (
     <>

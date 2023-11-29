@@ -9,6 +9,8 @@ export const config: SpeakConfig = {
   supportedLocales: [
     { lang: 'en-US', currency: 'USD', timeZone: 'America/Los_Angeles' },
   ],
-  assets: ['app'],
-  runtimeAssets: ['runtime'],
+  // Translations available in the whole app
+  assets: ['head'],
+  // Translations with dynamic keys available in the whole app
+  runtimeAssets: [],
 };

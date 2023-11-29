@@ -8,7 +8,7 @@ import {
   type SubmitHandler,
   useForm,
 } from '@modular-forms/qwik';
-import { inlineTranslate, useSpeakContext, useTranslate } from 'qwik-speak';
+import { inlineTranslate } from 'qwik-speak';
 
 import { TextInput } from '~/components/text-input/text-input';
 import { MAX_FULL_NAME_LENGTH } from '~/routes/schema-config';
@@ -25,8 +25,7 @@ interface UpdateAccountFormProps {
 
 export const UpdateAccountForm = component$(
   ({ loader }: UpdateAccountFormProps) => {
-    const t = useTranslate();
-    const ctx = useSpeakContext();
+    const t = inlineTranslate();
     const [updateAccountForm, UpdateAccount] = useForm<UpdateAccountFormSchema>(
       {
         loader,
@@ -35,15 +34,17 @@ export const UpdateAccountForm = component$(
 
     const handleSubmit = $<SubmitHandler<UpdateAccountFormSchema>>(
       async (values, _event) => {
+        const t = inlineTranslate();
+
         const data = await updateMe(getClientRequestSender(), values.fullName);
 
         if ('problems' in data) {
           throw new FormError<UpdateAccountFormSchema>(
-            inlineTranslate('updateAccount.updateAccountError', ctx),
+            t('updateAccount.updateAccountError'),
           );
         }
         setResponse(updateAccountForm, {
-          message: inlineTranslate('updateAccount.updateAccountSuccess', ctx),
+          message: t('updateAccount.updateAccountSuccess'),
         });
       },
     );
