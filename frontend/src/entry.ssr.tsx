@@ -12,8 +12,8 @@
  */
 import { isDev } from '@builder.io/qwik/build';
 import {
-  renderToStream,
   type RenderOptions,
+  renderToStream,
   type RenderToStreamOptions,
 } from '@builder.io/qwik/server';
 import { manifest } from '@qwik-client-manifest';

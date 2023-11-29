@@ -7,7 +7,7 @@ import {
   type SubmitHandler,
   useForm,
 } from '@modular-forms/qwik';
-import { inlineTranslate, useSpeakContext, useTranslate } from 'qwik-speak';
+import { inlineTranslate } from 'qwik-speak';
 
 import { TextInput } from '~/components/text-input/text-input';
 import { getClientRequestSender } from '~/services/requests/get-client-request-sender';
@@ -18,8 +18,7 @@ type RecoverPasswordFormSchema = {
 };
 
 export const RecoverPasswordForm = component$(() => {
-  const t = useTranslate();
-  const ctx = useSpeakContext();
+  const t = inlineTranslate();
   const [recoverPasswordForm, { Form, Field }] =
     useForm<RecoverPasswordFormSchema>({
       loader: { value: { email: '' } },
@@ -27,11 +26,13 @@ export const RecoverPasswordForm = component$(() => {
 
   const handleSubmit = $<SubmitHandler<RecoverPasswordFormSchema>>(
     async (values, _event) => {
+      const t = inlineTranslate();
+
       await recoverPassword(getClientRequestSender(), values.email);
 
       reset(recoverPasswordForm);
       setResponse(recoverPasswordForm, {
-        message: inlineTranslate('recoverPassword.recoverPasswordSuccess', ctx),
+        message: t('recoverPassword.recoverPasswordSuccess'),
       });
     },
   );

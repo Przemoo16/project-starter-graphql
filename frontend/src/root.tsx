@@ -6,7 +6,7 @@ import {
   RouterOutlet,
   ServiceWorkerRegister,
 } from '@builder.io/qwik-city';
-import { QwikSpeakProvider } from 'qwik-speak';
+import { useQwikSpeak } from 'qwik-speak';
 
 import { RouterHead } from './components/router-head/router-head';
 import { BrowserStorage } from './libs/storage/browser-storage';
@@ -33,19 +33,19 @@ export default component$(() => {
     });
   });
 
+  useQwikSpeak({ config, translationFn });
+
   return (
-    <QwikSpeakProvider config={config} translationFn={translationFn}>
-      <QwikCityProvider>
-        <head>
-          <meta charSet="utf-8" />
-          <link rel="manifest" href="/manifest.json" />
-          <RouterHead />
-          <ServiceWorkerRegister />
-        </head>
-        <body lang="en">
-          <RouterOutlet />
-        </body>
-      </QwikCityProvider>
-    </QwikSpeakProvider>
+    <QwikCityProvider>
+      <head>
+        <meta charSet="utf-8" />
+        <link rel="manifest" href="/manifest.json" />
+        <RouterHead />
+        <ServiceWorkerRegister />
+      </head>
+      <body lang="en">
+        <RouterOutlet />
+      </body>
+    </QwikCityProvider>
   );
 });

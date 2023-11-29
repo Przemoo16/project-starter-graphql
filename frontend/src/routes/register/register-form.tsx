@@ -12,7 +12,7 @@ import {
   type SubmitHandler,
   useForm,
 } from '@modular-forms/qwik';
-import { inlineTranslate, useSpeakContext, useTranslate } from 'qwik-speak';
+import { inlineTranslate } from 'qwik-speak';
 
 import { TextInput } from '~/components/text-input/text-input';
 import { isProblemPresent } from '~/libs/api/is-problem-present';
@@ -31,8 +31,7 @@ type RegisterFormSchema = {
 };
 
 export const RegisterForm = component$(() => {
-  const t = useTranslate();
-  const ctx = useSpeakContext();
+  const t = inlineTranslate();
   const [registerForm, { Form, Field }] = useForm<RegisterFormSchema>({
     loader: {
       value: { fullName: '', email: '', password: '', repeatPassword: '' },
@@ -41,6 +40,8 @@ export const RegisterForm = component$(() => {
 
   const handleSubmit = $<SubmitHandler<RegisterFormSchema>>(
     async (values, _event) => {
+      const t = inlineTranslate();
+
       const data = await register(
         getClientRequestSender(),
         values.fullName,
@@ -52,9 +53,9 @@ export const RegisterForm = component$(() => {
         let emailError = '';
         let generalError = '';
         if (isProblemPresent(data.problems, 'UserAlreadyExistsProblem')) {
-          emailError = inlineTranslate('register.accountAlreadyExists', ctx);
+          emailError = t('register.accountAlreadyExists');
         } else {
-          generalError = inlineTranslate('register.registerError', ctx);
+          generalError = t('register.registerError');
         }
         throw new FormError<RegisterFormSchema>(generalError, {
           email: emailError,
@@ -63,7 +64,7 @@ export const RegisterForm = component$(() => {
 
       reset(registerForm);
       setResponse(registerForm, {
-        message: inlineTranslate('register.registerSuccess', ctx),
+        message: t('register.registerSuccess'),
       });
     },
   );

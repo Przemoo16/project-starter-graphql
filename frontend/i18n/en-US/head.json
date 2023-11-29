@@ -1,0 +1,34 @@
+{
+  "head": {
+    "404": {
+      "title": "404"
+    },
+    "account": {
+      "title": "Account"
+    },
+    "app": {
+      "title": "Project Starter"
+    },
+    "confirmEmail": {
+      "title": "Confirm Email"
+    },
+    "dashboard": {
+      "title": "Dashboard"
+    },
+    "home": {
+      "title": "Home"
+    },
+    "login": {
+      "title": "Login"
+    },
+    "recoverPassword": {
+      "title": "Recover Password"
+    },
+    "register": {
+      "title": "Register"
+    },
+    "resetPassword": {
+      "title": "Reset Password"
+    }
+  }
+}

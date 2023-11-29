@@ -1,6 +1,6 @@
 import { component$ } from '@builder.io/qwik';
 import { useDocumentHead, useLocation } from '@builder.io/qwik-city';
-import { useTranslate } from 'qwik-speak';
+import { inlineTranslate } from 'qwik-speak';
 
 import { TitleHead } from '~/components/title-head/title-head';
 
@@ -8,16 +8,13 @@ import { TitleHead } from '~/components/title-head/title-head';
  * The RouterHead component is placed inside of the document `<head>` element.
  */
 export const RouterHead = component$(() => {
-  const t = useTranslate();
+  const t = inlineTranslate();
   const head = useDocumentHead();
   const loc = useLocation();
 
-  const appName = t('runtime.app.head.title');
-  const pageTitle = t(head.title);
-
   return (
     <>
-      <TitleHead appName={appName} pageTitle={pageTitle} />
+      <TitleHead appName={t('head.app.title')} pageTitle={head.title} />
 
       <link rel="canonical" href={loc.url.href} />
       <meta name="viewport" content="width=device-width, initial-scale=1.0" />

@@ -5,7 +5,7 @@ import {
   routeLoader$,
 } from '@builder.io/qwik-city';
 import { type InitialValues } from '@modular-forms/qwik';
-import { Speak, useTranslate } from 'qwik-speak';
+import { inlineTranslate, useSpeak } from 'qwik-speak';
 
 import { getClientLogoutRedirection } from '~/services/auth/get-client-logout-redirection';
 import { onProtectedRoute } from '~/services/auth/on-protected-route';
@@ -23,8 +23,12 @@ import {
   type UpdateAccountFormSchema,
 } from './update-account-form';
 
-export const head: DocumentHead = {
-  title: 'runtime.account.head.title',
+export const head: DocumentHead = () => {
+  const t = inlineTranslate();
+
+  return {
+    title: t('head.account.title'),
+  };
 };
 
 export const onRequest: RequestHandler = requestEvent => {
@@ -40,23 +44,23 @@ export const useUpdateAccountFormLoader = routeLoader$<
   );
 });
 
-export default component$(() => (
-  <Speak
-    assets={[
+export default component$(() => {
+  useSpeak({
+    assets: [
       'account',
       'auth',
       'changePassword',
       'deleteAccount',
       'updateAccount',
       'validation',
-    ]}
-  >
-    <Account />
-  </Speak>
-));
+    ],
+  });
+
+  return <Account />;
+});
 
 const Account = component$(() => {
-  const t = useTranslate();
+  const t = inlineTranslate();
   const deleteAccountPending = useSignal(false);
   const updateAccountFormSignal = useUpdateAccountFormLoader();
 
