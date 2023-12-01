@@ -42,7 +42,7 @@ services:
     depends_on:
       - redis-e2e
     env_file:
-      - .env
+      - .env.template
       - .env.e2e
     command: "celery --app backend.worker:worker_app worker --loglevel INFO"
 
@@ -55,7 +55,7 @@ services:
     depends_on:
       - redis-e2e
     env_file:
-      - .env
+      - .env.template
       - .env.e2e
     command: "celery --app backend.worker:worker_app beat --loglevel INFO"
 
@@ -73,7 +73,7 @@ services:
       scheduler-e2e:
         condition: service_started
     env_file:
-      - .env
+      - .env.template
       - .env.e2e
 
   frontend-e2e:
@@ -84,6 +84,7 @@ services:
       - frontend-e2e
 
   proxy-e2e:
+    image: "${PROXY_IMAGE}"
     build:
       context: ./proxy
     networks:
@@ -104,6 +105,7 @@ services:
       - backend-e2e
 
   e2e:
+    image: "${E2E_IMAGE}"
     build:
       context: ./e2e
     networks:

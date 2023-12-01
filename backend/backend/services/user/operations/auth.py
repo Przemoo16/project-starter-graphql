@@ -32,8 +32,8 @@ from backend.services.user.schemas import CredentialsSchema
 _logger = logging.getLogger(__name__)
 
 
-_ACCESS_TOKEN_TYPE = "access"  # nosec
-_REFRESH_TOKEN_TYPE = "refresh"  # nosec
+_ACCESS_TOKEN_TYPE = "access"  # nosec B105
+_REFRESH_TOKEN_TYPE = "refresh"  # nosec B105
 
 
 @dataclass
