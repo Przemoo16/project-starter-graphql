@@ -43,6 +43,7 @@ services:
     depends_on:
       - redis-test
     env_file:
+      - .env
       - .env.test
     command: "celery --app backend.worker:worker_app worker --loglevel INFO"
 
@@ -56,6 +57,7 @@ services:
     depends_on:
       - redis-test
     env_file:
+      - .env
       - .env.test
     command: "celery --app backend.worker:worker_app beat --loglevel INFO"
 
@@ -74,6 +76,7 @@ services:
       scheduler-test:
         condition: service_started
     env_file:
+      - .env
       - .env.test
 
   frontend-test:
@@ -85,5 +88,5 @@ services:
       - frontend-test
 
 networks:
-  frontend-test:
   backend-test:
+  frontend-test:

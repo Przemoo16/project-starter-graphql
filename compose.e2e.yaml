@@ -1,14 +1,8 @@
 services:
-  db:
+  db-e2e:
     image: postgres:15.4
     networks:
-      - backend
-    ports:
-      - "5432:5432"
-    volumes:
-      - type: volume
-        source: db-data
-        target: /var/lib/postgresql/data
+      - backend-e2e
     environment:
       POSTGRES_PASSWORD: "${DB__PASSWORD}"
       POSTGRES_USER: "${DB__USERNAME}"
@@ -34,123 +28,102 @@ services:
       retries: 3
       start_period: 5s
 
-  redis:
+  redis-e2e:
     image: redis:7.0
     networks:
-      - backend
-    ports:
-      - "6379:6379"
+      - backend-e2e
 
-  worker:
+  worker-e2e:
     image: "${BACKEND_IMAGE}"
     build:
       context: ./backend
-      target: dev
     networks:
-      - backend
-    volumes:
-      - type: bind
-        source: ./backend
-        target: /opt/app
+      - backend-e2e
     depends_on:
-      - redis
+      - redis-e2e
     env_file:
       - .env
+      - .env.e2e
     command: "celery --app backend.worker:worker_app worker --loglevel INFO"
 
-  scheduler:
+  scheduler-e2e:
     image: "${BACKEND_IMAGE}"
     build:
       context: ./backend
-      target: dev
     networks:
-      - backend
-    volumes:
-      - type: bind
-        source: ./backend
-        target: /opt/app
+      - backend-e2e
     depends_on:
-      - redis
+      - redis-e2e
     env_file:
       - .env
+      - .env.e2e
     command: "celery --app backend.worker:worker_app beat --loglevel INFO"
 
-  backend:
+  backend-e2e:
     image: "${BACKEND_IMAGE}"
     build:
       context: ./backend
-      target: dev
     networks:
-      - backend
-    volumes:
-      - type: bind
-        source: ./backend
-        target: /opt/app
+      - backend-e2e
     depends_on:
-      db:
+      db-e2e:
         condition: service_healthy
-      worker:
+      worker-e2e:
         condition: service_started
-      scheduler:
+      scheduler-e2e:
         condition: service_started
     env_file:
       - .env
+      - .env.e2e
 
-  frontend:
+  frontend-e2e:
     image: "${FRONTEND_IMAGE}"
     build:
       context: ./frontend
-      target: dev
     networks:
-      - frontend
-    volumes:
-      - type: bind
-        source: ./frontend
-        target: /opt/app
-      # Ignore node_modules from the host when using bind mounts by applying the named volume
-      - type: volume
-        source: node_modules
-        target: /opt/app/node_modules
+      - frontend-e2e
 
-  proxy:
+  proxy-e2e:
     build:
       context: ./proxy
     networks:
-      - backend
-      - frontend
-    ports:
-      - "5173:80"
-    volumes:
-      - type: bind
-        source: ./proxy/nginx.conf
-        target: /var/nginx.conf
+      - backend-e2e
+      - frontend-e2e
+      - proxy-e2e
+    environment:
+      FRONTEND_UPSTREAM: http://frontend-e2e
+      BACKEND_UPSTREAM: http://backend-e2e
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost"]
+      interval: 2s
+      timeout: 3s
+      retries: 3
+      start_period: 5s
     depends_on:
-      - frontend
-      - backend
+      - frontend-e2e
+      - backend-e2e
 
-  flower:
-    image: "${BACKEND_IMAGE}"
+  e2e:
     build:
-      context: ./backend
-      target: dev
+      context: ./e2e
     networks:
-      - backend
-    ports:
-      - "5555:5555"
+      - proxy-e2e
     volumes:
       - type: bind
-        source: ./backend
+        source: ./e2e
         target: /opt/app
+      # Ignore node_modules from the host when using bind mounts by applying the named volume
+      - type: volume
+        source: node_modules-e2e
+        target: /opt/app/node_modules
     depends_on:
-      - redis
-    env_file:
-      - .env
-    command: "celery --app backend.worker:worker_app flower"
+      proxy-e2e:
+        condition: service_healthy
 
 networks:
-  backend:
-  frontend:
+  backend-e2e:
+  frontend-e2e:
+  proxy-e2e:
 
 volumes:
-  db-data:
-  node_modules:
+  node_modules-e2e:
