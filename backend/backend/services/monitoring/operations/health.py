@@ -28,7 +28,7 @@ async def _get_health_report(checks: Iterable[HealthCheck]) -> dict[str, str]:
 async def _get_check_message(check: HealthCheck) -> str:
     try:
         await check.check()
-    except Exception as exc:  # pylint: disable=broad-exception-caught
+    except Exception as exc:
         _logger.exception("The %r check failed", check.name)
         return str(exc)
     return _HEALTHY_FLAG

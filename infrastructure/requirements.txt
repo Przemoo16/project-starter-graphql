@@ -2,4 +2,3 @@ mypy==1.7.1
 pulumi==3.94.2
 pulumi-aws==6.10.0
 pulumi-awsx==2.3.0
-pylint==3.0.2
