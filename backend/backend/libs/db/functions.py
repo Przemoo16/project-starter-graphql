@@ -5,15 +5,13 @@ from sqlalchemy.sql import expression
 from sqlalchemy.types import DateTime
 
 
-class utcnow(  # noqa: N801 # pylint: disable=invalid-name
-    expression.FunctionElement[Any]
-):
+class utcnow(expression.FunctionElement[Any]):  # noqa: N801
     type = DateTime()
     inherit_cache = True
 
 
 @compiles(utcnow, "postgresql")  # type: ignore[no-untyped-call, misc]
-def pg_utcnow(  # type: ignore[no-untyped-def] # pylint: disable=unused-argument
-    element, compiler, **kw
+def pg_utcnow(  # type: ignore[no-untyped-def]
+    element, compiler, **kw  # noqa: ARG001
 ) -> str:
     return "TIMEZONE('utc', CURRENT_TIMESTAMP)"

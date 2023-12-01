@@ -79,21 +79,6 @@ repos:
         files: ^infrastructure/
         types: [python]
         require_serial: true
-      - id: pylint-backend
-        name: pylint (backend)
-        entry: docker compose run --no-TTY --rm --no-deps backend pylint backend tests
-        language: system
-        files: ^backend/
-        types: [python]
-        require_serial: true
-        pass_filenames: false
-      - id: pylint-infrastructure
-        name: pylint (infrastructure)
-        entry: ./infrastructure/venv/bin/python -m pylint
-        language: system
-        files: ^infrastructure/
-        types: [python]
-        require_serial: true
       - id: eslint-frontend
         name: eslint (frontend)
         entry: docker compose run --no-TTY --rm --no-deps frontend yarn run eslint

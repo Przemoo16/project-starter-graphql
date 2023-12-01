@@ -26,9 +26,7 @@ def create_user(**kwargs: Any) -> User:
     return User(**kwargs)
 
 
-class UserCRUD(  # pylint: disable=abstract-method
-    CRUDStub[User, UserCreateData, UserUpdateData, UserFilters]
-):
+class UserCRUD(CRUDStub[User, UserCreateData, UserUpdateData, UserFilters]):
     def __init__(self, existing_user: User | None = None):
         self._existing_user = existing_user
 

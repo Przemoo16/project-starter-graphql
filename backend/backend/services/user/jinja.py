@@ -9,7 +9,6 @@ _env = Environment(
     autoescape=select_autoescape(),
     extensions=["jinja2.ext.i18n"],
 )
-# pylint: disable=no-member
 _env.install_gettext_translations(translations)  # type: ignore[attr-defined]
 
 

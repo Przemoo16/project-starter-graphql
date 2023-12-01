@@ -29,7 +29,7 @@ async def test_check_health_unhealthy() -> None:
 
     async def failed_check() -> None:
         msg = "Failed"
-        raise Exception(msg)  # noqa: TRY002 # pylint: disable=broad-exception-raised
+        raise Exception(msg)  # noqa: TRY002
 
     checks = [
         HealthCheck(name="check_1", check=success_check),

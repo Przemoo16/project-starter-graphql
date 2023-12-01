@@ -32,7 +32,7 @@ async def test_check_health_unhealthy(
 
     async def failed_check() -> None:
         msg = "Failed"
-        raise Exception(msg)  # noqa: TRY002 # pylint: disable=broad-exception-raised
+        raise Exception(msg)  # noqa: TRY002
 
     app.dependency_overrides[get_health_checks] = get_test_health_checks
 
