@@ -1,0 +1,26 @@
+{
+  "name": "e2e",
+  "description": "e2e",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "eslint": "eslint --ext .js,.jsx,.ts,.tsx . --fix",
+    "lint": "yarn run tsc && yarn run eslint",
+    "tsc": "tsc"
+  },
+  "devDependencies": {
+    "@playwright/test": "^1.40.1",
+    "@types/eslint": "^8.44.7",
+    "@types/node": "^20.10.0",
+    "@typescript-eslint/eslint-plugin": "^5.61.0",
+    "@typescript-eslint/parser": "^5.61.0",
+    "eslint": "^8.54.0",
+    "eslint-config-prettier": "^9.0.0",
+    "eslint-config-standard-with-typescript": "^37.0.0",
+    "eslint-plugin-import": "^2.29.0",
+    "eslint-plugin-n": "^16.3.1",
+    "eslint-plugin-promise": "^6.0.0",
+    "eslint-plugin-simple-import-sort": "^10.0.0",
+    "typescript": "^5.3.2"
+  }
+}

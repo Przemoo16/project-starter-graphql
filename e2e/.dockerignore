@@ -1,0 +1,9 @@
+*
+
+!tests/
+
+!.eslintrc.cjs
+!package.json
+!playwright.config.ts
+!tsconfig.json
+!yarn.lock

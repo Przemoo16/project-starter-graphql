@@ -1,7 +1,8 @@
 COMPOSE_DEV := docker compose -f compose.yaml
-COMPOSE_TEST := docker compose -f compose.test.yaml --env-file .env.test
+COMPOSE_TEST := docker compose -f compose.test.yaml --env-file .env --env-file .env.test
+COMPOSE_E2E := docker compose -f compose.e2e.yaml --env-file .env --env-file .env.e2e
 
-.PHONY: confirm-email distclean integration-test-backend lint setup unit-test-backend unit-test-backend-dev unit-test-frontend unit-test-frontend-dev
+.PHONY: confirm-email distclean e2e-test integration-test-backend lint setup unit-test-backend unit-test-backend-dev unit-test-frontend unit-test-frontend-dev
 
 confirm-email:
 	$(COMPOSE_DEV) exec --no-TTY db psql --username=postgres postgres -c "UPDATE public.user SET confirmed_email=TRUE WHERE email='$(EMAIL)';"
@@ -9,6 +10,13 @@ confirm-email:
 distclean:
 	$(COMPOSE_DEV) down --rmi local --volumes --remove-orphans
 	$(COMPOSE_TEST) down --rmi local --volumes --remove-orphans
+	$(COMPOSE_E2E) down --rmi local --volumes --remove-orphans
+
+e2e-test:
+	$(COMPOSE_E2E) run --no-TTY --rm e2e; \
+	exit_status=$$?; \
+	$(COMPOSE_E2E) down; \
+	exit $$exit_status
 
 integration-test-backend:
 	$(COMPOSE_TEST) run --no-TTY --rm backend-test pytest tests/integration; \

@@ -4,8 +4,6 @@
     "target": "ES2022",
     "module": "ES2022",
     "lib": ["es2022", "DOM", "WebWorker", "DOM.Iterable"],
-    "jsx": "react-jsx",
-    "jsxImportSource": "@builder.io/qwik",
     "strict": true,
     "forceConsistentCasingInFileNames": true,
     "resolveJsonModule": true,
@@ -16,18 +14,9 @@
     "isolatedModules": true,
     "outDir": "tmp",
     "noEmit": true,
-    "types": ["node", "vite/client"],
-    "paths": {
-      "~/*": ["./src/*"]
-    }
+    "types": ["node"],
+    "paths": {}
   },
   "files": ["./.eslintrc.cjs"],
-  "include": [
-    "./adapters",
-    "./src",
-    "./*.d.ts",
-    "./*.config.ts",
-    "./*.config.js",
-    "./codegen.ts"
-  ]
+  "include": ["./tests", "./*.config.ts"]
 }

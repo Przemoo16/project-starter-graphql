@@ -16,8 +16,7 @@ repos:
       - id: detect-private-key
         exclude: |
           (?x)^(
-            .env.template|
-            .env.test
+            .env.template
           )$|
           ^backend/tests/
       - id: end-of-file-fixer
@@ -64,34 +63,34 @@ repos:
       - id: bashate
   - repo: local
     hooks:
-      - id: mypy-backend
-        name: mypy (backend)
+      - id: backend
+        name: backend
         entry: docker compose run --no-TTY --rm --no-deps backend mypy .
         language: system
         files: ^backend/
         types: [python]
         require_serial: true
         pass_filenames: false
-      - id: mypy-infrastructure
-        name: mypy (infrastructure)
+      - id: infrastructure
+        name: infrastructure
         entry: ./infrastructure/venv/bin/python -m mypy
         language: system
         files: ^infrastructure/
         types: [python]
         require_serial: true
-      - id: eslint-frontend
-        name: eslint (frontend)
-        entry: docker compose run --no-TTY --rm --no-deps frontend yarn run eslint
+      - id: frontend
+        name: frontend
+        entry: docker compose run --no-TTY --rm --no-deps frontend yarn run lint
         language: system
         files: ^frontend/
         types_or: [javascript, jsx, ts, tsx]
         require_serial: true
         pass_filenames: false
-      - id: typescript-frontend
-        name: typescript (frontend)
-        entry: docker compose run --no-TTY --rm --no-deps frontend yarn run tsc
+      - id: e2e
+        name: e2e
+        entry: docker compose -f compose.e2e.yaml run --no-TTY --rm --no-deps e2e yarn run lint
         language: system
-        files: ^frontend/
+        files: ^e2e/
         types_or: [javascript, jsx, ts, tsx]
         require_serial: true
         pass_filenames: false
