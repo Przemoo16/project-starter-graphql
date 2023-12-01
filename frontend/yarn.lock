@@ -1237,10 +1237,10 @@
     unist-util-visit "^4.0.0"
     vfile "^5.0.0"
 
-"@modular-forms/qwik@^0.21.0":
-  version "0.21.1"
-  resolved "https://registry.yarnpkg.com/@modular-forms/qwik/-/qwik-0.21.1.tgz#c36786bdaf43227823cc1fbdb01dec4d5b024ea1"
-  integrity sha512-Zj6vBy/wUp7eVfufgBZCAvWGUIH0+2K7MacTC5giwbJQJqSlg+kaYWTlA8cIGLl0z4laYBsD+FVZGna/h5RsIw==
+"@modular-forms/qwik@^0.21.2":
+  version "0.21.2"
+  resolved "https://registry.yarnpkg.com/@modular-forms/qwik/-/qwik-0.21.2.tgz#7e603c09acc24434c5ec89ea04de71a171ddcddf"
+  integrity sha512-oz+78uZPhg422wyF3UitgzjXakJ+KuqiyvYTlZpn9+R07eJPs9xpVQ+9zQLnbFrNnGWC5zNEj8wyRMruk+lLyQ==
 
 "@nodelib/fs.scandir@2.1.5":
   version "2.1.5"
