@@ -21,6 +21,11 @@ export default defineConfig(() => {
       port: 80,
       strictPort: true,
     },
+    dev: {
+      headers: {
+        'Cache-Control': 'public, max-age=0',
+      },
+    },
     preview: {
       headers: {
         'Cache-Control': 'public, max-age=600',
