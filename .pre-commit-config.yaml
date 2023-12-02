@@ -61,6 +61,7 @@ repos:
     rev: 2.1.1
     hooks:
       - id: bashate
+        entry: bashate --error .
   - repo: local
     hooks:
       - id: backend

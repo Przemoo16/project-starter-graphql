@@ -25,7 +25,7 @@ from backend.services.user.operations.types import (
 _logger = logging.getLogger(__name__)
 
 
-_EMAIL_CONFIRMATION_TOKEN_TYPE = "email-confirmation"  # nosec
+_EMAIL_CONFIRMATION_TOKEN_TYPE = "email-confirmation"  # nosec B105
 
 
 @dataclass

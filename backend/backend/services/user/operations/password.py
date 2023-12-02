@@ -32,7 +32,7 @@ from backend.services.user.schemas import PasswordChangeSchema, PasswordResetSch
 _logger = logging.getLogger(__name__)
 
 
-_RESET_PASSWORD_TOKEN_TYPE = "reset-password"  # nosec
+_RESET_PASSWORD_TOKEN_TYPE = "reset-password"  # nosec B105
 
 
 @dataclass

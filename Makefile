@@ -1,6 +1,6 @@
 COMPOSE_DEV := docker compose -f compose.yaml
-COMPOSE_TEST := docker compose -f compose.test.yaml --env-file .env --env-file .env.test
-COMPOSE_E2E := docker compose -f compose.e2e.yaml --env-file .env --env-file .env.e2e
+COMPOSE_TEST := docker compose -f compose.test.yaml --env-file .env.template --env-file .env.test
+COMPOSE_E2E := docker compose -f compose.e2e.yaml --env-file .env.template --env-file .env.e2e
 
 .PHONY: confirm-email distclean e2e-test integration-test-backend lint setup unit-test-backend unit-test-backend-dev unit-test-frontend unit-test-frontend-dev
 

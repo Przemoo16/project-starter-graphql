@@ -78,7 +78,7 @@ async def login_resolver(
     return LoginSuccess(
         access_token=access_token,
         refresh_token=refresh_token_,
-        token_type="Bearer",  # nosec
+        token_type="Bearer",  # nosec B106
     )
 
 
@@ -92,5 +92,5 @@ async def refresh_token_resolver(token: str) -> RefreshTokenResponse:
         raise _RefreshTokenError(msg) from exc
     return RefreshTokenResponse(
         access_token=access_token,
-        token_type="Bearer",  # nosec
+        token_type="Bearer",  # nosec B106
     )
