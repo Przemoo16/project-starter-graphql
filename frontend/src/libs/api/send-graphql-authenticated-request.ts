@@ -20,34 +20,47 @@ export const sendGraphQLAuthenticatedRequest = async (
     onInvalidTokens = async () => {},
   }: AuthenticatedRequestProps,
 ) => {
-  try {
-    const headers = onGetAuthHeader();
-    return await sendGraphQLRequest(onFetch, url, {
+  const sendRequest = async (headers: Record<string, string>) =>
+    await sendGraphQLRequest(onFetch, url, {
       query,
       variables,
       headers,
     });
-  } catch (e) {
-    if (
-      !(e instanceof GraphQLError) ||
-      !e.errors.some(error =>
-        ['Authentication token required', 'Invalid token'].includes(
-          error.message,
-        ),
-      )
-    ) {
-      throw e;
+  const initialHeaders = onGetAuthHeader();
+
+  try {
+    return await sendRequest(initialHeaders);
+  } catch (initialError) {
+    if (!isUnauthorized(initialError)) {
+      throw initialError;
     }
     try {
       await onUnauthorized();
-    } catch (error) {
+    } catch {
       await onInvalidTokens();
     }
-    const headers = onGetAuthHeader();
-    return await sendGraphQLRequest(onFetch, url, {
-      query,
-      variables,
-      headers,
-    });
+
+    const retryHeaders = onGetAuthHeader();
+    try {
+      return await sendRequest(retryHeaders);
+    } catch (retryError) {
+      // Check if despite the refresh token went successfully, there are still token
+      // related errors e.g. user has been deleted
+      if (isUnauthorized(retryError)) {
+        await onInvalidTokens();
+      }
+      throw retryError;
+    }
   }
+};
+
+const isUnauthorized = (error: unknown) => {
+  return (
+    error instanceof GraphQLError &&
+    error.errors.some(error =>
+      ['Authentication token required', 'Invalid token'].includes(
+        error.message,
+      ),
+    )
+  );
 };
