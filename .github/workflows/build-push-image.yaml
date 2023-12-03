@@ -40,7 +40,7 @@ on:
         value: ${{ jobs.build-push-image.outputs.image-tag }}
 jobs:
   build-push-image:
-    name: Build and Push image
+    name: Build and push image
     runs-on: ubuntu-latest
     outputs:
       image-tag: ${{ steps.image-tag.outputs.image-tag }}
@@ -63,7 +63,7 @@ jobs:
           images: ${{ inputs.images }}
           tags: ${{ inputs.tags }}
 
-      - name: Build and Push image
+      - name: Build and push image
         uses: docker/build-push-action@v5
         env:
           CACHE_SCOPE: ${{ inputs.target && format('{0}-{1}', inputs.cache-key, inputs.target) || inputs.cache-key }}

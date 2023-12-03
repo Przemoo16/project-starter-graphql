@@ -24,7 +24,7 @@ jobs:
           echo "proxy-image=$registry/proxy-0620b0f" >> $GITHUB_OUTPUT
 
   build-push-backend-image:
-    name: Build and Push backend image
+    name: Build and push backend image
     needs: [set-context]
 
     permissions:
@@ -45,7 +45,7 @@ jobs:
       registry-password: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
 
   build-push-frontend-image:
-    name: Build and Push frontend image
+    name: Build and push frontend image
     needs: [set-context]
 
     permissions:
@@ -66,7 +66,7 @@ jobs:
       registry-password: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
 
   build-push-proxy-image:
-    name: Build and Push proxy image
+    name: Build and push proxy image
     needs: [set-context]
 
     permissions:

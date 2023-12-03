@@ -17,7 +17,7 @@ jobs:
           echo "image=ghcr.io/przemoo16/project-starter-graphql-backend" >> $GITHUB_OUTPUT
 
   build-push-image:
-    name: Build and Push image
+    name: Build and push image
     needs: [set-context]
 
     permissions:
@@ -35,7 +35,7 @@ jobs:
       registry-username: ${{ github.actor }}
       registry-password: ${{ secrets.GITHUB_TOKEN }}
 
-  test-image-unit:
+  run-unit-tests:
     name: Run unit tests
     needs: [set-context, build-push-image]
 
@@ -47,7 +47,7 @@ jobs:
     with:
       command: BACKEND_IMAGE=${{ needs.set-context.outputs.image }}:${{ needs.build-push-image.outputs.image-tag }} make unit-test-backend
 
-  test-image-integration:
+  run-integration-tests:
     name: Run integration tests
     needs: [set-context, build-push-image]
 

@@ -26,7 +26,7 @@ jobs:
           echo "e2e-image=ghcr.io/przemoo16/project-starter-graphql-e2e" >> $GITHUB_OUTPUT
 
   build-push-backend-image:
-    name: Build and Push backend image
+    name: Build and push backend image
     needs: [set-context]
 
     permissions:
@@ -44,7 +44,7 @@ jobs:
       registry-password: ${{ secrets.GITHUB_TOKEN }}
 
   build-push-frontend-image:
-    name: Build and Push frontend image
+    name: Build and push frontend image
     needs: [set-context]
 
     permissions:
@@ -62,7 +62,7 @@ jobs:
       registry-password: ${{ secrets.GITHUB_TOKEN }}
 
   build-push-proxy-image:
-    name: Build and Push proxy image
+    name: Build and push proxy image
     needs: [set-context]
 
     permissions:
@@ -80,7 +80,7 @@ jobs:
       registry-password: ${{ secrets.GITHUB_TOKEN }}
 
   build-push-e2e-image:
-    name: Build and Push e2e image
+    name: Build and push e2e image
     needs: [set-context]
 
     permissions:
