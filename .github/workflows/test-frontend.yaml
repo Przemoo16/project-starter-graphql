@@ -1,0 +1,59 @@
+name: Test Frontend
+on:
+  pull_request:
+    paths:
+      - frontend/**
+jobs:
+  set-context:
+    name: Set context
+    runs-on: ubuntu-latest
+    outputs:
+      image: ${{ steps.set-variables.outputs.image }}
+
+    steps:
+      - id: set-variables
+        name: Set variables
+        run: |
+          echo "image=ghcr.io/przemoo16/project-starter-graphql-frontend" >> $GITHUB_OUTPUT
+
+  build-push-image:
+    name: Build and Push image
+    needs: [set-context]
+
+    permissions:
+      contents: read
+      packages: write
+
+    uses: ./.github/workflows/build-push-image.yaml
+    with:
+      cache-key: frontend
+      context: "{{defaultContext}}:frontend"
+      target: dev
+      images: ${{ needs.set-context.outputs.image }}
+      registry: ghcr.io
+    secrets:
+      registry-username: ${{ github.actor }}
+      registry-password: ${{ secrets.GITHUB_TOKEN }}
+
+  test-image:
+    name: Run unit tests
+    needs: [set-context, build-push-image]
+
+    permissions:
+      contents: read
+      packages: read
+
+    uses: ./.github/workflows/test-image.yaml
+    with:
+      command: FRONTEND_IMAGE=${{ needs.set-context.outputs.image }}:${{ needs.build-push-image.outputs.image-tag }} make unit-test-frontend
+
+  scan-image:
+    name: Scan image
+    needs: [set-context, build-push-image]
+
+    permissions:
+      packages: read
+
+    uses: ./.github/workflows/scan-image.yaml
+    with:
+      image: ${{ needs.set-context.outputs.image }}:${{ needs.build-push-image.outputs.image-tag }}

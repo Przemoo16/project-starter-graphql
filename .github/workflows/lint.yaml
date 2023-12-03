@@ -18,7 +18,7 @@ jobs:
           echo "frontend-image=ghcr.io/przemoo16/project-starter-graphql-frontend" >> $GITHUB_OUTPUT
           echo "e2e-image=ghcr.io/przemoo16/project-starter-graphql-e2e" >> $GITHUB_OUTPUT
 
-  call-build-push-backend-image:
+  build-push-backend-image:
     name: Build and Push backend image
     needs: [set-context]
 
@@ -37,7 +37,7 @@ jobs:
       registry-username: ${{ github.actor }}
       registry-password: ${{ secrets.GITHUB_TOKEN }}
 
-  call-build-push-frontend-image:
+  build-push-frontend-image:
     name: Build and Push frontend image
     needs: [set-context]
 
@@ -56,7 +56,7 @@ jobs:
       registry-username: ${{ github.actor }}
       registry-password: ${{ secrets.GITHUB_TOKEN }}
 
-  call-build-push-e2e-image:
+  build-push-e2e-image:
     name: Build and Push e2e image
     needs: [set-context]
 
@@ -80,9 +80,9 @@ jobs:
     needs:
       [
         set-context,
-        call-build-push-backend-image,
-        call-build-push-frontend-image,
-        call-build-push-e2e-image,
+        build-push-backend-image,
+        build-push-frontend-image,
+        build-push-e2e-image,
       ]
 
     permissions:
@@ -147,8 +147,8 @@ jobs:
 
       - name: Run linter
         run: |
-          BACKEND_IMAGE=${{ needs.set-context.outputs.backend-image }}:${{ needs.call-build-push-backend-image.outputs.image-tag }} \
-          FRONTEND_IMAGE=${{ needs.set-context.outputs.frontend-image }}:${{ needs.call-build-push-frontend-image.outputs.image-tag }} \
-          E2E_IMAGE=${{ needs.set-context.outputs.e2e-image }}:${{ needs.call-build-push-e2e-image.outputs.image-tag }} \
+          BACKEND_IMAGE=${{ needs.set-context.outputs.backend-image }}:${{ needs.build-push-backend-image.outputs.image-tag }} \
+          FRONTEND_IMAGE=${{ needs.set-context.outputs.frontend-image }}:${{ needs.build-push-frontend-image.outputs.image-tag }} \
+          E2E_IMAGE=${{ needs.set-context.outputs.e2e-image }}:${{ needs.build-push-e2e-image.outputs.image-tag }} \
           make lint
         shell: bash

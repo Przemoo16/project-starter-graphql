@@ -6,9 +6,6 @@ on:
       - frontend/**
       - proxy/**
       - e2e/**
-  push:
-    tags:
-      - "[0-9]+.[0-9]+.[0-9]+"
 jobs:
   set-context:
     name: Set context
@@ -28,7 +25,7 @@ jobs:
           echo "proxy-image=ghcr.io/przemoo16/project-starter-graphql-proxy" >> $GITHUB_OUTPUT
           echo "e2e-image=ghcr.io/przemoo16/project-starter-graphql-e2e" >> $GITHUB_OUTPUT
 
-  call-build-push-backend-image:
+  build-push-backend-image:
     name: Build and Push backend image
     needs: [set-context]
 
@@ -46,7 +43,7 @@ jobs:
       registry-username: ${{ github.actor }}
       registry-password: ${{ secrets.GITHUB_TOKEN }}
 
-  call-build-push-frontend-image:
+  build-push-frontend-image:
     name: Build and Push frontend image
     needs: [set-context]
 
@@ -64,7 +61,7 @@ jobs:
       registry-username: ${{ github.actor }}
       registry-password: ${{ secrets.GITHUB_TOKEN }}
 
-  call-build-push-proxy-image:
+  build-push-proxy-image:
     name: Build and Push proxy image
     needs: [set-context]
 
@@ -82,7 +79,7 @@ jobs:
       registry-username: ${{ github.actor }}
       registry-password: ${{ secrets.GITHUB_TOKEN }}
 
-  call-build-push-e2e-image:
+  build-push-e2e-image:
     name: Build and Push e2e image
     needs: [set-context]
 
@@ -100,16 +97,16 @@ jobs:
       registry-username: ${{ github.actor }}
       registry-password: ${{ secrets.GITHUB_TOKEN }}
 
-  test:
+  run-e2e-tests:
     name: Run e2e tests
     runs-on: ubuntu-latest
     needs:
       [
         set-context,
-        call-build-push-backend-image,
-        call-build-push-frontend-image,
-        call-build-push-proxy-image,
-        call-build-push-e2e-image,
+        build-push-backend-image,
+        build-push-frontend-image,
+        build-push-proxy-image,
+        build-push-e2e-image,
       ]
 
     permissions:
@@ -127,11 +124,11 @@ jobs:
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Run tests
+      - name: Run e2e tests
         run: |
-          BACKEND_IMAGE=${{ needs.set-context.outputs.backend-image }}:${{ needs.call-build-push-backend-image.outputs.image-tag }} \
-          FRONTEND_IMAGE=${{ needs.set-context.outputs.frontend-image }}:${{ needs.call-build-push-frontend-image.outputs.image-tag }} \
-          PROXY_IMAGE=${{ needs.set-context.outputs.proxy-image }}:${{ needs.call-build-push-proxy-image.outputs.image-tag }} \
-          E2E_IMAGE=${{ needs.set-context.outputs.e2e-image }}:${{ needs.call-build-push-e2e-image.outputs.image-tag }} \
+          BACKEND_IMAGE=${{ needs.set-context.outputs.backend-image }}:${{ needs.build-push-backend-image.outputs.image-tag }} \
+          FRONTEND_IMAGE=${{ needs.set-context.outputs.frontend-image }}:${{ needs.build-push-frontend-image.outputs.image-tag }} \
+          PROXY_IMAGE=${{ needs.set-context.outputs.proxy-image }}:${{ needs.build-push-proxy-image.outputs.image-tag }} \
+          E2E_IMAGE=${{ needs.set-context.outputs.e2e-image }}:${{ needs.build-push-e2e-image.outputs.image-tag }} \
           make e2e-test
         shell: bash
