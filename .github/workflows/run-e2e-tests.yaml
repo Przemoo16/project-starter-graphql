@@ -6,6 +6,9 @@ on:
       - frontend/**
       - proxy/**
       - e2e/**
+  push:
+    branches:
+      - main
 jobs:
   set-context:
     name: Set context
