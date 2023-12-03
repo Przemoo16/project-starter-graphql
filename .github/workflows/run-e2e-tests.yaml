@@ -9,6 +9,11 @@ on:
   push:
     branches:
       - main
+    paths:
+      - backend/**
+      - frontend/**
+      - proxy/**
+      - e2e/**
 jobs:
   set-context:
     name: Set context

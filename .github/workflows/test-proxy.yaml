@@ -6,6 +6,8 @@ on:
   push:
     branches:
       - main
+    paths:
+      - proxy/**
 jobs:
   set-context:
     name: Set context
