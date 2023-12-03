@@ -3,6 +3,9 @@ on:
   pull_request:
     paths:
       - proxy/**
+  push:
+    branches:
+      - main
 jobs:
   set-context:
     name: Set context
