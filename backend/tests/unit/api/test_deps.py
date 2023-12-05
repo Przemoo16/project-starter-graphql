@@ -14,7 +14,7 @@ class Request:
 
 
 @pytest.mark.anyio()
-async def test_get_confirmed_user() -> None:
+async def test_get_confirmed_user_returns_user() -> None:
     request = Request(headers={"Authorization": "Bearer test-token"})
     user = create_confirmed_user(id=UUID("6d9c79d6-9641-4746-92d9-2cc9ebdca941"))
     crud = UserCRUD(existing_user=user)
@@ -31,7 +31,7 @@ async def test_get_confirmed_user() -> None:
 
 
 @pytest.mark.anyio()
-async def test_get_confirmed_user_no_request() -> None:
+async def test_get_confirmed_user_raises_exception_if_request_is_missing() -> None:
     request = None
     crud = UserCRUD()
 
@@ -46,7 +46,7 @@ async def test_get_confirmed_user_no_request() -> None:
 
 
 @pytest.mark.anyio()
-async def test_get_confirmed_user_missing_token() -> None:
+async def test_get_confirmed_user_raises_exception_if_token_is_missing() -> None:
     request = Request(headers={})
     crud = UserCRUD()
 
@@ -61,7 +61,7 @@ async def test_get_confirmed_user_missing_token() -> None:
 
 
 @pytest.mark.anyio()
-async def test_get_confirmed_user_invalid_token() -> None:
+async def test_get_confirmed_user_raises_exception_if_token_is_invalid() -> None:
     request = Request(headers={"Authorization": "Bearer test-token"})
     crud = UserCRUD()
 
@@ -73,7 +73,7 @@ async def test_get_confirmed_user_invalid_token() -> None:
 
 
 @pytest.mark.anyio()
-async def test_get_confirmed_user_invalid_token_type() -> None:
+async def test_get_confirmed_user_raises_exception_if_token_has_invalid_type() -> None:
     request = Request(headers={"Authorization": "Bearer test-token"})
     crud = UserCRUD()
 
@@ -88,7 +88,7 @@ async def test_get_confirmed_user_invalid_token_type() -> None:
 
 
 @pytest.mark.anyio()
-async def test_get_confirmed_user_not_found() -> None:
+async def test_get_confirmed_raises_exception_if_user_is_not_found() -> None:
     request = Request(headers={"Authorization": "Bearer test-token"})
     crud = UserCRUD()
 
@@ -103,7 +103,7 @@ async def test_get_confirmed_user_not_found() -> None:
 
 
 @pytest.mark.anyio()
-async def test_get_confirmed_user_email_not_confirmed() -> None:
+async def test_get_confirmed_user_raises_exception_if_user_email_is_not_confirmed() -> None:
     request = Request(headers={"Authorization": "Bearer test-token"})
     crud = UserCRUD(
         existing_user=create_user(id=UUID("6d9c79d6-9641-4746-92d9-2cc9ebdca941"))

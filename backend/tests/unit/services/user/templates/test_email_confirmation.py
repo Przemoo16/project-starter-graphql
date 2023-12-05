@@ -1,7 +1,7 @@
 from backend.services.user.jinja import load_template
 
 
-def test_email_confirmation() -> None:
+def test_email_confirmation_template_renders_link() -> None:
     template = load_template("email-confirmation.html", link="http://test-link")
 
     assert (

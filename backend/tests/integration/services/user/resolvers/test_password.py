@@ -14,7 +14,7 @@ from tests.integration.helpers.user import (
 
 
 @pytest.mark.anyio()
-async def test_recover_password(
+async def test_recover_password_returns_success_message(
     db: AsyncSession, client: AsyncClient, graphql_url: str
 ) -> None:
     await create_user(db, email="test@email.com")
@@ -36,7 +36,7 @@ async def test_recover_password(
 
 
 @pytest.mark.anyio()
-async def test_recover_password_user_not_found(
+async def test_recover_password_returns_success_message_if_user_is_not_found(
     client: AsyncClient, graphql_url: str
 ) -> None:
     query = """
@@ -57,7 +57,7 @@ async def test_recover_password_user_not_found(
 
 
 @pytest.mark.anyio()
-async def test_reset_password(
+async def test_reset_password_returns_success_message(
     db: AsyncSession,
     auth_private_key: str,
     client: AsyncClient,
@@ -90,7 +90,7 @@ async def test_reset_password(
 
 
 @pytest.mark.anyio()
-async def test_reset_password_too_short_password(
+async def test_reset_password_returns_problem_if_password_is_too_short(
     auth_private_key: str, client: AsyncClient, graphql_url: str
 ) -> None:
     token = create_reset_password_token(
@@ -127,7 +127,7 @@ async def test_reset_password_too_short_password(
 
 
 @pytest.mark.anyio()
-async def test_reset_password_invalid_token(
+async def test_reset_password_returns_problem_if_token_is_invalid(
     client: AsyncClient, graphql_url: str
 ) -> None:
     query = """
@@ -159,7 +159,7 @@ async def test_reset_password_invalid_token(
 
 
 @pytest.mark.anyio()
-async def test_reset_password_invalid_token_type(
+async def test_reset_password_returns_problem_if_token_has_invalid_type(
     auth_private_key: str, client: AsyncClient, graphql_url: str
 ) -> None:
     token = create_access_token(
@@ -194,7 +194,7 @@ async def test_reset_password_invalid_token_type(
 
 
 @pytest.mark.anyio()
-async def test_reset_password_user_not_found(
+async def test_reset_password_returns_problem_if_user_is_not_found(
     auth_private_key: str, client: AsyncClient, graphql_url: str
 ) -> None:
     token = create_reset_password_token(
@@ -231,14 +231,16 @@ async def test_reset_password_user_not_found(
 
 
 @pytest.mark.anyio()
-async def test_reset_password_invalid_fingerprint_same_token_used_twice(
+async def test_reset_password_returns_problem_if_token_fingerprint_is_invalid(
     db: AsyncSession,
     auth_private_key: str,
     client: AsyncClient,
     graphql_url: str,
 ) -> None:
     user = await create_user(db)
-    token = create_reset_password_token(auth_private_key, user.id, user.hashed_password)
+    token = create_reset_password_token(
+        auth_private_key, user.id, "invalid-fingerprint"
+    )
     query = """
       mutation ResetPassword($input: ResetPasswordInput!) {
         resetPassword(input: $input) {
@@ -259,7 +261,6 @@ async def test_reset_password_invalid_fingerprint_same_token_used_twice(
         }
     }
 
-    await client.post(graphql_url, json={"query": query, "variables": variables})
     response = await client.post(
         graphql_url, json={"query": query, "variables": variables}
     )
@@ -269,7 +270,7 @@ async def test_reset_password_invalid_fingerprint_same_token_used_twice(
 
 
 @pytest.mark.anyio()
-async def test_change_my_password(
+async def test_change_my_password_returns_success_message(
     db: AsyncSession,
     auth_private_key: str,
     client: AsyncClient,
@@ -304,7 +305,7 @@ async def test_change_my_password(
 
 
 @pytest.mark.anyio()
-async def test_change_my_password_too_short_new_password(
+async def test_change_my_password_returns_problem_if_new_password_is_too_short(
     db: AsyncSession,
     auth_private_key: str,
     client: AsyncClient,
@@ -341,7 +342,7 @@ async def test_change_my_password_too_short_new_password(
 
 
 @pytest.mark.anyio()
-async def test_change_my_password_invalid_password(
+async def test_change_my_password_returns_problem_if_current_password_is_invalid(
     db: AsyncSession,
     auth_private_key: str,
     client: AsyncClient,

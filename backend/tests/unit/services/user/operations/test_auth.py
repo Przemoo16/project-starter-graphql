@@ -47,7 +47,7 @@ def tokens_manager_fixture() -> AuthTokensManager:
 
 
 @pytest.mark.anyio()
-async def test_login_create_tokens(password_manager: PasswordManager) -> None:
+async def test_login_returns_tokens(password_manager: PasswordManager) -> None:
     credentials = CredentialsSchema(email="test@email.com", password="plain_password")
 
     async def create_token(payload: Mapping[str, Any]) -> str:
@@ -72,7 +72,7 @@ async def test_login_create_tokens(password_manager: PasswordManager) -> None:
 
 
 @pytest.mark.anyio()
-async def test_login_update_password_hash(
+async def test_login_updates_password_hash_if_needed(
     password_manager: PasswordManager, tokens_manager: AuthTokensManager
 ) -> None:
     credentials = CredentialsSchema(email="test@email.com", password="plain_password")
@@ -92,7 +92,7 @@ async def test_login_update_password_hash(
 
 
 @pytest.mark.anyio()
-async def test_login_do_not_update_password_hash(
+async def test_login_does_not_update_password_hash_if_not_needed(
     password_manager: PasswordManager, tokens_manager: AuthTokensManager
 ) -> None:
     credentials = CredentialsSchema(email="test@email.com", password="plain_password")
@@ -112,7 +112,7 @@ async def test_login_do_not_update_password_hash(
 
 
 @pytest.mark.anyio()
-async def test_login_update_last_login(
+async def test_login_updates_user_last_login(
     password_manager: PasswordManager, tokens_manager: AuthTokensManager
 ) -> None:
     credentials = CredentialsSchema(email="test@email.com", password="plain_password")
@@ -125,7 +125,7 @@ async def test_login_update_last_login(
 
 
 @pytest.mark.anyio()
-async def test_login_user_not_found(
+async def test_login_raises_exception_if_user_is_not_found(
     password_manager: PasswordManager, tokens_manager: AuthTokensManager
 ) -> None:
     credentials = CredentialsSchema(email="test@email.com", password="plain_password")
@@ -136,7 +136,7 @@ async def test_login_user_not_found(
 
 
 @pytest.mark.anyio()
-async def test_login_user_not_found_password_hasher_called(
+async def test_login_calls_password_hasher_if_user_is_not_found(
     password_manager: PasswordManager, tokens_manager: AuthTokensManager
 ) -> None:
     credentials = CredentialsSchema(email="test@email.com", password="plain_password")
@@ -156,7 +156,7 @@ async def test_login_user_not_found_password_hasher_called(
 
 
 @pytest.mark.anyio()
-async def test_login_user_found_password_hasher_not_called(
+async def test_login_does_not_call_password_hasher_if_user_is_found(
     password_manager: PasswordManager, tokens_manager: AuthTokensManager
 ) -> None:
     credentials = CredentialsSchema(email="test@email.com", password="plain_password")
@@ -176,7 +176,7 @@ async def test_login_user_found_password_hasher_not_called(
 
 
 @pytest.mark.anyio()
-async def test_login_invalid_password(
+async def test_login_raises_exception_if_password_is_invalid(
     password_manager: PasswordManager, tokens_manager: AuthTokensManager
 ) -> None:
     credentials = CredentialsSchema(email="test@email.com", password="plain_password")
@@ -192,7 +192,7 @@ async def test_login_invalid_password(
 
 
 @pytest.mark.anyio()
-async def test_login_user_email_not_confirmed(
+async def test_login_raises_exception_if_user_email_is_not_confirmed(
     password_manager: PasswordManager, tokens_manager: AuthTokensManager
 ) -> None:
     credentials = CredentialsSchema(email="test@email.com", password="plain_password")
@@ -203,7 +203,7 @@ async def test_login_user_email_not_confirmed(
 
 
 @pytest.mark.anyio()
-async def test_get_confirmed_user_from_headers() -> None:
+async def test_get_confirmed_user_from_headers_returns_user() -> None:
     headers = {"Authorization": "Bearer test-token"}
 
     async def read_token(_: str) -> dict[str, str]:
@@ -224,7 +224,7 @@ async def test_get_confirmed_user_from_headers() -> None:
 
 
 @pytest.mark.anyio()
-async def test_get_confirmed_user_from_headers_missing_token() -> None:
+async def test_get_confirmed_user_from_headers_raises_exception_if_token_is_missing() -> None:
     headers: dict[str, str] = {}
 
     async def read_token(_: str) -> dict[str, str]:
@@ -240,7 +240,7 @@ async def test_get_confirmed_user_from_headers_missing_token() -> None:
 
 
 @pytest.mark.anyio()
-async def test_get_confirmed_user_from_headers_invalid_token() -> None:
+async def test_get_confirmed_user_from_headers_raises_exception_if_token_is_invalid() -> None:
     headers = {"Authorization": "Bearer test-token"}
 
     async def read_token(_: str) -> dict[str, str]:
@@ -253,7 +253,7 @@ async def test_get_confirmed_user_from_headers_invalid_token() -> None:
 
 
 @pytest.mark.anyio()
-async def test_get_confirmed_user_from_headers_invalid_token_type() -> None:
+async def test_get_confirmed_user_from_headers_raises_exception_if_token_has_invalid_type() -> None:
     headers = {"Authorization": "Bearer test-token"}
 
     async def read_token(_: str) -> dict[str, str]:
@@ -269,7 +269,7 @@ async def test_get_confirmed_user_from_headers_invalid_token_type() -> None:
 
 
 @pytest.mark.anyio()
-async def test_get_confirmed_user_from_headers_user_not_found() -> None:
+async def test_get_confirmed_user_from_headers_raises_exception_if_user_is_not_found() -> None:
     headers = {"Authorization": "Bearer test-token"}
 
     async def read_token(_: str) -> dict[str, str]:
@@ -285,7 +285,7 @@ async def test_get_confirmed_user_from_headers_user_not_found() -> None:
 
 
 @pytest.mark.anyio()
-async def test_get_confirmed_user_from_headers_user_email_not_confirmed() -> None:
+async def test_get_confirmed_user_from_headers_raises_exception_if_user_email_is_no_confirmed() -> None:
     headers = {"Authorization": "Bearer test-token"}
 
     async def read_token(_: str) -> dict[str, str]:
@@ -303,7 +303,7 @@ async def test_get_confirmed_user_from_headers_user_email_not_confirmed() -> Non
 
 
 @pytest.mark.anyio()
-async def test_refresh_token() -> None:
+async def test_refresh_token_returns_new_access_token() -> None:
     token = "test-token"
 
     async def read_token(_: str) -> dict[str, str]:
@@ -321,7 +321,7 @@ async def test_refresh_token() -> None:
 
 
 @pytest.mark.anyio()
-async def test_refresh_token_invalid_token() -> None:
+async def test_refresh_token_raises_exception_if_token_is_invalid() -> None:
     token = "test-token"
 
     async def read_token(_: str) -> dict[str, str]:
@@ -332,7 +332,7 @@ async def test_refresh_token_invalid_token() -> None:
 
 
 @pytest.mark.anyio()
-async def test_refresh_token_invalid_token_type() -> None:
+async def test_refresh_token_raises_exception_if_token_has_invalid_type() -> None:
     token = "test-token"
 
     async def read_token(_: str) -> dict[str, str]:

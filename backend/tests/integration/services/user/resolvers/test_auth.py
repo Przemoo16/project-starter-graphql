@@ -13,7 +13,9 @@ from tests.integration.helpers.user import (
 
 
 @pytest.mark.anyio()
-async def test_login(db: AsyncSession, client: AsyncClient, graphql_url: str) -> None:
+async def test_login_returns_tokens(
+    db: AsyncSession, client: AsyncClient, graphql_url: str
+) -> None:
     await create_confirmed_user(
         db, email="test@email.com", hashed_password=hash_password("plain_password")
     )
@@ -46,7 +48,9 @@ async def test_login(db: AsyncSession, client: AsyncClient, graphql_url: str) ->
 
 
 @pytest.mark.anyio()
-async def test_login_user_not_found(client: AsyncClient, graphql_url: str) -> None:
+async def test_login_returns_problem_if_user_is_not_found(
+    client: AsyncClient, graphql_url: str
+) -> None:
     query = """
       mutation Login($input: LoginInput!) {
         login(input: $input) {
@@ -76,7 +80,7 @@ async def test_login_user_not_found(client: AsyncClient, graphql_url: str) -> No
 
 
 @pytest.mark.anyio()
-async def test_login_invalid_password(
+async def test_login_returns_problem_if_password_is_invalid(
     db: AsyncSession, client: AsyncClient, graphql_url: str
 ) -> None:
     await create_confirmed_user(
@@ -111,7 +115,7 @@ async def test_login_invalid_password(
 
 
 @pytest.mark.anyio()
-async def test_login_user_email_not_confirmed(
+async def test_login_returns_problem_if_user_email_is_not_confirmed(
     db: AsyncSession, client: AsyncClient, graphql_url: str
 ) -> None:
     await create_user(
@@ -146,7 +150,7 @@ async def test_login_user_email_not_confirmed(
 
 
 @pytest.mark.anyio()
-async def test_refresh_token(
+async def test_refresh_token_returns_new_access_token(
     auth_private_key: str, client: AsyncClient, graphql_url: str
 ) -> None:
     token = create_refresh_token(
@@ -172,7 +176,7 @@ async def test_refresh_token(
 
 
 @pytest.mark.anyio()
-async def test_refresh_token_invalid_token(
+async def test_refresh_token_returns_error_if_token_is_invalid(
     client: AsyncClient, graphql_url: str
 ) -> None:
     query = """
@@ -193,7 +197,7 @@ async def test_refresh_token_invalid_token(
 
 
 @pytest.mark.anyio()
-async def test_refresh_token_invalid_token_type(
+async def test_refresh_token_returns_error_if_token_has_invalid_type(
     auth_private_key: str, client: AsyncClient, graphql_url: str
 ) -> None:
     token = create_access_token(

@@ -47,6 +47,9 @@ ignore = [
 "__init__.py" = [
   "F401", # unused-import
 ]
+"**/tests/**/*.py" = [
+  "E501", # line-too-long
+]
 
 [tool.mypy]
 ignore_missing_imports = true

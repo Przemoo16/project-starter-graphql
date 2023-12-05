@@ -73,7 +73,9 @@ async def test_read_one(crud: DummyCRUD, db: AsyncSession) -> None:
 
 
 @pytest.mark.anyio()
-async def test_read_one_object_not_found(crud: DummyCRUD, db: AsyncSession) -> None:
+async def test_read_one_raises_exception_if_object_is_not_found(
+    crud: DummyCRUD, db: AsyncSession
+) -> None:
     await save_to_db(db, Dummy(id=1))
     filters = DummyFilters(id=2)
 

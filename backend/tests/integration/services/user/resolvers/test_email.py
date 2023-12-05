@@ -12,7 +12,7 @@ from tests.integration.helpers.user import (
 
 
 @pytest.mark.anyio()
-async def test_confirm_email(
+async def test_confirm_email_returns_success_message(
     db: AsyncSession,
     auth_private_key: str,
     client: AsyncClient,
@@ -40,7 +40,7 @@ async def test_confirm_email(
 
 
 @pytest.mark.anyio()
-async def test_confirm_email_invalid_token(
+async def test_confirm_email_returns_problem_if_token_is_invalid(
     client: AsyncClient, graphql_url: str
 ) -> None:
     query = """
@@ -67,7 +67,7 @@ async def test_confirm_email_invalid_token(
 
 
 @pytest.mark.anyio()
-async def test_confirm_email_invalid_token_type(
+async def test_confirm_email_returns_problem_if_token_has_invalid_type(
     auth_private_key: str, client: AsyncClient, graphql_url: str
 ) -> None:
     token = create_access_token(
@@ -97,7 +97,7 @@ async def test_confirm_email_invalid_token_type(
 
 
 @pytest.mark.anyio()
-async def test_confirm_email_user_id_not_found(
+async def test_confirm_email_returns_problem_if_user_with_encoded_id_is_not_found(
     db: AsyncSession, auth_private_key: str, client: AsyncClient, graphql_url: str
 ) -> None:
     user = await create_user(db)
@@ -128,7 +128,7 @@ async def test_confirm_email_user_id_not_found(
 
 
 @pytest.mark.anyio()
-async def test_confirm_email_user_email_not_found(
+async def test_confirm_email_returns_problem_if_user_with_encoded_email_is_not_found(
     db: AsyncSession, auth_private_key: str, client: AsyncClient, graphql_url: str
 ) -> None:
     user = await create_user(db)
@@ -159,7 +159,7 @@ async def test_confirm_email_user_email_not_found(
 
 
 @pytest.mark.anyio()
-async def test_confirm_email_user_email_already_confirmed(
+async def test_confirm_email_returns_problem_if_user_email_is_already_confirmed(
     db: AsyncSession, auth_private_key: str, client: AsyncClient, graphql_url: str
 ) -> None:
     user = await create_confirmed_user(db)
