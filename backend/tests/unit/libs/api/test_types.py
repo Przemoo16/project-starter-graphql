@@ -5,15 +5,17 @@ from backend.libs.api.types import convert_to_dict, from_pydantic_error
 
 
 def test_from_pydantic_error() -> None:
-    class DummyModel(BaseModel):
-        string: str = Field(min_length=5)
+    class Model(BaseModel):
+        full_name: str = Field(min_length=5)
 
     try:
-        DummyModel(string="test")
+        Model(full_name="Test")
     except ValidationError as exc:
         errors = from_pydantic_error(exc)
 
-        assert all(error.message and error.path for error in errors)
+        assert len(errors) == 1
+        assert errors[0].message
+        assert errors[0].path == ["fullName"]
 
     else:
         raise AssertionError()
