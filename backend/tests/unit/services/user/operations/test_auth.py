@@ -48,7 +48,7 @@ def tokens_manager_fixture() -> AuthTokensManager:
 
 
 @pytest.mark.anyio()
-async def test_login_returns_tokens(password_manager: PasswordManager) -> None:
+async def test_login_creates_tokens(password_manager: PasswordManager) -> None:
     credentials = CredentialsSchema(email="test@email.com", password="plain_password")
 
     async def create_token(payload: Mapping[str, Any]) -> str:
@@ -205,7 +205,7 @@ async def test_login_raises_exception_if_user_email_is_not_confirmed(
 
 
 @pytest.mark.anyio()
-async def test_get_confirmed_user_from_headers_returns_user() -> None:
+async def test_get_confirmed_user_from_headers_retrieves_user() -> None:
     headers = {"Authorization": "Bearer test-token"}
 
     async def read_token(_: str) -> dict[str, str]:
@@ -305,7 +305,7 @@ async def test_get_confirmed_user_from_headers_raises_exception_if_user_email_is
 
 
 @pytest.mark.anyio()
-async def test_refresh_token_returns_access_token() -> None:
+async def test_refresh_token_creates_access_token() -> None:
     token = "test-token"
 
     async def read_token(_: str) -> dict[str, str]:

@@ -1,14 +1,9 @@
 import { $, component$, useSignal } from '@builder.io/qwik';
-import {
-  type DocumentHead,
-  type RequestHandler,
-  routeLoader$,
-} from '@builder.io/qwik-city';
+import { type DocumentHead, routeLoader$ } from '@builder.io/qwik-city';
 import { type InitialValues } from '@modular-forms/qwik';
 import { inlineTranslate, useSpeak } from 'qwik-speak';
 
 import { getClientLogoutRedirection } from '~/services/auth/get-client-logout-redirection';
-import { onProtectedRoute } from '~/services/auth/on-protected-route';
 import { getClientRequestSender } from '~/services/requests/get-client-request-sender';
 import { getServerRequestSender } from '~/services/requests/get-server-request-sender';
 import { getClientTokenStorage } from '~/services/tokens/get-client-token-storage';
@@ -29,10 +24,6 @@ export const head: DocumentHead = () => {
   return {
     title: t('head.account.title'),
   };
-};
-
-export const onRequest: RequestHandler = requestEvent => {
-  onProtectedRoute(requestEvent);
 };
 
 export const useUpdateAccountFormLoader = routeLoader$<

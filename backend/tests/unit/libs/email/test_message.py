@@ -5,7 +5,7 @@ from backend.libs.email.message import (
 )
 
 
-def test_build_html_message_returns_html_message() -> None:
+def test_build_html_message_builds_message() -> None:
     message = HTMLMessage(
         subject="Test subject",
         html_message="<html>HTML Message</html>",

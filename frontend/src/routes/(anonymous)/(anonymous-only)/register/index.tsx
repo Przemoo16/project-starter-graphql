@@ -1,13 +1,8 @@
 import { component$ } from '@builder.io/qwik';
-import {
-  type DocumentHead,
-  Link,
-  type RequestHandler,
-} from '@builder.io/qwik-city';
+import { type DocumentHead, Link } from '@builder.io/qwik-city';
 import { inlineTranslate, useSpeak } from 'qwik-speak';
 
 import { RouteURL } from '~/libs/api/route-url';
-import { onOnlyAnonymousRoute } from '~/services/auth/on-only-anonymous-route';
 
 import { RegisterForm } from './register-form';
 
@@ -17,10 +12,6 @@ export const head: DocumentHead = () => {
   return {
     title: t('head.register.title'),
   };
-};
-
-export const onRequest: RequestHandler = requestEvent => {
-  onOnlyAnonymousRoute(requestEvent);
 };
 
 export default component$(() => {
