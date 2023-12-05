@@ -68,7 +68,7 @@ async def test_reset_password(
 
 
 @pytest.mark.anyio()
-async def test_reset_password_invalid_input(
+async def test_reset_password_too_short_password(
     auth_private_key: str, client: AsyncClient, graphql_url: str
 ) -> None:
     token = create_reset_password_token(
@@ -81,7 +81,9 @@ async def test_reset_password_invalid_input(
         resetPassword(input: $input) {
           ... on ResetPasswordFailure {
             problems {
-              __typename
+              ... on InvalidInputProblem {
+                path
+              }
             }
           }
         }
@@ -98,8 +100,8 @@ async def test_reset_password_invalid_input(
         graphql_url, json={"query": query, "variables": variables}
     )
 
-    data = response.json()["data"]["resetPassword"]["problems"][0]
-    assert data["__typename"] == "InvalidInputProblem"
+    problem = response.json()["data"]["resetPassword"]["problems"][0]
+    assert "password" in problem["path"]
 
 
 @pytest.mark.anyio()
@@ -130,8 +132,8 @@ async def test_reset_password_invalid_token(
         graphql_url, json={"query": query, "variables": variables}
     )
 
-    data = response.json()["data"]["resetPassword"]["problems"][0]
-    assert "message" in data
+    problem = response.json()["data"]["resetPassword"]["problems"][0]
+    assert "message" in problem
 
 
 @pytest.mark.anyio()
@@ -167,8 +169,8 @@ async def test_reset_password_user_not_found(
         graphql_url, json={"query": query, "variables": variables}
     )
 
-    data = response.json()["data"]["resetPassword"]["problems"][0]
-    assert "message" in data
+    problem = response.json()["data"]["resetPassword"]["problems"][0]
+    assert "message" in problem
 
 
 @pytest.mark.anyio()
@@ -205,8 +207,8 @@ async def test_reset_password_invalid_fingerprint_same_token_used_twice(
         graphql_url, json={"query": query, "variables": variables}
     )
 
-    data = response.json()["data"]["resetPassword"]["problems"][0]
-    assert "message" in data
+    problem = response.json()["data"]["resetPassword"]["problems"][0]
+    assert "message" in problem
 
 
 @pytest.mark.anyio()
@@ -245,7 +247,7 @@ async def test_change_my_password(
 
 
 @pytest.mark.anyio()
-async def test_change_my_password_invalid_input(
+async def test_change_my_password_too_short_new_password(
     db: AsyncSession,
     auth_private_key: str,
     client: AsyncClient,
@@ -258,7 +260,9 @@ async def test_change_my_password_invalid_input(
         changeMyPassword(input: $input) {
           ... on ChangeMyPasswordFailure {
             problems {
-              __typename
+              ... on InvalidInputProblem {
+                path
+              }
             }
           }
         }
@@ -275,8 +279,8 @@ async def test_change_my_password_invalid_input(
         graphql_url, json={"query": query, "variables": variables}, headers=auth_header
     )
 
-    data = response.json()["data"]["changeMyPassword"]["problems"][0]
-    assert data["__typename"] == "InvalidInputProblem"
+    problem = response.json()["data"]["changeMyPassword"]["problems"][0]
+    assert "newPassword" in problem["path"]
 
 
 @pytest.mark.anyio()
@@ -314,5 +318,5 @@ async def test_change_my_password_invalid_password(
         graphql_url, json={"query": query, "variables": variables}, headers=auth_header
     )
 
-    data = response.json()["data"]["changeMyPassword"]["problems"][0]
-    assert "message" in data
+    problem = response.json()["data"]["changeMyPassword"]["problems"][0]
+    assert "message" in problem

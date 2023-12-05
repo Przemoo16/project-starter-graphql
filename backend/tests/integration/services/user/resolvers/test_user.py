@@ -42,13 +42,15 @@ async def test_create_user(client: AsyncClient, graphql_url: str) -> None:
 
 
 @pytest.mark.anyio()
-async def test_create_user_invalid_input(client: AsyncClient, graphql_url: str) -> None:
+async def test_create_user_invalid_email(client: AsyncClient, graphql_url: str) -> None:
     query = """
       mutation CreateUser($input: UserCreateInput!) {
         createUser(input: $input) {
           ... on CreateUserFailure {
             problems {
-              __typename
+              ... on InvalidInputProblem {
+                path
+              }
             }
           }
         }
@@ -66,8 +68,107 @@ async def test_create_user_invalid_input(client: AsyncClient, graphql_url: str) 
         graphql_url, json={"query": query, "variables": variables}
     )
 
-    data = response.json()["data"]["createUser"]["problems"][0]
-    assert data["__typename"] == "InvalidInputProblem"
+    problem = response.json()["data"]["createUser"]["problems"][0]
+    assert "email" in problem["path"]
+
+
+@pytest.mark.anyio()
+async def test_create_user_too_short_password(
+    client: AsyncClient, graphql_url: str
+) -> None:
+    query = """
+      mutation CreateUser($input: UserCreateInput!) {
+        createUser(input: $input) {
+          ... on CreateUserFailure {
+            problems {
+              ... on InvalidInputProblem {
+                path
+              }
+            }
+          }
+        }
+      }
+    """
+    variables = {
+        "input": {
+            "email": "test@email.com",
+            "password": "p",
+            "fullName": "Test User",
+        }
+    }
+
+    response = await client.post(
+        graphql_url, json={"query": query, "variables": variables}
+    )
+
+    problem = response.json()["data"]["createUser"]["problems"][0]
+    assert "password" in problem["path"]
+
+
+@pytest.mark.anyio()
+async def test_create_user_too_short_full_name(
+    client: AsyncClient, graphql_url: str
+) -> None:
+    query = """
+      mutation CreateUser($input: UserCreateInput!) {
+        createUser(input: $input) {
+          ... on CreateUserFailure {
+            problems {
+              ... on InvalidInputProblem {
+                path
+              }
+            }
+          }
+        }
+      }
+    """
+    variables = {
+        "input": {
+            "email": "test@email.com",
+            "password": "plain_password",
+            "fullName": "",
+        }
+    }
+
+    response = await client.post(
+        graphql_url, json={"query": query, "variables": variables}
+    )
+
+    problem = response.json()["data"]["createUser"]["problems"][0]
+    assert "fullName" in problem["path"]
+
+
+@pytest.mark.anyio()
+async def test_create_user_too_long_full_name(
+    client: AsyncClient, graphql_url: str
+) -> None:
+    query = """
+      mutation CreateUser($input: UserCreateInput!) {
+        createUser(input: $input) {
+          ... on CreateUserFailure {
+            problems {
+              ... on InvalidInputProblem {
+                path
+              }
+            }
+          }
+        }
+      }
+    """
+    variables = {
+        "input": {
+            "email": "test@email.com",
+            "password": "plain_password",
+            "fullName": "T" * 129,
+        }
+    }
+
+    response = await client.post(
+        graphql_url, json={"query": query, "variables": variables}
+    )
+
+    problem = response.json()["data"]["createUser"]["problems"][0]
+    assert "fullName" in problem["path"]
 
 
 @pytest.mark.anyio()
@@ -100,8 +201,8 @@ async def test_create_user_already_exists(
         graphql_url, json={"query": query, "variables": variables}
     )
 
-    data = response.json()["data"]["createUser"]["problems"][0]
-    assert "message" in data
+    problem = response.json()["data"]["createUser"]["problems"][0]
+    assert "message" in problem
 
 
 @pytest.mark.anyio()
@@ -168,7 +269,7 @@ async def test_update_me(
 
 
 @pytest.mark.anyio()
-async def test_update_me_invalid_input(
+async def test_update_me_too_short_full_name(
     db: AsyncSession,
     auth_private_key: str,
     client: AsyncClient,
@@ -181,7 +282,9 @@ async def test_update_me_invalid_input(
         updateMe(input: $input) {
           ... on UpdateMeFailure {
             problems {
-              __typename
+              ... on InvalidInputProblem {
+                path
+              }
             }
           }
         }
@@ -197,8 +300,44 @@ async def test_update_me_invalid_input(
         graphql_url, json={"query": query, "variables": variables}, headers=auth_header
     )
 
-    data = response.json()["data"]["updateMe"]["problems"][0]
-    assert data["__typename"] == "InvalidInputProblem"
+    problem = response.json()["data"]["updateMe"]["problems"][0]
+    assert "fullName" in problem["path"]
+
+
+@pytest.mark.anyio()
+async def test_update_me_too_long_full_name(
+    db: AsyncSession,
+    auth_private_key: str,
+    client: AsyncClient,
+    graphql_url: str,
+) -> None:
+    user = await create_confirmed_user(db)
+    auth_header = create_auth_header(auth_private_key, user.id)
+    query = """
+      mutation UpdateMe($input: UpdateMeInput!) {
+        updateMe(input: $input) {
+          ... on UpdateMeFailure {
+            problems {
+              ... on InvalidInputProblem {
+                path
+              }
+            }
+          }
+        }
+      }
+    """
+    variables = {
+        "input": {
+            "fullName": "T" * 129,
+        }
+    }
+
+    response = await client.post(
+        graphql_url, json={"query": query, "variables": variables}, headers=auth_header
+    )
+
+    problem = response.json()["data"]["updateMe"]["problems"][0]
+    assert "fullName" in problem["path"]
 
 
 @pytest.mark.anyio()

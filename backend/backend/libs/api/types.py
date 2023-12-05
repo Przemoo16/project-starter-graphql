@@ -3,6 +3,7 @@ from typing import Any
 
 import strawberry
 from pydantic import ValidationError
+from pydantic.alias_generators import to_camel
 
 from backend.libs.types.dataclass import Dataclass
 
@@ -21,7 +22,7 @@ class InvalidInputProblem(Problem):
 def from_pydantic_error(exc: ValidationError) -> list[InvalidInputProblem]:
     return [
         InvalidInputProblem(
-            message=error["msg"], path=[str(loc) for loc in error["loc"]]
+            message=error["msg"], path=[to_camel(str(loc)) for loc in error["loc"]]
         )
         for error in exc.errors()
     ]

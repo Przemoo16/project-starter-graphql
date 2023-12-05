@@ -70,8 +70,8 @@ async def test_login_user_not_found(client: AsyncClient, graphql_url: str) -> No
         graphql_url, json={"query": query, "variables": variables}
     )
 
-    data = response.json()["data"]["login"]["problems"][0]
-    assert "message" in data
+    problem = response.json()["data"]["login"]["problems"][0]
+    assert "message" in problem
 
 
 @pytest.mark.anyio()
@@ -105,8 +105,8 @@ async def test_login_invalid_password(
         graphql_url, json={"query": query, "variables": variables}
     )
 
-    data = response.json()["data"]["login"]["problems"][0]
-    assert "message" in data
+    problem = response.json()["data"]["login"]["problems"][0]
+    assert "message" in problem
 
 
 @pytest.mark.anyio()
@@ -140,8 +140,8 @@ async def test_login_user_email_not_confirmed(
         graphql_url, json={"query": query, "variables": variables}
     )
 
-    data = response.json()["data"]["login"]["problems"][0]
-    assert "message" in data
+    problem = response.json()["data"]["login"]["problems"][0]
+    assert "message" in problem
 
 
 @pytest.mark.anyio()

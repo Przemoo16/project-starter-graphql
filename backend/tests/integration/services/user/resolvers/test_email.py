@@ -61,8 +61,8 @@ async def test_confirm_email_invalid_token(
         graphql_url, json={"query": query, "variables": variables}
     )
 
-    data = response.json()["data"]["confirmEmail"]["problems"][0]
-    assert "message" in data
+    problem = response.json()["data"]["confirmEmail"]["problems"][0]
+    assert "message" in problem
 
 
 @pytest.mark.anyio()
@@ -91,8 +91,8 @@ async def test_confirm_email_user_not_found(
         graphql_url, json={"query": query, "variables": variables}
     )
 
-    data = response.json()["data"]["confirmEmail"]["problems"][0]
-    assert "message" in data
+    problem = response.json()["data"]["confirmEmail"]["problems"][0]
+    assert "message" in problem
 
 
 @pytest.mark.anyio()
@@ -120,5 +120,5 @@ async def test_confirm_email_user_email_already_confirmed(
         graphql_url, json={"query": query, "variables": variables}
     )
 
-    data = response.json()["data"]["confirmEmail"]["problems"][0]
-    assert "message" in data
+    problem = response.json()["data"]["confirmEmail"]["problems"][0]
+    assert "message" in problem
