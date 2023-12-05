@@ -150,7 +150,7 @@ async def test_login_returns_problem_if_user_email_is_not_confirmed(
 
 
 @pytest.mark.anyio()
-async def test_refresh_token_returns_new_access_token(
+async def test_refresh_token_returns_access_token(
     auth_private_key: str, client: AsyncClient, graphql_url: str
 ) -> None:
     token = create_refresh_token(
