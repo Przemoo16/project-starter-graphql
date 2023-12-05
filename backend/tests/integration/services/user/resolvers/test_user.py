@@ -11,7 +11,9 @@ from tests.integration.helpers.user import (
 
 
 @pytest.mark.anyio()
-async def test_create_user(client: AsyncClient, graphql_url: str) -> None:
+async def test_create_user_returns_created_user(
+    client: AsyncClient, graphql_url: str
+) -> None:
     query = """
       mutation CreateUser($input: UserCreateInput!) {
         createUser(input: $input) {
@@ -42,7 +44,9 @@ async def test_create_user(client: AsyncClient, graphql_url: str) -> None:
 
 
 @pytest.mark.anyio()
-async def test_create_user_invalid_email(client: AsyncClient, graphql_url: str) -> None:
+async def test_create_user_returns_problem_if_email_is_invalid(
+    client: AsyncClient, graphql_url: str
+) -> None:
     query = """
       mutation CreateUser($input: UserCreateInput!) {
         createUser(input: $input) {
@@ -73,7 +77,7 @@ async def test_create_user_invalid_email(client: AsyncClient, graphql_url: str) 
 
 
 @pytest.mark.anyio()
-async def test_create_user_too_short_password(
+async def test_create_user_returns_problem_if_password_is_too_short(
     client: AsyncClient, graphql_url: str
 ) -> None:
     query = """
@@ -106,7 +110,7 @@ async def test_create_user_too_short_password(
 
 
 @pytest.mark.anyio()
-async def test_create_user_too_short_full_name(
+async def test_create_user_returns_problem_if_full_name_is_too_short(
     client: AsyncClient, graphql_url: str
 ) -> None:
     query = """
@@ -139,7 +143,7 @@ async def test_create_user_too_short_full_name(
 
 
 @pytest.mark.anyio()
-async def test_create_user_too_long_full_name(
+async def test_create_user_returns_problem_if_full_name_is_too_long(
     client: AsyncClient, graphql_url: str
 ) -> None:
     query = """
@@ -172,7 +176,7 @@ async def test_create_user_too_long_full_name(
 
 
 @pytest.mark.anyio()
-async def test_create_user_already_exists(
+async def test_create_user_returns_problem_if_user_already_exists(
     db: AsyncSession, client: AsyncClient, graphql_url: str
 ) -> None:
     await create_user(db, email="test@email.com")
@@ -206,7 +210,7 @@ async def test_create_user_already_exists(
 
 
 @pytest.mark.anyio()
-async def test_get_me(
+async def test_get_me_returns_user(
     db: AsyncSession,
     auth_private_key: str,
     client: AsyncClient,
@@ -235,7 +239,7 @@ async def test_get_me(
 
 
 @pytest.mark.anyio()
-async def test_update_me(
+async def test_update_me_returns_updated_user(
     db: AsyncSession,
     auth_private_key: str,
     client: AsyncClient,
@@ -269,7 +273,7 @@ async def test_update_me(
 
 
 @pytest.mark.anyio()
-async def test_update_me_too_short_full_name(
+async def test_update_me_returns_problem_if_full_name_is_too_short(
     db: AsyncSession,
     auth_private_key: str,
     client: AsyncClient,
@@ -305,7 +309,7 @@ async def test_update_me_too_short_full_name(
 
 
 @pytest.mark.anyio()
-async def test_update_me_too_long_full_name(
+async def test_update_me_returns_problem_if_full_name_is_too_long(
     db: AsyncSession,
     auth_private_key: str,
     client: AsyncClient,
@@ -341,7 +345,7 @@ async def test_update_me_too_long_full_name(
 
 
 @pytest.mark.anyio()
-async def test_delete_me(
+async def test_delete_me_returns_success_message(
     db: AsyncSession,
     auth_private_key: str,
     client: AsyncClient,

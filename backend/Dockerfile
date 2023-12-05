@@ -22,9 +22,6 @@ RUN apt-get update \
 # Shell has been set up in the parent stage
 # hadolint ignore=DL4006
 RUN curl -sSL https://install.python-poetry.org | python - \
-    # Upgrade setuptools, which is poetry dependency to non-vulnerable version (reported by Trivy)
-    # FIXME: Remove after poetry resolves it on their own
-    && /root/.local/share/pypoetry/venv/bin/pip install "setuptools>=65.5.1" \
     && ln -s /root/.local/bin/poetry /usr/local/bin/poetry \
     && poetry config virtualenvs.create false
 

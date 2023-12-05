@@ -4,7 +4,7 @@ from pydantic import BaseModel, Field, ValidationError
 from backend.libs.api.types import convert_to_dict, from_pydantic_error
 
 
-def test_from_pydantic_error() -> None:
+def test_from_pydantic_error_converts_pydantic_errors_to_problem_type() -> None:
     class Model(BaseModel):
         full_name: str = Field(min_length=5)
 
@@ -21,7 +21,7 @@ def test_from_pydantic_error() -> None:
         raise AssertionError()
 
 
-def test_convert_to_dict() -> None:
+def test_convert_to_dict_converts_dataclass_to_dictionary() -> None:
     @strawberry.type
     class Test:
         field_1: str = strawberry.UNSET

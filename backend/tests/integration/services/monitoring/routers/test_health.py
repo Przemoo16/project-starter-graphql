@@ -7,7 +7,9 @@ from backend.services.monitoring.routers.health import get_health_checks
 
 
 @pytest.mark.anyio()
-async def test_check_health_healthy(client: AsyncClient, rest_url: str) -> None:
+async def test_check_health_returns_healthy_status(
+    client: AsyncClient, rest_url: str
+) -> None:
     response = await client.get(f"{rest_url}/monitoring/health")
 
     assert response.status_code == status.HTTP_200_OK
@@ -18,7 +20,7 @@ async def test_check_health_healthy(client: AsyncClient, rest_url: str) -> None:
 
 
 @pytest.mark.anyio()
-async def test_check_health_unhealthy(
+async def test_check_health_returns_unhealthy_status_if_check_failed(
     app: FastAPI, client: AsyncClient, rest_url: str
 ) -> None:
     async def get_test_health_checks() -> list[HealthCheck]:

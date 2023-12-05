@@ -38,7 +38,7 @@ def password_manager_fixture() -> PasswordManager:
 
 
 @pytest.mark.anyio()
-async def test_recover_password() -> None:
+async def test_recover_password_calls_success_callback() -> None:
     email = "test@email.com"
     crud = UserCRUD(existing_user=create_user(email="test@email.com"))
     callback_called = False
@@ -53,7 +53,7 @@ async def test_recover_password() -> None:
 
 
 @pytest.mark.anyio()
-async def test_recover_password_user_not_found() -> None:
+async def test_recover_password_does_not_call_success_callback_if_user_is_not_found() -> None:
     email = "test@email.com"
     crud = UserCRUD()
     callback_called = False
@@ -67,7 +67,7 @@ async def test_recover_password_user_not_found() -> None:
     assert not callback_called
 
 
-def test_send_reset_password_email() -> None:
+def test_send_reset_password_email_sends_message() -> None:
     message_result = {}
 
     token_data = ResetPasswordTokenData(
@@ -110,7 +110,9 @@ def test_send_reset_password_email() -> None:
 
 
 @pytest.mark.anyio()
-async def test_reset_password(password_manager: PasswordManager) -> None:
+async def test_reset_password_resets_user_password(
+    password_manager: PasswordManager,
+) -> None:
     data = PasswordResetSchema(token="test-token", password="plain_password")
     user = create_user(
         id=UUID("6d9c79d6-9641-4746-92d9-2cc9ebdca941"),
@@ -137,7 +139,9 @@ async def test_reset_password(password_manager: PasswordManager) -> None:
 
 
 @pytest.mark.anyio()
-async def test_reset_password_invalid_token(password_manager: PasswordManager) -> None:
+async def test_reset_password_raises_exception_if_token_is_invalid(
+    password_manager: PasswordManager,
+) -> None:
     data = PasswordResetSchema(token="test-token", password="plain_password")
 
     async def read_token(_: str) -> dict[str, str]:
@@ -150,7 +154,7 @@ async def test_reset_password_invalid_token(password_manager: PasswordManager) -
 
 
 @pytest.mark.anyio()
-async def test_reset_password_invalid_token_type(
+async def test_reset_password_raises_exception_if_token_has_invalid_type(
     password_manager: PasswordManager,
 ) -> None:
     data = PasswordResetSchema(token="test-token", password="plain_password")
@@ -169,7 +173,9 @@ async def test_reset_password_invalid_token_type(
 
 
 @pytest.mark.anyio()
-async def test_reset_password_user_not_found(password_manager: PasswordManager) -> None:
+async def test_reset_password_raises_exception_if_user_is_not_found(
+    password_manager: PasswordManager,
+) -> None:
     data = PasswordResetSchema(token="test-token", password="plain_password")
 
     async def read_token(_: str) -> dict[str, str]:
@@ -186,7 +192,7 @@ async def test_reset_password_user_not_found(password_manager: PasswordManager) 
 
 
 @pytest.mark.anyio()
-async def test_reset_password_invalid_fingerprint(
+async def test_reset_password_raises_exception_if_token_fingerprint_is_invalid(
     password_manager: PasswordManager,
 ) -> None:
     data = PasswordResetSchema(token="test-token", password="plain_password")
@@ -212,7 +218,9 @@ async def test_reset_password_invalid_fingerprint(
 
 
 @pytest.mark.anyio()
-async def test_change_password(password_manager: PasswordManager) -> None:
+async def test_change_password_changes_user_password(
+    password_manager: PasswordManager,
+) -> None:
     user = create_user(hashed_password="hashed_password")
     data = PasswordChangeSchema(
         current_password="plain_password", new_password="new_password"
@@ -230,7 +238,7 @@ async def test_change_password(password_manager: PasswordManager) -> None:
 
 
 @pytest.mark.anyio()
-async def test_change_password_invalid_password(
+async def test_change_password_raises_exception_if_password_is_invalid(
     password_manager: PasswordManager,
 ) -> None:
     user = create_user()

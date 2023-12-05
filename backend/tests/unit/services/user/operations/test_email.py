@@ -20,7 +20,7 @@ from backend.services.user.operations.email import (
 from tests.unit.helpers.user import UserCRUD, create_confirmed_user, create_user
 
 
-def test_send_confirmation_email() -> None:
+def test_send_confirmation_email_sends_message() -> None:
     message_result = {}
 
     token_data = ConfirmationTokenData(
@@ -60,7 +60,7 @@ def test_send_confirmation_email() -> None:
 
 
 @pytest.mark.anyio()
-async def test_confirm_email() -> None:
+async def test_confirm_email_confirms_user_email() -> None:
     token = "test-token"
     user = create_user(
         id=UUID("6d9c79d6-9641-4746-92d9-2cc9ebdca941"),
@@ -83,7 +83,7 @@ async def test_confirm_email() -> None:
 
 
 @pytest.mark.anyio()
-async def test_confirm_email_invalid_token() -> None:
+async def test_confirm_email_raises_exception_if_token_is_invalid() -> None:
     token = "test-token"
 
     async def read_token(_: str) -> dict[str, str]:
@@ -96,7 +96,7 @@ async def test_confirm_email_invalid_token() -> None:
 
 
 @pytest.mark.anyio()
-async def test_confirm_email_invalid_token_type() -> None:
+async def test_confirm_email_raises_exception_if_token_has_invalid_type() -> None:
     token = "test-token"
 
     async def read_token(_: str) -> dict[str, str]:
@@ -113,7 +113,7 @@ async def test_confirm_email_invalid_token_type() -> None:
 
 
 @pytest.mark.anyio()
-async def test_confirm_email_user_id_not_found() -> None:
+async def test_confirm_email_raises_exception_if_user_with_encoded_id_is_not_found() -> None:
     token = "test-token"
 
     async def read_token(_: str) -> dict[str, str]:
@@ -134,7 +134,7 @@ async def test_confirm_email_user_id_not_found() -> None:
 
 
 @pytest.mark.anyio()
-async def test_confirm_email_user_email_not_found() -> None:
+async def test_confirm_email_raises_exception_if_user_with_encoded_email_is_not_found() -> None:
     token = "test-token"
 
     async def read_token(_: str) -> dict[str, str]:
@@ -155,7 +155,7 @@ async def test_confirm_email_user_email_not_found() -> None:
 
 
 @pytest.mark.anyio()
-async def test_confirm_email_user_email_already_confirmed() -> None:
+async def test_confirm_email_raises_exception_if_user_email_is_already_confirmed() -> None:
     token = "test-token"
 
     async def read_token(_: str) -> dict[str, str]:
