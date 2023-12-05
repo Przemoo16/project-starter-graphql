@@ -35,11 +35,11 @@ def hash_password(password: str) -> str:
 
 
 def create_auth_header(key: str, user_id: UUID) -> dict[str, str]:
-    token = _create_access_token(key, user_id)
+    token = create_access_token(key, user_id)
     return {"Authorization": f"Bearer {token}"}
 
 
-def _create_access_token(key: str, user_id: UUID) -> str:
+def create_access_token(key: str, user_id: UUID) -> str:
     payload = {
         "sub": str(user_id),
         "type": "access",

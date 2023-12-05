@@ -4,6 +4,7 @@ import pytest
 
 from tests.integration.conftest import AsyncClient, AsyncSession
 from tests.integration.helpers.user import (
+    create_access_token,
     create_auth_header,
     create_confirmed_user,
     create_reset_password_token,
@@ -17,6 +18,27 @@ async def test_recover_password(
     db: AsyncSession, client: AsyncClient, graphql_url: str
 ) -> None:
     await create_user(db, email="test@email.com")
+    query = """
+      mutation RecoverPassword($email: String!) {
+        recoverPassword(email: $email) {
+          message
+        }
+      }
+    """
+    variables = {"email": "test@email.com"}
+
+    response = await client.post(
+        graphql_url, json={"query": query, "variables": variables}
+    )
+
+    data = response.json()["data"]["recoverPassword"]
+    assert "message" in data
+
+
+@pytest.mark.anyio()
+async def test_recover_password_user_not_found(
+    client: AsyncClient, graphql_url: str
+) -> None:
     query = """
       mutation RecoverPassword($email: String!) {
         recoverPassword(email: $email) {
@@ -124,6 +146,41 @@ async def test_reset_password_invalid_token(
     variables = {
         "input": {
             "token": "invalid-token",
+            "password": "new_password",
+        }
+    }
+
+    response = await client.post(
+        graphql_url, json={"query": query, "variables": variables}
+    )
+
+    problem = response.json()["data"]["resetPassword"]["problems"][0]
+    assert "message" in problem
+
+
+@pytest.mark.anyio()
+async def test_reset_password_invalid_token_type(
+    auth_private_key: str, client: AsyncClient, graphql_url: str
+) -> None:
+    token = create_access_token(
+        auth_private_key, UUID("6d9c79d6-9641-4746-92d9-2cc9ebdca941")
+    )
+    query = """
+      mutation ResetPassword($input: ResetPasswordInput!) {
+        resetPassword(input: $input) {
+          ... on ResetPasswordFailure {
+            problems {
+              ... on InvalidResetPasswordTokenProblem {
+                message
+              }
+            }
+          }
+        }
+      }
+    """
+    variables = {
+        "input": {
+            "token": token,
             "password": "new_password",
         }
     }
