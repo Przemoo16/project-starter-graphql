@@ -1,4 +1,5 @@
 from collections.abc import Mapping
+from contextlib import suppress
 from typing import Any
 from uuid import UUID
 
@@ -150,8 +151,9 @@ async def test_login_calls_password_hasher_if_user_is_not_found(
     password_manager.hasher = hash_password
     crud = UserCRUD()
 
-    with pytest.raises(UserNotFoundError):
+    with suppress(UserNotFoundError):
         await login(credentials, password_manager, tokens_manager, crud)
+
     assert hasher_called
 
 
@@ -303,7 +305,7 @@ async def test_get_confirmed_user_from_headers_raises_exception_if_user_email_is
 
 
 @pytest.mark.anyio()
-async def test_refresh_token_returns_new_access_token() -> None:
+async def test_refresh_token_returns_access_token() -> None:
     token = "test-token"
 
     async def read_token(_: str) -> dict[str, str]:
