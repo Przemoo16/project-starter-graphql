@@ -9,7 +9,7 @@ from backend.libs.security.password import (
 from tests.unit.helpers.async_executor import run_without_executor
 
 
-def test_hash_and_verify_password() -> None:
+def test_hashed_password_is_properly_verified() -> None:
     plain_password = "plain_password"
 
     hashed_password = hash_password(plain_password)
@@ -19,7 +19,7 @@ def test_hash_and_verify_password() -> None:
 
 
 @pytest.mark.anyio()
-async def test_async_hash_and_verify_password() -> None:
+async def test_async_hashed_password_is_properly_verified() -> None:
     plain_password = "plain_password"
 
     hashed_password = await async_hash_password(plain_password, run_without_executor)

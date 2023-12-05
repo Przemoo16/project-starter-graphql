@@ -10,7 +10,7 @@ from backend.libs.security.token import (
 from tests.unit.helpers.async_executor import run_without_executor
 
 
-def test_create_and_read_paseto_token() -> None:
+def test_created_paseto_token_is_properly_read() -> None:
     private_key = (
         b"-----BEGIN PRIVATE KEY-----\n"
         b"MC4CAQAwBQYDK2VwBCIEICT9X3zKdFe6HxcwF1oisi7s0nLxwCTEDfhLfau7Vvsm\n"
@@ -30,7 +30,7 @@ def test_create_and_read_paseto_token() -> None:
     assert "iat" in data
 
 
-def test_read_paseto_raises_exception_if_token_is_invalid() -> None:
+def test_read_paseto_token_raises_exception_if_token_is_invalid() -> None:
     private_key = (
         b"-----BEGIN PRIVATE KEY-----\n"
         b"MC4CAQAwBQYDK2VwBCIEICT9X3zKdFe6HxcwF1oisi7s0nLxwCTEDfhLfau7Vvsm\n"
@@ -49,7 +49,7 @@ def test_read_paseto_raises_exception_if_token_is_invalid() -> None:
 
 
 @pytest.mark.anyio()
-async def test_async_create_and_read_paseto_token() -> None:
+async def test_async_created_paseto_token_is_properly_read() -> None:
     private_key = (
         b"-----BEGIN PRIVATE KEY-----\n"
         b"MC4CAQAwBQYDK2VwBCIEICT9X3zKdFe6HxcwF1oisi7s0nLxwCTEDfhLfau7Vvsm\n"
