@@ -3,7 +3,7 @@ import pytest
 from backend.libs.api.headers import BearerTokenNotFoundError, read_bearer_token
 
 
-def test_read_bearer_token_returns_token() -> None:
+def test_read_bearer_token_retrieves_token() -> None:
     headers = {"Authorization": "Bearer test-token"}
 
     token = read_bearer_token(headers)

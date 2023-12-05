@@ -6,7 +6,7 @@ import { isAuthenticated } from '~/services/user/is-authenticated';
 
 import { REDIRECTION_STATUS_CODE } from './constants';
 
-export const onOnlyAnonymousRoute = (requestEvent: RequestEvent) => {
+export const onAnonymousOnlyRoute = (requestEvent: RequestEvent) => {
   const authenticated = isAuthenticated(
     getServerTokenStorage(requestEvent.cookie),
   );

@@ -63,7 +63,7 @@ async def test_create_and_refresh_refreshes_object(crud: DummyCRUD) -> None:
 
 
 @pytest.mark.anyio()
-async def test_read_one_returns_object(crud: DummyCRUD, db: AsyncSession) -> None:
+async def test_read_one_retrieves_object(crud: DummyCRUD, db: AsyncSession) -> None:
     await save_to_db(db, Dummy(id=1))
     filters = DummyFilters(id=1)
 

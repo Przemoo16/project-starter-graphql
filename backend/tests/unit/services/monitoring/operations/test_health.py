@@ -5,7 +5,7 @@ from backend.services.monitoring.operations.health import HealthCheck, check_hea
 
 
 @pytest.mark.anyio()
-async def test_check_health_returns_healthy_status() -> None:
+async def test_check_health_reports_healthy_status() -> None:
     async def success_check() -> None:
         pass
 
@@ -23,7 +23,7 @@ async def test_check_health_returns_healthy_status() -> None:
 
 
 @pytest.mark.anyio()
-async def test_check_health_returns_unhealthy_status_if_check_failed() -> None:
+async def test_check_health_reports_unhealthy_status_if_check_failed() -> None:
     async def success_check() -> None:
         pass
 
