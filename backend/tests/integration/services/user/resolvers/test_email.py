@@ -97,11 +97,43 @@ async def test_confirm_email_invalid_token_type(
 
 
 @pytest.mark.anyio()
-async def test_confirm_email_user_not_found(
-    auth_private_key: str, client: AsyncClient, graphql_url: str
+async def test_confirm_email_user_id_not_found(
+    db: AsyncSession, auth_private_key: str, client: AsyncClient, graphql_url: str
 ) -> None:
+    user = await create_user(db)
     token = create_email_confirmation_token(
-        auth_private_key, UUID("6d9c79d6-9641-4746-92d9-2cc9ebdca941"), "test@email.com"
+        auth_private_key, UUID("6d9c79d6-9641-4746-92d9-2cc9ebdca941"), user.email
+    )
+    query = """
+      mutation ConfirmEmail($token: String!) {
+        confirmEmail(token: $token) {
+          ... on ConfirmEmailFailure {
+            problems {
+              ... on InvalidEmailConfirmationTokenProblem {
+                message
+              }
+            }
+          }
+        }
+      }
+    """
+    variables = {"token": token}
+
+    response = await client.post(
+        graphql_url, json={"query": query, "variables": variables}
+    )
+
+    problem = response.json()["data"]["confirmEmail"]["problems"][0]
+    assert "message" in problem
+
+
+@pytest.mark.anyio()
+async def test_confirm_email_user_email_not_found(
+    db: AsyncSession, auth_private_key: str, client: AsyncClient, graphql_url: str
+) -> None:
+    user = await create_user(db)
+    token = create_email_confirmation_token(
+        auth_private_key, user.id, "invalid@email.com"
     )
     query = """
       mutation ConfirmEmail($token: String!) {
