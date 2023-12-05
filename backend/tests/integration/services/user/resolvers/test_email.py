@@ -4,6 +4,7 @@ import pytest
 
 from tests.integration.conftest import AsyncClient, AsyncSession
 from tests.integration.helpers.user import (
+    create_access_token,
     create_confirmed_user,
     create_email_confirmation_token,
     create_user,
@@ -56,6 +57,36 @@ async def test_confirm_email_invalid_token(
       }
     """
     variables = {"token": "invalid-token"}
+
+    response = await client.post(
+        graphql_url, json={"query": query, "variables": variables}
+    )
+
+    problem = response.json()["data"]["confirmEmail"]["problems"][0]
+    assert "message" in problem
+
+
+@pytest.mark.anyio()
+async def test_confirm_email_invalid_token_type(
+    auth_private_key: str, client: AsyncClient, graphql_url: str
+) -> None:
+    token = create_access_token(
+        auth_private_key, UUID("6d9c79d6-9641-4746-92d9-2cc9ebdca941")
+    )
+    query = """
+      mutation ConfirmEmail($token: String!) {
+        confirmEmail(token: $token) {
+          ... on ConfirmEmailFailure {
+            problems {
+              ... on InvalidEmailConfirmationTokenProblem {
+                message
+              }
+            }
+          }
+        }
+      }
+    """
+    variables = {"token": token}
 
     response = await client.post(
         graphql_url, json={"query": query, "variables": variables}

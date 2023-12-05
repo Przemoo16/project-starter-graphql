@@ -4,6 +4,7 @@ import pytest
 
 from tests.integration.conftest import AsyncClient, AsyncSession
 from tests.integration.helpers.user import (
+    create_access_token,
     create_confirmed_user,
     create_refresh_token,
     create_user,
@@ -187,5 +188,29 @@ async def test_refresh_token_invalid_token(
         graphql_url, json={"query": query, "variables": variables}
     )
 
-    errors = response.json()["errors"]
-    assert errors[0]["message"] == "Invalid token"
+    error = response.json()["errors"][0]
+    assert error["message"] == "Invalid token"
+
+
+@pytest.mark.anyio()
+async def test_refresh_token_invalid_token_type(
+    auth_private_key: str, client: AsyncClient, graphql_url: str
+) -> None:
+    token = create_access_token(
+        auth_private_key, UUID("6d9c79d6-9641-4746-92d9-2cc9ebdca941")
+    )
+    query = """
+      mutation RefreshToken($token: String!) {
+        refreshToken(token: $token) {
+          accessToken
+        }
+      }
+    """
+    variables = {"token": token}
+
+    response = await client.post(
+        graphql_url, json={"query": query, "variables": variables}
+    )
+
+    error = response.json()["errors"][0]
+    assert error["message"] == "Invalid token"

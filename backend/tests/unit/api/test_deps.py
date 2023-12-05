@@ -4,6 +4,7 @@ from uuid import UUID
 import pytest
 
 from backend.api.deps import UnauthorizedError, get_confirmed_user
+from backend.libs.security.token import InvalidTokenError
 from tests.unit.helpers.user import UserCRUD, create_confirmed_user, create_user
 
 
@@ -65,9 +66,21 @@ async def test_get_confirmed_user_invalid_token() -> None:
     crud = UserCRUD()
 
     async def read_token(_: str) -> dict[str, str]:
+        raise InvalidTokenError
+
+    with pytest.raises(UnauthorizedError, match="Invalid token"):
+        await get_confirmed_user(request, read_token, crud)
+
+
+@pytest.mark.anyio()
+async def test_get_confirmed_user_invalid_token_type() -> None:
+    request = Request(headers={"Authorization": "Bearer test-token"})
+    crud = UserCRUD()
+
+    async def read_token(_: str) -> dict[str, str]:
         return {
             "sub": "6d9c79d6-9641-4746-92d9-2cc9ebdca941",
-            "type": "invalid-token",
+            "type": "invalid-type",
         }
 
     with pytest.raises(UnauthorizedError, match="Invalid token"):

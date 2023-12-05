@@ -103,7 +103,7 @@ async def test_confirm_email_invalid_token_type() -> None:
         return {
             "sub": "6d9c79d6-9641-4746-92d9-2cc9ebdca941",
             "email": "test@email.com",
-            "type": "invalid-token",
+            "type": "invalid-type",
         }
 
     crud = UserCRUD()
