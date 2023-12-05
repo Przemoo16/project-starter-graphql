@@ -13,7 +13,7 @@ def test_unset_type_is_singleton() -> None:
 
 
 @pytest.mark.parametrize(("value", "expected"), [(UNSET, True), (None, False)])
-def test_is_unset(value: Any, expected: bool) -> None:
+def test_is_unset_indicates_if_value_is_unset(value: Any, expected: bool) -> None:
     unset = is_unset(value)
 
     assert unset == expected

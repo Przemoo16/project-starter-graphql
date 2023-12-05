@@ -11,7 +11,7 @@ from tests.integration.conftest import AsyncEngine
     ("debug", "status_code"),
     [(True, status.HTTP_200_OK), (False, status.HTTP_404_NOT_FOUND)],
 )
-async def test_enable_disable_graphiql(
+async def test_graphiql_is_enabled_disabled(
     debug: bool, status_code: int, db_engine: AsyncEngine, graphql_url: str
 ) -> None:
     app = get_local_app(db_engine, debug)
@@ -24,7 +24,7 @@ async def test_enable_disable_graphiql(
 
 @pytest.mark.anyio()
 @pytest.mark.parametrize(("debug", "error"), [(True, False), (False, True)])
-async def test_enable_disable_schema_introspection(
+async def test_schema_introspection_is_enabled_disabled(
     debug: bool, error: bool, db_engine: AsyncEngine, graphql_url: str
 ) -> None:
     app = get_local_app(db_engine, debug)

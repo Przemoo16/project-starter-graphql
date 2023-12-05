@@ -43,7 +43,7 @@ def crud_fixture(db: AsyncSession) -> DummyCRUD:
 
 
 @pytest.mark.anyio()
-async def test_create(crud: DummyCRUD, db: AsyncSession) -> None:
+async def test_create_creates_object(crud: DummyCRUD, db: AsyncSession) -> None:
     data = DummyCreate(id=1, name="Created")
 
     await crud.create(data)
@@ -54,7 +54,7 @@ async def test_create(crud: DummyCRUD, db: AsyncSession) -> None:
 
 
 @pytest.mark.anyio()
-async def test_create_and_refresh(crud: DummyCRUD) -> None:
+async def test_create_and_refresh_refreshes_object(crud: DummyCRUD) -> None:
     data = DummyCreate()
 
     db_obj = await crud.create_and_refresh(data)
@@ -63,7 +63,7 @@ async def test_create_and_refresh(crud: DummyCRUD) -> None:
 
 
 @pytest.mark.anyio()
-async def test_read_one(crud: DummyCRUD, db: AsyncSession) -> None:
+async def test_read_one_returns_object(crud: DummyCRUD, db: AsyncSession) -> None:
     await save_to_db(db, Dummy(id=1))
     filters = DummyFilters(id=1)
 
@@ -84,7 +84,7 @@ async def test_read_one_raises_exception_if_object_is_not_found(
 
 
 @pytest.mark.anyio()
-async def test_update(crud: DummyCRUD, db: AsyncSession) -> None:
+async def test_update_updates_object(crud: DummyCRUD, db: AsyncSession) -> None:
     initial_obj = Dummy(id=1, name="Test", age=25)
     await save_to_db(db, initial_obj)
     data = DummyUpdate(name="Updated")
@@ -108,7 +108,7 @@ async def test_update_expires_object(crud: DummyCRUD) -> None:
 
 
 @pytest.mark.anyio()
-async def test_update_and_refresh(crud: DummyCRUD) -> None:
+async def test_update_and_refresh_refreshes_object(crud: DummyCRUD) -> None:
     data = DummyUpdate()
     obj = Dummy()
 
@@ -118,7 +118,7 @@ async def test_update_and_refresh(crud: DummyCRUD) -> None:
 
 
 @pytest.mark.anyio()
-async def test_delete(crud: DummyCRUD, db: AsyncSession) -> None:
+async def test_delete_deletes_object(crud: DummyCRUD, db: AsyncSession) -> None:
     initial_obj = Dummy(id=1)
     await save_to_db(db, initial_obj)
 
