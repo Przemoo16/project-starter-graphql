@@ -9,7 +9,8 @@ test(`[TitleHead Component]: displays only the app name if the page title is mis
 
   await render(component);
 
-  expect(screen.outerHTML).toContain('<title>Test App</title>');
+  const title = screen.querySelector('title') as HTMLTitleElement;
+  expect(title.innerHTML).toEqual('Test App');
 });
 
 test(`[TitleHead Component]: displays both the app name and the page title`, async () => {
@@ -18,5 +19,6 @@ test(`[TitleHead Component]: displays both the app name and the page title`, asy
 
   await render(component);
 
-  expect(screen.outerHTML).toContain('<title>Test Page | Test App</title>');
+  const title = screen.querySelector('title') as HTMLTitleElement;
+  expect(title.innerHTML).toEqual('Test Page | Test App');
 });

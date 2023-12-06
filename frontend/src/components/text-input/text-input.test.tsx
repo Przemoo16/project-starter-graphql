@@ -23,7 +23,8 @@ test(`[TextInput Component]: doesn't render label`, async () => {
 
   await render(component);
 
-  expect(screen.outerHTML).not.toContain('<label for="test">');
+  const label = screen.querySelector('label[for="test"]') as HTMLLabelElement;
+  expect(label).toBeUndefined();
 });
 
 test(`[TextInput Component]: renders label`, async () => {
@@ -44,7 +45,8 @@ test(`[TextInput Component]: renders label`, async () => {
 
   await render(component);
 
-  expect(screen.outerHTML).toContain('<label for="test">Test Label </label>');
+  const label = screen.querySelector('label[for="test"]') as HTMLLabelElement;
+  expect(label.innerHTML).toContain('Test Label ');
 });
 
 test(`[TextInput Component]: renders required label`, async () => {
@@ -66,9 +68,8 @@ test(`[TextInput Component]: renders required label`, async () => {
 
   await render(component);
 
-  expect(screen.outerHTML).toContain(
-    '<label for="test">Test Label <span>*</span></label>',
-  );
+  const label = screen.querySelector('label[for="test"]') as HTMLLabelElement;
+  expect(label.innerHTML).toContain('Test Label <span>*</span>');
 });
 
 test(`[TextInput Component]: renders input without error`, async () => {
@@ -89,10 +90,12 @@ test(`[TextInput Component]: renders input without error`, async () => {
 
   await render(component);
 
-  expect(screen.outerHTML).toContain(
-    '<input aria-errormessage="test-error" aria-invalid="false" id="test" type="text">',
+  const input = screen.querySelector('#test') as HTMLInputElement;
+  expect(input.outerHTML).toContain(
+    'aria-errormessage="test-error" aria-invalid="false"',
   );
-  expect(screen.outerHTML).not.toContain('<div id="test-error">');
+  const error = screen.querySelector('#test-error') as HTMLDivElement;
+  expect(error).toBeUndefined();
 });
 
 test(`[TextInput Component]: renders input with error`, async () => {
@@ -113,8 +116,10 @@ test(`[TextInput Component]: renders input with error`, async () => {
 
   await render(component);
 
-  expect(screen.outerHTML).toContain(
-    '<input aria-errormessage="test-error" aria-invalid="true" id="test" type="text"><div id="test-error">',
+  const input = screen.querySelector('#test') as HTMLInputElement;
+  expect(input.outerHTML).toContain(
+    'aria-errormessage="test-error" aria-invalid="true"',
   );
-  expect(screen.outerHTML).toContain('<div id="test-error">Test Error</div>');
+  const error = screen.querySelector('#test-error') as HTMLDivElement;
+  expect(error.innerHTML).toEqual('Test Error');
 });

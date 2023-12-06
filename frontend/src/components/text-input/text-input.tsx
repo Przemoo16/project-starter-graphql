@@ -37,8 +37,8 @@ export const TextInput = component$<TextInputProps>(
       <input
         {...props}
         id={name}
-        aria-invalid={!!error}
         aria-errormessage={`${name}-error`}
+        aria-invalid={!!error}
       />
       {error && <div id={`${name}-error`}>{error}</div>}
     </div>
