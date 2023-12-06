@@ -17,13 +17,13 @@ async def create_confirmed_user(db: AsyncSession, **kwargs: Any) -> User:
 
 
 async def create_user(db: AsyncSession, **kwargs: Any) -> User:
-    if "email" not in kwargs:
-        kwargs["email"] = "test_helper_user@email.com"
-    if "hashed_password" not in kwargs:
-        kwargs["hashed_password"] = "test_helper_hashed_password"
-    if "full_name" not in kwargs:
-        kwargs["full_name"] = "Test Helper User"
-    user = User(**kwargs)
+    default_attributes = {
+        "email": "test_helper_user@email.com",
+        "hashed_password": "test_helper_hashed_password",
+        "full_name": "Test Helper User",
+    }
+    user_attributes = default_attributes | kwargs
+    user = User(**user_attributes)
     return await save_to_db(db, user)
 
 
