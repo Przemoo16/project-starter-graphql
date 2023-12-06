@@ -21,7 +21,7 @@ class CRUDStub(Generic[Model, CreateData_contra, UpdateData_contra, Filters_cont
     async def update(self, obj: Model, data: UpdateData_contra) -> None:
         raise NotImplementedError
 
-    async def update_and_refresh(self, obj: Model, data: UpdateData_contra) -> Model:
+    async def update_and_refresh(self, obj: Model, data: UpdateData_contra) -> None:
         raise NotImplementedError
 
     async def delete(self, obj: Model) -> None:

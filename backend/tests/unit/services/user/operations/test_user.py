@@ -85,9 +85,9 @@ async def test_update_user_updates_user() -> None:
     user = create_user_helper(full_name="Test User")
     crud = UserCRUD()
 
-    updated_user = await update_user(user, data, crud)
+    await update_user(user, data, crud)
 
-    assert updated_user.full_name == "Updated User"
+    assert user.full_name == "Updated User"
 
 
 @pytest.mark.anyio()

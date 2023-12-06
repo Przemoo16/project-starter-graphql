@@ -66,8 +66,8 @@ async def login(
 ) -> tuple[str, str]:
     user = await _authenticate_user(credentials, password_manager, crud)
     _validate_user_email_is_confirmed(user)
-    logged_user = await _login_user(user, crud)
-    return await _create_auth_tokens(logged_user.id, tokens_manager)
+    await _login_user(user, crud)
+    return await _create_auth_tokens(user.id, tokens_manager)
 
 
 async def _authenticate_user(
@@ -79,7 +79,7 @@ async def _authenticate_user(
     if updated_password_hash := await _validate_password(
         user, credentials.password, password_manager.validator
     ):
-        user = await _update_password_hash(user, updated_password_hash, crud)
+        await _update_password_hash(user, updated_password_hash, crud)
         _logger.info("Updated password hash for the user %r", user.email)
     return user
 
@@ -112,10 +112,8 @@ async def _validate_password(
 
 async def _update_password_hash(
     user: User, password_hash: str, crud: UserCRUDProtocol
-) -> User:
-    return await crud.update_and_refresh(
-        user, UserUpdateData(hashed_password=password_hash)
-    )
+) -> None:
+    await crud.update_and_refresh(user, UserUpdateData(hashed_password=password_hash))
 
 
 def _validate_user_email_is_confirmed(user: User) -> None:
@@ -124,10 +122,8 @@ def _validate_user_email_is_confirmed(user: User) -> None:
         raise UserEmailNotConfirmedError
 
 
-async def _login_user(user: User, crud: UserCRUDProtocol) -> User:
-    return await crud.update_and_refresh(
-        user, UserUpdateData(last_login=datetime.now(UTC))
-    )
+async def _login_user(user: User, crud: UserCRUDProtocol) -> None:
+    await crud.update_and_refresh(user, UserUpdateData(last_login=datetime.now(UTC)))
 
 
 async def _create_auth_tokens(
