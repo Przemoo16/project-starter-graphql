@@ -64,13 +64,13 @@ async def login(
     tokens_manager: AuthTokensManager,
     crud: UserCRUDProtocol,
 ) -> tuple[str, str]:
-    user = await _authenticate_user(credentials, password_manager, crud)
+    user = await _get_authenticated_user(credentials, password_manager, crud)
     _validate_user_email_is_confirmed(user)
     await _login_user(user, crud)
     return await _create_auth_tokens(user.id, tokens_manager)
 
 
-async def _authenticate_user(
+async def _get_authenticated_user(
     credentials: CredentialsSchema,
     password_manager: PasswordManager,
     crud: UserCRUDProtocol,
