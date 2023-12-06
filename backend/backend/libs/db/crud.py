@@ -49,7 +49,7 @@ class CRUDProtocol(
     async def update(self, obj: Model, data: UpdateData_contra) -> None:
         ...
 
-    async def update_and_refresh(self, obj: Model, data: UpdateData_contra) -> Model:
+    async def update_and_refresh(self, obj: Model, data: UpdateData_contra) -> None:
         ...
 
     async def delete(self, obj: Model) -> None:
@@ -67,7 +67,8 @@ class CRUD(Generic[Model, CreateData_contra, UpdateData_contra, Filters_contra])
 
     async def create_and_refresh(self, data: CreateData_contra) -> Model:
         created_obj = self._create_obj(data)
-        return await self._commit_and_refresh(created_obj)
+        await self._commit_and_refresh(created_obj)
+        return created_obj
 
     def _create_obj(self, data: CreateData_contra) -> Model:
         data_dict = asdict(data)
@@ -85,9 +86,9 @@ class CRUD(Generic[Model, CreateData_contra, UpdateData_contra, Filters_contra])
         updated_obj = self._update_obj(obj, data)
         await self._commit(updated_obj)
 
-    async def update_and_refresh(self, obj: Model, data: UpdateData_contra) -> Model:
+    async def update_and_refresh(self, obj: Model, data: UpdateData_contra) -> None:
         updated_obj = self._update_obj(obj, data)
-        return await self._commit_and_refresh(updated_obj)
+        await self._commit_and_refresh(updated_obj)
 
     def _update_obj(self, obj: Model, data: UpdateData_contra) -> Model:
         data_dict = asdict(data)
@@ -101,15 +102,13 @@ class CRUD(Generic[Model, CreateData_contra, UpdateData_contra, Filters_contra])
         await self._db.delete(obj)
         await self._db.commit()
 
-    async def _commit(self, obj: Model) -> Model:
+    async def _commit(self, obj: Model) -> None:
         self._db.add(obj)
         await self._db.commit()
-        return obj
 
-    async def _commit_and_refresh(self, obj: Model) -> Model:
-        obj = await self._commit(obj)
+    async def _commit_and_refresh(self, obj: Model) -> None:
+        await self._commit(obj)
         await self._db.refresh(obj)
-        return obj
 
     def _build_where_statement(
         self, statement: Select[tuple[Model]], filters: Filters_contra

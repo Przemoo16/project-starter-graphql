@@ -64,8 +64,8 @@ async def update_me_resolver(
 
     crud = UserCRUD(db=info.context.db)
 
-    updated_user = await update_user(user, schema, crud)
-    return User.from_model(updated_user)
+    await update_user(user, schema, crud)
+    return User.from_model(user)
 
 
 async def delete_me_resolver(info: Info) -> DeleteMeResponse:

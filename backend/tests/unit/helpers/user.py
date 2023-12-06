@@ -46,8 +46,8 @@ class UserCRUD(CRUDStub[User, UserCreateData, UserUpdateData, UserFilters]):
     async def update(self, obj: User, data: UserUpdateData) -> None:
         self._update(obj, data)
 
-    async def update_and_refresh(self, obj: User, data: UserUpdateData) -> User:
-        return self._update(obj, data)
+    async def update_and_refresh(self, obj: User, data: UserUpdateData) -> None:
+        self._update(obj, data)
 
     def _update(self, obj: User, data: UserUpdateData) -> User:
         data_dict = asdict(data)

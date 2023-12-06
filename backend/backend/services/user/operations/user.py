@@ -32,10 +32,10 @@ async def create_user(
 
 async def update_user(
     user: User, data: UserUpdateSchema, crud: UserCRUDProtocol
-) -> User:
+) -> None:
     data_dict = data.model_dump(exclude_unset=True)
     update_data = UserUpdateData(**data_dict)
-    return await crud.update_and_refresh(user, update_data)
+    await crud.update_and_refresh(user, update_data)
 
 
 async def delete_user(user: User, crud: UserCRUDProtocol) -> None:
