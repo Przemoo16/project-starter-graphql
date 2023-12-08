@@ -1,8 +1,6 @@
-import { $, component$ } from '@builder.io/qwik';
-import { useLocation, useNavigate } from '@builder.io/qwik-city';
+import { $, component$, type QRL } from '@builder.io/qwik';
 import {
   email,
-  FormError,
   required,
   type SubmitHandler,
   useForm,
@@ -10,47 +8,25 @@ import {
 import { inlineTranslate } from 'qwik-speak';
 
 import { TextInput } from '~/components/text-input/text-input';
-import { isProblemPresent } from '~/libs/api/is-problem-present';
-import { RouteURL } from '~/libs/api/route-url';
-import { getClientRequestSender } from '~/services/requests/get-client-request-sender';
-import { getClientTokenStorage } from '~/services/tokens/get-client-token-storage';
-import { login } from '~/services/user/login';
 
-type LoginFormSchema = {
+export type LoginFormSchema = {
   email: string;
   password: string;
 };
 
-export const LoginForm = component$(() => {
+interface LoginFormProps {
+  onSubmit: QRL<(email: string, fullName: string) => Promise<void>>;
+}
+
+export const LoginForm = component$(({ onSubmit }: LoginFormProps) => {
   const t = inlineTranslate();
-  const nav = useNavigate();
-  const loc = useLocation();
   const [loginForm, { Form, Field }] = useForm<LoginFormSchema>({
     loader: { value: { email: '', password: '' } },
   });
 
   const handleSubmit = $<SubmitHandler<LoginFormSchema>>(
-    async (values, _event) => {
-      const t = inlineTranslate();
-
-      const data = await login(
-        getClientRequestSender(),
-        getClientTokenStorage(),
-        values.email,
-        values.password,
-      );
-
-      if ('problems' in data) {
-        let error = '';
-        if (isProblemPresent(data.problems, 'UserEmailNotConfirmedProblem')) {
-          error = t('login.emailNotConfirmed');
-        } else {
-          error = t('login.invalidCredentials');
-        }
-        throw new FormError<LoginFormSchema>(error);
-      }
-
-      await nav(loc.url.searchParams.get('callbackUrl') ?? RouteURL.Dashboard);
+    async ({ email, password }, _event) => {
+      await onSubmit(email, password);
     },
   );
 

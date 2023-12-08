@@ -1,10 +1,11 @@
-import { component$ } from '@builder.io/qwik';
+import { $, component$ } from '@builder.io/qwik';
 import { type DocumentHead, Link } from '@builder.io/qwik-city';
 import { inlineTranslate, useSpeak } from 'qwik-speak';
 
+import { RecoverPasswordForm } from '~/components/recover-password-form/recover-password-form';
 import { RouteURL } from '~/libs/api/route-url';
-
-import { RecoverPasswordForm } from './recover-password-form';
+import { getClientRequestSender } from '~/services/requests/get-client-request-sender';
+import { recoverPassword } from '~/services/user/recover-password';
 
 export const head: DocumentHead = () => {
   const t = inlineTranslate();
@@ -23,9 +24,15 @@ export default component$(() => {
 const RecoverPassword = component$(() => {
   const t = inlineTranslate();
 
+  const onSubmit = $(async (email: string) => {
+    const t = inlineTranslate();
+    await recoverPassword(getClientRequestSender(), email);
+    return t('recoverPassword.recoverPasswordSuccess');
+  });
+
   return (
     <>
-      <RecoverPasswordForm />
+      <RecoverPasswordForm onSubmit={onSubmit} />
       <Link href={RouteURL.Login}>{t('auth.backToLogin')}</Link>
     </>
   );

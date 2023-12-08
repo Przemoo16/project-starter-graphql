@@ -1,8 +1,7 @@
-import { $, component$ } from '@builder.io/qwik';
+import { $, component$, type QRL } from '@builder.io/qwik';
 import {
   custom$,
   email,
-  FormError,
   getValue,
   maxLength,
   minLength,
@@ -15,22 +14,25 @@ import {
 import { inlineTranslate } from 'qwik-speak';
 
 import { TextInput } from '~/components/text-input/text-input';
-import { isProblemPresent } from '~/libs/api/is-problem-present';
 import {
   MAX_FULL_NAME_LENGTH,
   MIN_PASSWORD_LENGTH,
 } from '~/routes/schema-config';
-import { getClientRequestSender } from '~/services/requests/get-client-request-sender';
-import { register } from '~/services/user/register';
 
-type RegisterFormSchema = {
+export type RegisterFormSchema = {
   fullName: string;
   email: string;
   password: string;
   repeatPassword: string;
 };
 
-export const RegisterForm = component$(() => {
+interface RegisterFormProps {
+  onSubmit: QRL<
+    (fullName: string, email: string, password: string) => Promise<string>
+  >;
+}
+
+export const RegisterForm = component$(({ onSubmit }: RegisterFormProps) => {
   const t = inlineTranslate();
   const [registerForm, { Form, Field }] = useForm<RegisterFormSchema>({
     loader: {
@@ -39,32 +41,11 @@ export const RegisterForm = component$(() => {
   });
 
   const handleSubmit = $<SubmitHandler<RegisterFormSchema>>(
-    async (values, _event) => {
-      const t = inlineTranslate();
-
-      const data = await register(
-        getClientRequestSender(),
-        values.fullName,
-        values.email,
-        values.password,
-      );
-
-      if ('problems' in data) {
-        let emailError = '';
-        let generalError = '';
-        if (isProblemPresent(data.problems, 'UserAlreadyExistsProblem')) {
-          emailError = t('register.accountAlreadyExists');
-        } else {
-          generalError = t('register.registerError');
-        }
-        throw new FormError<RegisterFormSchema>(generalError, {
-          email: emailError,
-        });
-      }
-
+    async ({ fullName, email, password }, _event) => {
+      const message = await onSubmit(fullName, email, password);
       reset(registerForm);
       setResponse(registerForm, {
-        message: t('register.registerSuccess'),
+        message,
       });
     },
   );
