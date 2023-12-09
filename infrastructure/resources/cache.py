@@ -43,7 +43,7 @@ _subnet_group = SubnetGroup(
 _replication_group = ReplicationGroup(
     _RESOURCE_NAME,
     port=_config.require_int("cache_port"),
-    description="Redis cache",
+    description="Cache",
     engine_version=_config.require("cache_engine_version"),
     node_type=_config.require("cache_node_type"),
     security_group_ids=[_security_group.id],
