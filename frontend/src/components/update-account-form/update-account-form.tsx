@@ -1,6 +1,5 @@
-import { $, component$, type Signal } from '@builder.io/qwik';
+import { $, component$, type QRL, type Signal } from '@builder.io/qwik';
 import {
-  FormError,
   type InitialValues,
   maxLength,
   required,
@@ -12,8 +11,6 @@ import { inlineTranslate } from 'qwik-speak';
 
 import { TextInput } from '~/components/text-input/text-input';
 import { MAX_FULL_NAME_LENGTH } from '~/routes/schema-config';
-import { getClientRequestSender } from '~/services/requests/get-client-request-sender';
-import { updateMe } from '~/services/user/update-me';
 
 export type UpdateAccountFormSchema = {
   fullName: string;
@@ -21,30 +18,22 @@ export type UpdateAccountFormSchema = {
 
 interface UpdateAccountFormProps {
   loader: Readonly<Signal<InitialValues<UpdateAccountFormSchema>>>;
+  onSubmit: QRL<(fullName: string) => Promise<string>>;
 }
 
 export const UpdateAccountForm = component$(
-  ({ loader }: UpdateAccountFormProps) => {
+  ({ loader, onSubmit }: UpdateAccountFormProps) => {
     const t = inlineTranslate();
-    const [updateAccountForm, UpdateAccount] = useForm<UpdateAccountFormSchema>(
-      {
+    const [updateAccountForm, { Form, Field }] =
+      useForm<UpdateAccountFormSchema>({
         loader,
-      },
-    );
+      });
 
     const handleSubmit = $<SubmitHandler<UpdateAccountFormSchema>>(
-      async (values, _event) => {
-        const t = inlineTranslate();
-
-        const data = await updateMe(getClientRequestSender(), values.fullName);
-
-        if ('problems' in data) {
-          throw new FormError<UpdateAccountFormSchema>(
-            t('updateAccount.updateAccountError'),
-          );
-        }
+      async ({ fullName }, _event) => {
+        const message = await onSubmit(fullName);
         setResponse(updateAccountForm, {
-          message: t('updateAccount.updateAccountSuccess'),
+          message,
         });
       },
     );
@@ -52,8 +41,8 @@ export const UpdateAccountForm = component$(
     const fullNameLabel = t('account.fullName');
 
     return (
-      <UpdateAccount.Form onSubmit$={handleSubmit} shouldDirty>
-        <UpdateAccount.Field
+      <Form onSubmit$={handleSubmit} shouldDirty>
+        <Field
           name="fullName"
           validate={[
             required(t('validation.required')),
@@ -74,12 +63,12 @@ export const UpdateAccountForm = component$(
               required
             />
           )}
-        </UpdateAccount.Field>
+        </Field>
         <div>{updateAccountForm.response.message}</div>
         <button type="submit" disabled={updateAccountForm.submitting}>
           {t('updateAccount.updateAccount')}
         </button>
-      </UpdateAccount.Form>
+      </Form>
     );
   },
 );

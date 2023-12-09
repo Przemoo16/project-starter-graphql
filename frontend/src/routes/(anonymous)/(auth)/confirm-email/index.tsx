@@ -2,6 +2,7 @@ import { component$ } from '@builder.io/qwik';
 import { type DocumentHead, Link, routeLoader$ } from '@builder.io/qwik-city';
 import { inlineTranslate, useSpeak } from 'qwik-speak';
 
+import { hasProblems } from '~/libs/api/has-problems';
 import { isProblemPresent } from '~/libs/api/is-problem-present';
 import { RouteURL } from '~/libs/api/route-url';
 import { getServerRequestSender } from '~/services/requests/get-server-request-sender';
@@ -35,7 +36,7 @@ const ConfirmEmail = component$(() => {
   const data = signal.value;
 
   let message = '';
-  if ('problems' in data) {
+  if (hasProblems(data)) {
     if (isProblemPresent(data.problems, 'UserEmailAlreadyConfirmedProblem')) {
       message = t('confirmEmail.emailAlreadyConfirmed');
     } else {

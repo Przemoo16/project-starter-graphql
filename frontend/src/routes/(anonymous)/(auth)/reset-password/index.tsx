@@ -1,10 +1,16 @@
-import { component$ } from '@builder.io/qwik';
-import { type DocumentHead, Link } from '@builder.io/qwik-city';
+import { $, component$ } from '@builder.io/qwik';
+import { type DocumentHead, Link, useLocation } from '@builder.io/qwik-city';
+import { FormError } from '@modular-forms/qwik';
 import { inlineTranslate, useSpeak } from 'qwik-speak';
 
+import {
+  ResetPasswordForm,
+  type ResetPasswordFormSchema,
+} from '~/components/reset-password-form/reset-password-form';
+import { hasProblems } from '~/libs/api/has-problems';
 import { RouteURL } from '~/libs/api/route-url';
-
-import { ResetPasswordForm } from './reset-password-form';
+import { getClientRequestSender } from '~/services/requests/get-client-request-sender';
+import { resetPassword } from '~/services/user/reset-password';
 
 export const head: DocumentHead = () => {
   const t = inlineTranslate();
@@ -22,10 +28,29 @@ export default component$(() => {
 
 const ResetPassword = component$(() => {
   const t = inlineTranslate();
+  const loc = useLocation();
+
+  const onSubmit = $(async (password: string) => {
+    const t = inlineTranslate();
+
+    const data = await resetPassword(
+      getClientRequestSender(),
+      loc.url.searchParams.get('token') ?? '',
+      password,
+    );
+
+    if (hasProblems(data)) {
+      throw new FormError<ResetPasswordFormSchema>(
+        t('resetPassword.resetPasswordError'),
+      );
+    }
+
+    return t('resetPassword.resetPasswordSuccess');
+  });
 
   return (
     <>
-      <ResetPasswordForm />
+      <ResetPasswordForm onSubmit={onSubmit} />
       <Link href={RouteURL.Login}>{t('auth.backToLogin')}</Link>
     </>
   );

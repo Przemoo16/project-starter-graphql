@@ -1,22 +1,28 @@
 import { $, component$, useSignal } from '@builder.io/qwik';
 import { type DocumentHead, routeLoader$ } from '@builder.io/qwik-city';
-import { type InitialValues } from '@modular-forms/qwik';
+import { FormError, type InitialValues } from '@modular-forms/qwik';
 import { inlineTranslate, useSpeak } from 'qwik-speak';
 
+import {
+  ChangePasswordForm,
+  type ChangePasswordFormSchema,
+} from '~/components/change-password-form/change-password-form';
+import {
+  UpdateAccountForm,
+  type UpdateAccountFormSchema,
+} from '~/components/update-account-form/update-account-form';
+import { hasProblems } from '~/libs/api/has-problems';
+import { isProblemPresent } from '~/libs/api/is-problem-present';
 import { getClientLogoutRedirection } from '~/services/auth/get-client-logout-redirection';
 import { getClientRequestSender } from '~/services/requests/get-client-request-sender';
 import { getServerRequestSender } from '~/services/requests/get-server-request-sender';
 import { getClientTokenStorage } from '~/services/tokens/get-client-token-storage';
 import { getServerTokenStorage } from '~/services/tokens/get-server-token-storage';
+import { changeMyPassword } from '~/services/user/change-my-password';
 import { deleteMe } from '~/services/user/delete-me';
 import { getMe } from '~/services/user/get-me';
 import { logout } from '~/services/user/logout';
-
-import { ChangePasswordForm } from './change-password-form';
-import {
-  UpdateAccountForm,
-  type UpdateAccountFormSchema,
-} from './update-account-form';
+import { updateMe } from '~/services/user/update-me';
 
 export const head: DocumentHead = () => {
   const t = inlineTranslate();
@@ -55,6 +61,44 @@ const Account = component$(() => {
   const deleteAccountPending = useSignal(false);
   const updateAccountFormSignal = useUpdateAccountFormLoader();
 
+  const onChangePassword = $(
+    async (currentPassword: string, newPassword: string) => {
+      const t = inlineTranslate();
+
+      const data = await changeMyPassword(
+        getClientRequestSender(),
+        currentPassword,
+        newPassword,
+      );
+
+      if (hasProblems(data)) {
+        let error = '';
+        if (isProblemPresent(data.problems, 'InvalidPasswordProblem')) {
+          error = t('changePassword.invalidCurrentPassword');
+        } else {
+          error = t('changePassword.changePasswordError');
+        }
+        throw new FormError<ChangePasswordFormSchema>(error);
+      }
+
+      return t('changePassword.changePasswordSuccess');
+    },
+  );
+
+  const onUpdateAccount = $(async (fullName: string) => {
+    const t = inlineTranslate();
+
+    const data = await updateMe(getClientRequestSender(), fullName);
+
+    if (hasProblems(data)) {
+      throw new FormError<UpdateAccountFormSchema>(
+        t('updateAccount.updateAccountError'),
+      );
+    }
+
+    return t('updateAccount.updateAccountSuccess');
+  });
+
   const onDeleteAccount = $(async () => {
     deleteAccountPending.value = true;
     await deleteMe(getClientRequestSender());
@@ -64,8 +108,11 @@ const Account = component$(() => {
 
   return (
     <>
-      <UpdateAccountForm loader={updateAccountFormSignal} />
-      <ChangePasswordForm />
+      <UpdateAccountForm
+        loader={updateAccountFormSignal}
+        onSubmit={onUpdateAccount}
+      />
+      <ChangePasswordForm onSubmit={onChangePassword} />
       <button onClick$={onDeleteAccount} disabled={deleteAccountPending.value}>
         {t('deleteAccount.deleteAccount')}
       </button>
