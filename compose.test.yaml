@@ -28,7 +28,7 @@ services:
       retries: 3
       start_period: 5s
 
-  redis-test:
+  cache-test:
     image: redis:7.0
     networks:
       - backend-test
@@ -41,7 +41,7 @@ services:
     networks:
       - backend-test
     depends_on:
-      - redis-test
+      - cache-test
     env_file:
       - .env.template
       - .env.test
@@ -55,7 +55,7 @@ services:
     networks:
       - backend-test
     depends_on:
-      - redis-test
+      - cache-test
     env_file:
       - .env.template
       - .env.test

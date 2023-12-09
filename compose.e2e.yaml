@@ -28,7 +28,7 @@ services:
       retries: 3
       start_period: 5s
 
-  redis-e2e:
+  cache-e2e:
     image: redis:7.0
     networks:
       - backend-e2e
@@ -40,7 +40,7 @@ services:
     networks:
       - backend-e2e
     depends_on:
-      - redis-e2e
+      - cache-e2e
     env_file:
       - .env.template
       - .env.e2e
@@ -53,7 +53,7 @@ services:
     networks:
       - backend-e2e
     depends_on:
-      - redis-e2e
+      - cache-e2e
     env_file:
       - .env.template
       - .env.e2e

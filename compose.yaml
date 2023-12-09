@@ -34,7 +34,7 @@ services:
       retries: 3
       start_period: 5s
 
-  redis:
+  cache:
     image: redis:7.0
     networks:
       - backend
@@ -53,7 +53,7 @@ services:
         source: ./backend
         target: /opt/app
     depends_on:
-      - redis
+      - cache
     env_file:
       - .env
     command: "celery --app backend.worker:worker_app worker --loglevel INFO"
@@ -70,7 +70,7 @@ services:
         source: ./backend
         target: /opt/app
     depends_on:
-      - redis
+      - cache
     env_file:
       - .env
     command: "celery --app backend.worker:worker_app beat --loglevel INFO"
@@ -142,7 +142,7 @@ services:
         source: ./backend
         target: /opt/app
     depends_on:
-      - redis
+      - cache
     env_file:
       - .env
     command: "celery --app backend.worker:worker_app flower"
