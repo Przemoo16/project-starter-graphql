@@ -5116,10 +5116,10 @@ queue-microtask@^1.2.2:
   resolved "https://registry.yarnpkg.com/queue-microtask/-/queue-microtask-1.2.3.tgz#4929228bbc724dfac43e0efb058caf7b6cfb6243"
   integrity sha512-NuaNSa6flKT5JaSYQzJok04JzTL1CA6aGhv5rfLW3PgqA+M2ChpZQnAC8h8i4ZFkBS8X5RqkDBHA7r4hej3K9A==
 
-qwik-speak@^0.17.0:
-  version "0.17.0"
-  resolved "https://registry.yarnpkg.com/qwik-speak/-/qwik-speak-0.17.0.tgz#dfcf5ec8305969806d29e21acce455c52e16cb82"
-  integrity sha512-CsYYEI88MZrR2hNn0VAcewgrBkSQaMo65rNPtTlXW/4Pq0T8JqYGoUudNKf841mxLjZO63Zh3ybB0wJOK+E81g==
+qwik-speak@^0.18.0:
+  version "0.18.0"
+  resolved "https://registry.yarnpkg.com/qwik-speak/-/qwik-speak-0.18.0.tgz#a6167c5c012b13bb18f6e27ddf520af68a7171c9"
+  integrity sha512-LmCT6+iE3v3oIGSq9bycZHpmNawiDeMdR001YPc9SDkUMv/ENHNcQAHXP1atgNYJD8R3pOpxqOb2G+ZjWoTwfg==
 
 react-is@^18.0.0:
   version "18.2.0"
