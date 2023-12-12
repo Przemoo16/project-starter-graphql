@@ -2,7 +2,9 @@
   "name": "frontend",
   "description": "Frontend",
   "version": "0.1.0",
+  "type": "module",
   "private": true,
+  "packageManager": "yarn@4.0.2",
   "scripts": {
     "build": "qwik build",
     "build.client": "vite build",

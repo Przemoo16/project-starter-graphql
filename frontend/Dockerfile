@@ -8,13 +8,15 @@ RUN apt-get update \
 
 WORKDIR /opt/app
 
+RUN corepack enable
+
 EXPOSE 80
 
 
 FROM base as deps
 
 COPY ./package.json ./yarn.lock ./
-RUN yarn install --frozen-lockfile \
+RUN yarn install --immutable \
     && yarn cache clean
 
 COPY . .

@@ -5,7 +5,6 @@
 /server
 
 # Development
-node_modules
 *.local
 
 # Cache
@@ -37,5 +36,5 @@ lerna-debug.log*
 *.sw?
 
 # Yarn
-.yarn/*
-!.yarn/releases
+.pnp.*
+.yarn/
