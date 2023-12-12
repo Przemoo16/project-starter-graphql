@@ -42,7 +42,7 @@
     "eslint-plugin-simple-import-sort": "^10.0.0",
     "graphql": "^16.8.1",
     "js-cookie": "^3.0.5",
-    "postcss": "8.4.31",
+    "postcss": "8.4.32",
     "qwik-speak": "^0.18.0",
     "tailwindcss": "3.3.6",
     "typescript": "^5.3.2",
