@@ -10,5 +10,4 @@ export const head: DocumentHead = () => {
   };
 };
 
-// FIXME: The custom 404 page doesn't work: https://github.com/BuilderIO/qwik/issues/5030
 export default component$(() => <>Not found</>);

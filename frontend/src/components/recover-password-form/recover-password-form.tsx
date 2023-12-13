@@ -44,6 +44,7 @@ export const RecoverPasswordForm = component$(
         <Field
           name="email"
           validate={[
+            // @ts-expect-error: FIXME: https://github.com/fabian-hiller/modular-forms/issues/158
             required(t('validation.required')),
             email(t('validation.invalidEmail')),
           ]}

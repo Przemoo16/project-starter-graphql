@@ -5,6 +5,7 @@
 /server
 
 # Development
+node_modules
 *.local
 
 # Cache
