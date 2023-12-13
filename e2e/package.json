@@ -2,7 +2,6 @@
   "name": "e2e",
   "description": "E2E",
   "version": "0.1.0",
-  "type": "module",
   "private": true,
   "packageManager": "yarn@4.0.2",
   "scripts": {

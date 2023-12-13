@@ -19,7 +19,7 @@ jobs:
       - name: Set up Python
         uses: actions/setup-python@v5
         with:
-          # FIXME: https://github.com/pulumi/pulumi/issues/14746
+          # FIXME: https://github.com/pulumi/pulumi/issues/14258
           python-version: "3.11"
 
       - name: Restore infrastructure venv cache

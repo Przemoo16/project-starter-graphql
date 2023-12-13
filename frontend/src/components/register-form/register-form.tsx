@@ -60,6 +60,7 @@ export const RegisterForm = component$(({ onSubmit }: RegisterFormProps) => {
       <Field
         name="fullName"
         validate={[
+          // @ts-expect-error: FIXME: https://github.com/fabian-hiller/modular-forms/issues/158
           required(t('validation.required')),
           maxLength(
             MAX_FULL_NAME_LENGTH,
@@ -82,6 +83,7 @@ export const RegisterForm = component$(({ onSubmit }: RegisterFormProps) => {
       <Field
         name="email"
         validate={[
+          // @ts-expect-error: FIXME: https://github.com/fabian-hiller/modular-forms/issues/158
           required(t('validation.required')),
           email(t('validation.invalidEmail')),
         ]}
@@ -101,6 +103,7 @@ export const RegisterForm = component$(({ onSubmit }: RegisterFormProps) => {
       <Field
         name="password"
         validate={[
+          // @ts-expect-error: FIXME: https://github.com/fabian-hiller/modular-forms/issues/158
           required(t('validation.required')),
           minLength(
             MIN_PASSWORD_LENGTH,
@@ -123,7 +126,9 @@ export const RegisterForm = component$(({ onSubmit }: RegisterFormProps) => {
       <Field
         name="repeatPassword"
         validate={[
+          // @ts-expect-error: FIXME: https://github.com/fabian-hiller/modular-forms/issues/158
           required(t('validation.required')),
+          // @ts-expect-error: FIXME: https://github.com/fabian-hiller/modular-forms/issues/158
           custom$(
             value => value === getValue(registerForm, 'password'),
             t(`validation.passwordMatch`),

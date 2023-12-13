@@ -38,6 +38,7 @@ export const LoginForm = component$(({ onSubmit }: LoginFormProps) => {
       <Field
         name="email"
         validate={[
+          // @ts-expect-error: FIXME: https://github.com/fabian-hiller/modular-forms/issues/158
           required(t('validation.required')),
           email(t('validation.invalidEmail')),
         ]}
@@ -54,7 +55,13 @@ export const LoginForm = component$(({ onSubmit }: LoginFormProps) => {
           />
         )}
       </Field>
-      <Field name="password" validate={[required(t('validation.required'))]}>
+      <Field
+        name="password"
+        validate={[
+          // @ts-expect-error: FIXME: https://github.com/fabian-hiller/modular-forms/issues/158
+          required(t('validation.required')),
+        ]}
+      >
         {(field, props) => (
           <TextInput
             {...props}

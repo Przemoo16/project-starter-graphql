@@ -107,6 +107,10 @@ services:
       - type: bind
         source: ./frontend
         target: /opt/app
+      # Ignore node_modules from the host when using bind mounts by applying the named volume
+      - type: volume
+        source: node_modules
+        target: /opt/app/node_modules
 
   proxy:
     build:
@@ -149,3 +153,4 @@ networks:
 
 volumes:
   db-data:
+  node_modules:

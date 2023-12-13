@@ -114,6 +114,10 @@ services:
       - type: bind
         source: ./e2e
         target: /opt/app
+      # Ignore node_modules from the host when using bind mounts by applying the named volume
+      - type: volume
+        source: node_modules-e2e
+        target: /opt/app/node_modules
     depends_on:
       proxy-e2e:
         condition: service_healthy
@@ -122,3 +126,6 @@ networks:
   backend-e2e:
   frontend-e2e:
   proxy-e2e:
+
+volumes:
+  node_modules-e2e:
