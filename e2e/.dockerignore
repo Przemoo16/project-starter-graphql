@@ -3,7 +3,6 @@
 !tests/
 
 !.eslintrc.cjs
-!.yarnrc.yml
 !package.json
 !playwright.config.ts
 !tsconfig.json
