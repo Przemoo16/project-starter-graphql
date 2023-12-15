@@ -96,12 +96,6 @@ jobs:
       - name: Check out repository code
         uses: actions/checkout@v4
 
-      - name: Set up Python
-        uses: actions/setup-python@v5
-        with:
-          # FIXME: https://github.com/pulumi/pulumi/issues/14258
-          python-version: "3.11"
-
       - name: Install pre-commit
         run: pip install pre-commit
         shell: bash
@@ -110,7 +104,13 @@ jobs:
         uses: actions/cache@v3
         with:
           path: ~/.cache/pre-commit/
-          key: ${{ runner.os }}-${{ env.pythonLocation }}-pre-commit-${{ hashFiles('.pre-commit-config.yaml') }}
+          key: ${{ runner.os }}-pre-commit-${{ hashFiles('.pre-commit-config.yaml') }}
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          # FIXME: https://github.com/pulumi/pulumi/issues/14258
+          python-version: "3.11"
 
       # Running mypy against the pulumi is super slow. Using cache to speed it up.
       # It utilizes the restore-keys to always update the existing cache:
