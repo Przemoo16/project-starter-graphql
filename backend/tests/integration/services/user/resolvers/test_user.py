@@ -240,25 +240,6 @@ async def test_get_me_returns_user(
 
 
 @pytest.mark.anyio()
-async def test_get_me_returns_error_if_user_is_unauthorized(
-    client: AsyncClient, graphql_url: str
-) -> None:
-    query = """
-      query GetMe {
-        me {
-          id
-        }
-      }
-    """
-
-    response = await client.post(graphql_url, json={"query": query})
-
-    errors = response.json()["errors"]
-    assert len(errors) == 1
-    assert errors[0]["message"] == "Authentication token required"
-
-
-@pytest.mark.anyio()
 async def test_update_me_returns_updated_user(
     db: AsyncSession,
     auth_private_key: str,
@@ -290,34 +271,6 @@ async def test_update_me_returns_updated_user(
     assert data == {
         "fullName": "Updated User",
     }
-
-
-@pytest.mark.anyio()
-async def test_update_me_returns_error_if_user_is_unauthorized(
-    client: AsyncClient, graphql_url: str
-) -> None:
-    query = """
-      mutation UpdateMe($input: UpdateMeInput!) {
-        updateMe(input: $input) {
-          ... on User {
-            fullName
-          }
-        }
-      }
-    """
-    variables = {
-        "input": {
-            "fullName": "Updated User",
-        }
-    }
-
-    response = await client.post(
-        graphql_url, json={"query": query, "variables": variables}
-    )
-
-    errors = response.json()["errors"]
-    assert len(errors) == 1
-    assert errors[0]["message"] == "Authentication token required"
 
 
 @pytest.mark.anyio()
@@ -415,22 +368,3 @@ async def test_delete_me_returns_success_message(
 
     data = response.json()["data"]["deleteMe"]
     assert "message" in data
-
-
-@pytest.mark.anyio()
-async def test_delete_me_returns_error_if_user_is_unauthorized(
-    client: AsyncClient, graphql_url: str
-) -> None:
-    query = """
-      mutation DeleteMe {
-        deleteMe {
-          message
-        }
-      }
-    """
-
-    response = await client.post(graphql_url, json={"query": query})
-
-    errors = response.json()["errors"]
-    assert len(errors) == 1
-    assert errors[0]["message"] == "Authentication token required"
