@@ -122,8 +122,9 @@ async def test_reset_password_returns_problem_if_password_is_too_short(
         graphql_url, json={"query": query, "variables": variables}
     )
 
-    problem = response.json()["data"]["resetPassword"]["problems"][0]
-    assert "password" in problem["path"]
+    assert response.json()["data"]["resetPassword"]["problems"] == [
+        {"path": ["password"]}
+    ]
 
 
 @pytest.mark.anyio()
@@ -154,8 +155,9 @@ async def test_reset_password_returns_problem_if_token_is_invalid(
         graphql_url, json={"query": query, "variables": variables}
     )
 
-    problem = response.json()["data"]["resetPassword"]["problems"][0]
-    assert "message" in problem
+    problems = response.json()["data"]["resetPassword"]["problems"]
+    assert len(problems) == 1
+    assert "message" in problems[0]
 
 
 @pytest.mark.anyio()
@@ -189,8 +191,9 @@ async def test_reset_password_returns_problem_if_token_has_invalid_type(
         graphql_url, json={"query": query, "variables": variables}
     )
 
-    problem = response.json()["data"]["resetPassword"]["problems"][0]
-    assert "message" in problem
+    problems = response.json()["data"]["resetPassword"]["problems"]
+    assert len(problems) == 1
+    assert "message" in problems[0]
 
 
 @pytest.mark.anyio()
@@ -226,8 +229,9 @@ async def test_reset_password_returns_problem_if_user_is_not_found(
         graphql_url, json={"query": query, "variables": variables}
     )
 
-    problem = response.json()["data"]["resetPassword"]["problems"][0]
-    assert "message" in problem
+    problems = response.json()["data"]["resetPassword"]["problems"]
+    assert len(problems) == 1
+    assert "message" in problems[0]
 
 
 @pytest.mark.anyio()
@@ -265,8 +269,9 @@ async def test_reset_password_returns_problem_if_token_fingerprint_is_invalid(
         graphql_url, json={"query": query, "variables": variables}
     )
 
-    problem = response.json()["data"]["resetPassword"]["problems"][0]
-    assert "message" in problem
+    problems = response.json()["data"]["resetPassword"]["problems"]
+    assert len(problems) == 1
+    assert "message" in problems[0]
 
 
 @pytest.mark.anyio()
@@ -337,8 +342,9 @@ async def test_change_my_password_returns_problem_if_new_password_is_too_short(
         graphql_url, json={"query": query, "variables": variables}, headers=auth_header
     )
 
-    problem = response.json()["data"]["changeMyPassword"]["problems"][0]
-    assert "newPassword" in problem["path"]
+    assert response.json()["data"]["changeMyPassword"]["problems"] == [
+        {"path": ["newPassword"]}
+    ]
 
 
 @pytest.mark.anyio()
@@ -376,5 +382,6 @@ async def test_change_my_password_returns_problem_if_current_password_is_invalid
         graphql_url, json={"query": query, "variables": variables}, headers=auth_header
     )
 
-    problem = response.json()["data"]["changeMyPassword"]["problems"][0]
-    assert "message" in problem
+    problems = response.json()["data"]["changeMyPassword"]["problems"]
+    assert len(problems) == 1
+    assert "message" in problems[0]

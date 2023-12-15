@@ -62,8 +62,9 @@ async def test_confirm_email_returns_problem_if_token_is_invalid(
         graphql_url, json={"query": query, "variables": variables}
     )
 
-    problem = response.json()["data"]["confirmEmail"]["problems"][0]
-    assert "message" in problem
+    problems = response.json()["data"]["confirmEmail"]["problems"]
+    assert len(problems) == 1
+    assert "message" in problems[0]
 
 
 @pytest.mark.anyio()
@@ -92,8 +93,9 @@ async def test_confirm_email_returns_problem_if_token_has_invalid_type(
         graphql_url, json={"query": query, "variables": variables}
     )
 
-    problem = response.json()["data"]["confirmEmail"]["problems"][0]
-    assert "message" in problem
+    problems = response.json()["data"]["confirmEmail"]["problems"]
+    assert len(problems) == 1
+    assert "message" in problems[0]
 
 
 @pytest.mark.anyio()
@@ -123,8 +125,9 @@ async def test_confirm_email_returns_problem_if_user_with_encoded_id_is_not_foun
         graphql_url, json={"query": query, "variables": variables}
     )
 
-    problem = response.json()["data"]["confirmEmail"]["problems"][0]
-    assert "message" in problem
+    problems = response.json()["data"]["confirmEmail"]["problems"]
+    assert len(problems) == 1
+    assert "message" in problems[0]
 
 
 @pytest.mark.anyio()
@@ -154,8 +157,9 @@ async def test_confirm_email_returns_problem_if_user_with_encoded_email_is_not_f
         graphql_url, json={"query": query, "variables": variables}
     )
 
-    problem = response.json()["data"]["confirmEmail"]["problems"][0]
-    assert "message" in problem
+    problems = response.json()["data"]["confirmEmail"]["problems"]
+    assert len(problems) == 1
+    assert "message" in problems[0]
 
 
 @pytest.mark.anyio()
@@ -183,5 +187,6 @@ async def test_confirm_email_returns_problem_if_user_email_is_already_confirmed(
         graphql_url, json={"query": query, "variables": variables}
     )
 
-    problem = response.json()["data"]["confirmEmail"]["problems"][0]
-    assert "message" in problem
+    problems = response.json()["data"]["confirmEmail"]["problems"]
+    assert len(problems) == 1
+    assert "message" in problems[0]
