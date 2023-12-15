@@ -122,9 +122,8 @@ async def test_reset_password_returns_problem_if_password_is_too_short(
         graphql_url, json={"query": query, "variables": variables}
     )
 
-    assert response.json()["data"]["resetPassword"]["problems"] == [
-        {"path": ["password"]}
-    ]
+    problems = response.json()["data"]["resetPassword"]["problems"]
+    assert problems == [{"path": ["password"]}]
 
 
 @pytest.mark.anyio()
@@ -310,6 +309,35 @@ async def test_change_my_password_returns_success_message(
 
 
 @pytest.mark.anyio()
+async def test_change_my_password_returns_error_if_user_is_unauthorized(
+    client: AsyncClient, graphql_url: str
+) -> None:
+    query = """
+      mutation ChangeMyPassword($input: ChangeMyPasswordInput!) {
+        changeMyPassword(input: $input) {
+          ... on ChangeMyPasswordSuccess {
+            message
+          }
+        }
+      }
+    """
+    variables = {
+        "input": {
+            "currentPassword": "plain_password",
+            "newPassword": "new_password",
+        }
+    }
+
+    response = await client.post(
+        graphql_url, json={"query": query, "variables": variables}
+    )
+
+    errors = response.json()["errors"]
+    assert len(errors) == 1
+    assert errors[0]["message"] == "Authentication token required"
+
+
+@pytest.mark.anyio()
 async def test_change_my_password_returns_problem_if_new_password_is_too_short(
     db: AsyncSession,
     auth_private_key: str,
@@ -342,9 +370,8 @@ async def test_change_my_password_returns_problem_if_new_password_is_too_short(
         graphql_url, json={"query": query, "variables": variables}, headers=auth_header
     )
 
-    assert response.json()["data"]["changeMyPassword"]["problems"] == [
-        {"path": ["newPassword"]}
-    ]
+    problems = response.json()["data"]["changeMyPassword"]["problems"]
+    assert problems == [{"path": ["newPassword"]}]
 
 
 @pytest.mark.anyio()

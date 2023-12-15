@@ -72,7 +72,8 @@ async def test_create_user_returns_problem_if_email_is_invalid(
         graphql_url, json={"query": query, "variables": variables}
     )
 
-    assert response.json()["data"]["createUser"]["problems"] == [{"path": ["email"]}]
+    problems = response.json()["data"]["createUser"]["problems"]
+    assert problems == [{"path": ["email"]}]
 
 
 @pytest.mark.anyio()
@@ -104,7 +105,8 @@ async def test_create_user_returns_problem_if_password_is_too_short(
         graphql_url, json={"query": query, "variables": variables}
     )
 
-    assert response.json()["data"]["createUser"]["problems"] == [{"path": ["password"]}]
+    problems = response.json()["data"]["createUser"]["problems"]
+    assert problems == [{"path": ["password"]}]
 
 
 @pytest.mark.anyio()
@@ -136,7 +138,8 @@ async def test_create_user_returns_problem_if_full_name_is_too_short(
         graphql_url, json={"query": query, "variables": variables}
     )
 
-    assert response.json()["data"]["createUser"]["problems"] == [{"path": ["fullName"]}]
+    problems = response.json()["data"]["createUser"]["problems"]
+    assert problems == [{"path": ["fullName"]}]
 
 
 @pytest.mark.anyio()
@@ -168,7 +171,8 @@ async def test_create_user_returns_problem_if_full_name_is_too_long(
         graphql_url, json={"query": query, "variables": variables}
     )
 
-    assert response.json()["data"]["createUser"]["problems"] == [{"path": ["fullName"]}]
+    problems = response.json()["data"]["createUser"]["problems"]
+    assert problems == [{"path": ["fullName"]}]
 
 
 @pytest.mark.anyio()
@@ -236,6 +240,25 @@ async def test_get_me_returns_user(
 
 
 @pytest.mark.anyio()
+async def test_get_me_returns_error_if_user_is_unauthorized(
+    client: AsyncClient, graphql_url: str
+) -> None:
+    query = """
+      query GetMe {
+        me {
+          id
+        }
+      }
+    """
+
+    response = await client.post(graphql_url, json={"query": query})
+
+    errors = response.json()["errors"]
+    assert len(errors) == 1
+    assert errors[0]["message"] == "Authentication token required"
+
+
+@pytest.mark.anyio()
 async def test_update_me_returns_updated_user(
     db: AsyncSession,
     auth_private_key: str,
@@ -270,6 +293,34 @@ async def test_update_me_returns_updated_user(
 
 
 @pytest.mark.anyio()
+async def test_update_me_returns_error_if_user_is_unauthorized(
+    client: AsyncClient, graphql_url: str
+) -> None:
+    query = """
+      mutation UpdateMe($input: UpdateMeInput!) {
+        updateMe(input: $input) {
+          ... on User {
+            fullName
+          }
+        }
+      }
+    """
+    variables = {
+        "input": {
+            "fullName": "Updated User",
+        }
+    }
+
+    response = await client.post(
+        graphql_url, json={"query": query, "variables": variables}
+    )
+
+    errors = response.json()["errors"]
+    assert len(errors) == 1
+    assert errors[0]["message"] == "Authentication token required"
+
+
+@pytest.mark.anyio()
 async def test_update_me_returns_problem_if_full_name_is_too_short(
     db: AsyncSession,
     auth_private_key: str,
@@ -301,7 +352,8 @@ async def test_update_me_returns_problem_if_full_name_is_too_short(
         graphql_url, json={"query": query, "variables": variables}, headers=auth_header
     )
 
-    assert response.json()["data"]["updateMe"]["problems"] == [{"path": ["fullName"]}]
+    problems = response.json()["data"]["updateMe"]["problems"]
+    assert problems == [{"path": ["fullName"]}]
 
 
 @pytest.mark.anyio()
@@ -336,7 +388,8 @@ async def test_update_me_returns_problem_if_full_name_is_too_long(
         graphql_url, json={"query": query, "variables": variables}, headers=auth_header
     )
 
-    assert response.json()["data"]["updateMe"]["problems"] == [{"path": ["fullName"]}]
+    problems = response.json()["data"]["updateMe"]["problems"]
+    assert problems == [{"path": ["fullName"]}]
 
 
 @pytest.mark.anyio()
@@ -362,3 +415,22 @@ async def test_delete_me_returns_success_message(
 
     data = response.json()["data"]["deleteMe"]
     assert "message" in data
+
+
+@pytest.mark.anyio()
+async def test_delete_me_returns_error_if_user_is_unauthorized(
+    client: AsyncClient, graphql_url: str
+) -> None:
+    query = """
+      mutation DeleteMe {
+        deleteMe {
+          message
+        }
+      }
+    """
+
+    response = await client.post(graphql_url, json={"query": query})
+
+    errors = response.json()["errors"]
+    assert len(errors) == 1
+    assert errors[0]["message"] == "Authentication token required"

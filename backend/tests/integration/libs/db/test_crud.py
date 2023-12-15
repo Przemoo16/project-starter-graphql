@@ -96,7 +96,7 @@ async def test_update_updates_entry_in_db(crud: DummyCRUD, db: AsyncSession) -> 
     retrieved_obj = await db.get(Dummy, 1)
     assert retrieved_obj
     assert retrieved_obj.name == "Updated"
-    assert retrieved_obj.age == 25  # noqa: PLR2004
+    assert retrieved_obj.age == 25
 
 
 @pytest.mark.anyio()
