@@ -1,9 +1,6 @@
 # Cache
 tsconfig.tsbuildinfo
 
-# Development
-node_modules
-
 # Tests
 test-results/
 playwright-report/

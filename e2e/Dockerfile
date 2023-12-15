@@ -10,10 +10,11 @@ WORKDIR /opt/app
 
 RUN corepack enable
 
-COPY ./package.json ./.yarnrc.yml ./yarn.lock ./
-RUN yarn install --immutable \
-    && yarn cache clean
+COPY ./package.json ./yarn.lock ./
+# When using yarn PnP, the PnP loader directly references packages via their cache path
+# hadolint ignore=DL3060
+RUN yarn install --immutable
 
 COPY . .
 
-CMD ["npx", "playwright", "test"]
+CMD ["yarn", "playwright", "test"]
