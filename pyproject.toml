@@ -48,7 +48,8 @@ ignore = [
   "F401", # unused-import
 ]
 "**/tests/**/*.py" = [
-  "E501", # line-too-long
+  "E501",    # line-too-long
+  "PLR2004", # magic-value-comparison
 ]
 
 [tool.mypy]

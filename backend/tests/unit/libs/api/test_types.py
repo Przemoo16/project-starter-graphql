@@ -6,16 +6,19 @@ from backend.libs.api.types import convert_to_dict, from_pydantic_error
 
 def test_from_pydantic_error_converts_pydantic_errors_to_problem_type() -> None:
     class Model(BaseModel):
-        full_name: str = Field(min_length=5)
+        test_field: str = Field(min_length=5)
+        number: int = Field(gt=0)
 
     try:
-        Model(full_name="Test")
+        Model(test_field="Test", number=0)
     except ValidationError as exc:
         errors = from_pydantic_error(exc)
 
-        assert len(errors) == 1
+        assert len(errors) == 2
         assert errors[0].message
-        assert errors[0].path == ["fullName"]
+        assert errors[0].path == ["testField"]
+        assert errors[1].message
+        assert errors[1].path == ["number"]
 
     else:
         raise AssertionError()

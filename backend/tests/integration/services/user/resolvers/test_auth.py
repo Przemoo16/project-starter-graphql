@@ -75,8 +75,9 @@ async def test_login_returns_problem_if_user_is_not_found(
         graphql_url, json={"query": query, "variables": variables}
     )
 
-    problem = response.json()["data"]["login"]["problems"][0]
-    assert "message" in problem
+    problems = response.json()["data"]["login"]["problems"]
+    assert len(problems) == 1
+    assert "message" in problems[0]
 
 
 @pytest.mark.anyio()
@@ -110,8 +111,9 @@ async def test_login_returns_problem_if_password_is_invalid(
         graphql_url, json={"query": query, "variables": variables}
     )
 
-    problem = response.json()["data"]["login"]["problems"][0]
-    assert "message" in problem
+    problems = response.json()["data"]["login"]["problems"]
+    assert len(problems) == 1
+    assert "message" in problems[0]
 
 
 @pytest.mark.anyio()
@@ -145,8 +147,9 @@ async def test_login_returns_problem_if_user_email_is_not_confirmed(
         graphql_url, json={"query": query, "variables": variables}
     )
 
-    problem = response.json()["data"]["login"]["problems"][0]
-    assert "message" in problem
+    problems = response.json()["data"]["login"]["problems"]
+    assert len(problems) == 1
+    assert "message" in problems[0]
 
 
 @pytest.mark.anyio()
@@ -192,8 +195,9 @@ async def test_refresh_token_returns_error_if_token_is_invalid(
         graphql_url, json={"query": query, "variables": variables}
     )
 
-    error = response.json()["errors"][0]
-    assert error["message"] == "Invalid token"
+    errors = response.json()["errors"]
+    assert len(errors) == 1
+    assert errors[0]["message"] == "Invalid token"
 
 
 @pytest.mark.anyio()
@@ -216,5 +220,6 @@ async def test_refresh_token_returns_error_if_token_has_invalid_type(
         graphql_url, json={"query": query, "variables": variables}
     )
 
-    error = response.json()["errors"][0]
-    assert error["message"] == "Invalid token"
+    errors = response.json()["errors"]
+    assert len(errors) == 1
+    assert errors[0]["message"] == "Invalid token"

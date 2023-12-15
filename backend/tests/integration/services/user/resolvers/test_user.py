@@ -72,8 +72,7 @@ async def test_create_user_returns_problem_if_email_is_invalid(
         graphql_url, json={"query": query, "variables": variables}
     )
 
-    problem = response.json()["data"]["createUser"]["problems"][0]
-    assert "email" in problem["path"]
+    assert response.json()["data"]["createUser"]["problems"] == [{"path": ["email"]}]
 
 
 @pytest.mark.anyio()
@@ -105,8 +104,7 @@ async def test_create_user_returns_problem_if_password_is_too_short(
         graphql_url, json={"query": query, "variables": variables}
     )
 
-    problem = response.json()["data"]["createUser"]["problems"][0]
-    assert "password" in problem["path"]
+    assert response.json()["data"]["createUser"]["problems"] == [{"path": ["password"]}]
 
 
 @pytest.mark.anyio()
@@ -138,8 +136,7 @@ async def test_create_user_returns_problem_if_full_name_is_too_short(
         graphql_url, json={"query": query, "variables": variables}
     )
 
-    problem = response.json()["data"]["createUser"]["problems"][0]
-    assert "fullName" in problem["path"]
+    assert response.json()["data"]["createUser"]["problems"] == [{"path": ["fullName"]}]
 
 
 @pytest.mark.anyio()
@@ -171,8 +168,7 @@ async def test_create_user_returns_problem_if_full_name_is_too_long(
         graphql_url, json={"query": query, "variables": variables}
     )
 
-    problem = response.json()["data"]["createUser"]["problems"][0]
-    assert "fullName" in problem["path"]
+    assert response.json()["data"]["createUser"]["problems"] == [{"path": ["fullName"]}]
 
 
 @pytest.mark.anyio()
@@ -205,8 +201,9 @@ async def test_create_user_returns_problem_if_user_already_exists(
         graphql_url, json={"query": query, "variables": variables}
     )
 
-    problem = response.json()["data"]["createUser"]["problems"][0]
-    assert "message" in problem
+    problems = response.json()["data"]["createUser"]["problems"]
+    assert len(problems) == 1
+    assert "message" in problems[0]
 
 
 @pytest.mark.anyio()
@@ -304,8 +301,7 @@ async def test_update_me_returns_problem_if_full_name_is_too_short(
         graphql_url, json={"query": query, "variables": variables}, headers=auth_header
     )
 
-    problem = response.json()["data"]["updateMe"]["problems"][0]
-    assert "fullName" in problem["path"]
+    assert response.json()["data"]["updateMe"]["problems"] == [{"path": ["fullName"]}]
 
 
 @pytest.mark.anyio()
@@ -340,8 +336,7 @@ async def test_update_me_returns_problem_if_full_name_is_too_long(
         graphql_url, json={"query": query, "variables": variables}, headers=auth_header
     )
 
-    problem = response.json()["data"]["updateMe"]["problems"][0]
-    assert "fullName" in problem["path"]
+    assert response.json()["data"]["updateMe"]["problems"] == [{"path": ["fullName"]}]
 
 
 @pytest.mark.anyio()
