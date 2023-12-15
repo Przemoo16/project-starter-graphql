@@ -27,11 +27,14 @@ export default component$(() => {
 
   // FIXME: Ideally it this done on the server before rendering component, however
   // I couldn't find the way to execute it only once on page enter.
-  useVisibleTask$(async () => {
-    await checkTokenValidity(new BrowserStorage(sessionStorage), async () => {
-      await getMe(getClientRequestSender(), getClientTokenStorage());
-    });
-  });
+  useVisibleTask$(
+    async () => {
+      await checkTokenValidity(new BrowserStorage(sessionStorage), async () => {
+        await getMe(getClientRequestSender(), getClientTokenStorage());
+      });
+    },
+    { strategy: 'document-ready' },
+  );
 
   useQwikSpeak({ config, translationFn });
 
