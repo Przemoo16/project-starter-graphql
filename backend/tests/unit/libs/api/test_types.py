@@ -4,7 +4,7 @@ from pydantic import BaseModel, Field, ValidationError
 from backend.libs.api.types import convert_to_dict, from_pydantic_error
 
 
-def test_from_pydantic_error_converts_pydantic_errors_to_problem_type() -> None:
+def test_from_pydantic_error_converts_pydantic_errors_to_problem_types() -> None:
     class Model(BaseModel):
         test_field: str = Field(min_length=5)
         number: int = Field(gt=0)
