@@ -23,7 +23,7 @@ export type RegisterFormSchema = {
   fullName: string;
   email: string;
   password: string;
-  repeatPassword: string;
+  repeatedPassword: string;
 };
 
 interface RegisterFormProps {
@@ -36,7 +36,7 @@ export const RegisterForm = component$(({ onSubmit }: RegisterFormProps) => {
   const t = inlineTranslate();
   const [registerForm, { Form, Field }] = useForm<RegisterFormSchema>({
     loader: {
-      value: { fullName: '', email: '', password: '', repeatPassword: '' },
+      value: { fullName: '', email: '', password: '', repeatedPassword: '' },
     },
   });
 
@@ -124,7 +124,7 @@ export const RegisterForm = component$(({ onSubmit }: RegisterFormProps) => {
         )}
       </Field>
       <Field
-        name="repeatPassword"
+        name="repeatedPassword"
         validate={[
           // @ts-expect-error: FIXME: https://github.com/fabian-hiller/modular-forms/issues/158
           required(t('validation.required')),

@@ -16,7 +16,7 @@ import { MIN_PASSWORD_LENGTH } from '~/routes/schema-config';
 
 export type ResetPasswordFormSchema = {
   password: string;
-  repeatPassword: string;
+  repeatedPassword: string;
 };
 
 interface ResetPasswordFormProps {
@@ -29,7 +29,7 @@ export const ResetPasswordForm = component$(
 
     const [resetPasswordForm, { Form, Field }] =
       useForm<ResetPasswordFormSchema>({
-        loader: { value: { password: '', repeatPassword: '' } },
+        loader: { value: { password: '', repeatedPassword: '' } },
       });
 
     const handleSubmit = $<SubmitHandler<ResetPasswordFormSchema>>(
@@ -71,7 +71,7 @@ export const ResetPasswordForm = component$(
           )}
         </Field>
         <Field
-          name="repeatPassword"
+          name="repeatedPassword"
           validate={[
             // @ts-expect-error: FIXME: https://github.com/fabian-hiller/modular-forms/issues/158
             required(t('validation.required')),

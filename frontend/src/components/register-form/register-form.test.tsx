@@ -84,7 +84,7 @@ describe('[RegisterForm Component]', () => {
     await render(<RegisterForm onSubmit={ON_SUBMIT} />);
     const input = screen.querySelector('#password') as HTMLInputElement;
 
-    await fillInput(input, userEvent, 'plainPassword');
+    await fillInput(input, userEvent, 'testPassword');
     await userEvent('button[type="submit"]', 'submit');
 
     const error = screen.querySelector('#password-error');
@@ -117,15 +117,15 @@ describe('[RegisterForm Component]', () => {
     const { screen, render, userEvent } = await createDOM();
     await render(<RegisterForm onSubmit={ON_SUBMIT} />);
     const passwordInput = screen.querySelector('#password') as HTMLInputElement;
-    const repeatPasswordInput = screen.querySelector(
-      '#repeatPassword',
+    const repeatedPasswordInput = screen.querySelector(
+      '#repeatedPassword',
     ) as HTMLInputElement;
 
-    await fillInput(passwordInput, userEvent, 'plainPassword');
-    await fillInput(repeatPasswordInput, userEvent, 'plainPassword');
+    await fillInput(passwordInput, userEvent, 'testPassword');
+    await fillInput(repeatedPasswordInput, userEvent, 'testPassword');
     await userEvent('button[type="submit"]', 'submit');
 
-    const error = screen.querySelector('#repeatPassword-error');
+    const error = screen.querySelector('#repeatedPassword-error');
     expect(error).toBeUndefined();
   });
 
@@ -136,7 +136,7 @@ describe('[RegisterForm Component]', () => {
     await userEvent('button[type="submit"]', 'submit');
 
     const error = screen.querySelector(
-      '#repeatPassword-error',
+      '#repeatedPassword-error',
     ) as HTMLDivElement;
     expect(error.innerHTML).toContain('required');
   });
@@ -145,16 +145,16 @@ describe('[RegisterForm Component]', () => {
     const { screen, render, userEvent } = await createDOM();
     await render(<RegisterForm onSubmit={ON_SUBMIT} />);
     const passwordInput = screen.querySelector('#password') as HTMLInputElement;
-    const repeatPasswordInput = screen.querySelector(
-      '#repeatPassword',
+    const repeatedPasswordInput = screen.querySelector(
+      '#repeatedPassword',
     ) as HTMLInputElement;
 
-    await fillInput(passwordInput, userEvent, 'plainPassword');
-    await fillInput(repeatPasswordInput, userEvent, 'invalidPassword');
+    await fillInput(passwordInput, userEvent, 'testPassword');
+    await fillInput(repeatedPasswordInput, userEvent, 'invalidPassword');
     await userEvent('button[type="submit"]', 'submit');
 
     const error = screen.querySelector(
-      '#repeatPassword-error',
+      '#repeatedPassword-error',
     ) as HTMLDivElement;
     expect(error.innerHTML).toContain('passwordDoesNotMatch');
   });
@@ -165,20 +165,20 @@ describe('[RegisterForm Component]', () => {
     const fullNameInput = screen.querySelector('#fullName') as HTMLInputElement;
     const emailInput = screen.querySelector('#email') as HTMLInputElement;
     const passwordInput = screen.querySelector('#password') as HTMLInputElement;
-    const repeatPasswordInput = screen.querySelector(
-      '#repeatPassword',
+    const repeatedPasswordInput = screen.querySelector(
+      '#repeatedPassword',
     ) as HTMLInputElement;
 
     await fillInput(fullNameInput, userEvent, 'Test User');
     await fillInput(emailInput, userEvent, 'test@email.com');
-    await fillInput(passwordInput, userEvent, 'plainPassword');
-    await fillInput(repeatPasswordInput, userEvent, 'plainPassword');
+    await fillInput(passwordInput, userEvent, 'testPassword');
+    await fillInput(repeatedPasswordInput, userEvent, 'testPassword');
     await userEvent('button[type="submit"]', 'submit');
 
     expect(fullNameInput.value).toEqual('');
     expect(emailInput.value).toEqual('');
     expect(passwordInput.value).toEqual('');
-    expect(repeatPasswordInput.value).toEqual('');
+    expect(repeatedPasswordInput.value).toEqual('');
   });
 
   // FIXME: Enable the test after this is resolved: https://github.com/fabian-hiller/modular-forms/issues/161
@@ -192,14 +192,14 @@ describe('[RegisterForm Component]', () => {
     const fullNameInput = screen.querySelector('#fullName') as HTMLInputElement;
     const emailInput = screen.querySelector('#email') as HTMLInputElement;
     const passwordInput = screen.querySelector('#password') as HTMLInputElement;
-    const repeatPasswordInput = screen.querySelector(
-      '#repeatPassword',
+    const repeatedPasswordInput = screen.querySelector(
+      '#repeatedPassword',
     ) as HTMLInputElement;
 
     await fillInput(fullNameInput, userEvent, 'Test User');
     await fillInput(emailInput, userEvent, 'test@email.com');
-    await fillInput(passwordInput, userEvent, 'plainPassword');
-    await fillInput(repeatPasswordInput, userEvent, 'plainPassword');
+    await fillInput(passwordInput, userEvent, 'testPassword');
+    await fillInput(repeatedPasswordInput, userEvent, 'testPassword');
     await userEvent('button[type="submit"]', 'submit');
 
     expect(screen.innerHTML).toContain('Form has been submitted successfully');

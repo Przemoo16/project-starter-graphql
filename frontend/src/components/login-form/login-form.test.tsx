@@ -48,7 +48,7 @@ describe('[LoginForm Component]', () => {
     await render(<LoginForm onSubmit={ON_SUBMIT} />);
     const input = screen.querySelector('#password') as HTMLInputElement;
 
-    await fillInput(input, userEvent, 'plainPassword');
+    await fillInput(input, userEvent, 'testPassword');
     await userEvent('button[type="submit"]', 'submit');
 
     const error = screen.querySelector('#password-error');
