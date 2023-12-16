@@ -27,6 +27,7 @@ export default component$(() => {
 
   // FIXME: Ideally it this done on the server before rendering component, however
   // I couldn't find the way to execute it only once on page enter.
+  // eslint-disable-next-line qwik/no-use-visible-task
   useVisibleTask$(
     async () => {
       await checkTokenValidity(new BrowserStorage(sessionStorage), async () => {
