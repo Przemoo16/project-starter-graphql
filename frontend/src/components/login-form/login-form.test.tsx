@@ -9,7 +9,7 @@ import { LoginForm } from './login-form';
 const ON_SUBMIT = $((_email: string, _password: string) => {});
 
 describe('[LoginForm Component]', () => {
-  test(`doesn't display error if provided proper email`, async () => {
+  test(`doesn't display error if email passes validation`, async () => {
     const { screen, render, userEvent } = await createDOM();
     await render(<LoginForm onSubmit={ON_SUBMIT} />);
     const input = screen.querySelector('#email') as HTMLInputElement;
@@ -43,7 +43,7 @@ describe('[LoginForm Component]', () => {
     expect(error.innerHTML).toContain('invalidEmail');
   });
 
-  test(`doesn't display error if provided proper password`, async () => {
+  test(`doesn't display error if password passes validation`, async () => {
     const { screen, render, userEvent } = await createDOM();
     await render(<LoginForm onSubmit={ON_SUBMIT} />);
     const input = screen.querySelector('#password') as HTMLInputElement;
