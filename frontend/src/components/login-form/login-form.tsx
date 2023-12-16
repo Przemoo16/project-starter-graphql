@@ -15,7 +15,7 @@ export type LoginFormSchema = {
 };
 
 interface LoginFormProps {
-  onSubmit: QRL<(email: string, fullName: string) => Promise<void>>;
+  onSubmit: QRL<(email: string, password: string) => Promise<void>>;
 }
 
 export const LoginForm = component$(({ onSubmit }: LoginFormProps) => {
