@@ -78,7 +78,7 @@ export const ResetPasswordForm = component$(
             // @ts-expect-error: FIXME: https://github.com/fabian-hiller/modular-forms/issues/158
             custom$(
               value => value === getValue(resetPasswordForm, 'password'),
-              t(`validation.passwordMatch`),
+              t(`validation.passwordDoesNotMatch`),
             ),
           ]}
         >
