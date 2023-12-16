@@ -8,7 +8,8 @@ const EMPTY_CALLBACK = $(() => {});
 
 test(`[TextInput Component]: doesn't render label`, async () => {
   const { screen, render } = await createDOM();
-  const component = (
+
+  await render(
     <TextInput
       name="test"
       type="text"
@@ -18,10 +19,8 @@ test(`[TextInput Component]: doesn't render label`, async () => {
       onInput$={EMPTY_CALLBACK}
       onChange$={EMPTY_CALLBACK}
       onBlur$={EMPTY_CALLBACK}
-    />
+    />,
   );
-
-  await render(component);
 
   const label = screen.querySelector('label[for="test"]') as HTMLLabelElement;
   expect(label).toBeUndefined();
@@ -29,7 +28,8 @@ test(`[TextInput Component]: doesn't render label`, async () => {
 
 test(`[TextInput Component]: renders label`, async () => {
   const { screen, render } = await createDOM();
-  const component = (
+
+  await render(
     <TextInput
       name="test"
       type="text"
@@ -40,10 +40,8 @@ test(`[TextInput Component]: renders label`, async () => {
       onInput$={EMPTY_CALLBACK}
       onChange$={EMPTY_CALLBACK}
       onBlur$={EMPTY_CALLBACK}
-    />
+    />,
   );
-
-  await render(component);
 
   const label = screen.querySelector('label[for="test"]') as HTMLLabelElement;
   expect(label.innerHTML).toContain('Test Label ');
@@ -51,7 +49,8 @@ test(`[TextInput Component]: renders label`, async () => {
 
 test(`[TextInput Component]: renders required label`, async () => {
   const { screen, render } = await createDOM();
-  const component = (
+
+  await render(
     <TextInput
       name="test"
       type="text"
@@ -63,10 +62,8 @@ test(`[TextInput Component]: renders required label`, async () => {
       onInput$={EMPTY_CALLBACK}
       onChange$={EMPTY_CALLBACK}
       onBlur$={EMPTY_CALLBACK}
-    />
+    />,
   );
-
-  await render(component);
 
   const label = screen.querySelector('label[for="test"]') as HTMLLabelElement;
   expect(label.innerHTML).toContain('Test Label <span>*</span>');
@@ -74,7 +71,8 @@ test(`[TextInput Component]: renders required label`, async () => {
 
 test(`[TextInput Component]: renders input without error`, async () => {
   const { screen, render } = await createDOM();
-  const component = (
+
+  await render(
     <TextInput
       name="test"
       type="text"
@@ -85,10 +83,8 @@ test(`[TextInput Component]: renders input without error`, async () => {
       onInput$={EMPTY_CALLBACK}
       onChange$={EMPTY_CALLBACK}
       onBlur$={EMPTY_CALLBACK}
-    />
+    />,
   );
-
-  await render(component);
 
   const input = screen.querySelector('#test') as HTMLInputElement;
   expect(input.outerHTML).toContain(
@@ -100,7 +96,8 @@ test(`[TextInput Component]: renders input without error`, async () => {
 
 test(`[TextInput Component]: renders input with error`, async () => {
   const { screen, render } = await createDOM();
-  const component = (
+
+  await render(
     <TextInput
       name="test"
       type="text"
@@ -111,10 +108,8 @@ test(`[TextInput Component]: renders input with error`, async () => {
       onInput$={EMPTY_CALLBACK}
       onChange$={EMPTY_CALLBACK}
       onBlur$={EMPTY_CALLBACK}
-    />
+    />,
   );
-
-  await render(component);
 
   const input = screen.querySelector('#test') as HTMLInputElement;
   expect(input.outerHTML).toContain(

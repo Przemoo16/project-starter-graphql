@@ -131,7 +131,7 @@ export const RegisterForm = component$(({ onSubmit }: RegisterFormProps) => {
           // @ts-expect-error: FIXME: https://github.com/fabian-hiller/modular-forms/issues/158
           custom$(
             value => value === getValue(registerForm, 'password'),
-            t(`validation.passwordMatch`),
+            t(`validation.passwordDoesNotMatch`),
           ),
         ]}
       >
