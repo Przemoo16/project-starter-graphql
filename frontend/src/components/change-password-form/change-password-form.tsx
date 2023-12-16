@@ -17,7 +17,7 @@ import { MIN_PASSWORD_LENGTH } from '~/routes/schema-config';
 export type ChangePasswordFormSchema = {
   currentPassword: string;
   newPassword: string;
-  repeatNewPassword: string;
+  repeatedNewPassword: string;
 };
 
 interface ChangePasswordFormProps {
@@ -35,7 +35,7 @@ export const ChangePasswordForm = component$(
           value: {
             currentPassword: '',
             newPassword: '',
-            repeatNewPassword: '',
+            repeatedNewPassword: '',
           },
         },
       });
@@ -97,7 +97,7 @@ export const ChangePasswordForm = component$(
           )}
         </Field>
         <Field
-          name="repeatNewPassword"
+          name="repeatedNewPassword"
           validate={[
             // @ts-expect-error: FIXME: https://github.com/fabian-hiller/modular-forms/issues/158
             required(t('validation.required')),
