@@ -29,22 +29,21 @@ interface ChangePasswordFormProps {
 export const ChangePasswordForm = component$(
   ({ onSubmit }: ChangePasswordFormProps) => {
     const t = inlineTranslate();
-    const [changePasswordForm, { Form, Field }] =
-      useForm<ChangePasswordFormSchema>({
-        loader: {
-          value: {
-            currentPassword: '',
-            newPassword: '',
-            repeatedPassword: '',
-          },
+    const [form, { Form, Field }] = useForm<ChangePasswordFormSchema>({
+      loader: {
+        value: {
+          currentPassword: '',
+          newPassword: '',
+          repeatedPassword: '',
         },
-      });
+      },
+    });
 
     const handleSubmit = $<SubmitHandler<ChangePasswordFormSchema>>(
       async ({ currentPassword, newPassword }, _event) => {
         const message = await onSubmit(currentPassword, newPassword);
-        reset(changePasswordForm);
-        setResponse(changePasswordForm, {
+        reset(form);
+        setResponse(form, {
           message,
         });
       },
@@ -103,7 +102,7 @@ export const ChangePasswordForm = component$(
             required(t('validation.required')),
             // @ts-expect-error: FIXME: https://github.com/fabian-hiller/modular-forms/issues/158
             custom$(
-              value => value === getValue(changePasswordForm, 'newPassword'),
+              value => value === getValue(form, 'newPassword'),
               t(`validation.passwordDoesNotMatch`),
             ),
           ]}
@@ -120,8 +119,8 @@ export const ChangePasswordForm = component$(
             />
           )}
         </Field>
-        <div>{changePasswordForm.response.message}</div>
-        <button type="submit" disabled={changePasswordForm.submitting}>
+        <div>{form.response.message}</div>
+        <button type="submit" disabled={form.submitting}>
           {t('changePassword.changePassword')}
         </button>
       </Form>

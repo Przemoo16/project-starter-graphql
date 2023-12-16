@@ -20,7 +20,7 @@ interface LoginFormProps {
 
 export const LoginForm = component$(({ onSubmit }: LoginFormProps) => {
   const t = inlineTranslate();
-  const [loginForm, { Form, Field }] = useForm<LoginFormSchema>({
+  const [form, { Form, Field }] = useForm<LoginFormSchema>({
     loader: { value: { email: '', password: '' } },
   });
 
@@ -74,8 +74,8 @@ export const LoginForm = component$(({ onSubmit }: LoginFormProps) => {
           />
         )}
       </Field>
-      <div>{loginForm.response.message}</div>
-      <button type="submit" disabled={loginForm.submitting}>
+      <div>{form.response.message}</div>
+      <button type="submit" disabled={form.submitting}>
         {t('login.login')}
       </button>
     </Form>

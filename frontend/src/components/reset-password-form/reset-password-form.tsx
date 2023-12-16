@@ -27,16 +27,15 @@ export const ResetPasswordForm = component$(
   ({ onSubmit }: ResetPasswordFormProps) => {
     const t = inlineTranslate();
 
-    const [resetPasswordForm, { Form, Field }] =
-      useForm<ResetPasswordFormSchema>({
-        loader: { value: { password: '', repeatedPassword: '' } },
-      });
+    const [form, { Form, Field }] = useForm<ResetPasswordFormSchema>({
+      loader: { value: { password: '', repeatedPassword: '' } },
+    });
 
     const handleSubmit = $<SubmitHandler<ResetPasswordFormSchema>>(
       async ({ password }, _event) => {
         const message = await onSubmit(password);
-        reset(resetPasswordForm);
-        setResponse(resetPasswordForm, {
+        reset(form);
+        setResponse(form, {
           message,
         });
       },
@@ -77,7 +76,7 @@ export const ResetPasswordForm = component$(
             required(t('validation.required')),
             // @ts-expect-error: FIXME: https://github.com/fabian-hiller/modular-forms/issues/158
             custom$(
-              value => value === getValue(resetPasswordForm, 'password'),
+              value => value === getValue(form, 'password'),
               t(`validation.passwordDoesNotMatch`),
             ),
           ]}
@@ -94,8 +93,8 @@ export const ResetPasswordForm = component$(
             />
           )}
         </Field>
-        <div>{resetPasswordForm.response.message}</div>
-        <button type="submit" disabled={resetPasswordForm.submitting}>
+        <div>{form.response.message}</div>
+        <button type="submit" disabled={form.submitting}>
           {t('resetPassword.resetPassword')}
         </button>
       </Form>
