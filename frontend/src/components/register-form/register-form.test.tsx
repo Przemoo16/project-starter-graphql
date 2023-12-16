@@ -1,6 +1,6 @@
 import { $ } from '@builder.io/qwik';
 import { createDOM } from '@builder.io/qwik/testing';
-import { expect, test } from 'vitest';
+import { describe, expect, test } from 'vitest';
 
 import { fillInput } from '~/tests/input';
 
@@ -10,192 +10,198 @@ const ON_SUBMIT = $(
   (fullName: string, email: string, password: string) => 'Success',
 );
 
-test(`[RegisterForm Component]: doesn't display error if provided proper full name`, async () => {
-  const { screen, render, userEvent } = await createDOM();
-  await render(<RegisterForm onSubmit={ON_SUBMIT} />);
-  const input = screen.querySelector('#fullName') as HTMLInputElement;
+describe('[RegisterForm Component]', () => {
+  test(`doesn't display error if provided proper full name`, async () => {
+    const { screen, render, userEvent } = await createDOM();
+    await render(<RegisterForm onSubmit={ON_SUBMIT} />);
+    const input = screen.querySelector('#fullName') as HTMLInputElement;
 
-  await fillInput(input, userEvent, 'Test User');
-  await userEvent('button[type="submit"]', 'submit');
+    await fillInput(input, userEvent, 'Test User');
+    await userEvent('button[type="submit"]', 'submit');
 
-  const error = screen.querySelector('#fullName-error');
-  expect(error).toBeUndefined();
-});
+    const error = screen.querySelector('#fullName-error');
+    expect(error).toBeUndefined();
+  });
 
-test(`[RegisterForm Component]: displays error if full name is not provided`, async () => {
-  const { screen, render, userEvent } = await createDOM();
-  await render(<RegisterForm onSubmit={ON_SUBMIT} />);
+  test(`displays error if full name is not provided`, async () => {
+    const { screen, render, userEvent } = await createDOM();
+    await render(<RegisterForm onSubmit={ON_SUBMIT} />);
 
-  await userEvent('button[type="submit"]', 'submit');
+    await userEvent('button[type="submit"]', 'submit');
 
-  const error = screen.querySelector('#fullName-error') as HTMLDivElement;
-  expect(error.innerHTML).toContain('required');
-});
+    const error = screen.querySelector('#fullName-error') as HTMLDivElement;
+    expect(error.innerHTML).toContain('required');
+  });
 
-test(`[RegisterForm Component]: displays error if full name is too long`, async () => {
-  const { screen, render, userEvent } = await createDOM();
-  await render(<RegisterForm onSubmit={ON_SUBMIT} />);
-  const input = screen.querySelector('#fullName') as HTMLInputElement;
+  test(`displays error if full name is too long`, async () => {
+    const { screen, render, userEvent } = await createDOM();
+    await render(<RegisterForm onSubmit={ON_SUBMIT} />);
+    const input = screen.querySelector('#fullName') as HTMLInputElement;
 
-  await fillInput(input, userEvent, 'T'.repeat(129));
-  await userEvent('button[type="submit"]', 'submit');
+    await fillInput(input, userEvent, 'T'.repeat(129));
+    await userEvent('button[type="submit"]', 'submit');
 
-  const error = screen.querySelector('#fullName-error') as HTMLDivElement;
-  expect(error.innerHTML).toContain('maxFullName');
-});
+    const error = screen.querySelector('#fullName-error') as HTMLDivElement;
+    expect(error.innerHTML).toContain('maxFullName');
+  });
 
-test(`[RegisterForm Component]: doesn't display error if provided proper email`, async () => {
-  const { screen, render, userEvent } = await createDOM();
-  await render(<RegisterForm onSubmit={ON_SUBMIT} />);
-  const input = screen.querySelector('#email') as HTMLInputElement;
+  test(`doesn't display error if provided proper email`, async () => {
+    const { screen, render, userEvent } = await createDOM();
+    await render(<RegisterForm onSubmit={ON_SUBMIT} />);
+    const input = screen.querySelector('#email') as HTMLInputElement;
 
-  await fillInput(input, userEvent, 'test@email.com');
-  await userEvent('button[type="submit"]', 'submit');
+    await fillInput(input, userEvent, 'test@email.com');
+    await userEvent('button[type="submit"]', 'submit');
 
-  const error = screen.querySelector('#email-error');
-  expect(error).toBeUndefined();
-});
+    const error = screen.querySelector('#email-error');
+    expect(error).toBeUndefined();
+  });
 
-test(`[RegisterForm Component]: displays error if email is not provided`, async () => {
-  const { screen, render, userEvent } = await createDOM();
-  await render(<RegisterForm onSubmit={ON_SUBMIT} />);
+  test(`displays error if email is not provided`, async () => {
+    const { screen, render, userEvent } = await createDOM();
+    await render(<RegisterForm onSubmit={ON_SUBMIT} />);
 
-  await userEvent('button[type="submit"]', 'submit');
+    await userEvent('button[type="submit"]', 'submit');
 
-  const error = screen.querySelector('#email-error') as HTMLDivElement;
-  expect(error.innerHTML).toContain('required');
-});
+    const error = screen.querySelector('#email-error') as HTMLDivElement;
+    expect(error.innerHTML).toContain('required');
+  });
 
-test(`[RegisterForm Component]: displays error if email is invalid`, async () => {
-  const { screen, render, userEvent } = await createDOM();
-  await render(<RegisterForm onSubmit={ON_SUBMIT} />);
-  const input = screen.querySelector('#email') as HTMLInputElement;
+  test(`displays error if email is invalid`, async () => {
+    const { screen, render, userEvent } = await createDOM();
+    await render(<RegisterForm onSubmit={ON_SUBMIT} />);
+    const input = screen.querySelector('#email') as HTMLInputElement;
 
-  await fillInput(input, userEvent, 'test');
-  await userEvent('button[type="submit"]', 'submit');
+    await fillInput(input, userEvent, 'test');
+    await userEvent('button[type="submit"]', 'submit');
 
-  const error = screen.querySelector('#email-error') as HTMLDivElement;
-  expect(error.innerHTML).toContain('invalidEmail');
-});
+    const error = screen.querySelector('#email-error') as HTMLDivElement;
+    expect(error.innerHTML).toContain('invalidEmail');
+  });
 
-test(`[RegisterForm Component]: doesn't display error if provided proper password`, async () => {
-  const { screen, render, userEvent } = await createDOM();
-  await render(<RegisterForm onSubmit={ON_SUBMIT} />);
-  const input = screen.querySelector('#password') as HTMLInputElement;
+  test(`doesn't display error if provided proper password`, async () => {
+    const { screen, render, userEvent } = await createDOM();
+    await render(<RegisterForm onSubmit={ON_SUBMIT} />);
+    const input = screen.querySelector('#password') as HTMLInputElement;
 
-  await fillInput(input, userEvent, 'plainPassword');
-  await userEvent('button[type="submit"]', 'submit');
+    await fillInput(input, userEvent, 'plainPassword');
+    await userEvent('button[type="submit"]', 'submit');
 
-  const error = screen.querySelector('#password-error');
-  expect(error).toBeUndefined();
-});
+    const error = screen.querySelector('#password-error');
+    expect(error).toBeUndefined();
+  });
 
-test(`[RegisterForm Component]: displays error if password is not provided`, async () => {
-  const { screen, render, userEvent } = await createDOM();
-  await render(<RegisterForm onSubmit={ON_SUBMIT} />);
+  test(`displays error if password is not provided`, async () => {
+    const { screen, render, userEvent } = await createDOM();
+    await render(<RegisterForm onSubmit={ON_SUBMIT} />);
 
-  await userEvent('button[type="submit"]', 'submit');
+    await userEvent('button[type="submit"]', 'submit');
 
-  const error = screen.querySelector('#password-error') as HTMLDivElement;
-  expect(error.innerHTML).toContain('required');
-});
+    const error = screen.querySelector('#password-error') as HTMLDivElement;
+    expect(error.innerHTML).toContain('required');
+  });
 
-test(`[RegisterForm Component]: displays error if password is too short`, async () => {
-  const { screen, render, userEvent } = await createDOM();
-  await render(<RegisterForm onSubmit={ON_SUBMIT} />);
-  const input = screen.querySelector('#password') as HTMLInputElement;
+  test(`displays error if password is too short`, async () => {
+    const { screen, render, userEvent } = await createDOM();
+    await render(<RegisterForm onSubmit={ON_SUBMIT} />);
+    const input = screen.querySelector('#password') as HTMLInputElement;
 
-  await fillInput(input, userEvent, 'p');
-  await userEvent('button[type="submit"]', 'submit');
+    await fillInput(input, userEvent, 'p');
+    await userEvent('button[type="submit"]', 'submit');
 
-  const error = screen.querySelector('#password-error') as HTMLDivElement;
-  expect(error.innerHTML).toContain('minPassword');
-});
+    const error = screen.querySelector('#password-error') as HTMLDivElement;
+    expect(error.innerHTML).toContain('minPassword');
+  });
 
-test(`[RegisterForm Component]: doesn't display error if provided proper repeated password`, async () => {
-  const { screen, render, userEvent } = await createDOM();
-  await render(<RegisterForm onSubmit={ON_SUBMIT} />);
-  const passwordInput = screen.querySelector('#password') as HTMLInputElement;
-  const repeatPasswordInput = screen.querySelector(
-    '#repeatPassword',
-  ) as HTMLInputElement;
+  test(`doesn't display error if provided proper repeated password`, async () => {
+    const { screen, render, userEvent } = await createDOM();
+    await render(<RegisterForm onSubmit={ON_SUBMIT} />);
+    const passwordInput = screen.querySelector('#password') as HTMLInputElement;
+    const repeatPasswordInput = screen.querySelector(
+      '#repeatPassword',
+    ) as HTMLInputElement;
 
-  await fillInput(passwordInput, userEvent, 'plainPassword');
-  await fillInput(repeatPasswordInput, userEvent, 'plainPassword');
-  await userEvent('button[type="submit"]', 'submit');
+    await fillInput(passwordInput, userEvent, 'plainPassword');
+    await fillInput(repeatPasswordInput, userEvent, 'plainPassword');
+    await userEvent('button[type="submit"]', 'submit');
 
-  const error = screen.querySelector('#repeatPassword-error');
-  expect(error).toBeUndefined();
-});
+    const error = screen.querySelector('#repeatPassword-error');
+    expect(error).toBeUndefined();
+  });
 
-test(`[RegisterForm Component]: displays error if repeated password is not provided`, async () => {
-  const { screen, render, userEvent } = await createDOM();
-  await render(<RegisterForm onSubmit={ON_SUBMIT} />);
+  test(`displays error if repeated password is not provided`, async () => {
+    const { screen, render, userEvent } = await createDOM();
+    await render(<RegisterForm onSubmit={ON_SUBMIT} />);
 
-  await userEvent('button[type="submit"]', 'submit');
+    await userEvent('button[type="submit"]', 'submit');
 
-  const error = screen.querySelector('#repeatPassword-error') as HTMLDivElement;
-  expect(error.innerHTML).toContain('required');
-});
+    const error = screen.querySelector(
+      '#repeatPassword-error',
+    ) as HTMLDivElement;
+    expect(error.innerHTML).toContain('required');
+  });
 
-test(`[RegisterForm Component]: displays error if repeated password doesn't match`, async () => {
-  const { screen, render, userEvent } = await createDOM();
-  await render(<RegisterForm onSubmit={ON_SUBMIT} />);
-  const passwordInput = screen.querySelector('#password') as HTMLInputElement;
-  const repeatPasswordInput = screen.querySelector(
-    '#repeatPassword',
-  ) as HTMLInputElement;
+  test(`displays error if repeated password doesn't match`, async () => {
+    const { screen, render, userEvent } = await createDOM();
+    await render(<RegisterForm onSubmit={ON_SUBMIT} />);
+    const passwordInput = screen.querySelector('#password') as HTMLInputElement;
+    const repeatPasswordInput = screen.querySelector(
+      '#repeatPassword',
+    ) as HTMLInputElement;
 
-  await fillInput(passwordInput, userEvent, 'plainPassword');
-  await fillInput(repeatPasswordInput, userEvent, 'invalidPassword');
-  await userEvent('button[type="submit"]', 'submit');
+    await fillInput(passwordInput, userEvent, 'plainPassword');
+    await fillInput(repeatPasswordInput, userEvent, 'invalidPassword');
+    await userEvent('button[type="submit"]', 'submit');
 
-  const error = screen.querySelector('#repeatPassword-error') as HTMLDivElement;
-  expect(error.innerHTML).toContain('passwordDoesNotMatch');
-});
+    const error = screen.querySelector(
+      '#repeatPassword-error',
+    ) as HTMLDivElement;
+    expect(error.innerHTML).toContain('passwordDoesNotMatch');
+  });
 
-test(`[RegisterForm Component]: resets form after submit`, async () => {
-  const { screen, render, userEvent } = await createDOM();
-  await render(<RegisterForm onSubmit={ON_SUBMIT} />);
-  const fullNameInput = screen.querySelector('#fullName') as HTMLInputElement;
-  const emailInput = screen.querySelector('#email') as HTMLInputElement;
-  const passwordInput = screen.querySelector('#password') as HTMLInputElement;
-  const repeatPasswordInput = screen.querySelector(
-    '#repeatPassword',
-  ) as HTMLInputElement;
+  test(`resets form after submit`, async () => {
+    const { screen, render, userEvent } = await createDOM();
+    await render(<RegisterForm onSubmit={ON_SUBMIT} />);
+    const fullNameInput = screen.querySelector('#fullName') as HTMLInputElement;
+    const emailInput = screen.querySelector('#email') as HTMLInputElement;
+    const passwordInput = screen.querySelector('#password') as HTMLInputElement;
+    const repeatPasswordInput = screen.querySelector(
+      '#repeatPassword',
+    ) as HTMLInputElement;
 
-  await fillInput(fullNameInput, userEvent, 'Test User');
-  await fillInput(emailInput, userEvent, 'test@email.com');
-  await fillInput(passwordInput, userEvent, 'plainPassword');
-  await fillInput(repeatPasswordInput, userEvent, 'plainPassword');
-  await userEvent('button[type="submit"]', 'submit');
+    await fillInput(fullNameInput, userEvent, 'Test User');
+    await fillInput(emailInput, userEvent, 'test@email.com');
+    await fillInput(passwordInput, userEvent, 'plainPassword');
+    await fillInput(repeatPasswordInput, userEvent, 'plainPassword');
+    await userEvent('button[type="submit"]', 'submit');
 
-  expect(fullNameInput.value).toEqual('');
-  expect(emailInput.value).toEqual('');
-  expect(passwordInput.value).toEqual('');
-  expect(repeatPasswordInput.value).toEqual('');
-});
+    expect(fullNameInput.value).toEqual('');
+    expect(emailInput.value).toEqual('');
+    expect(passwordInput.value).toEqual('');
+    expect(repeatPasswordInput.value).toEqual('');
+  });
 
-// FIXME: Enable the test after this is resolved: https://github.com/fabian-hiller/modular-forms/issues/161
-test.skip(`[RegisterForm Component]: displays success message`, async () => {
-  const { screen, render, userEvent } = await createDOM();
-  const onSubmit = $(
-    (fullName: string, email: string, password: string) =>
-      'Form has been submitted successfully',
-  );
-  await render(<RegisterForm onSubmit={onSubmit} />);
-  const fullNameInput = screen.querySelector('#fullName') as HTMLInputElement;
-  const emailInput = screen.querySelector('#email') as HTMLInputElement;
-  const passwordInput = screen.querySelector('#password') as HTMLInputElement;
-  const repeatPasswordInput = screen.querySelector(
-    '#repeatPassword',
-  ) as HTMLInputElement;
+  // FIXME: Enable the test after this is resolved: https://github.com/fabian-hiller/modular-forms/issues/161
+  test.skip(`displays success message`, async () => {
+    const { screen, render, userEvent } = await createDOM();
+    const onSubmit = $(
+      (fullName: string, email: string, password: string) =>
+        'Form has been submitted successfully',
+    );
+    await render(<RegisterForm onSubmit={onSubmit} />);
+    const fullNameInput = screen.querySelector('#fullName') as HTMLInputElement;
+    const emailInput = screen.querySelector('#email') as HTMLInputElement;
+    const passwordInput = screen.querySelector('#password') as HTMLInputElement;
+    const repeatPasswordInput = screen.querySelector(
+      '#repeatPassword',
+    ) as HTMLInputElement;
 
-  await fillInput(fullNameInput, userEvent, 'Test User');
-  await fillInput(emailInput, userEvent, 'test@email.com');
-  await fillInput(passwordInput, userEvent, 'plainPassword');
-  await fillInput(repeatPasswordInput, userEvent, 'plainPassword');
-  await userEvent('button[type="submit"]', 'submit');
+    await fillInput(fullNameInput, userEvent, 'Test User');
+    await fillInput(emailInput, userEvent, 'test@email.com');
+    await fillInput(passwordInput, userEvent, 'plainPassword');
+    await fillInput(repeatPasswordInput, userEvent, 'plainPassword');
+    await userEvent('button[type="submit"]', 'submit');
 
-  expect(screen.innerHTML).toContain('Form has been submitted successfully');
+    expect(screen.innerHTML).toContain('Form has been submitted successfully');
+  });
 });
