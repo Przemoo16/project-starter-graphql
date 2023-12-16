@@ -24,15 +24,14 @@ interface UpdateAccountFormProps {
 export const UpdateAccountForm = component$(
   ({ loader, onSubmit }: UpdateAccountFormProps) => {
     const t = inlineTranslate();
-    const [updateAccountForm, { Form, Field }] =
-      useForm<UpdateAccountFormSchema>({
-        loader,
-      });
+    const [form, { Form, Field }] = useForm<UpdateAccountFormSchema>({
+      loader,
+    });
 
     const handleSubmit = $<SubmitHandler<UpdateAccountFormSchema>>(
       async ({ fullName }, _event) => {
         const message = await onSubmit(fullName);
-        setResponse(updateAccountForm, {
+        setResponse(form, {
           message,
         });
       },
@@ -65,8 +64,8 @@ export const UpdateAccountForm = component$(
             />
           )}
         </Field>
-        <div>{updateAccountForm.response.message}</div>
-        <button type="submit" disabled={updateAccountForm.submitting}>
+        <div>{form.response.message}</div>
+        <button type="submit" disabled={form.submitting}>
           {t('updateAccount.updateAccount')}
         </button>
       </Form>

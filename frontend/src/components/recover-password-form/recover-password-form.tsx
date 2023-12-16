@@ -22,16 +22,15 @@ interface RecoverPasswordFormProps {
 export const RecoverPasswordForm = component$(
   ({ onSubmit }: RecoverPasswordFormProps) => {
     const t = inlineTranslate();
-    const [recoverPasswordForm, { Form, Field }] =
-      useForm<RecoverPasswordFormSchema>({
-        loader: { value: { email: '' } },
-      });
+    const [form, { Form, Field }] = useForm<RecoverPasswordFormSchema>({
+      loader: { value: { email: '' } },
+    });
 
     const handleSubmit = $<SubmitHandler<RecoverPasswordFormSchema>>(
       async ({ email }, _event) => {
         const message = await onSubmit(email);
-        reset(recoverPasswordForm);
-        setResponse(recoverPasswordForm, {
+        reset(form);
+        setResponse(form, {
           message,
         });
       },
@@ -61,8 +60,8 @@ export const RecoverPasswordForm = component$(
             />
           )}
         </Field>
-        <div>{recoverPasswordForm.response.message}</div>
-        <button type="submit" disabled={recoverPasswordForm.submitting}>
+        <div>{form.response.message}</div>
+        <button type="submit" disabled={form.submitting}>
           {t('recoverPassword.recoverPassword')}
         </button>
       </Form>

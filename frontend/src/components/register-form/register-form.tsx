@@ -34,7 +34,7 @@ interface RegisterFormProps {
 
 export const RegisterForm = component$(({ onSubmit }: RegisterFormProps) => {
   const t = inlineTranslate();
-  const [registerForm, { Form, Field }] = useForm<RegisterFormSchema>({
+  const [form, { Form, Field }] = useForm<RegisterFormSchema>({
     loader: {
       value: { fullName: '', email: '', password: '', repeatedPassword: '' },
     },
@@ -43,8 +43,8 @@ export const RegisterForm = component$(({ onSubmit }: RegisterFormProps) => {
   const handleSubmit = $<SubmitHandler<RegisterFormSchema>>(
     async ({ fullName, email, password }, _event) => {
       const message = await onSubmit(fullName, email, password);
-      reset(registerForm);
-      setResponse(registerForm, {
+      reset(form);
+      setResponse(form, {
         message,
       });
     },
@@ -130,7 +130,7 @@ export const RegisterForm = component$(({ onSubmit }: RegisterFormProps) => {
           required(t('validation.required')),
           // @ts-expect-error: FIXME: https://github.com/fabian-hiller/modular-forms/issues/158
           custom$(
-            value => value === getValue(registerForm, 'password'),
+            value => value === getValue(form, 'password'),
             t(`validation.passwordDoesNotMatch`),
           ),
         ]}
@@ -147,8 +147,8 @@ export const RegisterForm = component$(({ onSubmit }: RegisterFormProps) => {
           />
         )}
       </Field>
-      <div>{registerForm.response.message}</div>
-      <button type="submit" disabled={registerForm.submitting}>
+      <div>{form.response.message}</div>
+      <button type="submit" disabled={form.submitting}>
         {t('register.getStarted')}
       </button>
     </Form>
