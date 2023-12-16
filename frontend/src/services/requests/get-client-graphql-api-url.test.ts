@@ -1,17 +1,22 @@
-import { expect, test, vi } from 'vitest';
+import { describe, expect, test, vi } from 'vitest';
 
 import { getClientGraphQLApiUrl } from './get-client-graphql-api-url';
 
-test(`[getClientGraphQLApiUrl function]: returns default URL`, () => {
-  const url = getClientGraphQLApiUrl();
+describe('[getClientGraphQLApiUrl function]', () => {
+  test(`returns default URL`, () => {
+    const url = getClientGraphQLApiUrl();
 
-  expect(url).toEqual('/api/graphql');
-});
+    expect(url).toEqual('/api/graphql');
+  });
 
-test(`[getClientGraphQLApiUrl function]: returns URL from env variable`, () => {
-  vi.stubEnv('PUBLIC_CLIENT_GRAPHQL_API_URL', 'http://client-url/api/graphql');
+  test(`returns URL from env variable`, () => {
+    vi.stubEnv(
+      'PUBLIC_CLIENT_GRAPHQL_API_URL',
+      'http://client-url/api/graphql',
+    );
 
-  const url = getClientGraphQLApiUrl();
+    const url = getClientGraphQLApiUrl();
 
-  expect(url).toEqual('http://client-url/api/graphql');
+    expect(url).toEqual('http://client-url/api/graphql');
+  });
 });
