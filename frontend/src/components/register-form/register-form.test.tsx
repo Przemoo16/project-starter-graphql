@@ -11,7 +11,7 @@ const ON_SUBMIT = $(
 );
 
 describe('[RegisterForm Component]', () => {
-  test(`doesn't display error if provided proper full name`, async () => {
+  test(`doesn't display error if full name passes validation`, async () => {
     const { screen, render, userEvent } = await createDOM();
     await render(<RegisterForm onSubmit={ON_SUBMIT} />);
     const input = screen.querySelector('#fullName') as HTMLInputElement;
@@ -45,7 +45,7 @@ describe('[RegisterForm Component]', () => {
     expect(error.innerHTML).toContain('maxFullName');
   });
 
-  test(`doesn't display error if provided proper email`, async () => {
+  test(`doesn't display error if email passes validation`, async () => {
     const { screen, render, userEvent } = await createDOM();
     await render(<RegisterForm onSubmit={ON_SUBMIT} />);
     const input = screen.querySelector('#email') as HTMLInputElement;
@@ -79,7 +79,7 @@ describe('[RegisterForm Component]', () => {
     expect(error.innerHTML).toContain('invalidEmail');
   });
 
-  test(`doesn't display error if provided proper password`, async () => {
+  test(`doesn't display error if password passes validation`, async () => {
     const { screen, render, userEvent } = await createDOM();
     await render(<RegisterForm onSubmit={ON_SUBMIT} />);
     const input = screen.querySelector('#password') as HTMLInputElement;
@@ -113,7 +113,7 @@ describe('[RegisterForm Component]', () => {
     expect(error.innerHTML).toContain('minPassword');
   });
 
-  test(`doesn't display error if provided proper repeated password`, async () => {
+  test(`doesn't display error if repeated password passes validation`, async () => {
     const { screen, render, userEvent } = await createDOM();
     await render(<RegisterForm onSubmit={ON_SUBMIT} />);
     const passwordInput = screen.querySelector('#password') as HTMLInputElement;

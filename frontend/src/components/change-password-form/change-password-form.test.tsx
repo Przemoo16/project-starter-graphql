@@ -11,7 +11,7 @@ const ON_SUBMIT = $(
 );
 
 describe('[ChangePasswordForm Component]', () => {
-  test(`doesn't display error if provided proper current password`, async () => {
+  test(`doesn't display error if current password passes validation`, async () => {
     const { screen, render, userEvent } = await createDOM();
     await render(<ChangePasswordForm onSubmit={ON_SUBMIT} />);
     const input = screen.querySelector('#currentPassword') as HTMLInputElement;
@@ -35,7 +35,7 @@ describe('[ChangePasswordForm Component]', () => {
     expect(error.innerHTML).toContain('required');
   });
 
-  test(`doesn't display error if provided proper new password`, async () => {
+  test(`doesn't display error if new password passes validation`, async () => {
     const { screen, render, userEvent } = await createDOM();
     await render(<ChangePasswordForm onSubmit={ON_SUBMIT} />);
     const input = screen.querySelector('#newPassword') as HTMLInputElement;
@@ -69,32 +69,32 @@ describe('[ChangePasswordForm Component]', () => {
     expect(error.innerHTML).toContain('minPassword');
   });
 
-  test(`doesn't display error if provided proper repeated new password`, async () => {
+  test(`doesn't display error if repeated password passes validation`, async () => {
     const { screen, render, userEvent } = await createDOM();
     await render(<ChangePasswordForm onSubmit={ON_SUBMIT} />);
     const newPasswordInput = screen.querySelector(
       '#newPassword',
     ) as HTMLInputElement;
-    const repeatedNewPasswordInput = screen.querySelector(
-      '#repeatedNewPassword',
+    const repeatedPasswordInput = screen.querySelector(
+      '#repeatedPassword',
     ) as HTMLInputElement;
 
     await fillInput(newPasswordInput, userEvent, 'newPassword');
-    await fillInput(repeatedNewPasswordInput, userEvent, 'newPassword');
+    await fillInput(repeatedPasswordInput, userEvent, 'newPassword');
     await userEvent('button[type="submit"]', 'submit');
 
-    const error = screen.querySelector('#repeatedNewPassword-error');
+    const error = screen.querySelector('#repeatedPassword-error');
     expect(error).toBeUndefined();
   });
 
-  test(`displays error if repeated new password is not provided`, async () => {
+  test(`displays error if repeated password is not provided`, async () => {
     const { screen, render, userEvent } = await createDOM();
     await render(<ChangePasswordForm onSubmit={ON_SUBMIT} />);
 
     await userEvent('button[type="submit"]', 'submit');
 
     const error = screen.querySelector(
-      '#repeatedNewPassword-error',
+      '#repeatedPassword-error',
     ) as HTMLDivElement;
     expect(error.innerHTML).toContain('required');
   });
@@ -105,16 +105,16 @@ describe('[ChangePasswordForm Component]', () => {
     const newPasswordInput = screen.querySelector(
       '#newPassword',
     ) as HTMLInputElement;
-    const repeatedNewPasswordInput = screen.querySelector(
-      '#repeatedNewPassword',
+    const repeatedPasswordInput = screen.querySelector(
+      '#repeatedPassword',
     ) as HTMLInputElement;
 
     await fillInput(newPasswordInput, userEvent, 'newPassword');
-    await fillInput(repeatedNewPasswordInput, userEvent, 'invalidPassword');
+    await fillInput(repeatedPasswordInput, userEvent, 'invalidPassword');
     await userEvent('button[type="submit"]', 'submit');
 
     const error = screen.querySelector(
-      '#repeatedNewPassword-error',
+      '#repeatedPassword-error',
     ) as HTMLDivElement;
     expect(error.innerHTML).toContain('passwordDoesNotMatch');
   });
@@ -128,18 +128,18 @@ describe('[ChangePasswordForm Component]', () => {
     const newPasswordInput = screen.querySelector(
       '#newPassword',
     ) as HTMLInputElement;
-    const repeatedNewPasswordInput = screen.querySelector(
-      '#repeatedNewPassword',
+    const repeatedPasswordInput = screen.querySelector(
+      '#repeatedPassword',
     ) as HTMLInputElement;
 
     await fillInput(currentPasswordInput, userEvent, 'currentPassword');
     await fillInput(newPasswordInput, userEvent, 'newPassword');
-    await fillInput(repeatedNewPasswordInput, userEvent, 'newPassword');
+    await fillInput(repeatedPasswordInput, userEvent, 'newPassword');
     await userEvent('button[type="submit"]', 'submit');
 
     expect(currentPasswordInput.value).toEqual('');
     expect(newPasswordInput.value).toEqual('');
-    expect(repeatedNewPasswordInput.value).toEqual('');
+    expect(repeatedPasswordInput.value).toEqual('');
   });
 
   // FIXME: Enable the test after this is resolved: https://github.com/fabian-hiller/modular-forms/issues/161
@@ -156,13 +156,13 @@ describe('[ChangePasswordForm Component]', () => {
     const newPasswordInput = screen.querySelector(
       '#newPassword',
     ) as HTMLInputElement;
-    const repeatedNewPasswordInput = screen.querySelector(
-      '#repeatNewPassword',
+    const repeatedPasswordInput = screen.querySelector(
+      '#repeatedPassword',
     ) as HTMLInputElement;
 
     await fillInput(currentPasswordInput, userEvent, 'currentPassword');
     await fillInput(newPasswordInput, userEvent, 'newPassword');
-    await fillInput(repeatedNewPasswordInput, userEvent, 'newPassword');
+    await fillInput(repeatedPasswordInput, userEvent, 'newPassword');
     await userEvent('button[type="submit"]', 'submit');
 
     expect(screen.innerHTML).toContain('Form has been submitted successfully');
