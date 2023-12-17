@@ -6,7 +6,7 @@ import { fillInput } from '~/tests/input';
 
 import { LoginForm } from './login-form';
 
-const ON_SUBMIT = $((_email: string, _password: string) => {});
+const ON_SUBMIT = $(async (_email: string, _password: string) => {});
 
 describe('[LoginForm Component]', () => {
   test(`doesn't display error if email passes validation`, async () => {

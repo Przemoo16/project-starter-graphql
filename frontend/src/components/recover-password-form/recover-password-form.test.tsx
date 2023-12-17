@@ -6,7 +6,7 @@ import { fillInput } from '~/tests/input';
 
 import { RecoverPasswordForm } from './recover-password-form';
 
-const ON_SUBMIT = $((_email: string) => 'Success');
+const ON_SUBMIT = $(async (_email: string) => 'Success');
 
 describe('[RecoverPasswordForm Component]', () => {
   test(`doesn't display error if email passes validation`, async () => {
@@ -58,7 +58,7 @@ describe('[RecoverPasswordForm Component]', () => {
   test.skip(`displays success message`, async () => {
     const { screen, render, userEvent } = await createDOM();
     const onSubmit = $(
-      (_email: string) => 'Form has been submitted successfully',
+      async (_email: string) => 'Form has been submitted successfully',
     );
     await render(<RecoverPasswordForm onSubmit={onSubmit} />);
     const emailInput = screen.querySelector('#email') as HTMLInputElement;

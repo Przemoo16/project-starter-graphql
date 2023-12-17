@@ -7,7 +7,7 @@ import { fillInput } from '~/tests/input';
 import { ChangePasswordForm } from './change-password-form';
 
 const ON_SUBMIT = $(
-  (_currentPassword: string, _newPassword: string) => 'Success',
+  async (_currentPassword: string, _newPassword: string) => 'Success',
 );
 
 describe('[ChangePasswordForm Component]', () => {
@@ -146,7 +146,7 @@ describe('[ChangePasswordForm Component]', () => {
   test.skip(`displays success message`, async () => {
     const { screen, render, userEvent } = await createDOM();
     const onSubmit = $(
-      (_currentPassword: string, _newPassword: string) =>
+      async (_currentPassword: string, _newPassword: string) =>
         'Form has been submitted successfully',
     );
     await render(<ChangePasswordForm onSubmit={onSubmit} />);
