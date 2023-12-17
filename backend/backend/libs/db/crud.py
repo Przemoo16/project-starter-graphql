@@ -1,5 +1,5 @@
 from dataclasses import asdict
-from typing import Any, Generic, Optional, Protocol, TypeVar
+from typing import Generic, Protocol, TypeVar
 
 from sqlalchemy.exc import NoResultFound
 from sqlalchemy.orm import DeclarativeBase
@@ -7,27 +7,12 @@ from sqlalchemy.sql import Select, select
 
 from backend.libs.db.session import AsyncSession
 from backend.libs.types.dataclass import Dataclass
+from backend.libs.types.unset import is_unset
 
 Model = TypeVar("Model", bound=DeclarativeBase)
 CreateData_contra = TypeVar("CreateData_contra", bound=Dataclass, contravariant=True)
 UpdateData_contra = TypeVar("UpdateData_contra", bound=Dataclass, contravariant=True)
 Filters_contra = TypeVar("Filters_contra", bound=Dataclass, contravariant=True)
-
-
-class UnsetType:
-    __instance: Optional["UnsetType"] = None
-
-    def __new__(cls) -> "UnsetType":
-        if not cls.__instance:
-            cls.__instance = super().__new__(cls)
-        return cls.__instance
-
-
-UNSET = UnsetType()
-
-
-def is_unset(value: Any) -> bool:
-    return value is UNSET
 
 
 class NoObjectFoundError(Exception):

@@ -2,7 +2,7 @@ from typing import Any
 
 import pytest
 
-from backend.libs.db.crud import UNSET, UnsetType, is_unset
+from backend.libs.types.unset import UNSET, UnsetType, is_unset
 
 
 def test_unset_type_is_singleton() -> None:

@@ -1,10 +1,13 @@
 import strawberry
 from pydantic import BaseModel, Field, ValidationError
 
-from backend.libs.api.types import convert_to_dict, from_pydantic_error
+from backend.libs.api.types import (
+    convert_dataclass_to_dict,
+    convert_pydantic_error_to_problems,
+)
 
 
-def test_from_pydantic_error_converts_pydantic_errors_to_problem_types() -> None:
+def test_convert_pydantic_error_to_problems() -> None:
     class Model(BaseModel):
         test_field: str = Field(min_length=5)
         number: int = Field(gt=0)
@@ -12,19 +15,19 @@ def test_from_pydantic_error_converts_pydantic_errors_to_problem_types() -> None
     try:
         Model(test_field="Test", number=0)
     except ValidationError as exc:
-        errors = from_pydantic_error(exc)
+        problems = convert_pydantic_error_to_problems(exc)
 
-        assert len(errors) == 2
-        assert errors[0].message
-        assert errors[0].path == ["testField"]
-        assert errors[1].message
-        assert errors[1].path == ["number"]
+        assert len(problems) == 2
+        assert problems[0].message
+        assert problems[0].path == ["testField"]
+        assert problems[1].message
+        assert problems[1].path == ["number"]
 
     else:
         raise AssertionError()
 
 
-def test_convert_to_dict_converts_dataclass_to_dictionary() -> None:
+def test_convert_dataclass_to_dict() -> None:
     @strawberry.type
     class Test:
         field_1: str = strawberry.UNSET
@@ -33,7 +36,7 @@ def test_convert_to_dict_converts_dataclass_to_dictionary() -> None:
 
     test = Test(field_1="test")
 
-    converted = convert_to_dict(test)
+    converted = convert_dataclass_to_dict(test)
 
     assert converted == {
         "field_1": "test",

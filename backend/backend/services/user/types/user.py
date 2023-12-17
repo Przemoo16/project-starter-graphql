@@ -1,5 +1,5 @@
 from collections.abc import Sequence
-from typing import Annotated, Self
+from typing import Annotated
 from uuid import UUID
 
 import strawberry
@@ -14,9 +14,9 @@ class User:
     email: str
     full_name: str
 
-    @classmethod
-    def from_model(cls, model: UserModel) -> Self:
-        return cls(id=model.id, email=model.email, full_name=model.full_name)
+
+def get_user_type_from_model(model: UserModel) -> User:
+    return User(id=model.id, email=model.email, full_name=model.full_name)
 
 
 @strawberry.input

@@ -4,7 +4,10 @@ from pydantic import ValidationError
 from strawberry import argument
 
 from backend.libs.api.context import Info
-from backend.libs.api.types import convert_to_dict, from_pydantic_error
+from backend.libs.api.types import (
+    convert_dataclass_to_dict,
+    convert_pydantic_error_to_problems,
+)
 from backend.services.user.context import async_password_hasher
 from backend.services.user.crud import UserCRUD
 from backend.services.user.exceptions import UserAlreadyExistsError
@@ -22,6 +25,7 @@ from backend.services.user.types.user import (
     User,
     UserAlreadyExistsProblem,
     UserCreateInput,
+    get_user_type_from_model,
 )
 
 
@@ -29,9 +33,9 @@ async def create_user_resolver(
     info: Info, user_input: Annotated[UserCreateInput, argument(name="input")]
 ) -> CreateUserResponse:
     try:
-        schema = UserCreateSchema.model_validate(convert_to_dict(user_input))
+        schema = UserCreateSchema.model_validate(convert_dataclass_to_dict(user_input))
     except ValidationError as exc:
-        return CreateUserFailure(problems=from_pydantic_error(exc))
+        return CreateUserFailure(problems=convert_pydantic_error_to_problems(exc))
 
     crud = UserCRUD(db=info.context.db)
 
@@ -44,12 +48,12 @@ async def create_user_resolver(
         )
     except UserAlreadyExistsError:
         return CreateUserFailure(problems=[UserAlreadyExistsProblem()])
-    return User.from_model(created_user)
+    return get_user_type_from_model(created_user)
 
 
 async def get_me_resolver(info: Info) -> User:
     user = await info.context.user
-    return User.from_model(user)
+    return get_user_type_from_model(user)
 
 
 async def update_me_resolver(
@@ -58,14 +62,14 @@ async def update_me_resolver(
     user = await info.context.user
 
     try:
-        schema = UserUpdateSchema.model_validate(convert_to_dict(user_input))
+        schema = UserUpdateSchema.model_validate(convert_dataclass_to_dict(user_input))
     except ValidationError as exc:
-        return UpdateMeFailure(problems=from_pydantic_error(exc))
+        return UpdateMeFailure(problems=convert_pydantic_error_to_problems(exc))
 
     crud = UserCRUD(db=info.context.db)
 
     await update_user(user, schema, crud)
-    return User.from_model(user)
+    return get_user_type_from_model(user)
 
 
 async def delete_me_resolver(info: Info) -> DeleteMeResponse:

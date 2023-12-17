@@ -4,7 +4,10 @@ from pydantic import ValidationError
 from strawberry import argument
 
 from backend.libs.api.context import Info
-from backend.libs.api.types import convert_to_dict, from_pydantic_error
+from backend.libs.api.types import (
+    convert_dataclass_to_dict,
+    convert_pydantic_error_to_problems,
+)
 from backend.services.user.context import (
     async_password_hasher,
     async_password_validator,
@@ -59,10 +62,10 @@ async def reset_password_resolver(
 ) -> ResetPasswordResponse:
     try:
         schema = PasswordResetSchema.model_validate(
-            convert_to_dict(reset_password_input)
+            convert_dataclass_to_dict(reset_password_input)
         )
     except ValidationError as exc:
-        return ResetPasswordFailure(problems=from_pydantic_error(exc))
+        return ResetPasswordFailure(problems=convert_pydantic_error_to_problems(exc))
 
     password_manager = PasswordManager(
         validator=async_password_validator,
@@ -88,10 +91,10 @@ async def change_my_password_resolver(
     user = await info.context.user
     try:
         schema = PasswordChangeSchema.model_validate(
-            convert_to_dict(change_password_input)
+            convert_dataclass_to_dict(change_password_input)
         )
     except ValidationError as exc:
-        return ChangeMyPasswordFailure(problems=from_pydantic_error(exc))
+        return ChangeMyPasswordFailure(problems=convert_pydantic_error_to_problems(exc))
 
     password_manager = PasswordManager(
         validator=async_password_validator,

@@ -4,7 +4,8 @@ import pytest
 from sqlalchemy.orm import Mapped, mapped_column
 from sqlalchemy.orm.attributes import instance_state
 
-from backend.libs.db.crud import CRUD, UNSET, NoObjectFoundError, UnsetType
+from backend.libs.db.crud import CRUD, NoObjectFoundError
+from backend.libs.types.unset import UNSET, UnsetType
 from tests.integration.conftest import AsyncSession, Base
 from tests.integration.helpers.db import save_to_db
 
