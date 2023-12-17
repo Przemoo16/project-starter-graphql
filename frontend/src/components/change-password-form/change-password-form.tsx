@@ -58,7 +58,7 @@ export const ChangePasswordForm = component$(
         <Field
           name="currentPassword"
           // @ts-expect-error: FIXME: https://github.com/fabian-hiller/modular-forms/issues/158
-          validate={[required(t('validation.required'))]}
+          validate={[required(t('validation.fieldRequired'))]}
         >
           {(field, props) => (
             <TextInput
@@ -76,10 +76,10 @@ export const ChangePasswordForm = component$(
           name="newPassword"
           validate={[
             // @ts-expect-error: FIXME: https://github.com/fabian-hiller/modular-forms/issues/158
-            required(t('validation.required')),
+            required(t('validation.fieldRequired')),
             minLength(
               MIN_PASSWORD_LENGTH,
-              t('validation.minPassword', { min: MIN_PASSWORD_LENGTH }),
+              t('validation.passwordTooShort', { min: MIN_PASSWORD_LENGTH }),
             ),
           ]}
         >
@@ -99,7 +99,7 @@ export const ChangePasswordForm = component$(
           name="repeatedPassword"
           validate={[
             // @ts-expect-error: FIXME: https://github.com/fabian-hiller/modular-forms/issues/158
-            required(t('validation.required')),
+            required(t('validation.fieldRequired')),
             // @ts-expect-error: FIXME: https://github.com/fabian-hiller/modular-forms/issues/158
             custom$(
               value => value === getValue(form, 'newPassword'),

@@ -32,7 +32,7 @@ describe('[ChangePasswordForm Component]', () => {
     const error = screen.querySelector(
       '#currentPassword-error',
     ) as HTMLDivElement;
-    expect(error.innerHTML).toContain('required');
+    expect(error.innerHTML).toContain('fieldRequired');
   });
 
   test(`doesn't display error if new password passes validation`, async () => {
@@ -54,7 +54,7 @@ describe('[ChangePasswordForm Component]', () => {
     await userEvent('button[type="submit"]', 'submit');
 
     const error = screen.querySelector('#newPassword-error') as HTMLDivElement;
-    expect(error.innerHTML).toContain('required');
+    expect(error.innerHTML).toContain('fieldRequired');
   });
 
   test(`displays error if new password is too short`, async () => {
@@ -66,7 +66,7 @@ describe('[ChangePasswordForm Component]', () => {
     await userEvent('button[type="submit"]', 'submit');
 
     const error = screen.querySelector('#newPassword-error') as HTMLDivElement;
-    expect(error.innerHTML).toContain('minPassword');
+    expect(error.innerHTML).toContain('passwordTooShort');
   });
 
   test(`doesn't display error if repeated password passes validation`, async () => {
@@ -96,7 +96,7 @@ describe('[ChangePasswordForm Component]', () => {
     const error = screen.querySelector(
       '#repeatedPassword-error',
     ) as HTMLDivElement;
-    expect(error.innerHTML).toContain('required');
+    expect(error.innerHTML).toContain('fieldRequired');
   });
 
   test(`displays error if repeated password doesn't match`, async () => {

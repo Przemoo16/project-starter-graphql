@@ -1,9 +1,9 @@
 {
   "validation": {
+    "fieldRequired": "This field is required",
+    "fullNameTooLong": "Name must be up to {{max}} characters",
     "invalidEmail": "Invalid email",
-    "maxFullName": "Name must be up to {{max}} characters",
-    "minPassword": "Password mut be at least {{min}} characters",
     "passwordDoesNotMatch": "Password doesn't match",
-    "required": "This field is required"
+    "passwordTooShort": "Password mut be at least {{min}} characters"
   }
 }

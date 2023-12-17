@@ -28,7 +28,7 @@ describe('[ResetPasswordForm Component]', () => {
     await userEvent('button[type="submit"]', 'submit');
 
     const error = screen.querySelector('#password-error') as HTMLDivElement;
-    expect(error.innerHTML).toContain('required');
+    expect(error.innerHTML).toContain('fieldRequired');
   });
 
   test(`displays error if password is too short`, async () => {
@@ -40,7 +40,7 @@ describe('[ResetPasswordForm Component]', () => {
     await userEvent('button[type="submit"]', 'submit');
 
     const error = screen.querySelector('#password-error') as HTMLDivElement;
-    expect(error.innerHTML).toContain('minPassword');
+    expect(error.innerHTML).toContain('passwordTooShort');
   });
 
   test(`doesn't display error if repeated password passes validation`, async () => {
@@ -68,7 +68,7 @@ describe('[ResetPasswordForm Component]', () => {
     const error = screen.querySelector(
       '#repeatedPassword-error',
     ) as HTMLDivElement;
-    expect(error.innerHTML).toContain('required');
+    expect(error.innerHTML).toContain('fieldRequired');
   });
 
   test(`displays error if repeated password doesn't match`, async () => {

@@ -28,7 +28,7 @@ describe('[RecoverPasswordForm Component]', () => {
     await userEvent('button[type="submit"]', 'submit');
 
     const error = screen.querySelector('#email-error') as HTMLDivElement;
-    expect(error.innerHTML).toContain('required');
+    expect(error.innerHTML).toContain('fieldRequired');
   });
 
   test(`displays error if email is invalid`, async () => {

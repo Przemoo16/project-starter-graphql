@@ -1,8 +1,5 @@
 {
   "head": {
-    "404": {
-      "title": "404"
-    },
     "account": {
       "title": "Account"
     },
@@ -20,6 +17,9 @@
     },
     "login": {
       "title": "Login"
+    },
+    "notFound": {
+      "title": "404"
     },
     "recoverPassword": {
       "title": "Recover Password"
