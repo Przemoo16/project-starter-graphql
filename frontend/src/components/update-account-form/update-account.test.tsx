@@ -42,7 +42,7 @@ describe('[UpdateAccountForm Component]', () => {
     await userEvent('button[type="submit"]', 'submit');
 
     const error = screen.querySelector('#fullName-error') as HTMLDivElement;
-    expect(error.innerHTML).toContain('required');
+    expect(error.innerHTML).toContain('fieldRequired');
   });
 
   test(`displays error if full name is too long`, async () => {
@@ -54,7 +54,7 @@ describe('[UpdateAccountForm Component]', () => {
     await userEvent('button[type="submit"]', 'submit');
 
     const error = screen.querySelector('#fullName-error') as HTMLDivElement;
-    expect(error.innerHTML).toContain('maxFullName');
+    expect(error.innerHTML).toContain('fullNameTooLong');
   });
 
   // FIXME: Enable the test after this is resolved: https://github.com/fabian-hiller/modular-forms/issues/161

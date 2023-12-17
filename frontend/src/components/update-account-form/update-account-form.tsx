@@ -45,10 +45,10 @@ export const UpdateAccountForm = component$(
           name="fullName"
           validate={[
             // @ts-expect-error: FIXME: https://github.com/fabian-hiller/modular-forms/issues/158
-            required(t('validation.required')),
+            required(t('validation.fieldRequired')),
             maxLength(
               MAX_FULL_NAME_LENGTH,
-              t('validation.maxFullName', { max: MAX_FULL_NAME_LENGTH }),
+              t('validation.fullNameTooLong', { max: MAX_FULL_NAME_LENGTH }),
             ),
           ]}
         >

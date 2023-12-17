@@ -39,7 +39,7 @@ export const LoginForm = component$(({ onSubmit }: LoginFormProps) => {
         name="email"
         validate={[
           // @ts-expect-error: FIXME: https://github.com/fabian-hiller/modular-forms/issues/158
-          required(t('validation.required')),
+          required(t('validation.fieldRequired')),
           email(t('validation.invalidEmail')),
         ]}
       >
@@ -59,7 +59,7 @@ export const LoginForm = component$(({ onSubmit }: LoginFormProps) => {
         name="password"
         validate={[
           // @ts-expect-error: FIXME: https://github.com/fabian-hiller/modular-forms/issues/158
-          required(t('validation.required')),
+          required(t('validation.fieldRequired')),
         ]}
       >
         {(field, props) => (
