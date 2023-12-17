@@ -1,7 +1,8 @@
 import { describe, expect, test } from 'vitest';
 
+import { TestStorage } from '~/tests/storage';
+
 import { login } from './login';
-import { TestStorage } from './test-storage';
 
 describe('[login function]', () => {
   test(`saves tokens`, async () => {

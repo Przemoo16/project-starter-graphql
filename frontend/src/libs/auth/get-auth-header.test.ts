@@ -1,7 +1,8 @@
 import { describe, expect, test } from 'vitest';
 
+import { TestStorage } from '~/tests/storage';
+
 import { getAuthHeader } from './get-auth-header';
-import { TestStorage } from './test-storage';
 
 describe('[getAuthHeader function]', () => {
   test(`returns auth header`, () => {

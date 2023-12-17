@@ -1,7 +1,8 @@
 import { describe, expect, test } from 'vitest';
 
+import { TestStorage } from '~/tests/storage';
+
 import { isAuthenticated } from './is-authenticated';
-import { TestStorage } from './test-storage';
 
 describe('[isAuthenticated function]', () => {
   test(`returns true if access token is present`, () => {

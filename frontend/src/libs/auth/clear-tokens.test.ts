@@ -1,7 +1,8 @@
 import { expect, test } from 'vitest';
 
+import { TestStorage } from '~/tests/storage';
+
 import { clearTokens } from './clear-tokens';
-import { TestStorage } from './test-storage';
 
 test(`[clearTokens function]: removes tokens`, () => {
   const storage = new TestStorage();

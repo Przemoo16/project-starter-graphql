@@ -1,7 +1,8 @@
 import { describe, expect, test } from 'vitest';
 
+import { TestStorage } from '~/tests/storage';
+
 import { getMe } from './get-me';
-import { TestStorage } from './test-storage';
 
 describe('[getMe function]', () => {
   test(`throws error if the user is not authenticated`, async () => {

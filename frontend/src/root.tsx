@@ -8,11 +8,11 @@ import {
 } from '@builder.io/qwik-city';
 import { useQwikSpeak } from 'qwik-speak';
 
+import { getClientRequestSender } from './api/get-client-request-sender';
+import { getClientTokenStorage } from './auth/get-client-token-storage';
 import { RouterHead } from './components/router-head/router-head';
+import { checkTokenValidity } from './libs/auth/check-token-validity';
 import { BrowserStorage } from './libs/storage/browser-storage';
-import { getClientRequestSender } from './services/requests/get-client-request-sender';
-import { getClientTokenStorage } from './services/tokens/get-client-token-storage';
-import { checkTokenValidity } from './services/user/check-token-validity';
 import { getMe } from './services/user/get-me';
 import { config } from './speak-config';
 import { translationFn } from './speak-functions';

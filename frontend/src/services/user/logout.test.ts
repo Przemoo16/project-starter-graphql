@@ -1,7 +1,8 @@
 import { expect, test } from 'vitest';
 
+import { TestStorage } from '~/tests/storage';
+
 import { logout } from './logout';
-import { TestStorage } from './test-storage';
 
 test(`[logout function]: removes tokens and called onRedirect`, () => {
   const storage = new TestStorage();

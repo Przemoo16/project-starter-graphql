@@ -1,7 +1,8 @@
 import { describe, expect, test } from 'vitest';
 
+import { TestStorage } from '~/tests/storage';
+
 import { refreshToken } from './refresh-token';
-import { TestStorage } from './test-storage';
 
 describe('[refreshToken function]', () => {
   test(`throws error no refresh token is present`, async () => {

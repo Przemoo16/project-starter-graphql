@@ -3,6 +3,11 @@ import { type DocumentHead, routeLoader$ } from '@builder.io/qwik-city';
 import { FormError, type InitialValues } from '@modular-forms/qwik';
 import { inlineTranslate, useSpeak } from 'qwik-speak';
 
+import { getClientRequestSender } from '~/api/get-client-request-sender';
+import { getServerRequestSender } from '~/api/get-server-request-sender';
+import { getClientLogoutRedirection } from '~/auth/get-client-logout-redirection';
+import { getClientTokenStorage } from '~/auth/get-client-token-storage';
+import { getServerTokenStorage } from '~/auth/get-server-token-storage';
 import {
   ChangePasswordForm,
   type ChangePasswordFormSchema,
@@ -13,11 +18,6 @@ import {
 } from '~/components/update-account-form/update-account-form';
 import { hasProblems } from '~/libs/api/has-problems';
 import { isProblemPresent } from '~/libs/api/is-problem-present';
-import { getClientLogoutRedirection } from '~/services/auth/get-client-logout-redirection';
-import { getClientRequestSender } from '~/services/requests/get-client-request-sender';
-import { getServerRequestSender } from '~/services/requests/get-server-request-sender';
-import { getClientTokenStorage } from '~/services/tokens/get-client-token-storage';
-import { getServerTokenStorage } from '~/services/tokens/get-server-token-storage';
 import { changeMyPassword } from '~/services/user/change-my-password';
 import { deleteMe } from '~/services/user/delete-me';
 import { getMe } from '~/services/user/get-me';

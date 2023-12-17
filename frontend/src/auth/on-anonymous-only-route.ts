@@ -1,10 +1,10 @@
 import { type RequestEvent } from '@builder.io/qwik-city';
 
 import { RouteURL } from '~/libs/api/route-url';
-import { getServerTokenStorage } from '~/services/tokens/get-server-token-storage';
-import { isAuthenticated } from '~/services/user/is-authenticated';
+import { isAuthenticated } from '~/libs/auth/is-authenticated';
 
 import { REDIRECTION_STATUS_CODE } from './constants';
+import { getServerTokenStorage } from './get-server-token-storage';
 
 export const onAnonymousOnlyRoute = (requestEvent: RequestEvent) => {
   const authenticated = isAuthenticated(

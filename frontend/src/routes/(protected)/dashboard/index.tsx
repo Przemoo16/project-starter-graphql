@@ -2,8 +2,8 @@ import { $, component$, useSignal } from '@builder.io/qwik';
 import { type DocumentHead } from '@builder.io/qwik-city';
 import { inlineTranslate, useSpeak } from 'qwik-speak';
 
-import { getClientLogoutRedirection } from '~/services/auth/get-client-logout-redirection';
-import { getClientTokenStorage } from '~/services/tokens/get-client-token-storage';
+import { getClientLogoutRedirection } from '~/auth/get-client-logout-redirection';
+import { getClientTokenStorage } from '~/auth/get-client-token-storage';
 import { logout } from '~/services/user/logout';
 
 export const head: DocumentHead = () => {
