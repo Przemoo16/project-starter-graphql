@@ -7,7 +7,7 @@ import { fillInput } from '~/tests/input';
 import { RegisterForm } from './register-form';
 
 const ON_SUBMIT = $(
-  (_fullName: string, _email: string, _password: string) => 'Success',
+  async (_fullName: string, _email: string, _password: string) => 'Success',
 );
 
 describe('[RegisterForm Component]', () => {
@@ -185,7 +185,7 @@ describe('[RegisterForm Component]', () => {
   test.skip(`displays success message`, async () => {
     const { screen, render, userEvent } = await createDOM();
     const onSubmit = $(
-      (_fullName: string, _email: string, _password: string) =>
+      async (_fullName: string, _email: string, _password: string) =>
         'Form has been submitted successfully',
     );
     await render(<RegisterForm onSubmit={onSubmit} />);

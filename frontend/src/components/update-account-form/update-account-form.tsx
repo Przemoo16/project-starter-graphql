@@ -40,7 +40,7 @@ export const UpdateAccountForm = component$(
     const fullNameLabel = t('account.fullName');
 
     return (
-      <Form onSubmit$={handleSubmit} shouldDirty>
+      <Form onSubmit$={handleSubmit}>
         <Field
           name="fullName"
           validate={[

@@ -6,7 +6,7 @@ import { fillInput } from '~/tests/input';
 
 import { UpdateAccountForm } from './update-account-form';
 
-const ON_SUBMIT = $((_fullName: string) => 'Success');
+const ON_SUBMIT = $(async (_fullName: string) => 'Success');
 const LOADER = {
   value: { fullName: '' },
 };
@@ -61,7 +61,7 @@ describe('[UpdateAccountForm Component]', () => {
   test.skip(`displays success message`, async () => {
     const { screen, render, userEvent } = await createDOM();
     const onSubmit = $(
-      (_fullName: string) => 'Form has been submitted successfully',
+      async (_fullName: string) => 'Form has been submitted successfully',
     );
     await render(<UpdateAccountForm loader={LOADER} onSubmit={onSubmit} />);
     const fullNameInput = screen.querySelector('#fullName') as HTMLInputElement;

@@ -6,7 +6,7 @@ import { fillInput } from '~/tests/input';
 
 import { ResetPasswordForm } from './reset-password-form';
 
-const ON_SUBMIT = $((_password: string) => 'Success');
+const ON_SUBMIT = $(async (_password: string) => 'Success');
 
 describe('[ResetPasswordForm Component]', () => {
   test(`doesn't display error if password passes validation`, async () => {
@@ -109,7 +109,7 @@ describe('[ResetPasswordForm Component]', () => {
   test.skip(`displays success message`, async () => {
     const { screen, render, userEvent } = await createDOM();
     const onSubmit = $(
-      (_password: string) => 'Form has been submitted successfully',
+      async (_password: string) => 'Form has been submitted successfully',
     );
     await render(<ResetPasswordForm onSubmit={onSubmit} />);
     const passwordInput = screen.querySelector('#password') as HTMLInputElement;
