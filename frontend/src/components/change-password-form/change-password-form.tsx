@@ -22,7 +22,7 @@ export type ChangePasswordFormSchema = {
 
 interface ChangePasswordFormProps {
   onSubmit: QRL<
-    (currentPassword: string, newPassword: string) => Promise<string>
+    (currentPassword: string, newPassword: string) => Promise<void>
   >;
 }
 
@@ -41,10 +41,11 @@ export const ChangePasswordForm = component$(
 
     const handleSubmit = $<SubmitHandler<ChangePasswordFormSchema>>(
       async ({ currentPassword, newPassword }, _event) => {
-        const message = await onSubmit(currentPassword, newPassword);
+        const t = inlineTranslate();
+        await onSubmit(currentPassword, newPassword);
         reset(form);
         setResponse(form, {
-          message,
+          message: t('changePassword.changePasswordSuccess'),
         });
       },
     );

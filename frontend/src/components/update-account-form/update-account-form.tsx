@@ -3,6 +3,7 @@ import {
   type InitialValues,
   maxLength,
   required,
+  reset,
   setResponse,
   type SubmitHandler,
   useForm,
@@ -18,7 +19,7 @@ export type UpdateAccountFormSchema = {
 
 interface UpdateAccountFormProps {
   loader: Readonly<Signal<InitialValues<UpdateAccountFormSchema>>>;
-  onSubmit: QRL<(fullName: string) => Promise<string>>;
+  onSubmit: QRL<(fullName?: string) => Promise<UpdateAccountFormSchema>>;
 }
 
 export const UpdateAccountForm = component$(
@@ -30,17 +31,19 @@ export const UpdateAccountForm = component$(
 
     const handleSubmit = $<SubmitHandler<UpdateAccountFormSchema>>(
       async ({ fullName }, _event) => {
-        const message = await onSubmit(fullName);
+        const t = inlineTranslate();
+        const user = await onSubmit(fullName);
         setResponse(form, {
-          message,
+          message: t('updateAccount.updateAccountSuccess'),
         });
+        reset(form, { initialValues: user });
       },
     );
 
     const fullNameLabel = t('account.fullName');
 
     return (
-      <Form onSubmit$={handleSubmit}>
+      <Form onSubmit$={handleSubmit} shouldDirty>
         <Field
           name="fullName"
           validate={[

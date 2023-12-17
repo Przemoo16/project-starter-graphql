@@ -80,12 +80,10 @@ const Account = component$(() => {
         }
         throw new FormError<ChangePasswordFormSchema>(error);
       }
-
-      return t('changePassword.changePasswordSuccess');
     },
   );
 
-  const onUpdateAccount = $(async (fullName: string) => {
+  const onUpdateAccount = $(async (fullName?: string) => {
     const t = inlineTranslate();
 
     const data = await updateMe(getClientRequestSender(), fullName);
@@ -96,7 +94,7 @@ const Account = component$(() => {
       );
     }
 
-    return t('updateAccount.updateAccountSuccess');
+    return data;
   });
 
   const onDeleteAccount = $(async () => {

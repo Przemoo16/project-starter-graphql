@@ -53,8 +53,6 @@ const Register = component$(() => {
           email: emailError,
         });
       }
-
-      return t('register.registerSuccess');
     },
   );
 

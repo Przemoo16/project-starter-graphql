@@ -6,7 +6,7 @@ import { fillInput } from '~/tests/input';
 
 import { ResetPasswordForm } from './reset-password-form';
 
-const ON_SUBMIT = $(async (_password: string) => 'Success');
+const ON_SUBMIT = $(async (_password: string) => {});
 
 describe('[ResetPasswordForm Component]', () => {
   test(`doesn't display error if password passes validation`, async () => {
@@ -108,10 +108,7 @@ describe('[ResetPasswordForm Component]', () => {
   // FIXME: Enable the test after this is resolved: https://github.com/fabian-hiller/modular-forms/issues/161
   test.skip(`displays success message`, async () => {
     const { screen, render, userEvent } = await createDOM();
-    const onSubmit = $(
-      async (_password: string) => 'Form has been submitted successfully',
-    );
-    await render(<ResetPasswordForm onSubmit={onSubmit} />);
+    await render(<ResetPasswordForm onSubmit={ON_SUBMIT} />);
     const passwordInput = screen.querySelector('#password') as HTMLInputElement;
     const repeatedPasswordInput = screen.querySelector(
       '#repeatedPassword',
@@ -121,6 +118,6 @@ describe('[ResetPasswordForm Component]', () => {
     await fillInput(repeatedPasswordInput, userEvent, 'testPassword');
     await userEvent('button[type="submit"]', 'submit');
 
-    expect(screen.innerHTML).toContain('Form has been submitted successfully');
+    expect(screen.innerHTML).toContain('resetPasswordSuccess');
   });
 });

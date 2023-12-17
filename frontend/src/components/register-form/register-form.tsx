@@ -28,7 +28,7 @@ export type RegisterFormSchema = {
 
 interface RegisterFormProps {
   onSubmit: QRL<
-    (fullName: string, email: string, password: string) => Promise<string>
+    (fullName: string, email: string, password: string) => Promise<void>
   >;
 }
 
@@ -42,10 +42,11 @@ export const RegisterForm = component$(({ onSubmit }: RegisterFormProps) => {
 
   const handleSubmit = $<SubmitHandler<RegisterFormSchema>>(
     async ({ fullName, email, password }, _event) => {
-      const message = await onSubmit(fullName, email, password);
+      const t = inlineTranslate();
+      await onSubmit(fullName, email, password);
       reset(form);
       setResponse(form, {
-        message,
+        message: t('register.registerSuccess'),
       });
     },
   );

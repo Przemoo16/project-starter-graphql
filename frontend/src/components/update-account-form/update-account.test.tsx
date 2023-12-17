@@ -6,10 +6,12 @@ import { fillInput } from '~/tests/input';
 
 import { UpdateAccountForm } from './update-account-form';
 
-const ON_SUBMIT = $(async (_fullName: string) => 'Success');
 const LOADER = {
-  value: { fullName: '' },
+  value: { fullName: 'Test User' },
 };
+const ON_SUBMIT = $(async (_fullName?: string) => ({
+  fullName: 'Updated User',
+}));
 
 describe('[UpdateAccountForm Component]', () => {
   test(`displays fetched full name`, async () => {
@@ -28,7 +30,7 @@ describe('[UpdateAccountForm Component]', () => {
     await render(<UpdateAccountForm loader={LOADER} onSubmit={ON_SUBMIT} />);
     const input = screen.querySelector('#fullName') as HTMLInputElement;
 
-    await fillInput(input, userEvent, 'Test User');
+    await fillInput(input, userEvent, 'Updated User');
     await userEvent('button[type="submit"]', 'submit');
 
     const error = screen.querySelector('#fullName-error');
@@ -38,7 +40,9 @@ describe('[UpdateAccountForm Component]', () => {
   test(`displays error if full name is not provided`, async () => {
     const { screen, render, userEvent } = await createDOM();
     await render(<UpdateAccountForm loader={LOADER} onSubmit={ON_SUBMIT} />);
+    const input = screen.querySelector('#fullName') as HTMLInputElement;
 
+    await fillInput(input, userEvent, '');
     await userEvent('button[type="submit"]', 'submit');
 
     const error = screen.querySelector('#fullName-error') as HTMLDivElement;
@@ -57,18 +61,68 @@ describe('[UpdateAccountForm Component]', () => {
     expect(error.innerHTML).toContain('fullNameTooLong');
   });
 
+  test(`doesn't send unchanged values`, async () => {
+    const { render, userEvent } = await createDOM();
+    const sentData: Record<string, string | undefined> = {
+      sentFullName: undefined,
+    };
+    const onSubmit = $(async (fullName?: string) => {
+      sentData.sentFullName = fullName;
+      return {
+        fullName: 'Test User',
+      };
+    });
+    await render(<UpdateAccountForm loader={LOADER} onSubmit={onSubmit} />);
+
+    await userEvent('button[type="submit"]', 'submit');
+
+    expect(sentData.sentFullName).toBeUndefined();
+  });
+
+  test(`sends changed values`, async () => {
+    const { screen, render, userEvent } = await createDOM();
+    const sentData: Record<string, string | undefined> = {
+      sentFullName: undefined,
+    };
+    const onSubmit = $(async (fullName?: string) => {
+      sentData.sentFullName = fullName;
+      return {
+        fullName: 'Updated User',
+      };
+    });
+    await render(<UpdateAccountForm loader={LOADER} onSubmit={onSubmit} />);
+    const input = screen.querySelector('#fullName') as HTMLInputElement;
+
+    await fillInput(input, userEvent, 'Updated User');
+    await userEvent('button[type="submit"]', 'submit');
+
+    expect(sentData.sentFullName).toEqual('Updated User');
+  });
+
+  test(`displays updated values from the response`, async () => {
+    const { screen, render, userEvent } = await createDOM();
+    const onSubmit = $(async (_fullName?: string) => {
+      return {
+        fullName: 'Updated User',
+      };
+    });
+    await render(<UpdateAccountForm loader={LOADER} onSubmit={onSubmit} />);
+    const input = screen.querySelector('#fullName') as HTMLInputElement;
+
+    await userEvent('button[type="submit"]', 'submit');
+
+    expect(input.value).toEqual('Updated User');
+  });
+
   // FIXME: Enable the test after this is resolved: https://github.com/fabian-hiller/modular-forms/issues/161
   test.skip(`displays success message`, async () => {
     const { screen, render, userEvent } = await createDOM();
-    const onSubmit = $(
-      async (_fullName: string) => 'Form has been submitted successfully',
-    );
-    await render(<UpdateAccountForm loader={LOADER} onSubmit={onSubmit} />);
-    const fullNameInput = screen.querySelector('#fullName') as HTMLInputElement;
+    await render(<UpdateAccountForm loader={LOADER} onSubmit={ON_SUBMIT} />);
+    const input = screen.querySelector('#fullName') as HTMLInputElement;
 
-    await fillInput(fullNameInput, userEvent, 'Test User');
+    await fillInput(input, userEvent, 'Test User');
     await userEvent('button[type="submit"]', 'submit');
 
-    expect(screen.innerHTML).toContain('Form has been submitted successfully');
+    expect(screen.innerHTML).toContain('updateAccountSuccess');
   });
 });

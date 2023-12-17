@@ -16,7 +16,7 @@ type RecoverPasswordFormSchema = {
 };
 
 interface RecoverPasswordFormProps {
-  onSubmit: QRL<(email: string) => Promise<string>>;
+  onSubmit: QRL<(email: string) => Promise<void>>;
 }
 
 export const RecoverPasswordForm = component$(
@@ -28,10 +28,11 @@ export const RecoverPasswordForm = component$(
 
     const handleSubmit = $<SubmitHandler<RecoverPasswordFormSchema>>(
       async ({ email }, _event) => {
-        const message = await onSubmit(email);
+        const t = inlineTranslate();
+        await onSubmit(email);
         reset(form);
         setResponse(form, {
-          message,
+          message: t('recoverPassword.recoverPasswordSuccess'),
         });
       },
     );
