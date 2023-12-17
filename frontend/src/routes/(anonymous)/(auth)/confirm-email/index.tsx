@@ -2,10 +2,10 @@ import { component$ } from '@builder.io/qwik';
 import { type DocumentHead, Link, routeLoader$ } from '@builder.io/qwik-city';
 import { inlineTranslate, useSpeak } from 'qwik-speak';
 
+import { getServerRequestSender } from '~/api/get-server-request-sender';
 import { hasProblems } from '~/libs/api/has-problems';
 import { isProblemPresent } from '~/libs/api/is-problem-present';
 import { RouteURL } from '~/libs/api/route-url';
-import { getServerRequestSender } from '~/services/requests/get-server-request-sender';
 import { confirmEmail } from '~/services/user/confirm-email';
 
 export const head: DocumentHead = () => {

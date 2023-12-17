@@ -8,6 +8,8 @@ import {
 import { FormError } from '@modular-forms/qwik';
 import { inlineTranslate, useSpeak } from 'qwik-speak';
 
+import { getClientRequestSender } from '~/api/get-client-request-sender';
+import { getClientTokenStorage } from '~/auth/get-client-token-storage';
 import {
   LoginForm,
   type LoginFormSchema,
@@ -15,8 +17,6 @@ import {
 import { hasProblems } from '~/libs/api/has-problems';
 import { isProblemPresent } from '~/libs/api/is-problem-present';
 import { RouteURL } from '~/libs/api/route-url';
-import { getClientRequestSender } from '~/services/requests/get-client-request-sender';
-import { getClientTokenStorage } from '~/services/tokens/get-client-token-storage';
 import { login } from '~/services/user/login';
 
 export const head: DocumentHead = () => {

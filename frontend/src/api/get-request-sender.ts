@@ -1,8 +1,8 @@
 import { fetchAdapter } from '~/libs/api/fetchers';
 import { sendGraphQLAuthenticatedRequest } from '~/libs/api/send-graphql-authenticated-request';
 import { sendGraphQLRequest } from '~/libs/api/send-graphql-request';
+import { getAuthHeader } from '~/libs/auth/get-auth-header';
 import { type Storage } from '~/libs/storage/types';
-import { getAuthHeader } from '~/services/user/get-auth-header';
 import { logout } from '~/services/user/logout';
 import { refreshToken } from '~/services/user/refresh-token';
 

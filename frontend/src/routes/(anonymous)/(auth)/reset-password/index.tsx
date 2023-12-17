@@ -3,13 +3,13 @@ import { type DocumentHead, Link, useLocation } from '@builder.io/qwik-city';
 import { FormError } from '@modular-forms/qwik';
 import { inlineTranslate, useSpeak } from 'qwik-speak';
 
+import { getClientRequestSender } from '~/api/get-client-request-sender';
 import {
   ResetPasswordForm,
   type ResetPasswordFormSchema,
 } from '~/components/reset-password-form/reset-password-form';
 import { hasProblems } from '~/libs/api/has-problems';
 import { RouteURL } from '~/libs/api/route-url';
-import { getClientRequestSender } from '~/services/requests/get-client-request-sender';
 import { resetPassword } from '~/services/user/reset-password';
 
 export const head: DocumentHead = () => {

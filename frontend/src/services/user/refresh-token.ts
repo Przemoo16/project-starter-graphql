@@ -1,10 +1,7 @@
+import { StorageKey } from '~/libs/auth/storage-key';
 import { type Storage } from '~/libs/storage/types';
 import { type RefreshTokenResponse } from '~/services/graphql';
 
-import {
-  ACCESS_TOKEN_STORAGE_KEY,
-  REFRESH_TOKEN_STORAGE_KEY,
-} from './constants';
 import { type RequestSender } from './types';
 
 export const refreshToken = async (
@@ -20,15 +17,15 @@ export const refreshToken = async (
     }
   `;
 
-  const token = storage.get(REFRESH_TOKEN_STORAGE_KEY);
+  const token = storage.get(StorageKey.RefreshToken);
   if (!token) {
     throw new Error('No refresh token in the storage to perform refreshing');
   }
   const { refreshToken } = await onRequest(mutation, {
     token,
   });
-  storage.set(ACCESS_TOKEN_STORAGE_KEY, refreshToken.accessToken);
+  storage.set(StorageKey.AccessToken, refreshToken.accessToken);
   // Write the token again to extend the storage expiration
-  storage.set(REFRESH_TOKEN_STORAGE_KEY, token);
+  storage.set(StorageKey.RefreshToken, token);
   return refreshToken;
 };

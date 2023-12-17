@@ -3,6 +3,7 @@ import { type DocumentHead, Link } from '@builder.io/qwik-city';
 import { FormError } from '@modular-forms/qwik';
 import { inlineTranslate, useSpeak } from 'qwik-speak';
 
+import { getClientRequestSender } from '~/api/get-client-request-sender';
 import {
   RegisterForm,
   type RegisterFormSchema,
@@ -10,7 +11,6 @@ import {
 import { hasProblems } from '~/libs/api/has-problems';
 import { isProblemPresent } from '~/libs/api/is-problem-present';
 import { RouteURL } from '~/libs/api/route-url';
-import { getClientRequestSender } from '~/services/requests/get-client-request-sender';
 import { register } from '~/services/user/register';
 
 export const head: DocumentHead = () => {

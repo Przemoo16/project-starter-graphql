@@ -1,7 +1,7 @@
+import { isAuthenticated } from '~/libs/auth/is-authenticated';
 import { type Storage } from '~/libs/storage/types';
 import { type User } from '~/services/graphql';
 
-import { isAuthenticated } from './is-authenticated';
 import { type RequestSender } from './types';
 
 export const getMe = async (

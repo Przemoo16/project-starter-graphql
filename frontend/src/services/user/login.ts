@@ -1,10 +1,7 @@
+import { StorageKey } from '~/libs/auth/storage-key';
 import { type Storage } from '~/libs/storage/types';
 import { type LoginResponse } from '~/services/graphql';
 
-import {
-  ACCESS_TOKEN_STORAGE_KEY,
-  REFRESH_TOKEN_STORAGE_KEY,
-} from './constants';
 import { type RequestSender } from './types';
 
 export const login = async (
@@ -36,8 +33,8 @@ export const login = async (
     },
   });
   if (!login.problems) {
-    storage.set(ACCESS_TOKEN_STORAGE_KEY, login.accessToken);
-    storage.set(REFRESH_TOKEN_STORAGE_KEY, login.refreshToken);
+    storage.set(StorageKey.AccessToken, login.accessToken);
+    storage.set(StorageKey.RefreshToken, login.refreshToken);
   }
   return login;
 };

@@ -1,7 +1,8 @@
 import { describe, expect, test } from 'vitest';
 
+import { TestStorage } from '~/tests/storage';
+
 import { checkTokenValidity } from './check-token-validity';
-import { TestStorage } from './test-storage';
 
 describe('[checkTokenValidity function]', () => {
   test(`doesn't perform check if check was already performed`, async () => {
