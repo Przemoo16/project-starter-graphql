@@ -19,7 +19,9 @@ class InvalidInputProblem(Problem):
     path: list[str]
 
 
-def from_pydantic_error(exc: ValidationError) -> list[InvalidInputProblem]:
+def convert_pydantic_error_to_problems(
+    exc: ValidationError,
+) -> list[InvalidInputProblem]:
     return [
         InvalidInputProblem(
             message=error["msg"], path=[to_camel(str(loc)) for loc in error["loc"]]
@@ -28,7 +30,7 @@ def from_pydantic_error(exc: ValidationError) -> list[InvalidInputProblem]:
     ]
 
 
-def convert_to_dict(data: Dataclass) -> dict[Any, Any]:
+def convert_dataclass_to_dict(data: Dataclass) -> dict[Any, Any]:
     return {
         key: value
         for key, value in asdict(data).items()

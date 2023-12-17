@@ -1,7 +1,8 @@
 from dataclasses import asdict
 from typing import Any
 
-from backend.libs.db.crud import NoObjectFoundError, is_unset
+from backend.libs.db.crud import NoObjectFoundError
+from backend.libs.types.unset import is_unset
 from backend.services.user.crud import (
     UserCreateData,
     UserFilters,

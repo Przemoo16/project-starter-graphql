@@ -3,7 +3,8 @@ from datetime import datetime
 from functools import partial
 from uuid import UUID
 
-from backend.libs.db.crud import CRUD, UNSET, UnsetType
+from backend.libs.db.crud import CRUD
+from backend.libs.types.unset import UNSET, UnsetType
 from backend.services.user.models import User
 
 

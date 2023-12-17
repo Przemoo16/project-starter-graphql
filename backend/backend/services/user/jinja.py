@@ -1,14 +1,9 @@
 from typing import Any
 
-from jinja2 import Environment, PackageLoader, select_autoescape
-
 from backend.i18 import translations
+from backend.libs.templates.env import create_env
 
-_env = Environment(
-    loader=PackageLoader("backend.services.user"),
-    autoescape=select_autoescape(),
-    extensions=["jinja2.ext.i18n"],
-)
+_env = create_env("backend.services.user")
 _env.install_gettext_translations(translations)  # type: ignore[attr-defined]
 
 
