@@ -3995,14 +3995,14 @@ __metadata:
   languageName: node
   linkType: hard
 
-"eslint-plugin-qwik@npm:^1.3.0":
-  version: 1.3.0
-  resolution: "eslint-plugin-qwik@npm:1.3.0"
+"eslint-plugin-qwik@npm:^1.3.1":
+  version: 1.3.1
+  resolution: "eslint-plugin-qwik@npm:1.3.1"
   dependencies:
     jsx-ast-utils: "npm:^3.3.5"
   peerDependencies:
     eslint: ^8.45.0
-  checksum: cd50cb1de49d0174c546617efd36aca23f6779e64d6fb34dccc1ff609aa2431bf9e836483a2a89f4269eab5a2db5416ad5d3d338198c979da5181b912f392fec
+  checksum: 25f0592f59ff7dc565d95d6e120ed0640c901d8d1bd8cea0b278934a91e51199140a6ec5d780c47406315817820245436c38d6273723163f6116eec51f6737e8
   languageName: node
   linkType: hard
 
@@ -4464,7 +4464,7 @@ __metadata:
     eslint-plugin-import: "npm:^2.29.0"
     eslint-plugin-n: "npm:^16.4.0"
     eslint-plugin-promise: "npm:^6.0.0"
-    eslint-plugin-qwik: "npm:^1.3.0"
+    eslint-plugin-qwik: "npm:^1.3.1"
     eslint-plugin-simple-import-sort: "npm:^10.0.0"
     graphql: "npm:^16.8.1"
     js-cookie: "npm:^3.0.5"
