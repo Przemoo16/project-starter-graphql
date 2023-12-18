@@ -44,8 +44,6 @@ const ResetPassword = component$(() => {
         t('resetPassword.resetPasswordError'),
       );
     }
-
-    return t('resetPassword.resetPasswordSuccess');
   });
 
   return (

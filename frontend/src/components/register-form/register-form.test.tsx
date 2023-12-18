@@ -7,7 +7,7 @@ import { fillInput } from '~/tests/input';
 import { RegisterForm } from './register-form';
 
 const ON_SUBMIT = $(
-  async (_fullName: string, _email: string, _password: string) => 'Success',
+  async (_fullName: string, _email: string, _password: string) => {},
 );
 
 describe('[RegisterForm Component]', () => {
@@ -184,11 +184,7 @@ describe('[RegisterForm Component]', () => {
   // FIXME: Enable the test after this is resolved: https://github.com/fabian-hiller/modular-forms/issues/161
   test.skip(`displays success message`, async () => {
     const { screen, render, userEvent } = await createDOM();
-    const onSubmit = $(
-      async (_fullName: string, _email: string, _password: string) =>
-        'Form has been submitted successfully',
-    );
-    await render(<RegisterForm onSubmit={onSubmit} />);
+    await render(<RegisterForm onSubmit={ON_SUBMIT} />);
     const fullNameInput = screen.querySelector('#fullName') as HTMLInputElement;
     const emailInput = screen.querySelector('#email') as HTMLInputElement;
     const passwordInput = screen.querySelector('#password') as HTMLInputElement;
@@ -202,6 +198,6 @@ describe('[RegisterForm Component]', () => {
     await fillInput(repeatedPasswordInput, userEvent, 'testPassword');
     await userEvent('button[type="submit"]', 'submit');
 
-    expect(screen.innerHTML).toContain('Form has been submitted successfully');
+    expect(screen.innerHTML).toContain('registerSuccess');
   });
 });

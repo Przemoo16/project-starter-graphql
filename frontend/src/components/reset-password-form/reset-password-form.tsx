@@ -20,7 +20,7 @@ export type ResetPasswordFormSchema = {
 };
 
 interface ResetPasswordFormProps {
-  onSubmit: QRL<(password: string) => Promise<string>>;
+  onSubmit: QRL<(password: string) => Promise<void>>;
 }
 
 export const ResetPasswordForm = component$(
@@ -33,10 +33,11 @@ export const ResetPasswordForm = component$(
 
     const handleSubmit = $<SubmitHandler<ResetPasswordFormSchema>>(
       async ({ password }, _event) => {
-        const message = await onSubmit(password);
+        const t = inlineTranslate();
+        await onSubmit(password);
         reset(form);
         setResponse(form, {
-          message,
+          message: t('resetPassword.resetPasswordSuccess'),
         });
       },
     );

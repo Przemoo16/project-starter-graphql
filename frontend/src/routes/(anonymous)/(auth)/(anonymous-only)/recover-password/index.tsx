@@ -25,9 +25,7 @@ const RecoverPassword = component$(() => {
   const t = inlineTranslate();
 
   const onSubmit = $(async (email: string) => {
-    const t = inlineTranslate();
     await recoverPassword(getClientRequestSender(), email);
-    return t('recoverPassword.recoverPasswordSuccess');
   });
 
   return (

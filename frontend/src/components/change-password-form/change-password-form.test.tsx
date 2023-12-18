@@ -7,7 +7,7 @@ import { fillInput } from '~/tests/input';
 import { ChangePasswordForm } from './change-password-form';
 
 const ON_SUBMIT = $(
-  async (_currentPassword: string, _newPassword: string) => 'Success',
+  async (_currentPassword: string, _newPassword: string) => {},
 );
 
 describe('[ChangePasswordForm Component]', () => {
@@ -145,11 +145,7 @@ describe('[ChangePasswordForm Component]', () => {
   // FIXME: Enable the test after this is resolved: https://github.com/fabian-hiller/modular-forms/issues/161
   test.skip(`displays success message`, async () => {
     const { screen, render, userEvent } = await createDOM();
-    const onSubmit = $(
-      async (_currentPassword: string, _newPassword: string) =>
-        'Form has been submitted successfully',
-    );
-    await render(<ChangePasswordForm onSubmit={onSubmit} />);
+    await render(<ChangePasswordForm onSubmit={ON_SUBMIT} />);
     const currentPasswordInput = screen.querySelector(
       '#currentPassword',
     ) as HTMLInputElement;
@@ -165,6 +161,6 @@ describe('[ChangePasswordForm Component]', () => {
     await fillInput(repeatedPasswordInput, userEvent, 'newPassword');
     await userEvent('button[type="submit"]', 'submit');
 
-    expect(screen.innerHTML).toContain('Form has been submitted successfully');
+    expect(screen.innerHTML).toContain('changePasswordSuccess');
   });
 });
