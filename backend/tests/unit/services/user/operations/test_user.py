@@ -81,13 +81,24 @@ async def test_create_user_does_not_call_success_callback_if_user_already_exists
 
 @pytest.mark.anyio()
 async def test_update_user_updates_user() -> None:
-    data = UserUpdateSchema(full_name="Updated User")
     user = create_user_helper(full_name="Test User")
+    data = UserUpdateSchema(full_name="Updated User")
     crud = UserCRUD()
 
     await update_user(user, data, crud)
 
     assert user.full_name == "Updated User"
+
+
+@pytest.mark.anyio()
+async def test_update_user_does_not_update_unset_fields() -> None:
+    user = create_user_helper(full_name="Test User")
+    data = UserUpdateSchema()
+    crud = UserCRUD()
+
+    await update_user(user, data, crud)
+
+    assert user.full_name == "Test User"
 
 
 @pytest.mark.anyio()

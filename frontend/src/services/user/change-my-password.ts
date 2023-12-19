@@ -6,7 +6,7 @@ export const changeMyPassword = async (
   onRequest: RequestSender,
   currentPassword: string,
   newPassword: string,
-): Promise<ChangeMyPasswordResponse> => {
+) => {
   const mutation = `
       mutation ChangeMyPassword($input: ChangeMyPasswordInput!) {
         changeMyPassword(input: $input) {
@@ -19,11 +19,11 @@ export const changeMyPassword = async (
       }
     `;
 
-  const { changeMyPassword } = await onRequest(mutation, {
+  const { changeMyPassword } = (await onRequest(mutation, {
     input: {
       currentPassword,
       newPassword,
     },
-  });
+  })) as { changeMyPassword: ChangeMyPasswordResponse };
   return changeMyPassword;
 };

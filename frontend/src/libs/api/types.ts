@@ -8,4 +8,4 @@ export interface FetcherConfig {
 export type Fetcher = (
   url: string,
   config: FetcherConfig,
-) => Promise<Record<string, any>>;
+) => Promise<Record<string, unknown>>;

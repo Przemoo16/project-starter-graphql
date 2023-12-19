@@ -88,7 +88,7 @@ describe('[sendGraphQLRequest function]', () => {
     };
     const requestConfig = {
       query: 'test-query',
-      variables: { foo: 'bar' },
+      variables: { foo: 'bar', baz: undefined },
     };
 
     await sendGraphQLRequest(onFetch, 'http://localhost', requestConfig);

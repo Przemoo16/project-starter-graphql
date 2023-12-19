@@ -2,10 +2,7 @@ import { type UpdateMeResponse } from '~/services/graphql';
 
 import { type RequestSender } from './types';
 
-export const updateMe = async (
-  onRequest: RequestSender,
-  fullName?: string,
-): Promise<UpdateMeResponse> => {
+export const updateMe = async (onRequest: RequestSender, fullName?: string) => {
   const mutation = `
     mutation UpdateMe($input: UpdateMeInput!) {
       updateMe(input: $input) {
@@ -21,10 +18,10 @@ export const updateMe = async (
     }
   `;
 
-  const { updateMe } = await onRequest(mutation, {
+  const { updateMe } = (await onRequest(mutation, {
     input: {
       fullName,
     },
-  });
+  })) as { updateMe: UpdateMeResponse };
   return updateMe;
 };

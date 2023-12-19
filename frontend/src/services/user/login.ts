@@ -1,3 +1,4 @@
+import { hasProblems } from '~/libs/api/has-problems';
 import { StorageKey } from '~/libs/auth/storage-key';
 import { type Storage } from '~/libs/storage/types';
 import { type LoginResponse } from '~/services/graphql';
@@ -9,7 +10,7 @@ export const login = async (
   storage: Storage,
   email: string,
   password: string,
-): Promise<LoginResponse> => {
+) => {
   const mutation = `
       mutation Login($input: LoginInput!) {
         login(input: $input) {
@@ -26,13 +27,13 @@ export const login = async (
       }
     `;
 
-  const { login } = await onRequest(mutation, {
+  const { login } = (await onRequest(mutation, {
     input: {
       username: email,
       password,
     },
-  });
-  if (!login.problems) {
+  })) as { login: LoginResponse };
+  if (!hasProblems(login)) {
     storage.set(StorageKey.AccessToken, login.accessToken);
     storage.set(StorageKey.RefreshToken, login.refreshToken);
   }

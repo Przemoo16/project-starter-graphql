@@ -4,10 +4,7 @@ import { type User } from '~/services/graphql';
 
 import { type RequestSender } from './types';
 
-export const getMe = async (
-  onRequest: RequestSender,
-  storage: Storage,
-): Promise<User> => {
+export const getMe = async (onRequest: RequestSender, storage: Storage) => {
   if (!isAuthenticated(storage)) {
     throw new Error('User is not authenticated');
   }
@@ -22,6 +19,6 @@ export const getMe = async (
     }
   `;
 
-  const { me } = await onRequest(query);
+  const { me } = (await onRequest(query)) as { me: User };
   return me;
 };

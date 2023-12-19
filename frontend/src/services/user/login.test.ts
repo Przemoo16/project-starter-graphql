@@ -10,7 +10,6 @@ describe('[login function]', () => {
       login: {
         accessToken: 'access-token',
         refreshToken: 'refresh-token',
-        tokenType: 'Bearer',
       },
     });
     const storage = new TestStorage();

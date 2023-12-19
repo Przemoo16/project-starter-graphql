@@ -9,7 +9,6 @@ describe('[refreshToken function]', () => {
     const onRequest = async () => ({
       refreshToken: {
         accessToken: 'access-token',
-        tokenType: 'Bearer',
       },
     });
     const storage = new TestStorage();
@@ -29,7 +28,6 @@ describe('[refreshToken function]', () => {
       return {
         refreshToken: {
           accessToken: 'access-token',
-          tokenType: 'Bearer',
         },
       };
     };

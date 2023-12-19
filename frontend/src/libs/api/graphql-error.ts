@@ -1,4 +1,4 @@
-interface GraphQLErrorDetails {
+export interface GraphQLErrorDetails {
   message: string;
   locations: Array<{
     line: number;
