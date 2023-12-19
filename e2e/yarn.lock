@@ -231,24 +231,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@typescript-eslint/parser@npm:^5.52.0":
-  version: 5.62.0
-  resolution: "@typescript-eslint/parser@npm:5.62.0"
-  dependencies:
-    "@typescript-eslint/scope-manager": "npm:5.62.0"
-    "@typescript-eslint/types": "npm:5.62.0"
-    "@typescript-eslint/typescript-estree": "npm:5.62.0"
-    debug: "npm:^4.3.4"
-  peerDependencies:
-    eslint: ^6.0.0 || ^7.0.0 || ^8.0.0
-  peerDependenciesMeta:
-    typescript:
-      optional: true
-  checksum: 315194b3bf39beb9bd16c190956c46beec64b8371e18d6bb72002108b250983eb1e186a01d34b77eb4045f4941acbb243b16155fbb46881105f65e37dc9e24d4
-  languageName: node
-  linkType: hard
-
-"@typescript-eslint/parser@npm:^6.15.0":
+"@typescript-eslint/parser@npm:^6.15.0, @typescript-eslint/parser@npm:^6.4.0":
   version: 6.15.0
   resolution: "@typescript-eslint/parser@npm:6.15.0"
   dependencies:
@@ -815,7 +798,7 @@ __metadata:
     "@typescript-eslint/parser": "npm:^6.15.0"
     eslint: "npm:^8.56.0"
     eslint-config-prettier: "npm:^9.1.0"
-    eslint-config-standard-with-typescript: "npm:^37.0.0"
+    eslint-config-standard-with-typescript: "npm:^43.0.0"
     eslint-plugin-import: "npm:^2.29.1"
     eslint-plugin-n: "npm:^16.4.0"
     eslint-plugin-promise: "npm:^6.0.0"
@@ -973,20 +956,20 @@ __metadata:
   languageName: node
   linkType: hard
 
-"eslint-config-standard-with-typescript@npm:^37.0.0":
-  version: 37.0.0
-  resolution: "eslint-config-standard-with-typescript@npm:37.0.0"
+"eslint-config-standard-with-typescript@npm:^43.0.0":
+  version: 43.0.0
+  resolution: "eslint-config-standard-with-typescript@npm:43.0.0"
   dependencies:
-    "@typescript-eslint/parser": "npm:^5.52.0"
+    "@typescript-eslint/parser": "npm:^6.4.0"
     eslint-config-standard: "npm:17.1.0"
   peerDependencies:
-    "@typescript-eslint/eslint-plugin": ^5.52.0
+    "@typescript-eslint/eslint-plugin": ^6.4.0
     eslint: ^8.0.1
     eslint-plugin-import: ^2.25.2
     eslint-plugin-n: "^15.0.0 || ^16.0.0 "
     eslint-plugin-promise: ^6.0.0
     typescript: "*"
-  checksum: 40a88a502cae79bb03190a718e4603ed89dd40151dc717703953753584fdfac48afc38cd1927b2fc37517e4e360b55f6ada07a48c2cff6faea604c90073198e6
+  checksum: e184a7f4a5d753bbc2fb45100e4f1761c7b9fc8dd18c83fd512cf4e811a9dd5a32f6211e612efa746e70e0f5f5637bbd2de4b7e72f9794b71c7f13beba578105
   languageName: node
   linkType: hard
 
