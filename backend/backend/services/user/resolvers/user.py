@@ -5,7 +5,7 @@ from strawberry import argument
 
 from backend.libs.api.context import Info
 from backend.libs.api.types import (
-    convert_dataclass_to_dict,
+    convert_graphql_type_to_dict,
     convert_pydantic_error_to_problems,
 )
 from backend.services.user.context import async_password_hasher
@@ -33,7 +33,9 @@ async def create_user_resolver(
     info: Info, user_input: Annotated[UserCreateInput, argument(name="input")]
 ) -> CreateUserResponse:
     try:
-        schema = UserCreateSchema.model_validate(convert_dataclass_to_dict(user_input))
+        schema = UserCreateSchema.model_validate(
+            convert_graphql_type_to_dict(user_input)
+        )
     except ValidationError as exc:
         return CreateUserFailure(problems=convert_pydantic_error_to_problems(exc))
 
@@ -62,7 +64,9 @@ async def update_me_resolver(
     user = await info.context.user
 
     try:
-        schema = UserUpdateSchema.model_validate(convert_dataclass_to_dict(user_input))
+        schema = UserUpdateSchema.model_validate(
+            convert_graphql_type_to_dict(user_input)
+        )
     except ValidationError as exc:
         return UpdateMeFailure(problems=convert_pydantic_error_to_problems(exc))
 

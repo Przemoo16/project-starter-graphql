@@ -2,7 +2,7 @@ import strawberry
 from pydantic import BaseModel, Field, ValidationError
 
 from backend.libs.api.types import (
-    convert_dataclass_to_dict,
+    convert_graphql_type_to_dict,
     convert_pydantic_error_to_problems,
 )
 
@@ -27,7 +27,7 @@ def test_convert_pydantic_error_to_problems() -> None:
         raise AssertionError()
 
 
-def test_convert_dataclass_to_dict() -> None:
+def test_convert_graphql_type_to_dict() -> None:
     @strawberry.type
     class Test:
         field_1: str = strawberry.UNSET
@@ -36,7 +36,7 @@ def test_convert_dataclass_to_dict() -> None:
 
     test = Test(field_1="test")
 
-    converted = convert_dataclass_to_dict(test)
+    converted = convert_graphql_type_to_dict(test)
 
     assert converted == {
         "field_1": "test",
