@@ -30,7 +30,7 @@ def convert_pydantic_error_to_problems(
     ]
 
 
-def convert_dataclass_to_dict(data: Dataclass) -> dict[Any, Any]:
+def convert_graphql_type_to_dict(data: Dataclass) -> dict[Any, Any]:
     return {
         key: value
         for key, value in asdict(data).items()

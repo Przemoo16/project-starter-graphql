@@ -5,7 +5,7 @@ from strawberry import argument
 
 from backend.libs.api.context import Info
 from backend.libs.api.types import (
-    convert_dataclass_to_dict,
+    convert_graphql_type_to_dict,
     convert_pydantic_error_to_problems,
 )
 from backend.services.user.context import (
@@ -62,7 +62,7 @@ async def reset_password_resolver(
 ) -> ResetPasswordResponse:
     try:
         schema = PasswordResetSchema.model_validate(
-            convert_dataclass_to_dict(reset_password_input)
+            convert_graphql_type_to_dict(reset_password_input)
         )
     except ValidationError as exc:
         return ResetPasswordFailure(problems=convert_pydantic_error_to_problems(exc))
@@ -91,7 +91,7 @@ async def change_my_password_resolver(
     user = await info.context.user
     try:
         schema = PasswordChangeSchema.model_validate(
-            convert_dataclass_to_dict(change_password_input)
+            convert_graphql_type_to_dict(change_password_input)
         )
     except ValidationError as exc:
         return ChangeMyPasswordFailure(problems=convert_pydantic_error_to_problems(exc))
