@@ -3,7 +3,7 @@ export const fillInput = async (
   userEvent: (
     queryOrElement: string | Element | keyof HTMLElementTagNameMap | null,
     eventNameCamel: string | keyof WindowEventMap,
-    eventPayload?: any,
+    eventPayload?: unknown,
   ) => Promise<void>,
   value: string,
 ) => {

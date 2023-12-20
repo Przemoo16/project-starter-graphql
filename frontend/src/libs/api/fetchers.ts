@@ -1,6 +1,9 @@
 import { type FetcherConfig } from './types';
 
-export const fetchAdapter = async (url: string, config: FetcherConfig) => {
+export const fetchAdapter = async (
+  url: string,
+  config: FetcherConfig,
+): Promise<Record<string, unknown>> => {
   const response = await fetch(url, {
     method: config.method,
     body: config.body,

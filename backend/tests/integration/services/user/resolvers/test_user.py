@@ -212,10 +212,7 @@ async def test_create_user_returns_problem_if_user_already_exists(
 
 @pytest.mark.anyio()
 async def test_get_me_returns_user(
-    db: AsyncSession,
-    auth_private_key: str,
-    client: AsyncClient,
-    graphql_url: str,
+    db: AsyncSession, auth_private_key: str, client: AsyncClient, graphql_url: str
 ) -> None:
     user = await create_confirmed_user(
         db, id=UUID("6d9c79d6-9641-4746-92d9-2cc9ebdca941")
@@ -241,10 +238,7 @@ async def test_get_me_returns_user(
 
 @pytest.mark.anyio()
 async def test_update_me_returns_updated_user(
-    db: AsyncSession,
-    auth_private_key: str,
-    client: AsyncClient,
-    graphql_url: str,
+    db: AsyncSession, auth_private_key: str, client: AsyncClient, graphql_url: str
 ) -> None:
     user = await create_confirmed_user(db, full_name="Test User")
     auth_header = create_auth_header(auth_private_key, user.id)
@@ -274,11 +268,35 @@ async def test_update_me_returns_updated_user(
 
 
 @pytest.mark.anyio()
+async def test_update_me_does_not_update_unset_fields(
+    db: AsyncSession, auth_private_key: str, client: AsyncClient, graphql_url: str
+) -> None:
+    user = await create_confirmed_user(db, full_name="Test User")
+    auth_header = create_auth_header(auth_private_key, user.id)
+    query = """
+      mutation UpdateMe($input: UpdateMeInput!) {
+        updateMe(input: $input) {
+          ... on User {
+            fullName
+          }
+        }
+      }
+    """
+    variables: dict[str, dict[str, str]] = {"input": {}}
+
+    response = await client.post(
+        graphql_url, json={"query": query, "variables": variables}, headers=auth_header
+    )
+
+    data = response.json()["data"]["updateMe"]
+    assert data == {
+        "fullName": "Test User",
+    }
+
+
+@pytest.mark.anyio()
 async def test_update_me_returns_problem_if_full_name_is_too_short(
-    db: AsyncSession,
-    auth_private_key: str,
-    client: AsyncClient,
-    graphql_url: str,
+    db: AsyncSession, auth_private_key: str, client: AsyncClient, graphql_url: str
 ) -> None:
     user = await create_confirmed_user(db)
     auth_header = create_auth_header(auth_private_key, user.id)
@@ -311,10 +329,7 @@ async def test_update_me_returns_problem_if_full_name_is_too_short(
 
 @pytest.mark.anyio()
 async def test_update_me_returns_problem_if_full_name_is_too_long(
-    db: AsyncSession,
-    auth_private_key: str,
-    client: AsyncClient,
-    graphql_url: str,
+    db: AsyncSession, auth_private_key: str, client: AsyncClient, graphql_url: str
 ) -> None:
     user = await create_confirmed_user(db)
     auth_header = create_auth_header(auth_private_key, user.id)
@@ -347,10 +362,7 @@ async def test_update_me_returns_problem_if_full_name_is_too_long(
 
 @pytest.mark.anyio()
 async def test_delete_me_returns_success_message(
-    db: AsyncSession,
-    auth_private_key: str,
-    client: AsyncClient,
-    graphql_url: str,
+    db: AsyncSession, auth_private_key: str, client: AsyncClient, graphql_url: str
 ) -> None:
     user = await create_confirmed_user(db)
     auth_header = create_auth_header(auth_private_key, user.id)

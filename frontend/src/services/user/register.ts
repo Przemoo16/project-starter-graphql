@@ -7,7 +7,7 @@ export const register = async (
   fullName: string,
   email: string,
   password: string,
-): Promise<CreateUserResponse> => {
+) => {
   const mutation = `
       mutation CreateUser($input: UserCreateInput!) {
         createUser(input: $input) {
@@ -20,12 +20,12 @@ export const register = async (
       }
     `;
 
-  const { createUser } = await onRequest(mutation, {
+  const { createUser } = (await onRequest(mutation, {
     input: {
       fullName,
       email,
       password,
     },
-  });
+  })) as { createUser: CreateUserResponse };
   return createUser;
 };

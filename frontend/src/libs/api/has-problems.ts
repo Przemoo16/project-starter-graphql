@@ -1,3 +1,3 @@
 export const hasProblems = (
-  data: Record<string, any>,
-): data is { problems: any } => 'problems' in data;
+  data: Record<string, unknown>,
+): data is { problems: unknown } => 'problems' in data;

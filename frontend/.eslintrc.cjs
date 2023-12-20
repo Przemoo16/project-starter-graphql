@@ -24,6 +24,8 @@ module.exports = {
     'simple-import-sort/exports': 'error',
     '@typescript-eslint/consistent-type-definitions': 'off',
     '@typescript-eslint/explicit-function-return-type': 'off',
+    // FIXME: Remove the rule below if narrowing element type in tests is possible
+    '@typescript-eslint/non-nullable-type-assertion-style': 'off',
     '@typescript-eslint/strict-boolean-expressions': 'off',
   },
 };

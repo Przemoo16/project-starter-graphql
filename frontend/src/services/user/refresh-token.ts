@@ -7,12 +7,11 @@ import { type RequestSender } from './types';
 export const refreshToken = async (
   onRequest: RequestSender,
   storage: Storage,
-): Promise<RefreshTokenResponse> => {
+) => {
   const mutation = `
     mutation RefreshToken($token: String!) {
       refreshToken(token: $token) {
         accessToken
-        tokenType
       }
     }
   `;
@@ -21,9 +20,9 @@ export const refreshToken = async (
   if (!token) {
     throw new Error('No refresh token in the storage to perform refreshing');
   }
-  const { refreshToken } = await onRequest(mutation, {
+  const { refreshToken } = (await onRequest(mutation, {
     token,
-  });
+  })) as { refreshToken: RefreshTokenResponse };
   storage.set(StorageKey.AccessToken, refreshToken.accessToken);
   // Write the token again to extend the storage expiration
   storage.set(StorageKey.RefreshToken, token);
