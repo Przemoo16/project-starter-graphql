@@ -149,7 +149,7 @@ export const RegisterForm = component$(({ onSubmit }: RegisterFormProps) => {
       </Field>
       <div>{form.response.message}</div>
       <button type="submit" disabled={form.submitting}>
-        {t('register.getStarted')}
+        {t('register.signUp')}
       </button>
     </Form>
   );

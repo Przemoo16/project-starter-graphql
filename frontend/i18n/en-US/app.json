@@ -1,0 +1,38 @@
+{
+  "app": {
+    "appName": "Project Starter",
+    "head": {
+      "account": {
+        "title": "Account"
+      },
+      "confirmEmail": {
+        "title": "Confirm Email"
+      },
+      "dashboard": {
+        "title": "Dashboard"
+      },
+      "home": {
+        "title": "Home"
+      },
+      "login": {
+        "title": "Login"
+      },
+      "notFound": {
+        "title": "404"
+      },
+      "recoverPassword": {
+        "title": "Recover Password"
+      },
+      "register": {
+        "title": "Register"
+      },
+      "resetPassword": {
+        "title": "Reset Password"
+      }
+    },
+    "ui": {
+      "getStarted": "Get Started",
+      "login": "Login"
+    }
+  }
+}

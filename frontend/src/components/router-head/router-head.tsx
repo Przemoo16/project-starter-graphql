@@ -14,7 +14,7 @@ export const RouterHead = component$(() => {
 
   return (
     <>
-      <TitleHead appName={t('head.app.title')} pageTitle={head.title} />
+      <TitleHead appName={t('app.appName')} pageTitle={head.title} />
 
       <link rel="canonical" href={loc.url.href} />
       <meta name="viewport" content="width=device-width, initial-scale=1.0" />
