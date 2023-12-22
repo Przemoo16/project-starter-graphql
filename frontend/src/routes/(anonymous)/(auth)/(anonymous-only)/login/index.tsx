@@ -44,8 +44,7 @@ const Login = component$(() => {
     const data = await login(
       getClientRequestSender(),
       getClientTokenStorage(),
-      email,
-      password,
+      { username: email, password },
     );
 
     if (hasProblems(data)) {

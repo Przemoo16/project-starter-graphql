@@ -14,7 +14,10 @@ describe('[login function]', () => {
     });
     const storage = new TestStorage();
 
-    await login(onRequest, storage, 'test@email.com', 'testPassword');
+    await login(onRequest, storage, {
+      username: 'test@email.com',
+      password: 'testPassword',
+    });
 
     expect(storage.get('accessToken')).toEqual('access-token');
     expect(storage.get('refreshToken')).toEqual('refresh-token');
@@ -28,7 +31,10 @@ describe('[login function]', () => {
     });
     const storage = new TestStorage();
 
-    await login(onRequest, storage, 'test@email.com', 'testPassword');
+    await login(onRequest, storage, {
+      username: 'test@email.com',
+      password: 'testPassword',
+    });
 
     expect(storage.get('accessToken')).toBeNull();
     expect(storage.get('refreshToken')).toBeNull();

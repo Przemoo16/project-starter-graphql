@@ -1,11 +1,13 @@
-import { type ChangeMyPasswordResponse } from '~/services/graphql';
+import {
+  type ChangeMyPasswordInput,
+  type ChangeMyPasswordResponse,
+} from '~/services/graphql';
 
 import { type RequestSender } from './types';
 
 export const changeMyPassword = async (
   onRequest: RequestSender,
-  currentPassword: string,
-  newPassword: string,
+  input: ChangeMyPasswordInput,
 ) => {
   const mutation = `
       mutation ChangeMyPassword($input: ChangeMyPasswordInput!) {
@@ -20,10 +22,7 @@ export const changeMyPassword = async (
     `;
 
   const { changeMyPassword } = (await onRequest(mutation, {
-    input: {
-      currentPassword,
-      newPassword,
-    },
+    input,
   })) as { changeMyPassword: ChangeMyPasswordResponse };
   return changeMyPassword;
 };

@@ -1,15 +1,14 @@
 import { hasProblems } from '~/libs/api/has-problems';
 import { StorageKey } from '~/libs/auth/storage-key';
 import { type Storage } from '~/libs/storage/types';
-import { type LoginResponse } from '~/services/graphql';
+import { type LoginInput, type LoginResponse } from '~/services/graphql';
 
 import { type RequestSender } from './types';
 
 export const login = async (
   onRequest: RequestSender,
   storage: Storage,
-  email: string,
-  password: string,
+  input: LoginInput,
 ) => {
   const mutation = `
       mutation Login($input: LoginInput!) {
@@ -28,10 +27,7 @@ export const login = async (
     `;
 
   const { login } = (await onRequest(mutation, {
-    input: {
-      username: email,
-      password,
-    },
+    input,
   })) as { login: LoginResponse };
   if (!hasProblems(login)) {
     storage.set(StorageKey.AccessToken, login.accessToken);

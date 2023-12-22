@@ -33,11 +33,10 @@ const ResetPassword = component$(() => {
   const onSubmit = $(async (password: string) => {
     const t = inlineTranslate();
 
-    const data = await resetPassword(
-      getClientRequestSender(),
-      loc.url.searchParams.get('token') ?? '',
+    const data = await resetPassword(getClientRequestSender(), {
+      token: loc.url.searchParams.get('token') ?? '',
       password,
-    );
+    });
 
     if (hasProblems(data)) {
       throw new FormError<ResetPasswordFormSchema>(

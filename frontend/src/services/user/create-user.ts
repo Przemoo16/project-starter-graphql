@@ -1,12 +1,13 @@
-import { type CreateUserResponse } from '~/services/graphql';
+import {
+  type CreateUserResponse,
+  type UserCreateInput,
+} from '~/services/graphql';
 
 import { type RequestSender } from './types';
 
-export const register = async (
+export const createUser = async (
   onRequest: RequestSender,
-  fullName: string,
-  email: string,
-  password: string,
+  input: UserCreateInput,
 ) => {
   const mutation = `
       mutation CreateUser($input: UserCreateInput!) {
@@ -21,11 +22,7 @@ export const register = async (
     `;
 
   const { createUser } = (await onRequest(mutation, {
-    input: {
-      fullName,
-      email,
-      password,
-    },
+    input,
   })) as { createUser: CreateUserResponse };
   return createUser;
 };
