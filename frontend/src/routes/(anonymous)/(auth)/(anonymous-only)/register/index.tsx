@@ -11,7 +11,7 @@ import {
 import { hasProblems } from '~/libs/api/has-problems';
 import { isProblemPresent } from '~/libs/api/is-problem-present';
 import { RouteURL } from '~/libs/api/route-url';
-import { register } from '~/services/user/register';
+import { createUser } from '~/services/user/create-user';
 
 export const head: DocumentHead = () => {
   const t = inlineTranslate();
@@ -34,12 +34,11 @@ const Register = component$(() => {
     async (fullName: string, email: string, password: string) => {
       const t = inlineTranslate();
 
-      const data = await register(
-        getClientRequestSender(),
+      const data = await createUser(getClientRequestSender(), {
         fullName,
         email,
         password,
-      );
+      });
 
       if (hasProblems(data)) {
         let emailError = '';

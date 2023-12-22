@@ -1,11 +1,13 @@
-import { type ResetPasswordResponse } from '~/services/graphql';
+import {
+  type ResetPasswordInput,
+  type ResetPasswordResponse,
+} from '~/services/graphql';
 
 import { type RequestSender } from './types';
 
 export const resetPassword = async (
   onRequest: RequestSender,
-  token: string,
-  password: string,
+  input: ResetPasswordInput,
 ) => {
   const mutation = `
       mutation ResetPassword($input: ResetPasswordInput!) {
@@ -20,10 +22,7 @@ export const resetPassword = async (
     `;
 
   const { resetPassword } = (await onRequest(mutation, {
-    input: {
-      token,
-      password,
-    },
+    input,
   })) as { resetPassword: ResetPasswordResponse };
   return resetPassword;
 };

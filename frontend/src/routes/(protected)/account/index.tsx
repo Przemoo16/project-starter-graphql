@@ -65,11 +65,10 @@ const Account = component$(() => {
     async (currentPassword: string, newPassword: string) => {
       const t = inlineTranslate();
 
-      const data = await changeMyPassword(
-        getClientRequestSender(),
+      const data = await changeMyPassword(getClientRequestSender(), {
         currentPassword,
         newPassword,
-      );
+      });
 
       if (hasProblems(data)) {
         let error = '';
@@ -86,7 +85,7 @@ const Account = component$(() => {
   const onUpdateAccount = $(async (fullName?: string) => {
     const t = inlineTranslate();
 
-    const data = await updateMe(getClientRequestSender(), fullName);
+    const data = await updateMe(getClientRequestSender(), { fullName });
 
     if (hasProblems(data)) {
       throw new FormError<UpdateAccountFormSchema>(
