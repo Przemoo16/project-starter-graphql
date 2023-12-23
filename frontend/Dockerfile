@@ -24,12 +24,12 @@ COPY . .
 
 FROM deps AS dev
 
-CMD ["yarn", "dev"]
+CMD ["yarn", "run", "dev"]
 
 
 FROM deps as build
 
-RUN yarn build
+RUN yarn run build
 
 
 FROM base

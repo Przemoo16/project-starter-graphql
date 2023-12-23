@@ -41,12 +41,7 @@ repos:
     rev: v3.1.0
     hooks:
       - id: prettier
-        additional_dependencies:
-          [
-            "daisyui@4.4.22",
-            "prettier@3.1.0",
-            "prettier-plugin-tailwindcss@0.5.9",
-          ]
+        exclude: ^frontend/
   - repo: https://github.com/igorshubovych/markdownlint-cli
     rev: v0.38.0
     hooks:
@@ -90,7 +85,6 @@ repos:
         entry: docker compose run --no-TTY --rm --no-deps frontend yarn run lint
         language: system
         files: ^frontend/
-        types_or: [javascript, jsx, ts, tsx]
         require_serial: true
         pass_filenames: false
       - id: e2e
@@ -98,6 +92,5 @@ repos:
         entry: docker compose -f compose.e2e.yaml run --no-TTY --rm --no-deps e2e yarn run lint
         language: system
         files: ^e2e/
-        types_or: [javascript, jsx, ts, tsx]
         require_serial: true
         pass_filenames: false

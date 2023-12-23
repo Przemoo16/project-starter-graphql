@@ -35,4 +35,4 @@ unit-test-backend:
 	$(COMPOSE_TEST) run --no-TTY --rm --no-deps backend-test pytest tests/unit
 
 unit-test-frontend:
-	$(COMPOSE_TEST) run --no-TTY --rm --no-deps frontend-test yarn test
+	$(COMPOSE_TEST) run --no-TTY --rm --no-deps frontend-test yarn run test
