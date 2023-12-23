@@ -10,6 +10,7 @@ import {
 } from '~/components/reset-password-form/reset-password-form';
 import { hasProblems } from '~/libs/api/has-problems';
 import { RouteURL } from '~/libs/api/route-url';
+import { type ResetPasswordInput } from '~/services/graphql';
 import { resetPassword } from '~/services/user/reset-password';
 
 export const head: DocumentHead = () => {
@@ -30,12 +31,12 @@ const ResetPassword = component$(() => {
   const t = inlineTranslate();
   const loc = useLocation();
 
-  const onSubmit = $(async (password: string) => {
+  const onSubmit = $(async (input: Omit<ResetPasswordInput, 'token'>) => {
     const t = inlineTranslate();
 
     const data = await resetPassword(getClientRequestSender(), {
       token: loc.url.searchParams.get('token') ?? '',
-      password,
+      ...input,
     });
 
     if (hasProblems(data)) {

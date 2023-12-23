@@ -2,6 +2,7 @@ import { $ } from '@builder.io/qwik';
 import { createDOM } from '@builder.io/qwik/testing';
 import { describe, expect, test } from 'vitest';
 
+import { type UpdateMeInput } from '~/services/graphql';
 import { fillInput } from '~/tests/input';
 
 import { UpdateAccountForm } from './update-account-form';
@@ -9,7 +10,7 @@ import { UpdateAccountForm } from './update-account-form';
 const LOADER = {
   value: { fullName: 'Test User' },
 };
-const ON_SUBMIT = $(async (_fullName?: string) => ({
+const ON_SUBMIT = $(async (_input: UpdateMeInput) => ({
   fullName: 'Updated User',
 }));
 
@@ -63,10 +64,10 @@ describe('[UpdateAccountForm Component]', () => {
 
   test(`doesn't send unchanged values`, async () => {
     const { render, userEvent } = await createDOM();
-    const sentData: Record<string, string | undefined> = {
+    const sentData: Record<string, string | undefined | null> = {
       sentFullName: undefined,
     };
-    const onSubmit = $(async (fullName?: string) => {
+    const onSubmit = $(async ({ fullName }: UpdateMeInput) => {
       sentData.sentFullName = fullName;
       return {
         fullName: 'Test User',
@@ -81,10 +82,10 @@ describe('[UpdateAccountForm Component]', () => {
 
   test(`sends changed values`, async () => {
     const { screen, render, userEvent } = await createDOM();
-    const sentData: Record<string, string | undefined> = {
+    const sentData: Record<string, string | undefined | null> = {
       sentFullName: undefined,
     };
-    const onSubmit = $(async (fullName?: string) => {
+    const onSubmit = $(async ({ fullName }: UpdateMeInput) => {
       sentData.sentFullName = fullName;
       return {
         fullName: 'Updated User',
@@ -101,7 +102,7 @@ describe('[UpdateAccountForm Component]', () => {
 
   test(`displays updated values from the response`, async () => {
     const { screen, render, userEvent } = await createDOM();
-    const onSubmit = $(async (_fullName?: string) => {
+    const onSubmit = $(async (_input: UpdateMeInput) => {
       return {
         fullName: 'Updated User',
       };

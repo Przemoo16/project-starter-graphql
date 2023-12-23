@@ -17,6 +17,7 @@ import {
 import { hasProblems } from '~/libs/api/has-problems';
 import { isProblemPresent } from '~/libs/api/is-problem-present';
 import { RouteURL } from '~/libs/api/route-url';
+import { type LoginInput } from '~/services/graphql';
 import { login } from '~/services/user/login';
 
 export const head: DocumentHead = () => {
@@ -38,13 +39,13 @@ const Login = component$(() => {
   const nav = useNavigate();
   const loc = useLocation();
 
-  const onSubmit = $(async (email: string, password: string) => {
+  const onSubmit = $(async (input: LoginInput) => {
     const t = inlineTranslate();
 
     const data = await login(
       getClientRequestSender(),
       getClientTokenStorage(),
-      { username: email, password },
+      input,
     );
 
     if (hasProblems(data)) {

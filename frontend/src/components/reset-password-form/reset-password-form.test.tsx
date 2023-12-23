@@ -2,11 +2,12 @@ import { $ } from '@builder.io/qwik';
 import { createDOM } from '@builder.io/qwik/testing';
 import { describe, expect, test } from 'vitest';
 
+import { type ResetPasswordInput } from '~/services/graphql';
 import { fillInput } from '~/tests/input';
 
 import { ResetPasswordForm } from './reset-password-form';
 
-const ON_SUBMIT = $(async (_password: string) => {});
+const ON_SUBMIT = $(async (_input: Omit<ResetPasswordInput, 'token'>) => {});
 
 describe('[ResetPasswordForm Component]', () => {
   test(`doesn't display error if password passes validation`, async () => {

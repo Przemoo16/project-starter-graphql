@@ -8,6 +8,7 @@ import {
 import { inlineTranslate } from 'qwik-speak';
 
 import { TextInput } from '~/components/text-input/text-input';
+import { type LoginInput } from '~/services/graphql';
 
 export type LoginFormSchema = {
   email: string;
@@ -15,7 +16,7 @@ export type LoginFormSchema = {
 };
 
 interface LoginFormProps {
-  onSubmit: QRL<(email: string, password: string) => Promise<void>>;
+  onSubmit: QRL<(input: LoginInput) => Promise<void>>;
 }
 
 export const LoginForm = component$(({ onSubmit }: LoginFormProps) => {
@@ -26,7 +27,7 @@ export const LoginForm = component$(({ onSubmit }: LoginFormProps) => {
 
   const handleSubmit = $<SubmitHandler<LoginFormSchema>>(
     async ({ email, password }, _event) => {
-      await onSubmit(email, password);
+      await onSubmit({ username: email, password });
     },
   );
 

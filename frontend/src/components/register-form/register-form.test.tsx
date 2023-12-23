@@ -2,13 +2,12 @@ import { $ } from '@builder.io/qwik';
 import { createDOM } from '@builder.io/qwik/testing';
 import { describe, expect, test } from 'vitest';
 
+import { type UserCreateInput } from '~/services/graphql';
 import { fillInput } from '~/tests/input';
 
 import { RegisterForm } from './register-form';
 
-const ON_SUBMIT = $(
-  async (_fullName: string, _email: string, _password: string) => {},
-);
+const ON_SUBMIT = $(async (_input: UserCreateInput) => {});
 
 describe('[RegisterForm Component]', () => {
   test(`doesn't display error if full name passes validation`, async () => {

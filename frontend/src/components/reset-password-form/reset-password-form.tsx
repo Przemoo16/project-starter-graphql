@@ -13,6 +13,7 @@ import { inlineTranslate } from 'qwik-speak';
 
 import { TextInput } from '~/components/text-input/text-input';
 import { MIN_PASSWORD_LENGTH } from '~/routes/schema-config';
+import { type ResetPasswordInput } from '~/services/graphql';
 
 export type ResetPasswordFormSchema = {
   password: string;
@@ -20,7 +21,7 @@ export type ResetPasswordFormSchema = {
 };
 
 interface ResetPasswordFormProps {
-  onSubmit: QRL<(password: string) => Promise<void>>;
+  onSubmit: QRL<(input: Omit<ResetPasswordInput, 'token'>) => Promise<void>>;
 }
 
 export const ResetPasswordForm = component$(
@@ -34,7 +35,7 @@ export const ResetPasswordForm = component$(
     const handleSubmit = $<SubmitHandler<ResetPasswordFormSchema>>(
       async ({ password }, _event) => {
         const t = inlineTranslate();
-        await onSubmit(password);
+        await onSubmit({ password });
         reset(form);
         setResponse(form, {
           message: t('resetPassword.resetPasswordSuccess'),

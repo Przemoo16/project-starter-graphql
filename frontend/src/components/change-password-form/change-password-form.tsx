@@ -13,6 +13,7 @@ import { inlineTranslate } from 'qwik-speak';
 
 import { TextInput } from '~/components/text-input/text-input';
 import { MIN_PASSWORD_LENGTH } from '~/routes/schema-config';
+import { type ChangeMyPasswordInput } from '~/services/graphql';
 
 export type ChangePasswordFormSchema = {
   currentPassword: string;
@@ -21,9 +22,7 @@ export type ChangePasswordFormSchema = {
 };
 
 interface ChangePasswordFormProps {
-  onSubmit: QRL<
-    (currentPassword: string, newPassword: string) => Promise<void>
-  >;
+  onSubmit: QRL<(input: ChangeMyPasswordInput) => Promise<void>>;
 }
 
 export const ChangePasswordForm = component$(
@@ -42,7 +41,7 @@ export const ChangePasswordForm = component$(
     const handleSubmit = $<SubmitHandler<ChangePasswordFormSchema>>(
       async ({ currentPassword, newPassword }, _event) => {
         const t = inlineTranslate();
-        await onSubmit(currentPassword, newPassword);
+        await onSubmit({ currentPassword, newPassword });
         reset(form);
         setResponse(form, {
           message: t('changePassword.changePasswordSuccess'),

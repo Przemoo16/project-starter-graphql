@@ -18,6 +18,7 @@ import {
   MAX_FULL_NAME_LENGTH,
   MIN_PASSWORD_LENGTH,
 } from '~/routes/schema-config';
+import { type UserCreateInput } from '~/services/graphql';
 
 export type RegisterFormSchema = {
   fullName: string;
@@ -27,9 +28,7 @@ export type RegisterFormSchema = {
 };
 
 interface RegisterFormProps {
-  onSubmit: QRL<
-    (fullName: string, email: string, password: string) => Promise<void>
-  >;
+  onSubmit: QRL<(input: UserCreateInput) => Promise<void>>;
 }
 
 export const RegisterForm = component$(({ onSubmit }: RegisterFormProps) => {
@@ -43,7 +42,7 @@ export const RegisterForm = component$(({ onSubmit }: RegisterFormProps) => {
   const handleSubmit = $<SubmitHandler<RegisterFormSchema>>(
     async ({ fullName, email, password }, _event) => {
       const t = inlineTranslate();
-      await onSubmit(fullName, email, password);
+      await onSubmit({ fullName, email, password });
       reset(form);
       setResponse(form, {
         message: t('register.registerSuccess'),
