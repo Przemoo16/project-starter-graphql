@@ -17,4 +17,4 @@ RUN yarn install --immutable
 
 COPY . .
 
-CMD ["yarn", "playwright", "test"]
+CMD ["yarn", "run", "playwright", "test"]
