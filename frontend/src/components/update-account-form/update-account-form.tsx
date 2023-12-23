@@ -12,6 +12,7 @@ import { inlineTranslate } from 'qwik-speak';
 
 import { TextInput } from '~/components/text-input/text-input';
 import { MAX_FULL_NAME_LENGTH } from '~/routes/schema-config';
+import { type UpdateMeInput } from '~/services/graphql';
 
 export type UpdateAccountFormSchema = {
   fullName: string;
@@ -19,7 +20,7 @@ export type UpdateAccountFormSchema = {
 
 interface UpdateAccountFormProps {
   loader: Readonly<Signal<InitialValues<UpdateAccountFormSchema>>>;
-  onSubmit: QRL<(fullName?: string) => Promise<UpdateAccountFormSchema>>;
+  onSubmit: QRL<(input: UpdateMeInput) => Promise<UpdateAccountFormSchema>>;
 }
 
 export const UpdateAccountForm = component$(
@@ -32,7 +33,7 @@ export const UpdateAccountForm = component$(
     const handleSubmit = $<SubmitHandler<UpdateAccountFormSchema>>(
       async ({ fullName }, _event) => {
         const t = inlineTranslate();
-        const user = await onSubmit(fullName);
+        const user = await onSubmit({ fullName });
         setResponse(form, {
           message: t('updateAccount.updateAccountSuccess'),
         });

@@ -11,6 +11,7 @@ import {
 import { hasProblems } from '~/libs/api/has-problems';
 import { isProblemPresent } from '~/libs/api/is-problem-present';
 import { RouteURL } from '~/libs/api/route-url';
+import { type UserCreateInput } from '~/services/graphql';
 import { createUser } from '~/services/user/create-user';
 
 export const head: DocumentHead = () => {
@@ -30,30 +31,24 @@ export default component$(() => {
 const Register = component$(() => {
   const t = inlineTranslate();
 
-  const onSubmit = $(
-    async (fullName: string, email: string, password: string) => {
-      const t = inlineTranslate();
+  const onSubmit = $(async (input: UserCreateInput) => {
+    const t = inlineTranslate();
 
-      const data = await createUser(getClientRequestSender(), {
-        fullName,
-        email,
-        password,
-      });
+    const data = await createUser(getClientRequestSender(), input);
 
-      if (hasProblems(data)) {
-        let emailError = '';
-        let generalError = '';
-        if (isProblemPresent(data.problems, 'UserAlreadyExistsProblem')) {
-          emailError = t('register.accountAlreadyExists');
-        } else {
-          generalError = t('register.registerError');
-        }
-        throw new FormError<RegisterFormSchema>(generalError, {
-          email: emailError,
-        });
+    if (hasProblems(data)) {
+      let emailError = '';
+      let generalError = '';
+      if (isProblemPresent(data.problems, 'UserAlreadyExistsProblem')) {
+        emailError = t('register.accountAlreadyExists');
+      } else {
+        generalError = t('register.registerError');
       }
-    },
-  );
+      throw new FormError<RegisterFormSchema>(generalError, {
+        email: emailError,
+      });
+    }
+  });
 
   return (
     <>

@@ -2,11 +2,12 @@ import { $ } from '@builder.io/qwik';
 import { createDOM } from '@builder.io/qwik/testing';
 import { describe, expect, test } from 'vitest';
 
+import { type LoginInput } from '~/services/graphql';
 import { fillInput } from '~/tests/input';
 
 import { LoginForm } from './login-form';
 
-const ON_SUBMIT = $(async (_email: string, _password: string) => {});
+const ON_SUBMIT = $(async (_input: LoginInput) => {});
 
 describe('[LoginForm Component]', () => {
   test(`doesn't display error if email passes validation`, async () => {

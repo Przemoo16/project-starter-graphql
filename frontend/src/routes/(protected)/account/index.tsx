@@ -18,6 +18,10 @@ import {
 } from '~/components/update-account-form/update-account-form';
 import { hasProblems } from '~/libs/api/has-problems';
 import { isProblemPresent } from '~/libs/api/is-problem-present';
+import {
+  type ChangeMyPasswordInput,
+  type UpdateMeInput,
+} from '~/services/graphql';
 import { changeMyPassword } from '~/services/user/change-my-password';
 import { deleteMe } from '~/services/user/delete-me';
 import { getMe } from '~/services/user/get-me';
@@ -61,31 +65,26 @@ const Account = component$(() => {
   const deleteAccountPending = useSignal(false);
   const updateAccountFormSignal = useUpdateAccountFormLoader();
 
-  const onChangePassword = $(
-    async (currentPassword: string, newPassword: string) => {
-      const t = inlineTranslate();
-
-      const data = await changeMyPassword(getClientRequestSender(), {
-        currentPassword,
-        newPassword,
-      });
-
-      if (hasProblems(data)) {
-        let error = '';
-        if (isProblemPresent(data.problems, 'InvalidPasswordProblem')) {
-          error = t('changePassword.invalidCurrentPassword');
-        } else {
-          error = t('changePassword.changePasswordError');
-        }
-        throw new FormError<ChangePasswordFormSchema>(error);
-      }
-    },
-  );
-
-  const onUpdateAccount = $(async (fullName?: string) => {
+  const onChangePassword = $(async (input: ChangeMyPasswordInput) => {
     const t = inlineTranslate();
 
-    const data = await updateMe(getClientRequestSender(), { fullName });
+    const data = await changeMyPassword(getClientRequestSender(), input);
+
+    if (hasProblems(data)) {
+      let error = '';
+      if (isProblemPresent(data.problems, 'InvalidPasswordProblem')) {
+        error = t('changePassword.invalidCurrentPassword');
+      } else {
+        error = t('changePassword.changePasswordError');
+      }
+      throw new FormError<ChangePasswordFormSchema>(error);
+    }
+  });
+
+  const onUpdateAccount = $(async (input: UpdateMeInput) => {
+    const t = inlineTranslate();
+
+    const data = await updateMe(getClientRequestSender(), input);
 
     if (hasProblems(data)) {
       throw new FormError<UpdateAccountFormSchema>(
