@@ -11,7 +11,7 @@ export const head: DocumentHead = () => {
   const t = inlineTranslate();
 
   return {
-    title: t('head.recoverPassword.title'),
+    title: t('app.head.recoverPassword.title'),
   };
 };
 

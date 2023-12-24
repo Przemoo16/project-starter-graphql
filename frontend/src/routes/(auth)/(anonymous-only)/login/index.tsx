@@ -24,7 +24,7 @@ export const head: DocumentHead = () => {
   const t = inlineTranslate();
 
   return {
-    title: t('head.login.title'),
+    title: t('app.head.login.title'),
   };
 };
 

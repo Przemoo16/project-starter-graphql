@@ -18,7 +18,7 @@ export const head: DocumentHead = () => {
   const t = inlineTranslate();
 
   return {
-    title: t('head.register.title'),
+    title: t('app.head.register.title'),
   };
 };
 

@@ -6,7 +6,7 @@ export const head: DocumentHead = () => {
   const t = inlineTranslate();
 
   return {
-    title: t('head.notFound.title'),
+    title: t('app.head.notFound.title'),
   };
 };
 

@@ -10,7 +10,7 @@ export const head: DocumentHead = () => {
   const t = inlineTranslate();
 
   return {
-    title: t('head.dashboard.title'),
+    title: t('app.head.dashboard.title'),
   };
 };
 

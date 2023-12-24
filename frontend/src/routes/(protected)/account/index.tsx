@@ -32,7 +32,7 @@ export const head: DocumentHead = () => {
   const t = inlineTranslate();
 
   return {
-    title: t('head.account.title'),
+    title: t('app.head.account.title'),
   };
 };
 
