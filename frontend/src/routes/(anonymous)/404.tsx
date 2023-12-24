@@ -1,6 +1,8 @@
 import { component$ } from '@builder.io/qwik';
-import { type DocumentHead } from '@builder.io/qwik-city';
+import { type DocumentHead, Link } from '@builder.io/qwik-city';
 import { inlineTranslate, useSpeak } from 'qwik-speak';
+
+import { RouteURL } from '~/libs/api/route-url';
 
 export const head: DocumentHead = () => {
   const t = inlineTranslate();
@@ -19,5 +21,15 @@ export default component$(() => {
 const NotFound = component$(() => {
   const t = inlineTranslate();
 
-  return <>{t('notFound.pageNotFound')}</>;
+  return (
+    <div class="flex h-full flex-col items-center justify-center">
+      <div class="p-4 text-center">
+        <h1 class="text-8xl font-bold">{t('notFound.404')}</h1>
+        <p class="py-6">{t('notFound.pageDoesNotExist')}</p>
+        <Link href={RouteURL.Home} class="btn btn-primary">
+          {t('notFound.backToHome')}
+        </Link>
+      </div>
+    </div>
+  );
 });

@@ -12,7 +12,7 @@ export const Header = component$(() => {
 
   return (
     <header>
-      <div class="mx-auto max-w-6xl bg-base-100 px-3 sm:px-6">
+      <div class="mx-auto max-w-7xl bg-base-100 px-3 sm:px-6">
         <nav class="navbar relative justify-center sm:static sm:justify-start">
           <div class="sm:flex-1">
             <Link href={RouteURL.Home} aria-label="home">
