@@ -29,7 +29,7 @@ describe('[ResetPasswordForm Component]', () => {
     await userEvent('button[type="submit"]', 'submit');
 
     const error = screen.querySelector('#password-error') as HTMLDivElement;
-    expect(error.innerHTML).toContain('fieldRequired');
+    expect(error.textContent).toContain('fieldRequired');
   });
 
   test(`displays error if password is too short`, async () => {
@@ -41,7 +41,7 @@ describe('[ResetPasswordForm Component]', () => {
     await userEvent('button[type="submit"]', 'submit');
 
     const error = screen.querySelector('#password-error') as HTMLDivElement;
-    expect(error.innerHTML).toContain('passwordTooShort');
+    expect(error.textContent).toContain('passwordTooShort');
   });
 
   test(`doesn't display error if repeated password passes validation`, async () => {
@@ -69,7 +69,7 @@ describe('[ResetPasswordForm Component]', () => {
     const error = screen.querySelector(
       '#repeatedPassword-error',
     ) as HTMLDivElement;
-    expect(error.innerHTML).toContain('fieldRequired');
+    expect(error.textContent).toContain('fieldRequired');
   });
 
   test(`displays error if repeated password doesn't match`, async () => {
@@ -87,7 +87,7 @@ describe('[ResetPasswordForm Component]', () => {
     const error = screen.querySelector(
       '#repeatedPassword-error',
     ) as HTMLDivElement;
-    expect(error.innerHTML).toContain('passwordDoesNotMatch');
+    expect(error.textContent).toContain('passwordDoesNotMatch');
   });
 
   test(`resets form after submit`, async () => {
@@ -119,6 +119,6 @@ describe('[ResetPasswordForm Component]', () => {
     await fillInput(repeatedPasswordInput, userEvent, 'testPassword');
     await userEvent('button[type="submit"]', 'submit');
 
-    expect(screen.innerHTML).toContain('resetPasswordSuccess');
+    expect(screen.textContent).toContain('resetPasswordSuccess');
   });
 });

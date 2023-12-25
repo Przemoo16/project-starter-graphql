@@ -47,7 +47,7 @@ describe('[UpdateAccountForm Component]', () => {
     await userEvent('button[type="submit"]', 'submit');
 
     const error = screen.querySelector('#fullName-error') as HTMLDivElement;
-    expect(error.innerHTML).toContain('fieldRequired');
+    expect(error.textContent).toContain('fieldRequired');
   });
 
   test(`displays error if full name is too long`, async () => {
@@ -59,7 +59,7 @@ describe('[UpdateAccountForm Component]', () => {
     await userEvent('button[type="submit"]', 'submit');
 
     const error = screen.querySelector('#fullName-error') as HTMLDivElement;
-    expect(error.innerHTML).toContain('fullNameTooLong');
+    expect(error.textContent).toContain('fullNameTooLong');
   });
 
   test(`doesn't send unchanged values`, async () => {
@@ -124,6 +124,6 @@ describe('[UpdateAccountForm Component]', () => {
     await fillInput(input, userEvent, 'Test User');
     await userEvent('button[type="submit"]', 'submit');
 
-    expect(screen.innerHTML).toContain('updateAccountSuccess');
+    expect(screen.textContent).toContain('updateAccountSuccess');
   });
 });

@@ -1737,13 +1737,13 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@modular-forms/qwik@npm:^0.21.2":
-  version: 0.21.2
-  resolution: "@modular-forms/qwik@npm:0.21.2"
+"@modular-forms/qwik@npm:^0.22.0":
+  version: 0.22.0
+  resolution: "@modular-forms/qwik@npm:0.22.0"
   peerDependencies:
     "@builder.io/qwik": ^1.2.4
     "@builder.io/qwik-city": ^1.2.4
-  checksum: 9879feba4ce1d7f51196bc214ec0ece31857bbd40665f1e412b662e8bd457b05cba3fa8861c28711d02c483ce2f166d82a44b2d92c6ce26c294a7d1e5f616d21
+  checksum: 52b3ff2a3e0b5db8828d77a6a5ada6b944e3dc1d433f927067f8666452ced7f97135a41fb59ed8d67b577f91804e7f8219bd9913df6fc150b3562849b2ee5ef6
   languageName: node
   linkType: hard
 
@@ -4480,7 +4480,7 @@ __metadata:
     "@builder.io/qwik-city": "npm:^1.3.1"
     "@graphql-codegen/cli": "npm:5.0.0"
     "@graphql-codegen/typescript": "npm:4.0.1"
-    "@modular-forms/qwik": "npm:^0.21.2"
+    "@modular-forms/qwik": "npm:^0.22.0"
     "@types/eslint": "npm:^8.56.0"
     "@types/js-cookie": "npm:^3.0.6"
     "@types/node": "npm:^20.10.5"

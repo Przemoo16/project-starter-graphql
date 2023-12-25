@@ -31,7 +31,7 @@ describe('[ChangePasswordForm Component]', () => {
     const error = screen.querySelector(
       '#currentPassword-error',
     ) as HTMLDivElement;
-    expect(error.innerHTML).toContain('fieldRequired');
+    expect(error.textContent).toContain('fieldRequired');
   });
 
   test(`doesn't display error if new password passes validation`, async () => {
@@ -53,7 +53,7 @@ describe('[ChangePasswordForm Component]', () => {
     await userEvent('button[type="submit"]', 'submit');
 
     const error = screen.querySelector('#newPassword-error') as HTMLDivElement;
-    expect(error.innerHTML).toContain('fieldRequired');
+    expect(error.textContent).toContain('fieldRequired');
   });
 
   test(`displays error if new password is too short`, async () => {
@@ -65,7 +65,7 @@ describe('[ChangePasswordForm Component]', () => {
     await userEvent('button[type="submit"]', 'submit');
 
     const error = screen.querySelector('#newPassword-error') as HTMLDivElement;
-    expect(error.innerHTML).toContain('passwordTooShort');
+    expect(error.textContent).toContain('passwordTooShort');
   });
 
   test(`doesn't display error if repeated password passes validation`, async () => {
@@ -95,7 +95,7 @@ describe('[ChangePasswordForm Component]', () => {
     const error = screen.querySelector(
       '#repeatedPassword-error',
     ) as HTMLDivElement;
-    expect(error.innerHTML).toContain('fieldRequired');
+    expect(error.textContent).toContain('fieldRequired');
   });
 
   test(`displays error if repeated password doesn't match`, async () => {
@@ -115,7 +115,7 @@ describe('[ChangePasswordForm Component]', () => {
     const error = screen.querySelector(
       '#repeatedPassword-error',
     ) as HTMLDivElement;
-    expect(error.innerHTML).toContain('passwordDoesNotMatch');
+    expect(error.textContent).toContain('passwordDoesNotMatch');
   });
 
   test(`resets form after submit`, async () => {
@@ -160,6 +160,6 @@ describe('[ChangePasswordForm Component]', () => {
     await fillInput(repeatedPasswordInput, userEvent, 'newPassword');
     await userEvent('button[type="submit"]', 'submit');
 
-    expect(screen.innerHTML).toContain('changePasswordSuccess');
+    expect(screen.textContent).toContain('changePasswordSuccess');
   });
 });

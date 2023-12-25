@@ -29,7 +29,7 @@ describe('[RegisterForm Component]', () => {
     await userEvent('button[type="submit"]', 'submit');
 
     const error = screen.querySelector('#fullName-error') as HTMLDivElement;
-    expect(error.innerHTML).toContain('fieldRequired');
+    expect(error.textContent).toContain('fieldRequired');
   });
 
   test(`displays error if full name is too long`, async () => {
@@ -41,7 +41,7 @@ describe('[RegisterForm Component]', () => {
     await userEvent('button[type="submit"]', 'submit');
 
     const error = screen.querySelector('#fullName-error') as HTMLDivElement;
-    expect(error.innerHTML).toContain('fullNameTooLong');
+    expect(error.textContent).toContain('fullNameTooLong');
   });
 
   test(`doesn't display error if email passes validation`, async () => {
@@ -63,7 +63,7 @@ describe('[RegisterForm Component]', () => {
     await userEvent('button[type="submit"]', 'submit');
 
     const error = screen.querySelector('#email-error') as HTMLDivElement;
-    expect(error.innerHTML).toContain('fieldRequired');
+    expect(error.textContent).toContain('fieldRequired');
   });
 
   test(`displays error if email is invalid`, async () => {
@@ -75,7 +75,7 @@ describe('[RegisterForm Component]', () => {
     await userEvent('button[type="submit"]', 'submit');
 
     const error = screen.querySelector('#email-error') as HTMLDivElement;
-    expect(error.innerHTML).toContain('invalidEmail');
+    expect(error.textContent).toContain('invalidEmail');
   });
 
   test(`doesn't display error if password passes validation`, async () => {
@@ -97,7 +97,7 @@ describe('[RegisterForm Component]', () => {
     await userEvent('button[type="submit"]', 'submit');
 
     const error = screen.querySelector('#password-error') as HTMLDivElement;
-    expect(error.innerHTML).toContain('fieldRequired');
+    expect(error.textContent).toContain('fieldRequired');
   });
 
   test(`displays error if password is too short`, async () => {
@@ -109,7 +109,7 @@ describe('[RegisterForm Component]', () => {
     await userEvent('button[type="submit"]', 'submit');
 
     const error = screen.querySelector('#password-error') as HTMLDivElement;
-    expect(error.innerHTML).toContain('passwordTooShort');
+    expect(error.textContent).toContain('passwordTooShort');
   });
 
   test(`doesn't display error if repeated password passes validation`, async () => {
@@ -137,7 +137,7 @@ describe('[RegisterForm Component]', () => {
     const error = screen.querySelector(
       '#repeatedPassword-error',
     ) as HTMLDivElement;
-    expect(error.innerHTML).toContain('fieldRequired');
+    expect(error.textContent).toContain('fieldRequired');
   });
 
   test(`displays error if repeated password doesn't match`, async () => {
@@ -155,7 +155,7 @@ describe('[RegisterForm Component]', () => {
     const error = screen.querySelector(
       '#repeatedPassword-error',
     ) as HTMLDivElement;
-    expect(error.innerHTML).toContain('passwordDoesNotMatch');
+    expect(error.textContent).toContain('passwordDoesNotMatch');
   });
 
   test(`resets form after submit`, async () => {
@@ -197,6 +197,6 @@ describe('[RegisterForm Component]', () => {
     await fillInput(repeatedPasswordInput, userEvent, 'testPassword');
     await userEvent('button[type="submit"]', 'submit');
 
-    expect(screen.innerHTML).toContain('registerSuccess');
+    expect(screen.textContent).toContain('registerSuccess');
   });
 });

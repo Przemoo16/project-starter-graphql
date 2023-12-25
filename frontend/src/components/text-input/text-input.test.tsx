@@ -23,7 +23,7 @@ describe('[TextInput Component]', () => {
       />,
     );
 
-    const label = screen.querySelector('label[for="test"]') as HTMLLabelElement;
+    const label = screen.querySelector('label[for="test"]');
     expect(label).toBeUndefined();
   });
 
@@ -45,7 +45,7 @@ describe('[TextInput Component]', () => {
     );
 
     const label = screen.querySelector('label[for="test"]') as HTMLLabelElement;
-    expect(label.innerHTML).toContain('Test Label ');
+    expect(label.textContent).toEqual('Test Label ');
   });
 
   test(`renders required label`, async () => {
@@ -67,7 +67,7 @@ describe('[TextInput Component]', () => {
     );
 
     const label = screen.querySelector('label[for="test"]') as HTMLLabelElement;
-    expect(label.innerHTML).toContain('Test Label <span>*</span>');
+    expect(label.textContent).toEqual('Test Label *');
   });
 
   test(`renders input without error`, async () => {
@@ -91,8 +91,7 @@ describe('[TextInput Component]', () => {
     expect(input.outerHTML).toContain(
       'aria-errormessage="test-error" aria-invalid="false"',
     );
-    const error = screen.querySelector('#test-error') as HTMLDivElement;
-    expect(error).toBeUndefined();
+    expect(input.classList).not.toContain('input-error');
   });
 
   test(`renders input with error`, async () => {
@@ -116,7 +115,48 @@ describe('[TextInput Component]', () => {
     expect(input.outerHTML).toContain(
       'aria-errormessage="test-error" aria-invalid="true"',
     );
+    expect(input.classList).toContain('input-error');
+  });
+
+  test(`doesn't render error message`, async () => {
+    const { screen, render } = await createDOM();
+
+    await render(
+      <TextInput
+        name="test"
+        type="text"
+        label="Test Label"
+        value=""
+        error=""
+        ref={EMPTY_CALLBACK}
+        onInput$={EMPTY_CALLBACK}
+        onChange$={EMPTY_CALLBACK}
+        onBlur$={EMPTY_CALLBACK}
+      />,
+    );
+
+    const error = screen.querySelector('#test-error');
+    expect(error).toBeUndefined();
+  });
+
+  test(`renders error message`, async () => {
+    const { screen, render } = await createDOM();
+
+    await render(
+      <TextInput
+        name="test"
+        type="text"
+        label="Test Label"
+        value=""
+        error="Test Error"
+        ref={EMPTY_CALLBACK}
+        onInput$={EMPTY_CALLBACK}
+        onChange$={EMPTY_CALLBACK}
+        onBlur$={EMPTY_CALLBACK}
+      />,
+    );
+
     const error = screen.querySelector('#test-error') as HTMLDivElement;
-    expect(error.innerHTML).toEqual('Test Error');
+    expect(error.textContent).toEqual('Test Error');
   });
 });
