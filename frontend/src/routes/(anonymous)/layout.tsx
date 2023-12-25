@@ -16,7 +16,7 @@ export default component$(() => {
     <Drawer>
       <div class="flex h-px min-h-screen flex-col">
         <Header />
-        <main class="flex-1">
+        <main class="flex-1 bg-base-100">
           <Slot />
         </main>
         <Footer year={serverTime.value.date.getUTCFullYear()} />
