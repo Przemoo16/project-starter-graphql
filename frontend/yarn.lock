@@ -4493,7 +4493,7 @@ __metadata:
     prettier: "npm:^3.1.1"
     prettier-plugin-tailwindcss: "npm:^0.5.9"
     qwik-speak: "npm:^0.18.0"
-    tailwindcss: "npm:3.3.6"
+    tailwindcss: "npm:3.4.0"
     typescript: "npm:^5.3.2"
     undici: "npm:^5.28.2"
     vite: "npm:^5.0.10"
@@ -8289,9 +8289,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"tailwindcss@npm:3.3.6":
-  version: 3.3.6
-  resolution: "tailwindcss@npm:3.3.6"
+"tailwindcss@npm:3.4.0":
+  version: 3.4.0
+  resolution: "tailwindcss@npm:3.4.0"
   dependencies:
     "@alloc/quick-lru": "npm:^5.2.0"
     arg: "npm:^5.0.2"
@@ -8318,7 +8318,7 @@ __metadata:
   bin:
     tailwind: lib/cli.js
     tailwindcss: lib/cli.js
-  checksum: 69caade773249cb963c33e81f85b7fc423dcb74b416727483f434f4e12874187f633970c9de864fa96736289abaf71189314a53589ada0be6c09ccb0e8b78391
+  checksum: 0a1cef7468e6d17c2857d0b3c4017af2cb37ed8ba27dfb14780c517b8a74f6786970227c400ac1325fc8bcfc09099d8e990fa7c60924bf945f3d0a912d63f546
   languageName: node
   linkType: hard
 
