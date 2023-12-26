@@ -29,7 +29,7 @@ describe('[LoginForm Component]', () => {
     await userEvent('button[type="submit"]', 'submit');
 
     const error = screen.querySelector('#email-error') as HTMLDivElement;
-    expect(error.innerHTML).toContain('fieldRequired');
+    expect(error.textContent).toContain('fieldRequired');
   });
 
   test(`displays error if email is invalid`, async () => {
@@ -41,7 +41,7 @@ describe('[LoginForm Component]', () => {
     await userEvent('button[type="submit"]', 'submit');
 
     const error = screen.querySelector('#email-error') as HTMLDivElement;
-    expect(error.innerHTML).toContain('invalidEmail');
+    expect(error.textContent).toContain('invalidEmail');
   });
 
   test(`doesn't display error if password passes validation`, async () => {
@@ -63,6 +63,6 @@ describe('[LoginForm Component]', () => {
     await userEvent('button[type="submit"]', 'submit');
 
     const error = screen.querySelector('#password-error') as HTMLDivElement;
-    expect(error.innerHTML).toContain('fieldRequired');
+    expect(error.textContent).toContain('fieldRequired');
   });
 });

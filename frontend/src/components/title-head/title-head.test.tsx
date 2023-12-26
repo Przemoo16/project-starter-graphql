@@ -10,7 +10,7 @@ describe('[TitleHead Component]', () => {
     await render(<TitleHead appName="Test App" pageTitle="" />);
 
     const title = screen.querySelector('title') as HTMLTitleElement;
-    expect(title.innerHTML).toEqual('Test App');
+    expect(title.textContent).toEqual('Test App');
   });
 
   test(`displays both the app name and the page title`, async () => {
@@ -19,6 +19,6 @@ describe('[TitleHead Component]', () => {
     await render(<TitleHead appName="Test App" pageTitle="Test Page" />);
 
     const title = screen.querySelector('title') as HTMLTitleElement;
-    expect(title.innerHTML).toEqual('Test Page | Test App');
+    expect(title.textContent).toEqual('Test Page | Test App');
   });
 });

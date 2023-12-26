@@ -1,9 +1,5 @@
-import {
-  component$,
-  type PropFunction,
-  type QwikChangeEvent,
-  type QwikFocusEvent,
-} from '@builder.io/qwik';
+import { component$ } from '@builder.io/qwik';
+import { type FieldElement, type FieldEvent } from '@modular-forms/qwik';
 
 type TextInputProps = {
   name: string;
@@ -13,34 +9,37 @@ type TextInputProps = {
   value: string | undefined;
   error: string;
   required?: boolean;
-  ref: PropFunction<(element: Element) => void>;
-  onInput$: PropFunction<(event: Event, element: HTMLInputElement) => void>;
-  onChange$: PropFunction<
-    (
-      event: QwikChangeEvent<HTMLInputElement>,
-      element: HTMLInputElement,
-    ) => void
-  >;
-  onBlur$: PropFunction<
-    (event: QwikFocusEvent<HTMLInputElement>, element: HTMLInputElement) => void
-  >;
+  ref: (element: Element) => void;
+  onInput$: (event: FieldEvent, element: FieldElement) => void;
+  onChange$: (event: FieldEvent, element: FieldElement) => void;
+  onBlur$: (event: FieldEvent, element: FieldElement) => void;
 };
 
 export const TextInput = component$<TextInputProps>(
-  ({ label, error, name, required, ...props }) => (
-    <div>
-      {label && (
-        <label for={name}>
-          {label} {required && <span>*</span>}
-        </label>
-      )}
-      <input
-        {...props}
-        id={name}
-        aria-errormessage={`${name}-error`}
-        aria-invalid={!!error}
-      />
-      {error && <div id={`${name}-error`}>{error}</div>}
-    </div>
-  ),
+  ({ label, error, name, required, ...props }) => {
+    const inputErrorClass = error ? 'input-error' : '';
+    return (
+      <div>
+        {label && (
+          <label for={name} class="label">
+            <span class="label-text">
+              {label} {required && <span class="text-error">*</span>}
+            </span>
+          </label>
+        )}
+        <input
+          {...props}
+          id={name}
+          aria-errormessage={`${name}-error`}
+          aria-invalid={!!error}
+          class={`input input-bordered w-full max-w-xs ${inputErrorClass}`}
+        />
+        {error && (
+          <div id={`${name}-error`} class="mt-2 text-error">
+            {error}
+          </div>
+        )}
+      </div>
+    );
+  },
 );

@@ -28,7 +28,7 @@ describe('[RecoverPasswordForm Component]', () => {
     await userEvent('button[type="submit"]', 'submit');
 
     const error = screen.querySelector('#email-error') as HTMLDivElement;
-    expect(error.innerHTML).toContain('fieldRequired');
+    expect(error.textContent).toContain('fieldRequired');
   });
 
   test(`displays error if email is invalid`, async () => {
@@ -40,7 +40,7 @@ describe('[RecoverPasswordForm Component]', () => {
     await userEvent('button[type="submit"]', 'submit');
 
     const error = screen.querySelector('#email-error') as HTMLDivElement;
-    expect(error.innerHTML).toContain('invalidEmail');
+    expect(error.textContent).toContain('invalidEmail');
   });
 
   test(`resets form after submit`, async () => {
@@ -63,6 +63,6 @@ describe('[RecoverPasswordForm Component]', () => {
     await fillInput(input, userEvent, 'test@email.com');
     await userEvent('button[type="submit"]', 'submit');
 
-    expect(screen.innerHTML).toContain('recoverPasswordSuccess');
+    expect(screen.textContent).toContain('recoverPasswordSuccess');
   });
 });
