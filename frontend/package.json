@@ -23,7 +23,7 @@
     "qwik-speak-extract": "qwik-speak-extract --supportedLangs=en-US --assetsPath=i18n"
   },
   "devDependencies": {
-    "@builder.io/qwik": "^1.3.0",
+    "@builder.io/qwik": "^1.3.1",
     "@builder.io/qwik-city": "^1.3.1",
     "@graphql-codegen/cli": "5.0.0",
     "@graphql-codegen/typescript": "4.0.1",
