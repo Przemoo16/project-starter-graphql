@@ -7,7 +7,6 @@
 
 !.eslintignore
 !.eslintrc.cjs
-!.prettierignore
 !.prettierrc.json
 !.yarnrc.yml
 !codegen.ts

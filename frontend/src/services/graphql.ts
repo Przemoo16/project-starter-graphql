@@ -1,18 +1,31 @@
 export type Maybe<T> = T | null;
 export type InputMaybe<T> = Maybe<T>;
-export type Exact<T extends { [key: string]: unknown }> = { [K in keyof T]: T[K] };
-export type MakeOptional<T, K extends keyof T> = Omit<T, K> & { [SubKey in K]?: Maybe<T[SubKey]> };
-export type MakeMaybe<T, K extends keyof T> = Omit<T, K> & { [SubKey in K]: Maybe<T[SubKey]> };
-export type MakeEmpty<T extends { [key: string]: unknown }, K extends keyof T> = { [_ in K]?: never };
-export type Incremental<T> = T | { [P in keyof T]?: P extends ' $fragmentName' | '__typename' ? T[P] : never };
+export type Exact<T extends { [key: string]: unknown }> = {
+  [K in keyof T]: T[K];
+};
+export type MakeOptional<T, K extends keyof T> = Omit<T, K> & {
+  [SubKey in K]?: Maybe<T[SubKey]>;
+};
+export type MakeMaybe<T, K extends keyof T> = Omit<T, K> & {
+  [SubKey in K]: Maybe<T[SubKey]>;
+};
+export type MakeEmpty<
+  T extends { [key: string]: unknown },
+  K extends keyof T,
+> = { [_ in K]?: never };
+export type Incremental<T> =
+  | T
+  | {
+      [P in keyof T]?: P extends ' $fragmentName' | '__typename' ? T[P] : never;
+    };
 /** All built-in and custom scalars, mapped to their actual values */
 export type Scalars = {
-  ID: { input: string; output: string; }
-  String: { input: string; output: string; }
-  Boolean: { input: boolean; output: boolean; }
-  Int: { input: number; output: number; }
-  Float: { input: number; output: number; }
-  UUID: { input: any; output: any; }
+  ID: { input: string; output: string };
+  String: { input: string; output: string };
+  Boolean: { input: boolean; output: boolean };
+  Int: { input: number; output: number };
+  Float: { input: number; output: number };
+  UUID: { input: any; output: any };
 };
 
 export type ChangeMyPasswordFailure = {
@@ -25,9 +38,13 @@ export type ChangeMyPasswordInput = {
   newPassword: Scalars['String']['input'];
 };
 
-export type ChangeMyPasswordProblem = InvalidInputProblem | InvalidPasswordProblem;
+export type ChangeMyPasswordProblem =
+  | InvalidInputProblem
+  | InvalidPasswordProblem;
 
-export type ChangeMyPasswordResponse = ChangeMyPasswordFailure | ChangeMyPasswordSuccess;
+export type ChangeMyPasswordResponse =
+  | ChangeMyPasswordFailure
+  | ChangeMyPasswordSuccess;
 
 export type ChangeMyPasswordSuccess = {
   __typename?: 'ChangeMyPasswordSuccess';
@@ -39,7 +56,9 @@ export type ConfirmEmailFailure = {
   problems: Array<ConfirmEmailProblem>;
 };
 
-export type ConfirmEmailProblem = InvalidEmailConfirmationTokenProblem | UserEmailAlreadyConfirmedProblem;
+export type ConfirmEmailProblem =
+  | InvalidEmailConfirmationTokenProblem
+  | UserEmailAlreadyConfirmedProblem;
 
 export type ConfirmEmailResponse = ConfirmEmailFailure | ConfirmEmailSuccess;
 
@@ -98,7 +117,9 @@ export type LoginInput = {
   username: Scalars['String']['input'];
 };
 
-export type LoginProblem = InvalidCredentialsProblem | UserEmailNotConfirmedProblem;
+export type LoginProblem =
+  | InvalidCredentialsProblem
+  | UserEmailNotConfirmedProblem;
 
 export type LoginResponse = LoginFailure | LoginSuccess;
 
@@ -122,41 +143,33 @@ export type Mutation = {
   updateMe: UpdateMeResponse;
 };
 
-
 export type MutationChangeMyPasswordArgs = {
   input: ChangeMyPasswordInput;
 };
-
 
 export type MutationConfirmEmailArgs = {
   token: Scalars['String']['input'];
 };
 
-
 export type MutationCreateUserArgs = {
   input: UserCreateInput;
 };
-
 
 export type MutationLoginArgs = {
   input: LoginInput;
 };
 
-
 export type MutationRecoverPasswordArgs = {
   email: Scalars['String']['input'];
 };
-
 
 export type MutationRefreshTokenArgs = {
   token: Scalars['String']['input'];
 };
 
-
 export type MutationResetPasswordArgs = {
   input: ResetPasswordInput;
 };
-
 
 export type MutationUpdateMeArgs = {
   input: UpdateMeInput;
@@ -192,7 +205,9 @@ export type ResetPasswordInput = {
   token: Scalars['String']['input'];
 };
 
-export type ResetPasswordProblem = InvalidInputProblem | InvalidResetPasswordTokenProblem;
+export type ResetPasswordProblem =
+  | InvalidInputProblem
+  | InvalidResetPasswordTokenProblem;
 
 export type ResetPasswordResponse = ResetPasswordFailure | ResetPasswordSuccess;
 
