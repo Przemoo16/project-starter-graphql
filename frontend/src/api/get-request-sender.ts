@@ -8,8 +8,8 @@ import { refreshToken } from '~/services/user/refresh-token';
 
 export const getRequestSender =
   (url: string, storage: Storage, onRedirect: () => void) =>
-  async (query: string, variables?: Record<string, unknown>) => {
-    return await sendGraphQLAuthenticatedRequest(fetchAdapter, url, {
+  async (query: string, variables?: Record<string, unknown>) =>
+    await sendGraphQLAuthenticatedRequest(fetchAdapter, url, {
       query,
       variables,
       onGetAuthHeader: () => getAuthHeader(storage),
@@ -23,4 +23,3 @@ export const getRequestSender =
         logout(storage, onRedirect);
       },
     });
-  };

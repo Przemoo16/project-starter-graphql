@@ -15,6 +15,8 @@ import { TextInput } from '~/components/text-input/text-input';
 import { MIN_PASSWORD_LENGTH } from '~/routes/schema-config';
 import { type ChangeMyPasswordInput } from '~/services/graphql';
 
+import { LoadingButton } from '../loading-button/loading-button';
+
 export type ChangePasswordFormSchema = {
   currentPassword: string;
   newPassword: string;
@@ -120,9 +122,9 @@ export const ChangePasswordForm = component$(
           )}
         </Field>
         <div>{form.response.message}</div>
-        <button type="submit" disabled={form.submitting}>
+        <LoadingButton type="submit" loading={form.submitting}>
           {t('changePassword.changePassword')}
-        </button>
+        </LoadingButton>
       </Form>
     );
   },

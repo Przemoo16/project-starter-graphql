@@ -14,6 +14,8 @@ import { TextInput } from '~/components/text-input/text-input';
 import { MAX_FULL_NAME_LENGTH } from '~/routes/schema-config';
 import { type UpdateMeInput } from '~/services/graphql';
 
+import { LoadingButton } from '../loading-button/loading-button';
+
 export type UpdateAccountFormSchema = {
   fullName: string;
 };
@@ -69,9 +71,9 @@ export const UpdateAccountForm = component$(
           )}
         </Field>
         <div>{form.response.message}</div>
-        <button type="submit" disabled={form.submitting}>
+        <LoadingButton type="submit" loading={form.submitting}>
           {t('updateAccount.updateAccount')}
-        </button>
+        </LoadingButton>
       </Form>
     );
   },

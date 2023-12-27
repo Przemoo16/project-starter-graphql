@@ -4,6 +4,7 @@ import { inlineTranslate, useSpeak } from 'qwik-speak';
 
 import { getClientLogoutRedirection } from '~/auth/get-client-logout-redirection';
 import { getClientTokenStorage } from '~/auth/get-client-token-storage';
+import { LoadingButton } from '~/components/loading-button/loading-button';
 import { logout } from '~/services/user/logout';
 
 export const head: DocumentHead = () => {
@@ -32,9 +33,9 @@ const Dashboard = component$(() => {
 
   return (
     <>
-      <button onClick$={onLogout} disabled={logoutPending.value}>
+      <LoadingButton onClick$={onLogout} loading={logoutPending.value}>
         {t('auth.logout')}
-      </button>
+      </LoadingButton>
     </>
   );
 });

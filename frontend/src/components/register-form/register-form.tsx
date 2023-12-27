@@ -20,6 +20,8 @@ import {
 } from '~/routes/schema-config';
 import { type UserCreateInput } from '~/services/graphql';
 
+import { LoadingButton } from '../loading-button/loading-button';
+
 export type RegisterFormSchema = {
   fullName: string;
   email: string;
@@ -148,9 +150,9 @@ export const RegisterForm = component$(({ onSubmit }: RegisterFormProps) => {
         )}
       </Field>
       <div>{form.response.message}</div>
-      <button type="submit" disabled={form.submitting}>
+      <LoadingButton type="submit" loading={form.submitting}>
         {t('register.signUp')}
-      </button>
+      </LoadingButton>
     </Form>
   );
 });
