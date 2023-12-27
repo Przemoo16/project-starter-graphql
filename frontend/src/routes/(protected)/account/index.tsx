@@ -12,6 +12,7 @@ import {
   ChangePasswordForm,
   type ChangePasswordFormSchema,
 } from '~/components/change-password-form/change-password-form';
+import { LoadingButton } from '~/components/loading-button/loading-button';
 import {
   UpdateAccountForm,
   type UpdateAccountFormSchema,
@@ -109,9 +110,12 @@ const Account = component$(() => {
         onSubmit={onUpdateAccount}
       />
       <ChangePasswordForm onSubmit={onChangePassword} />
-      <button onClick$={onDeleteAccount} disabled={deleteAccountPending.value}>
+      <LoadingButton
+        onClick$={onDeleteAccount}
+        loading={deleteAccountPending.value}
+      >
         {t('deleteAccount.deleteAccount')}
-      </button>
+      </LoadingButton>
     </>
   );
 });

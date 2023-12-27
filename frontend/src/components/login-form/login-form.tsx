@@ -10,6 +10,8 @@ import { inlineTranslate } from 'qwik-speak';
 import { TextInput } from '~/components/text-input/text-input';
 import { type LoginInput } from '~/services/graphql';
 
+import { LoadingButton } from '../loading-button/loading-button';
+
 export type LoginFormSchema = {
   email: string;
   password: string;
@@ -76,9 +78,9 @@ export const LoginForm = component$(({ onSubmit }: LoginFormProps) => {
         )}
       </Field>
       <div>{form.response.message}</div>
-      <button type="submit" disabled={form.submitting}>
+      <LoadingButton type="submit" loading={form.submitting}>
         {t('login.signIn')}
-      </button>
+      </LoadingButton>
     </Form>
   );
 });

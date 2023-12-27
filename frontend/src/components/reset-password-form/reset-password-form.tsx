@@ -15,6 +15,8 @@ import { TextInput } from '~/components/text-input/text-input';
 import { MIN_PASSWORD_LENGTH } from '~/routes/schema-config';
 import { type ResetPasswordInput } from '~/services/graphql';
 
+import { LoadingButton } from '../loading-button/loading-button';
+
 export type ResetPasswordFormSchema = {
   password: string;
   repeatedPassword: string;
@@ -96,9 +98,9 @@ export const ResetPasswordForm = component$(
           )}
         </Field>
         <div>{form.response.message}</div>
-        <button type="submit" disabled={form.submitting}>
+        <LoadingButton type="submit" loading={form.submitting}>
           {t('resetPassword.resetPassword')}
-        </button>
+        </LoadingButton>
       </Form>
     );
   },

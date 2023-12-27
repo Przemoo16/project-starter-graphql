@@ -11,6 +11,8 @@ import { inlineTranslate } from 'qwik-speak';
 
 import { TextInput } from '~/components/text-input/text-input';
 
+import { LoadingButton } from '../loading-button/loading-button';
+
 type RecoverPasswordFormSchema = {
   email: string;
 };
@@ -62,9 +64,9 @@ export const RecoverPasswordForm = component$(
           )}
         </Field>
         <div>{form.response.message}</div>
-        <button type="submit" disabled={form.submitting}>
+        <LoadingButton type="submit" loading={form.submitting}>
           {t('recoverPassword.recoverPassword')}
-        </button>
+        </LoadingButton>
       </Form>
     );
   },
