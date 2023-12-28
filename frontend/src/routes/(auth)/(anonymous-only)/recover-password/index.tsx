@@ -4,7 +4,6 @@ import { inlineTranslate, useSpeak } from 'qwik-speak';
 
 import { getClientRequestSender } from '~/api/get-client-request-sender';
 import { Link } from '~/components/auth/link/link';
-import { LinksContainer } from '~/components/auth/links-container/links-container';
 import { RecoverPasswordForm } from '~/components/auth/recover-password-form/recover-password-form';
 import { Title } from '~/components/auth/title/title';
 import { RouteURL } from '~/libs/api/route-url';
@@ -35,9 +34,7 @@ const RecoverPassword = component$(() => {
     <>
       <Title>{t('recoverPassword.recoverYourPassword')}</Title>
       <RecoverPasswordForm onSubmit={onSubmit} />
-      <LinksContainer>
-        <Link href={RouteURL.Login}>{t('auth.backToLogin')}</Link>
-      </LinksContainer>
+      <Link href={RouteURL.Login}>{t('auth.backToLogin')}</Link>
     </>
   );
 });

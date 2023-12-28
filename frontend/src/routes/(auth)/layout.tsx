@@ -10,7 +10,7 @@ export default component$(() => (
       <Logo height={100} />
     </Link>
     <div class="card w-full max-w-md bg-base-100 shadow-2xl">
-      <div class="card-body">
+      <div class="card-body gap-5">
         <Slot />
       </div>
     </div>

@@ -10,7 +10,6 @@ import { inlineTranslate, useSpeak } from 'qwik-speak';
 import { getClientRequestSender } from '~/api/get-client-request-sender';
 import { getClientTokenStorage } from '~/auth/get-client-token-storage';
 import { Link } from '~/components/auth/link/link';
-import { LinksContainer } from '~/components/auth/links-container/links-container';
 import {
   LoginForm,
   type LoginFormSchema,
@@ -67,10 +66,10 @@ const Login = component$(() => {
     <>
       <Title>{t('login.signInToYourAccount')}</Title>
       <LoginForm onSubmit={onSubmit} />
-      <LinksContainer>
+      <div class="flex flex-col gap-1">
         <Link href={RouteURL.Register}>{t('login.doNotHaveAccount')}</Link>
         <Link href={RouteURL.RecoverPassword}>{t('login.forgotPassword')}</Link>
-      </LinksContainer>
+      </div>
     </>
   );
 });
