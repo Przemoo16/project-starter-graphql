@@ -5,7 +5,6 @@ import { inlineTranslate, useSpeak } from 'qwik-speak';
 
 import { getClientRequestSender } from '~/api/get-client-request-sender';
 import { Link } from '~/components/auth/link/link';
-import { LinksContainer } from '~/components/auth/links-container/links-container';
 import {
   RegisterForm,
   type RegisterFormSchema,
@@ -57,9 +56,7 @@ const Register = component$(() => {
     <>
       <Title>{t('register.getStartedForFree')}</Title>
       <RegisterForm onSubmit={onSubmit} />
-      <LinksContainer>
-        <Link href={RouteURL.Login}>{t('register.doHaveAccount')}</Link>
-      </LinksContainer>
+      <Link href={RouteURL.Login}>{t('register.doHaveAccount')}</Link>
     </>
   );
 });

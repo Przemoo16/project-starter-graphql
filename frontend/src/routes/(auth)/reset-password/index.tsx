@@ -5,7 +5,6 @@ import { inlineTranslate, useSpeak } from 'qwik-speak';
 
 import { getClientRequestSender } from '~/api/get-client-request-sender';
 import { Link } from '~/components/auth/link/link';
-import { LinksContainer } from '~/components/auth/links-container/links-container';
 import {
   ResetPasswordForm,
   type ResetPasswordFormSchema,
@@ -53,9 +52,7 @@ const ResetPassword = component$(() => {
     <>
       <Title>{t('resetPassword.resetYourPassword')}</Title>
       <ResetPasswordForm onSubmit={onSubmit} />
-      <LinksContainer>
-        <Link href={RouteURL.Login}>{t('auth.backToLogin')}</Link>
-      </LinksContainer>
+      <Link href={RouteURL.Login}>{t('auth.backToLogin')}</Link>
     </>
   );
 });
