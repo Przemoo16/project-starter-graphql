@@ -2,10 +2,9 @@ import { component$ } from '@builder.io/qwik';
 import { Link } from '@builder.io/qwik-city';
 import { inlineTranslate } from 'qwik-speak';
 
+import { Hamburger } from '~/components/icons/hamburger';
 import { Logo } from '~/components/icons/logo';
 import { RouteURL } from '~/libs/api/route-url';
-
-import { Hamburger } from '../icons/hamburger';
 
 export const Header = component$(() => {
   const t = inlineTranslate();

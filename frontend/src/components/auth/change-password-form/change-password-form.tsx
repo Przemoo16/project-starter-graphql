@@ -11,11 +11,10 @@ import {
 } from '@modular-forms/qwik';
 import { inlineTranslate } from 'qwik-speak';
 
-import { TextInput } from '~/components/text-input/text-input';
+import { LoadingButton } from '~/components/common/loading-button/loading-button';
+import { TextInput } from '~/components/common/text-input/text-input';
 import { MIN_PASSWORD_LENGTH } from '~/routes/schema-config';
 import { type ChangeMyPasswordInput } from '~/services/graphql';
-
-import { LoadingButton } from '../loading-button/loading-button';
 
 export type ChangePasswordFormSchema = {
   currentPassword: string;

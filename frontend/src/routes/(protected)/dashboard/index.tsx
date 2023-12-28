@@ -4,7 +4,7 @@ import { inlineTranslate, useSpeak } from 'qwik-speak';
 
 import { getClientLogoutRedirection } from '~/auth/get-client-logout-redirection';
 import { getClientTokenStorage } from '~/auth/get-client-token-storage';
-import { LoadingButton } from '~/components/loading-button/loading-button';
+import { LoadingButton } from '~/components/common/loading-button/loading-button';
 import { logout } from '~/services/user/logout';
 
 export const head: DocumentHead = () => {

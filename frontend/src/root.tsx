@@ -10,7 +10,7 @@ import { useQwikSpeak } from 'qwik-speak';
 
 import { getClientRequestSender } from './api/get-client-request-sender';
 import { getClientTokenStorage } from './auth/get-client-token-storage';
-import { RouterHead } from './components/router-head/router-head';
+import { RouterHead } from './components/root/router-head/router-head';
 import { checkTokenValidity } from './libs/auth/check-token-validity';
 import { BrowserStorage } from './libs/storage/browser-storage';
 import { getMe } from './services/user/get-me';

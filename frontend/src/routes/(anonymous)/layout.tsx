@@ -1,9 +1,9 @@
 import { component$, Slot } from '@builder.io/qwik';
 import { routeLoader$ } from '@builder.io/qwik-city';
 
-import { Drawer } from '~/components/drawer/drawer';
-import { Footer } from '~/components/footer/footer';
-import { Header } from '~/components/header/header';
+import { Drawer } from '~/components/anonymous/drawer/drawer';
+import { Footer } from '~/components/anonymous/footer/footer';
+import { Header } from '~/components/anonymous/header/header';
 
 export const useServerTimeLoader = routeLoader$(() => ({
   date: new Date(),
