@@ -11,11 +11,10 @@ import {
 } from '@modular-forms/qwik';
 import { inlineTranslate } from 'qwik-speak';
 
+import { SubmitButton } from '~/components/auth/submit-button/submit-button';
 import { TextInput } from '~/components/text-input/text-input';
 import { MIN_PASSWORD_LENGTH } from '~/routes/schema-config';
 import { type ResetPasswordInput } from '~/services/graphql';
-
-import { LoadingButton } from '../loading-button/loading-button';
 
 export type ResetPasswordFormSchema = {
   password: string;
@@ -98,11 +97,9 @@ export const ResetPasswordForm = component$(
           )}
         </Field>
         <div>{form.response.message}</div>
-        <div class="mt-6 flex flex-col">
-          <LoadingButton type="submit" loading={form.submitting}>
-            {t('resetPassword.resetPassword')}
-          </LoadingButton>
-        </div>
+        <SubmitButton submitting={form.submitting}>
+          {t('resetPassword.resetPassword')}
+        </SubmitButton>
       </Form>
     );
   },
