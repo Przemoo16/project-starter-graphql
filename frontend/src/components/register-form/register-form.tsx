@@ -13,14 +13,13 @@ import {
 } from '@modular-forms/qwik';
 import { inlineTranslate } from 'qwik-speak';
 
+import { SubmitButton } from '~/components/auth/submit-button/submit-button';
 import { TextInput } from '~/components/text-input/text-input';
 import {
   MAX_FULL_NAME_LENGTH,
   MIN_PASSWORD_LENGTH,
 } from '~/routes/schema-config';
 import { type UserCreateInput } from '~/services/graphql';
-
-import { LoadingButton } from '../loading-button/loading-button';
 
 export type RegisterFormSchema = {
   fullName: string;
@@ -150,11 +149,9 @@ export const RegisterForm = component$(({ onSubmit }: RegisterFormProps) => {
         )}
       </Field>
       <div>{form.response.message}</div>
-      <div class="mt-6 flex flex-col">
-        <LoadingButton type="submit" loading={form.submitting}>
-          {t('register.signUp')}
-        </LoadingButton>
-      </div>
+      <SubmitButton submitting={form.submitting}>
+        {t('register.signUp')}
+      </SubmitButton>
     </Form>
   );
 });

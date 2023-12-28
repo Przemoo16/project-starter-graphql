@@ -7,10 +7,9 @@ import {
 } from '@modular-forms/qwik';
 import { inlineTranslate } from 'qwik-speak';
 
+import { SubmitButton } from '~/components/auth/submit-button/submit-button';
 import { TextInput } from '~/components/text-input/text-input';
 import { type LoginInput } from '~/services/graphql';
-
-import { LoadingButton } from '../loading-button/loading-button';
 
 export type LoginFormSchema = {
   email: string;
@@ -78,11 +77,9 @@ export const LoginForm = component$(({ onSubmit }: LoginFormProps) => {
         )}
       </Field>
       {form.response.message}
-      <div class="mt-6 flex flex-col">
-        <LoadingButton type="submit" loading={form.submitting}>
-          {t('login.signIn')}
-        </LoadingButton>
-      </div>
+      <SubmitButton submitting={form.submitting}>
+        {t('login.signIn')}
+      </SubmitButton>
     </Form>
   );
 });

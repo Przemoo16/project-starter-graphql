@@ -9,9 +9,8 @@ import {
 } from '@modular-forms/qwik';
 import { inlineTranslate } from 'qwik-speak';
 
+import { SubmitButton } from '~/components/auth/submit-button/submit-button';
 import { TextInput } from '~/components/text-input/text-input';
-
-import { LoadingButton } from '../loading-button/loading-button';
 
 type RecoverPasswordFormSchema = {
   email: string;
@@ -64,11 +63,9 @@ export const RecoverPasswordForm = component$(
           )}
         </Field>
         <div>{form.response.message}</div>
-        <div class="mt-6 flex flex-col">
-          <LoadingButton type="submit" loading={form.submitting}>
-            {t('recoverPassword.recoverPassword')}
-          </LoadingButton>
-        </div>
+        <SubmitButton submitting={form.submitting}>
+          {t('recoverPassword.recoverPassword')}
+        </SubmitButton>
       </Form>
     );
   },

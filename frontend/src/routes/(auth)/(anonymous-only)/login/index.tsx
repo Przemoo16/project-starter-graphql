@@ -1,7 +1,6 @@
 import { $, component$ } from '@builder.io/qwik';
 import {
   type DocumentHead,
-  Link,
   useLocation,
   useNavigate,
 } from '@builder.io/qwik-city';
@@ -10,6 +9,9 @@ import { inlineTranslate, useSpeak } from 'qwik-speak';
 
 import { getClientRequestSender } from '~/api/get-client-request-sender';
 import { getClientTokenStorage } from '~/auth/get-client-token-storage';
+import { FormLink } from '~/components/auth/form-link/form-link';
+import { FormTitle } from '~/components/auth/form-title/form-title';
+import { LinksContainer } from '~/components/auth/links-container/links-container';
 import {
   LoginForm,
   type LoginFormSchema,
@@ -63,21 +65,16 @@ const Login = component$(() => {
 
   return (
     <>
-      <h1 class="text-center text-2xl font-bold">
-        {t('login.signInToYourAccount')}
-      </h1>
+      <FormTitle>{t('login.signInToYourAccount')}</FormTitle>
       <LoginForm onSubmit={onSubmit} />
-      <div class="mt-5 flex flex-col items-center justify-center">
-        <Link href={RouteURL.Register} class="link-hover link link-primary">
+      <LinksContainer>
+        <FormLink href={RouteURL.Register}>
           {t('login.doNotHaveAccount')}
-        </Link>
-        <Link
-          href={RouteURL.RecoverPassword}
-          class="link-hover link link-primary mt-1"
-        >
+        </FormLink>
+        <FormLink href={RouteURL.RecoverPassword}>
           {t('login.forgotPassword')}
-        </Link>
-      </div>
+        </FormLink>
+      </LinksContainer>
     </>
   );
 });
