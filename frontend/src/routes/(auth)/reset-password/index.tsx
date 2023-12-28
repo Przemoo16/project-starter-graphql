@@ -4,13 +4,13 @@ import { FormError } from '@modular-forms/qwik';
 import { inlineTranslate, useSpeak } from 'qwik-speak';
 
 import { getClientRequestSender } from '~/api/get-client-request-sender';
-import { FormLink } from '~/components/auth/form-link/form-link';
-import { FormTitle } from '~/components/auth/form-title/form-title';
+import { Link } from '~/components/auth/link/link';
 import { LinksContainer } from '~/components/auth/links-container/links-container';
 import {
   ResetPasswordForm,
   type ResetPasswordFormSchema,
 } from '~/components/auth/reset-password-form/reset-password-form';
+import { Title } from '~/components/auth/title/title';
 import { hasProblems } from '~/libs/api/has-problems';
 import { RouteURL } from '~/libs/api/route-url';
 import { type ResetPasswordInput } from '~/services/graphql';
@@ -51,10 +51,10 @@ const ResetPassword = component$(() => {
 
   return (
     <>
-      <FormTitle>{t('resetPassword.resetYourPassword')}</FormTitle>
+      <Title>{t('resetPassword.resetYourPassword')}</Title>
       <ResetPasswordForm onSubmit={onSubmit} />
       <LinksContainer>
-        <FormLink href={RouteURL.Login}>{t('auth.backToLogin')}</FormLink>
+        <Link href={RouteURL.Login}>{t('auth.backToLogin')}</Link>
       </LinksContainer>
     </>
   );
