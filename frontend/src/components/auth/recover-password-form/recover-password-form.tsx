@@ -10,7 +10,7 @@ import {
 import { inlineTranslate } from 'qwik-speak';
 
 import { SubmitButton } from '~/components/auth/submit-button/submit-button';
-import { TextInput } from '~/components/text-input/text-input';
+import { TextInput } from '~/components/common/text-input/text-input';
 
 type RecoverPasswordFormSchema = {
   email: string;

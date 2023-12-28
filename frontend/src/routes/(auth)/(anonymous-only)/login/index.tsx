@@ -15,7 +15,7 @@ import { LinksContainer } from '~/components/auth/links-container/links-containe
 import {
   LoginForm,
   type LoginFormSchema,
-} from '~/components/login-form/login-form';
+} from '~/components/auth/login-form/login-form';
 import { hasProblems } from '~/libs/api/has-problems';
 import { isProblemPresent } from '~/libs/api/is-problem-present';
 import { RouteURL } from '~/libs/api/route-url';

@@ -2,7 +2,7 @@ import { component$ } from '@builder.io/qwik';
 import { useDocumentHead, useLocation } from '@builder.io/qwik-city';
 import { inlineTranslate } from 'qwik-speak';
 
-import { TitleHead } from '~/components/title-head/title-head';
+import { TitleHead } from '~/components/root/title-head/title-head';
 
 /**
  * The RouterHead component is placed inside of the document `<head>` element.

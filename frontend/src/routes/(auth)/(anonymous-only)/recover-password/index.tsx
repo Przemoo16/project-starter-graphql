@@ -6,7 +6,7 @@ import { getClientRequestSender } from '~/api/get-client-request-sender';
 import { FormLink } from '~/components/auth/form-link/form-link';
 import { FormTitle } from '~/components/auth/form-title/form-title';
 import { LinksContainer } from '~/components/auth/links-container/links-container';
-import { RecoverPasswordForm } from '~/components/recover-password-form/recover-password-form';
+import { RecoverPasswordForm } from '~/components/auth/recover-password-form/recover-password-form';
 import { RouteURL } from '~/libs/api/route-url';
 import { recoverPassword } from '~/services/user/recover-password';
 

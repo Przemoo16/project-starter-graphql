@@ -10,11 +10,10 @@ import {
 } from '@modular-forms/qwik';
 import { inlineTranslate } from 'qwik-speak';
 
-import { TextInput } from '~/components/text-input/text-input';
+import { LoadingButton } from '~/components/common/loading-button/loading-button';
+import { TextInput } from '~/components/common/text-input/text-input';
 import { MAX_FULL_NAME_LENGTH } from '~/routes/schema-config';
 import { type UpdateMeInput } from '~/services/graphql';
-
-import { LoadingButton } from '../loading-button/loading-button';
 
 export type UpdateAccountFormSchema = {
   fullName: string;

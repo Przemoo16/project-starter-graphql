@@ -1,6 +1,6 @@
 import { component$, Slot } from '@builder.io/qwik';
 
-import { LoadingButton } from '~/components/loading-button/loading-button';
+import { LoadingButton } from '~/components/common/loading-button/loading-button';
 
 interface SubmitButtonProps {
   submitting: boolean;

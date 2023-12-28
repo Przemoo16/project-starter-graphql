@@ -10,7 +10,7 @@ import { LinksContainer } from '~/components/auth/links-container/links-containe
 import {
   RegisterForm,
   type RegisterFormSchema,
-} from '~/components/register-form/register-form';
+} from '~/components/auth/register-form/register-form';
 import { hasProblems } from '~/libs/api/has-problems';
 import { isProblemPresent } from '~/libs/api/is-problem-present';
 import { RouteURL } from '~/libs/api/route-url';

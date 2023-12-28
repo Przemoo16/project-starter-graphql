@@ -11,12 +11,12 @@ import { getServerTokenStorage } from '~/auth/get-server-token-storage';
 import {
   ChangePasswordForm,
   type ChangePasswordFormSchema,
-} from '~/components/change-password-form/change-password-form';
-import { LoadingButton } from '~/components/loading-button/loading-button';
+} from '~/components/auth/change-password-form/change-password-form';
 import {
   UpdateAccountForm,
   type UpdateAccountFormSchema,
-} from '~/components/update-account-form/update-account-form';
+} from '~/components/auth/update-account-form/update-account-form';
+import { LoadingButton } from '~/components/common/loading-button/loading-button';
 import { hasProblems } from '~/libs/api/has-problems';
 import { isProblemPresent } from '~/libs/api/is-problem-present';
 import {

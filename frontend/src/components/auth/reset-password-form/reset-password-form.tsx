@@ -11,71 +11,46 @@ import {
 } from '@modular-forms/qwik';
 import { inlineTranslate } from 'qwik-speak';
 
-import { TextInput } from '~/components/text-input/text-input';
+import { SubmitButton } from '~/components/auth/submit-button/submit-button';
+import { TextInput } from '~/components/common/text-input/text-input';
 import { MIN_PASSWORD_LENGTH } from '~/routes/schema-config';
-import { type ChangeMyPasswordInput } from '~/services/graphql';
+import { type ResetPasswordInput } from '~/services/graphql';
 
-import { LoadingButton } from '../loading-button/loading-button';
-
-export type ChangePasswordFormSchema = {
-  currentPassword: string;
-  newPassword: string;
+export type ResetPasswordFormSchema = {
+  password: string;
   repeatedPassword: string;
 };
 
-interface ChangePasswordFormProps {
-  onSubmit: QRL<(input: ChangeMyPasswordInput) => Promise<void>>;
+interface ResetPasswordFormProps {
+  onSubmit: QRL<(input: Omit<ResetPasswordInput, 'token'>) => Promise<void>>;
 }
 
-export const ChangePasswordForm = component$(
-  ({ onSubmit }: ChangePasswordFormProps) => {
+export const ResetPasswordForm = component$(
+  ({ onSubmit }: ResetPasswordFormProps) => {
     const t = inlineTranslate();
-    const [form, { Form, Field }] = useForm<ChangePasswordFormSchema>({
-      loader: {
-        value: {
-          currentPassword: '',
-          newPassword: '',
-          repeatedPassword: '',
-        },
-      },
+
+    const [form, { Form, Field }] = useForm<ResetPasswordFormSchema>({
+      loader: { value: { password: '', repeatedPassword: '' } },
     });
 
-    const handleSubmit = $<SubmitHandler<ChangePasswordFormSchema>>(
-      async ({ currentPassword, newPassword }, _event) => {
+    const handleSubmit = $<SubmitHandler<ResetPasswordFormSchema>>(
+      async ({ password }, _event) => {
         const t = inlineTranslate();
-        await onSubmit({ currentPassword, newPassword });
+        await onSubmit({ password });
         reset(form);
         setResponse(form, {
-          message: t('changePassword.changePasswordSuccess'),
+          message: t('resetPassword.resetPasswordSuccess'),
         });
       },
     );
 
-    const currentPasswordLabel = t('changePassword.currentPassword');
-    const newPasswordLabel = t('changePassword.newPassword');
+    const passwordLabel = t('auth.password');
     const repeatPasswordLabel = t('auth.repeatPassword');
 
     return (
       <Form onSubmit$={handleSubmit}>
         <Field
-          name="currentPassword"
-          // @ts-expect-error: FIXME: https://github.com/fabian-hiller/modular-forms/issues/158
-          validate={[required(t('validation.fieldRequired'))]}
-        >
-          {(field, props) => (
-            <TextInput
-              {...props}
-              type="password"
-              label={currentPasswordLabel}
-              placeholder="********"
-              value={field.value}
-              error={field.error}
-              required
-            />
-          )}
-        </Field>
-        <Field
-          name="newPassword"
+          name="password"
           validate={[
             // @ts-expect-error: FIXME: https://github.com/fabian-hiller/modular-forms/issues/158
             required(t('validation.fieldRequired')),
@@ -89,7 +64,7 @@ export const ChangePasswordForm = component$(
             <TextInput
               {...props}
               type="password"
-              label={newPasswordLabel}
+              label={passwordLabel}
               placeholder="********"
               value={field.value}
               error={field.error}
@@ -104,7 +79,7 @@ export const ChangePasswordForm = component$(
             required(t('validation.fieldRequired')),
             // @ts-expect-error: FIXME: https://github.com/fabian-hiller/modular-forms/issues/158
             custom$(
-              value => value === getValue(form, 'newPassword'),
+              value => value === getValue(form, 'password'),
               t(`validation.passwordDoesNotMatch`),
             ),
           ]}
@@ -122,9 +97,9 @@ export const ChangePasswordForm = component$(
           )}
         </Field>
         <div>{form.response.message}</div>
-        <LoadingButton type="submit" loading={form.submitting}>
-          {t('changePassword.changePassword')}
-        </LoadingButton>
+        <SubmitButton submitting={form.submitting}>
+          {t('resetPassword.resetPassword')}
+        </SubmitButton>
       </Form>
     );
   },
