@@ -22,7 +22,7 @@ const NotFound = component$(() => {
   const t = inlineTranslate();
 
   return (
-    <div class="flex h-full flex-col items-center justify-center">
+    <div class="grid h-full place-items-center">
       <div class="p-4 text-center">
         <h1 class="text-8xl font-bold">{t('notFound.404')}</h1>
         <p class="py-6">{t('notFound.pageDoesNotExist')}</p>

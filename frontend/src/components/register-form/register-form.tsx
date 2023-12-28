@@ -150,9 +150,11 @@ export const RegisterForm = component$(({ onSubmit }: RegisterFormProps) => {
         )}
       </Field>
       <div>{form.response.message}</div>
-      <LoadingButton type="submit" loading={form.submitting}>
-        {t('register.signUp')}
-      </LoadingButton>
+      <div class="mt-6 flex flex-col">
+        <LoadingButton type="submit" loading={form.submitting}>
+          {t('register.signUp')}
+        </LoadingButton>
+      </div>
     </Form>
   );
 });

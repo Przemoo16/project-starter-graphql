@@ -9,7 +9,7 @@ export const Footer = component$(({ year }: FooterProps) => {
   const t = inlineTranslate();
 
   return (
-    <footer class="footer footer-center bg-base-100 p-5">
+    <footer class="footer footer-center p-5">
       <p>
         © {t('app.appName')} {year}
       </p>
