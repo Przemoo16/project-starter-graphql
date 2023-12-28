@@ -63,9 +63,21 @@ const Login = component$(() => {
 
   return (
     <>
+      <h1 class="text-center text-2xl font-bold">
+        {t('login.signInToYourAccount')}
+      </h1>
       <LoginForm onSubmit={onSubmit} />
-      <Link href={RouteURL.Register}>{t('login.doNotHaveAccount')}</Link>
-      <Link href={RouteURL.RecoverPassword}>{t('login.forgotPassword')}</Link>
+      <div class="mt-5 flex flex-col items-center justify-center">
+        <Link href={RouteURL.Register} class="link-hover link link-primary">
+          {t('login.doNotHaveAccount')}
+        </Link>
+        <Link
+          href={RouteURL.RecoverPassword}
+          class="link-hover link link-primary mt-1"
+        >
+          {t('login.forgotPassword')}
+        </Link>
+      </div>
     </>
   );
 });

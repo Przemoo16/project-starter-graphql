@@ -57,8 +57,8 @@ const Register = component$(() => {
       </h1>
       <RegisterForm onSubmit={onSubmit} />
       <Link
-        class="link-hover link link-primary mt-5 text-center"
         href={RouteURL.Login}
+        class="link-hover link link-primary mt-5 text-center"
       >
         {t('register.doHaveAccount')}
       </Link>

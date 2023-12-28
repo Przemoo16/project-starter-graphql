@@ -48,9 +48,13 @@ const ConfirmEmail = component$(() => {
 
   return (
     <>
-      {t('confirmEmail.confirmEmail')}
+      <h1 class="text-center text-2xl font-bold">
+        {t('confirmEmail.confirmEmail')}
+      </h1>
       <div>{message}</div>
-      <Link href={RouteURL.Login}>{t('auth.backToLogin')}</Link>
+      <Link href={RouteURL.Login} class="btn btn-primary mt-5">
+        {t('auth.backToLogin')}
+      </Link>
     </>
   );
 });

@@ -98,9 +98,11 @@ export const ResetPasswordForm = component$(
           )}
         </Field>
         <div>{form.response.message}</div>
-        <LoadingButton type="submit" loading={form.submitting}>
-          {t('resetPassword.resetPassword')}
-        </LoadingButton>
+        <div class="mt-6 flex flex-col">
+          <LoadingButton type="submit" loading={form.submitting}>
+            {t('resetPassword.resetPassword')}
+          </LoadingButton>
+        </div>
       </Form>
     );
   },

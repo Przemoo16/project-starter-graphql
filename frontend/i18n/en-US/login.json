@@ -4,6 +4,7 @@
     "emailNotConfirmed": "The email has not been confirmed. Check your email box to activate your account",
     "forgotPassword": "Forgot your password?",
     "invalidCredentials": "Incorrect email or password",
-    "signIn": "Sign in"
+    "signIn": "Sign in",
+    "signInToYourAccount": "Sign in to your account"
   }
 }
