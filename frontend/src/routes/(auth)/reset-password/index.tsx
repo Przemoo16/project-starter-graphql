@@ -10,7 +10,7 @@ import { LinksContainer } from '~/components/auth/links-container/links-containe
 import {
   ResetPasswordForm,
   type ResetPasswordFormSchema,
-} from '~/components/reset-password-form/reset-password-form';
+} from '~/components/auth/reset-password-form/reset-password-form';
 import { hasProblems } from '~/libs/api/has-problems';
 import { RouteURL } from '~/libs/api/route-url';
 import { type ResetPasswordInput } from '~/services/graphql';
