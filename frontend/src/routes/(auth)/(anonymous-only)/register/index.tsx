@@ -52,8 +52,16 @@ const Register = component$(() => {
 
   return (
     <>
+      <h1 class="text-center text-2xl font-bold">
+        {t('register.getStartedForFree')}
+      </h1>
       <RegisterForm onSubmit={onSubmit} />
-      <Link href={RouteURL.Login}>{t('register.doHaveAccount')}</Link>
+      <Link
+        class="link-hover link link-primary mt-5 text-center"
+        href={RouteURL.Login}
+      >
+        {t('register.doHaveAccount')}
+      </Link>
     </>
   );
 });

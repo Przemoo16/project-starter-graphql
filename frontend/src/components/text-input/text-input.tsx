@@ -19,7 +19,7 @@ export const TextInput = component$<TextInputProps>(
   ({ label, error, name, required, ...props }) => {
     const inputErrorClass = error ? 'input-error' : '';
     return (
-      <div>
+      <div class="form-control">
         {label && (
           <label for={name} class="label">
             <span class="label-text">
@@ -32,7 +32,7 @@ export const TextInput = component$<TextInputProps>(
           id={name}
           aria-errormessage={`${name}-error`}
           aria-invalid={!!error}
-          class={`input input-bordered w-full max-w-xs ${inputErrorClass}`}
+          class={`input input-bordered ${inputErrorClass}`}
         />
         {error && (
           <div id={`${name}-error`} class="mt-2 text-error">
