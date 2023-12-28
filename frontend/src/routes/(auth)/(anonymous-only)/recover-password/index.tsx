@@ -3,10 +3,10 @@ import { type DocumentHead } from '@builder.io/qwik-city';
 import { inlineTranslate, useSpeak } from 'qwik-speak';
 
 import { getClientRequestSender } from '~/api/get-client-request-sender';
-import { FormLink } from '~/components/auth/form-link/form-link';
-import { FormTitle } from '~/components/auth/form-title/form-title';
+import { Link } from '~/components/auth/link/link';
 import { LinksContainer } from '~/components/auth/links-container/links-container';
 import { RecoverPasswordForm } from '~/components/auth/recover-password-form/recover-password-form';
+import { Title } from '~/components/auth/title/title';
 import { RouteURL } from '~/libs/api/route-url';
 import { recoverPassword } from '~/services/user/recover-password';
 
@@ -33,10 +33,10 @@ const RecoverPassword = component$(() => {
 
   return (
     <>
-      <FormTitle>{t('recoverPassword.recoverYourPassword')}</FormTitle>
+      <Title>{t('recoverPassword.recoverYourPassword')}</Title>
       <RecoverPasswordForm onSubmit={onSubmit} />
       <LinksContainer>
-        <FormLink href={RouteURL.Login}>{t('auth.backToLogin')}</FormLink>
+        <Link href={RouteURL.Login}>{t('auth.backToLogin')}</Link>
       </LinksContainer>
     </>
   );

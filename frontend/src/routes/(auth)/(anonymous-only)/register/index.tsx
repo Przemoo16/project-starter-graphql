@@ -4,13 +4,13 @@ import { FormError } from '@modular-forms/qwik';
 import { inlineTranslate, useSpeak } from 'qwik-speak';
 
 import { getClientRequestSender } from '~/api/get-client-request-sender';
-import { FormLink } from '~/components/auth/form-link/form-link';
-import { FormTitle } from '~/components/auth/form-title/form-title';
+import { Link } from '~/components/auth/link/link';
 import { LinksContainer } from '~/components/auth/links-container/links-container';
 import {
   RegisterForm,
   type RegisterFormSchema,
 } from '~/components/auth/register-form/register-form';
+import { Title } from '~/components/auth/title/title';
 import { hasProblems } from '~/libs/api/has-problems';
 import { isProblemPresent } from '~/libs/api/is-problem-present';
 import { RouteURL } from '~/libs/api/route-url';
@@ -55,10 +55,10 @@ const Register = component$(() => {
 
   return (
     <>
-      <FormTitle>{t('register.getStartedForFree')}</FormTitle>
+      <Title>{t('register.getStartedForFree')}</Title>
       <RegisterForm onSubmit={onSubmit} />
       <LinksContainer>
-        <FormLink href={RouteURL.Login}>{t('register.doHaveAccount')}</FormLink>
+        <Link href={RouteURL.Login}>{t('register.doHaveAccount')}</Link>
       </LinksContainer>
     </>
   );

@@ -21,6 +21,8 @@ import {
 } from '~/routes/schema-config';
 import { type UserCreateInput } from '~/services/graphql';
 
+import { FormBody } from '../form-body/form-body';
+
 export type RegisterFormSchema = {
   fullName: string;
   email: string;
@@ -58,100 +60,102 @@ export const RegisterForm = component$(({ onSubmit }: RegisterFormProps) => {
 
   return (
     <Form onSubmit$={handleSubmit}>
-      <Field
-        name="fullName"
-        validate={[
-          // @ts-expect-error: FIXME: https://github.com/fabian-hiller/modular-forms/issues/158
-          required(t('validation.fieldRequired')),
-          maxLength(
-            MAX_FULL_NAME_LENGTH,
-            t('validation.fullNameTooLong', { max: MAX_FULL_NAME_LENGTH }),
-          ),
-        ]}
-      >
-        {(field, props) => (
-          <TextInput
-            {...props}
-            type="text"
-            label={fullNameLabel}
-            placeholder="Jon Doe"
-            value={field.value}
-            error={field.error}
-            required
-          />
-        )}
-      </Field>
-      <Field
-        name="email"
-        validate={[
-          // @ts-expect-error: FIXME: https://github.com/fabian-hiller/modular-forms/issues/158
-          required(t('validation.fieldRequired')),
-          email(t('validation.invalidEmail')),
-        ]}
-      >
-        {(field, props) => (
-          <TextInput
-            {...props}
-            type="email"
-            label={emailLabel}
-            placeholder="joe@example.com"
-            value={field.value}
-            error={field.error}
-            required
-          />
-        )}
-      </Field>
-      <Field
-        name="password"
-        validate={[
-          // @ts-expect-error: FIXME: https://github.com/fabian-hiller/modular-forms/issues/158
-          required(t('validation.fieldRequired')),
-          minLength(
-            MIN_PASSWORD_LENGTH,
-            t('validation.passwordTooShort', { min: MIN_PASSWORD_LENGTH }),
-          ),
-        ]}
-      >
-        {(field, props) => (
-          <TextInput
-            {...props}
-            type="password"
-            label={passwordLabel}
-            placeholder="********"
-            value={field.value}
-            error={field.error}
-            required
-          />
-        )}
-      </Field>
-      <Field
-        name="repeatedPassword"
-        validate={[
-          // @ts-expect-error: FIXME: https://github.com/fabian-hiller/modular-forms/issues/158
-          required(t('validation.fieldRequired')),
-          // @ts-expect-error: FIXME: https://github.com/fabian-hiller/modular-forms/issues/158
-          custom$(
-            value => value === getValue(form, 'password'),
-            t(`validation.passwordDoesNotMatch`),
-          ),
-        ]}
-      >
-        {(field, props) => (
-          <TextInput
-            {...props}
-            type="password"
-            label={repeatPasswordLabel}
-            placeholder="********"
-            value={field.value}
-            error={field.error}
-            required
-          />
-        )}
-      </Field>
-      <div>{form.response.message}</div>
-      <SubmitButton submitting={form.submitting}>
-        {t('register.signUp')}
-      </SubmitButton>
+      <FormBody>
+        <Field
+          name="fullName"
+          validate={[
+            // @ts-expect-error: FIXME: https://github.com/fabian-hiller/modular-forms/issues/158
+            required(t('validation.fieldRequired')),
+            maxLength(
+              MAX_FULL_NAME_LENGTH,
+              t('validation.fullNameTooLong', { max: MAX_FULL_NAME_LENGTH }),
+            ),
+          ]}
+        >
+          {(field, props) => (
+            <TextInput
+              {...props}
+              type="text"
+              label={fullNameLabel}
+              placeholder="Jon Doe"
+              value={field.value}
+              error={field.error}
+              required
+            />
+          )}
+        </Field>
+        <Field
+          name="email"
+          validate={[
+            // @ts-expect-error: FIXME: https://github.com/fabian-hiller/modular-forms/issues/158
+            required(t('validation.fieldRequired')),
+            email(t('validation.invalidEmail')),
+          ]}
+        >
+          {(field, props) => (
+            <TextInput
+              {...props}
+              type="email"
+              label={emailLabel}
+              placeholder="joe@example.com"
+              value={field.value}
+              error={field.error}
+              required
+            />
+          )}
+        </Field>
+        <Field
+          name="password"
+          validate={[
+            // @ts-expect-error: FIXME: https://github.com/fabian-hiller/modular-forms/issues/158
+            required(t('validation.fieldRequired')),
+            minLength(
+              MIN_PASSWORD_LENGTH,
+              t('validation.passwordTooShort', { min: MIN_PASSWORD_LENGTH }),
+            ),
+          ]}
+        >
+          {(field, props) => (
+            <TextInput
+              {...props}
+              type="password"
+              label={passwordLabel}
+              placeholder="********"
+              value={field.value}
+              error={field.error}
+              required
+            />
+          )}
+        </Field>
+        <Field
+          name="repeatedPassword"
+          validate={[
+            // @ts-expect-error: FIXME: https://github.com/fabian-hiller/modular-forms/issues/158
+            required(t('validation.fieldRequired')),
+            // @ts-expect-error: FIXME: https://github.com/fabian-hiller/modular-forms/issues/158
+            custom$(
+              value => value === getValue(form, 'password'),
+              t(`validation.passwordDoesNotMatch`),
+            ),
+          ]}
+        >
+          {(field, props) => (
+            <TextInput
+              {...props}
+              type="password"
+              label={repeatPasswordLabel}
+              placeholder="********"
+              value={field.value}
+              error={field.error}
+              required
+            />
+          )}
+        </Field>
+        <div>{form.response.message}</div>
+        <SubmitButton submitting={form.submitting}>
+          {t('register.signUp')}
+        </SubmitButton>
+      </FormBody>
     </Form>
   );
 });

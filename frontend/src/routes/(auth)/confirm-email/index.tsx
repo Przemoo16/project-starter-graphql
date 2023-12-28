@@ -3,8 +3,8 @@ import { type DocumentHead, Link, routeLoader$ } from '@builder.io/qwik-city';
 import { inlineTranslate, useSpeak } from 'qwik-speak';
 
 import { getServerRequestSender } from '~/api/get-server-request-sender';
-import { FormTitle } from '~/components/auth/form-title/form-title';
 import { LinksContainer } from '~/components/auth/links-container/links-container';
+import { Title } from '~/components/auth/title/title';
 import { hasProblems } from '~/libs/api/has-problems';
 import { isProblemPresent } from '~/libs/api/is-problem-present';
 import { RouteURL } from '~/libs/api/route-url';
@@ -50,7 +50,7 @@ const ConfirmEmail = component$(() => {
 
   return (
     <>
-      <FormTitle>{t('confirmEmail.confirmEmail')}</FormTitle>
+      <Title>{t('confirmEmail.confirmEmail')}</Title>
       <div>{message}</div>
       <LinksContainer>
         <Link href={RouteURL.Login} class="btn btn-primary btn-block">

@@ -9,13 +9,13 @@ import { inlineTranslate, useSpeak } from 'qwik-speak';
 
 import { getClientRequestSender } from '~/api/get-client-request-sender';
 import { getClientTokenStorage } from '~/auth/get-client-token-storage';
-import { FormLink } from '~/components/auth/form-link/form-link';
-import { FormTitle } from '~/components/auth/form-title/form-title';
+import { Link } from '~/components/auth/link/link';
 import { LinksContainer } from '~/components/auth/links-container/links-container';
 import {
   LoginForm,
   type LoginFormSchema,
 } from '~/components/auth/login-form/login-form';
+import { Title } from '~/components/auth/title/title';
 import { hasProblems } from '~/libs/api/has-problems';
 import { isProblemPresent } from '~/libs/api/is-problem-present';
 import { RouteURL } from '~/libs/api/route-url';
@@ -65,15 +65,11 @@ const Login = component$(() => {
 
   return (
     <>
-      <FormTitle>{t('login.signInToYourAccount')}</FormTitle>
+      <Title>{t('login.signInToYourAccount')}</Title>
       <LoginForm onSubmit={onSubmit} />
       <LinksContainer>
-        <FormLink href={RouteURL.Register}>
-          {t('login.doNotHaveAccount')}
-        </FormLink>
-        <FormLink href={RouteURL.RecoverPassword}>
-          {t('login.forgotPassword')}
-        </FormLink>
+        <Link href={RouteURL.Register}>{t('login.doNotHaveAccount')}</Link>
+        <Link href={RouteURL.RecoverPassword}>{t('login.forgotPassword')}</Link>
       </LinksContainer>
     </>
   );
