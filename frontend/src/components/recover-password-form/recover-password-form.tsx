@@ -64,9 +64,11 @@ export const RecoverPasswordForm = component$(
           )}
         </Field>
         <div>{form.response.message}</div>
-        <LoadingButton type="submit" loading={form.submitting}>
-          {t('recoverPassword.recoverPassword')}
-        </LoadingButton>
+        <div class="mt-6 flex flex-col">
+          <LoadingButton type="submit" loading={form.submitting}>
+            {t('recoverPassword.recoverPassword')}
+          </LoadingButton>
+        </div>
       </Form>
     );
   },

@@ -77,10 +77,12 @@ export const LoginForm = component$(({ onSubmit }: LoginFormProps) => {
           />
         )}
       </Field>
-      <div>{form.response.message}</div>
-      <LoadingButton type="submit" loading={form.submitting}>
-        {t('login.signIn')}
-      </LoadingButton>
+      {form.response.message}
+      <div class="mt-6 flex flex-col">
+        <LoadingButton type="submit" loading={form.submitting}>
+          {t('login.signIn')}
+        </LoadingButton>
+      </div>
     </Form>
   );
 });

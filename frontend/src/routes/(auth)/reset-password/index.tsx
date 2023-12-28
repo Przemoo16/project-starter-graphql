@@ -48,8 +48,16 @@ const ResetPassword = component$(() => {
 
   return (
     <>
+      <h1 class="text-center text-2xl font-bold">
+        {t('resetPassword.resetYourPassword')}
+      </h1>
       <ResetPasswordForm onSubmit={onSubmit} />
-      <Link href={RouteURL.Login}>{t('auth.backToLogin')}</Link>
+      <Link
+        href={RouteURL.Login}
+        class="link-hover link link-primary mt-5 text-center"
+      >
+        {t('auth.backToLogin')}
+      </Link>
     </>
   );
 });
