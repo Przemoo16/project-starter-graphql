@@ -1,13 +1,13 @@
 import { createDOM } from '@builder.io/qwik/testing';
 import { describe, expect, test } from 'vitest';
 
-import { TitleHead } from './title-head';
+import { HeadTitle } from './head-title';
 
-describe('[TitleHead Component]', () => {
+describe('[HeadTitle Component]', () => {
   test(`displays only the app name if the page title is missing`, async () => {
     const { screen, render } = await createDOM();
 
-    await render(<TitleHead appName="Test App" pageTitle="" />);
+    await render(<HeadTitle appName="Test App" pageTitle="" />);
 
     const title = screen.querySelector('title') as HTMLTitleElement;
     expect(title.textContent).toEqual('Test App');
@@ -16,7 +16,7 @@ describe('[TitleHead Component]', () => {
   test(`displays both the app name and the page title`, async () => {
     const { screen, render } = await createDOM();
 
-    await render(<TitleHead appName="Test App" pageTitle="Test Page" />);
+    await render(<HeadTitle appName="Test App" pageTitle="Test Page" />);
 
     const title = screen.querySelector('title') as HTMLTitleElement;
     expect(title.textContent).toEqual('Test Page | Test App');
