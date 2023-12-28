@@ -79,7 +79,7 @@ export const LoginForm = component$(({ onSubmit }: LoginFormProps) => {
             />
           )}
         </Field>
-        {form.response.message}
+        <div>{form.response.message}</div>
         <SubmitButton submitting={form.submitting}>
           {t('login.signIn')}
         </SubmitButton>
