@@ -9,6 +9,12 @@ export const head: DocumentHead = () => {
 
   return {
     title: t('app.head.home.title'),
+    meta: [
+      {
+        name: 'description',
+        content: t('app.head.home.description'),
+      },
+    ],
   };
 };
 

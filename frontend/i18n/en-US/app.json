@@ -3,30 +3,39 @@
     "appName": "Project Starter",
     "head": {
       "account": {
+        "description": "Manage your account. Customize your preferences, update your information, and tailor your experience to suit your needs.",
         "title": "Account"
       },
       "confirmEmail": {
+        "description": "Confirm your email address to complete the registration process and enjoy the full range of features and services we offer.",
         "title": "Confirm Email"
       },
       "dashboard": {
+        "description": "Explore your personalized dashboard. Access insights, manage preferences, and stay connected with the latest updates all in one place.",
         "title": "Dashboard"
       },
       "home": {
+        "description": "Welcome to the Project Starter. Explore a world of possibilities, discover engaging content, and make the most of your online experience.",
         "title": "Home"
       },
       "login": {
+        "description": "Securely log in to your account. Access exclusive features, personalized content, and stay connected.",
         "title": "Login"
       },
       "notFound": {
+        "description": "Oops. The page you're looking for doesn't exist or has been moved. Navigate back to our homepage.",
         "title": "404"
       },
       "recoverPassword": {
+        "description": "Recover access to your account effortlessly. Follow the steps to reset your password and regain control of your online experience.",
         "title": "Recover Password"
       },
       "register": {
+        "description": "Get started with a free account today. Join our community, enjoy personalized content, and experience a seamless online journey tailored just for you.",
         "title": "Register"
       },
       "resetPassword": {
+        "description": "Reset your password. Follow the simple steps to create a new password and secure your account.",
         "title": "Reset Password"
       }
     },

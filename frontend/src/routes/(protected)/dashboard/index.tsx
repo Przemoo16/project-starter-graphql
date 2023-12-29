@@ -12,6 +12,12 @@ export const head: DocumentHead = () => {
 
   return {
     title: t('app.head.dashboard.title'),
+    meta: [
+      {
+        name: 'description',
+        content: t('app.head.dashboard.description'),
+      },
+    ],
   };
 };
 

@@ -14,6 +14,16 @@ export const head: DocumentHead = () => {
 
   return {
     title: t('app.head.confirmEmail.title'),
+    meta: [
+      {
+        name: 'description',
+        content: t('app.head.confirmEmail.description'),
+      },
+      {
+        name: 'robots',
+        content: 'noindex',
+      },
+    ],
   };
 };
 
