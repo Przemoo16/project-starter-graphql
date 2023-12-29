@@ -20,6 +20,16 @@ export const head: DocumentHead = () => {
 
   return {
     title: t('app.head.resetPassword.title'),
+    meta: [
+      {
+        name: 'description',
+        content: t('app.head.resetPassword.description'),
+      },
+      {
+        name: 'robots',
+        content: 'noindex',
+      },
+    ],
   };
 };
 
