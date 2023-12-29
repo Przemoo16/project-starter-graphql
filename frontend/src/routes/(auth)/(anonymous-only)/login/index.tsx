@@ -71,7 +71,7 @@ const Login = component$(() => {
   return (
     <>
       <Title>{t('login.signInToYourAccount')}</Title>
-      <LoginForm onSubmit={onSubmit} />
+      <LoginForm onSubmit$={onSubmit} />
       <div class="flex flex-col gap-1">
         <Link href={RouteURL.Register}>{t('login.doNotHaveAccount')}</Link>
         <Link href={RouteURL.RecoverPassword}>{t('login.forgotPassword')}</Link>

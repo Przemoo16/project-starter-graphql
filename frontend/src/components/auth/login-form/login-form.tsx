@@ -1,4 +1,4 @@
-import { $, component$, type QRL } from '@builder.io/qwik';
+import { $, component$, type PropFunction } from '@builder.io/qwik';
 import {
   email,
   required,
@@ -19,10 +19,10 @@ export type LoginFormSchema = {
 };
 
 interface LoginFormProps {
-  onSubmit: QRL<(input: LoginInput) => Promise<void>>;
+  onSubmit$: PropFunction<(input: LoginInput) => Promise<void>>;
 }
 
-export const LoginForm = component$<LoginFormProps>(({ onSubmit }) => {
+export const LoginForm = component$<LoginFormProps>(({ onSubmit$ }) => {
   const t = inlineTranslate();
   const [form, { Form, Field }] = useForm<LoginFormSchema>({
     loader: { value: { email: '', password: '' } },
@@ -30,7 +30,7 @@ export const LoginForm = component$<LoginFormProps>(({ onSubmit }) => {
 
   const handleSubmit = $<SubmitHandler<LoginFormSchema>>(
     async ({ email, password }, _event) => {
-      await onSubmit({ username: email, password });
+      await onSubmit$({ username: email, password });
     },
   );
 

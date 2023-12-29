@@ -1,4 +1,4 @@
-import { $, component$, type QRL } from '@builder.io/qwik';
+import { $, component$, type PropFunction } from '@builder.io/qwik';
 import {
   email,
   required,
@@ -19,11 +19,11 @@ type RecoverPasswordFormSchema = {
 };
 
 interface RecoverPasswordFormProps {
-  onSubmit: QRL<(email: string) => Promise<void>>;
+  onSubmit$: PropFunction<(email: string) => Promise<void>>;
 }
 
 export const RecoverPasswordForm = component$<RecoverPasswordFormProps>(
-  ({ onSubmit }) => {
+  ({ onSubmit$ }) => {
     const t = inlineTranslate();
     const [form, { Form, Field }] = useForm<RecoverPasswordFormSchema>({
       loader: { value: { email: '' } },
@@ -32,7 +32,7 @@ export const RecoverPasswordForm = component$<RecoverPasswordFormProps>(
     const handleSubmit = $<SubmitHandler<RecoverPasswordFormSchema>>(
       async ({ email }, _event) => {
         const t = inlineTranslate();
-        await onSubmit(email);
+        await onSubmit$(email);
         reset(form);
         setResponse(form, {
           message: t('recoverPassword.recoverPasswordSuccess'),

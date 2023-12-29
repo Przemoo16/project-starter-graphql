@@ -11,7 +11,7 @@ const ON_SUBMIT = $(async (_email: string) => {});
 describe('[RecoverPasswordForm Component]', () => {
   test(`doesn't display error if email passes validation`, async () => {
     const { screen, render, userEvent } = await createDOM();
-    await render(<RecoverPasswordForm onSubmit={ON_SUBMIT} />);
+    await render(<RecoverPasswordForm onSubmit$={ON_SUBMIT} />);
     const input = screen.querySelector('#email') as HTMLInputElement;
 
     await fillInput(input, userEvent, 'test@email.com');
@@ -23,7 +23,7 @@ describe('[RecoverPasswordForm Component]', () => {
 
   test(`displays error if email is not provided`, async () => {
     const { screen, render, userEvent } = await createDOM();
-    await render(<RecoverPasswordForm onSubmit={ON_SUBMIT} />);
+    await render(<RecoverPasswordForm onSubmit$={ON_SUBMIT} />);
 
     await userEvent('button[type="submit"]', 'submit');
 
@@ -33,7 +33,7 @@ describe('[RecoverPasswordForm Component]', () => {
 
   test(`displays error if email is invalid`, async () => {
     const { screen, render, userEvent } = await createDOM();
-    await render(<RecoverPasswordForm onSubmit={ON_SUBMIT} />);
+    await render(<RecoverPasswordForm onSubmit$={ON_SUBMIT} />);
     const input = screen.querySelector('#email') as HTMLInputElement;
 
     await fillInput(input, userEvent, 'test');
@@ -45,7 +45,7 @@ describe('[RecoverPasswordForm Component]', () => {
 
   test(`resets form after submit`, async () => {
     const { screen, render, userEvent } = await createDOM();
-    await render(<RecoverPasswordForm onSubmit={ON_SUBMIT} />);
+    await render(<RecoverPasswordForm onSubmit$={ON_SUBMIT} />);
     const input = screen.querySelector('#email') as HTMLInputElement;
 
     await fillInput(input, userEvent, 'test@email.com');
@@ -57,7 +57,7 @@ describe('[RecoverPasswordForm Component]', () => {
   // FIXME: Enable the test after this is resolved: https://github.com/fabian-hiller/modular-forms/issues/161
   test.skip(`displays success message`, async () => {
     const { screen, render, userEvent } = await createDOM();
-    await render(<RecoverPasswordForm onSubmit={ON_SUBMIT} />);
+    await render(<RecoverPasswordForm onSubmit$={ON_SUBMIT} />);
     const input = screen.querySelector('#email') as HTMLInputElement;
 
     await fillInput(input, userEvent, 'test@email.com');

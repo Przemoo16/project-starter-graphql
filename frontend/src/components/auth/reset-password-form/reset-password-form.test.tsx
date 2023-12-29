@@ -12,7 +12,7 @@ const ON_SUBMIT = $(async (_input: Omit<ResetPasswordInput, 'token'>) => {});
 describe('[ResetPasswordForm Component]', () => {
   test(`doesn't display error if password passes validation`, async () => {
     const { screen, render, userEvent } = await createDOM();
-    await render(<ResetPasswordForm onSubmit={ON_SUBMIT} />);
+    await render(<ResetPasswordForm onSubmit$={ON_SUBMIT} />);
     const input = screen.querySelector('#password') as HTMLInputElement;
 
     await fillInput(input, userEvent, 'testPassword');
@@ -24,7 +24,7 @@ describe('[ResetPasswordForm Component]', () => {
 
   test(`displays error if password is not provided`, async () => {
     const { screen, render, userEvent } = await createDOM();
-    await render(<ResetPasswordForm onSubmit={ON_SUBMIT} />);
+    await render(<ResetPasswordForm onSubmit$={ON_SUBMIT} />);
 
     await userEvent('button[type="submit"]', 'submit');
 
@@ -34,7 +34,7 @@ describe('[ResetPasswordForm Component]', () => {
 
   test(`displays error if password is too short`, async () => {
     const { screen, render, userEvent } = await createDOM();
-    await render(<ResetPasswordForm onSubmit={ON_SUBMIT} />);
+    await render(<ResetPasswordForm onSubmit$={ON_SUBMIT} />);
     const input = screen.querySelector('#password') as HTMLInputElement;
 
     await fillInput(input, userEvent, 'p');
@@ -46,7 +46,7 @@ describe('[ResetPasswordForm Component]', () => {
 
   test(`doesn't display error if repeated password passes validation`, async () => {
     const { screen, render, userEvent } = await createDOM();
-    await render(<ResetPasswordForm onSubmit={ON_SUBMIT} />);
+    await render(<ResetPasswordForm onSubmit$={ON_SUBMIT} />);
     const passwordInput = screen.querySelector('#password') as HTMLInputElement;
     const repeatedPasswordInput = screen.querySelector(
       '#repeatedPassword',
@@ -62,7 +62,7 @@ describe('[ResetPasswordForm Component]', () => {
 
   test(`displays error if repeated password is not provided`, async () => {
     const { screen, render, userEvent } = await createDOM();
-    await render(<ResetPasswordForm onSubmit={ON_SUBMIT} />);
+    await render(<ResetPasswordForm onSubmit$={ON_SUBMIT} />);
 
     await userEvent('button[type="submit"]', 'submit');
 
@@ -74,7 +74,7 @@ describe('[ResetPasswordForm Component]', () => {
 
   test(`displays error if repeated password doesn't match`, async () => {
     const { screen, render, userEvent } = await createDOM();
-    await render(<ResetPasswordForm onSubmit={ON_SUBMIT} />);
+    await render(<ResetPasswordForm onSubmit$={ON_SUBMIT} />);
     const passwordInput = screen.querySelector('#password') as HTMLInputElement;
     const repeatedPasswordInput = screen.querySelector(
       '#repeatedPassword',
@@ -92,7 +92,7 @@ describe('[ResetPasswordForm Component]', () => {
 
   test(`resets form after submit`, async () => {
     const { screen, render, userEvent } = await createDOM();
-    await render(<ResetPasswordForm onSubmit={ON_SUBMIT} />);
+    await render(<ResetPasswordForm onSubmit$={ON_SUBMIT} />);
     const passwordInput = screen.querySelector('#password') as HTMLInputElement;
     const repeatedPasswordInput = screen.querySelector(
       '#repeatedPassword',
@@ -109,7 +109,7 @@ describe('[ResetPasswordForm Component]', () => {
   // FIXME: Enable the test after this is resolved: https://github.com/fabian-hiller/modular-forms/issues/161
   test.skip(`displays success message`, async () => {
     const { screen, render, userEvent } = await createDOM();
-    await render(<ResetPasswordForm onSubmit={ON_SUBMIT} />);
+    await render(<ResetPasswordForm onSubmit$={ON_SUBMIT} />);
     const passwordInput = screen.querySelector('#password') as HTMLInputElement;
     const repeatedPasswordInput = screen.querySelector(
       '#repeatedPassword',
