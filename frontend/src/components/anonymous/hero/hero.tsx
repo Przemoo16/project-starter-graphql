@@ -12,8 +12,8 @@ export const Hero = component$(() => {
       <div class="hero-content text-center">
         <div class="max-w-md">
           <h1 class="text-5xl font-bold">{t('home.helloThere')}</h1>
-          <p class="py-6">{t('home.hero')}</p>
-          <Link href={RouteURL.Register} class="btn btn-primary">
+          <p class="mt-6">{t('home.hero')}</p>
+          <Link href={RouteURL.Register} class="btn btn-primary mt-6">
             {t('app.ui.getStarted')}
           </Link>
         </div>
