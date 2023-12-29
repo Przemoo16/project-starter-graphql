@@ -5,8 +5,8 @@ interface HeadTitleProps {
   pageTitle: string;
 }
 
-export const HeadTitle = component$(
-  ({ appName, pageTitle }: HeadTitleProps) => {
+export const HeadTitle = component$<HeadTitleProps>(
+  ({ appName, pageTitle }) => {
     const title = pageTitle ? `${pageTitle} | ${appName}` : appName;
 
     return <title>{title}</title>;

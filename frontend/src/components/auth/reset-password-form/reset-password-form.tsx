@@ -27,8 +27,8 @@ interface ResetPasswordFormProps {
   onSubmit: QRL<(input: Omit<ResetPasswordInput, 'token'>) => Promise<void>>;
 }
 
-export const ResetPasswordForm = component$(
-  ({ onSubmit }: ResetPasswordFormProps) => {
+export const ResetPasswordForm = component$<ResetPasswordFormProps>(
+  ({ onSubmit }) => {
     const t = inlineTranslate();
 
     const [form, { Form, Field }] = useForm<ResetPasswordFormSchema>({

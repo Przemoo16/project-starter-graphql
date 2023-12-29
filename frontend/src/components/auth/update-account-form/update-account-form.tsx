@@ -24,8 +24,8 @@ interface UpdateAccountFormProps {
   onSubmit: QRL<(input: UpdateMeInput) => Promise<UpdateAccountFormSchema>>;
 }
 
-export const UpdateAccountForm = component$(
-  ({ loader, onSubmit }: UpdateAccountFormProps) => {
+export const UpdateAccountForm = component$<UpdateAccountFormProps>(
+  ({ loader, onSubmit }) => {
     const t = inlineTranslate();
     const [form, { Form, Field }] = useForm<UpdateAccountFormSchema>({
       loader,

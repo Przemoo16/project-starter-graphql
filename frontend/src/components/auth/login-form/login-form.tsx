@@ -22,7 +22,7 @@ interface LoginFormProps {
   onSubmit: QRL<(input: LoginInput) => Promise<void>>;
 }
 
-export const LoginForm = component$(({ onSubmit }: LoginFormProps) => {
+export const LoginForm = component$<LoginFormProps>(({ onSubmit }) => {
   const t = inlineTranslate();
   const [form, { Form, Field }] = useForm<LoginFormSchema>({
     loader: { value: { email: '', password: '' } },

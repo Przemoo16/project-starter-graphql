@@ -6,7 +6,7 @@ interface SubmitButtonProps {
   submitting: boolean;
 }
 
-export const SubmitButton = component$(({ submitting }: SubmitButtonProps) => (
+export const SubmitButton = component$<SubmitButtonProps>(({ submitting }) => (
   <div class="flex flex-col">
     <LoadingButton type="submit" loading={submitting}>
       <Slot />

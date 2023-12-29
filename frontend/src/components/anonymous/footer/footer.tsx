@@ -5,7 +5,7 @@ interface FooterProps {
   year: number;
 }
 
-export const Footer = component$(({ year }: FooterProps) => {
+export const Footer = component$<FooterProps>(({ year }) => {
   const t = inlineTranslate();
 
   return (
