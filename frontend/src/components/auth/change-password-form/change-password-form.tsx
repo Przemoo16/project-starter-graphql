@@ -1,4 +1,4 @@
-import { $, component$, type QRL } from '@builder.io/qwik';
+import { $, component$, type PropFunction } from '@builder.io/qwik';
 import {
   custom$,
   getValue,
@@ -23,11 +23,11 @@ export type ChangePasswordFormSchema = {
 };
 
 interface ChangePasswordFormProps {
-  onSubmit: QRL<(input: ChangeMyPasswordInput) => Promise<void>>;
+  onSubmit$: PropFunction<(input: ChangeMyPasswordInput) => Promise<void>>;
 }
 
 export const ChangePasswordForm = component$<ChangePasswordFormProps>(
-  ({ onSubmit }) => {
+  ({ onSubmit$ }) => {
     const t = inlineTranslate();
     const [form, { Form, Field }] = useForm<ChangePasswordFormSchema>({
       loader: {
@@ -42,7 +42,7 @@ export const ChangePasswordForm = component$<ChangePasswordFormProps>(
     const handleSubmit = $<SubmitHandler<ChangePasswordFormSchema>>(
       async ({ currentPassword, newPassword }, _event) => {
         const t = inlineTranslate();
-        await onSubmit({ currentPassword, newPassword });
+        await onSubmit$({ currentPassword, newPassword });
         reset(form);
         setResponse(form, {
           message: t('changePassword.changePasswordSuccess'),

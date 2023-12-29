@@ -12,7 +12,7 @@ const ON_SUBMIT = $(async (_input: ChangeMyPasswordInput) => {});
 describe('[ChangePasswordForm Component]', () => {
   test(`doesn't display error if current password passes validation`, async () => {
     const { screen, render, userEvent } = await createDOM();
-    await render(<ChangePasswordForm onSubmit={ON_SUBMIT} />);
+    await render(<ChangePasswordForm onSubmit$={ON_SUBMIT} />);
     const input = screen.querySelector('#currentPassword') as HTMLInputElement;
 
     await fillInput(input, userEvent, 'currentPassword');
@@ -24,7 +24,7 @@ describe('[ChangePasswordForm Component]', () => {
 
   test(`displays error if current password is not provided`, async () => {
     const { screen, render, userEvent } = await createDOM();
-    await render(<ChangePasswordForm onSubmit={ON_SUBMIT} />);
+    await render(<ChangePasswordForm onSubmit$={ON_SUBMIT} />);
 
     await userEvent('button[type="submit"]', 'submit');
 
@@ -36,7 +36,7 @@ describe('[ChangePasswordForm Component]', () => {
 
   test(`doesn't display error if new password passes validation`, async () => {
     const { screen, render, userEvent } = await createDOM();
-    await render(<ChangePasswordForm onSubmit={ON_SUBMIT} />);
+    await render(<ChangePasswordForm onSubmit$={ON_SUBMIT} />);
     const input = screen.querySelector('#newPassword') as HTMLInputElement;
 
     await fillInput(input, userEvent, 'newPassword');
@@ -48,7 +48,7 @@ describe('[ChangePasswordForm Component]', () => {
 
   test(`displays error if new password is not provided`, async () => {
     const { screen, render, userEvent } = await createDOM();
-    await render(<ChangePasswordForm onSubmit={ON_SUBMIT} />);
+    await render(<ChangePasswordForm onSubmit$={ON_SUBMIT} />);
 
     await userEvent('button[type="submit"]', 'submit');
 
@@ -58,7 +58,7 @@ describe('[ChangePasswordForm Component]', () => {
 
   test(`displays error if new password is too short`, async () => {
     const { screen, render, userEvent } = await createDOM();
-    await render(<ChangePasswordForm onSubmit={ON_SUBMIT} />);
+    await render(<ChangePasswordForm onSubmit$={ON_SUBMIT} />);
     const input = screen.querySelector('#newPassword') as HTMLInputElement;
 
     await fillInput(input, userEvent, 'p');
@@ -70,7 +70,7 @@ describe('[ChangePasswordForm Component]', () => {
 
   test(`doesn't display error if repeated password passes validation`, async () => {
     const { screen, render, userEvent } = await createDOM();
-    await render(<ChangePasswordForm onSubmit={ON_SUBMIT} />);
+    await render(<ChangePasswordForm onSubmit$={ON_SUBMIT} />);
     const newPasswordInput = screen.querySelector(
       '#newPassword',
     ) as HTMLInputElement;
@@ -88,7 +88,7 @@ describe('[ChangePasswordForm Component]', () => {
 
   test(`displays error if repeated password is not provided`, async () => {
     const { screen, render, userEvent } = await createDOM();
-    await render(<ChangePasswordForm onSubmit={ON_SUBMIT} />);
+    await render(<ChangePasswordForm onSubmit$={ON_SUBMIT} />);
 
     await userEvent('button[type="submit"]', 'submit');
 
@@ -100,7 +100,7 @@ describe('[ChangePasswordForm Component]', () => {
 
   test(`displays error if repeated password doesn't match`, async () => {
     const { screen, render, userEvent } = await createDOM();
-    await render(<ChangePasswordForm onSubmit={ON_SUBMIT} />);
+    await render(<ChangePasswordForm onSubmit$={ON_SUBMIT} />);
     const newPasswordInput = screen.querySelector(
       '#newPassword',
     ) as HTMLInputElement;
@@ -120,7 +120,7 @@ describe('[ChangePasswordForm Component]', () => {
 
   test(`resets form after submit`, async () => {
     const { screen, render, userEvent } = await createDOM();
-    await render(<ChangePasswordForm onSubmit={ON_SUBMIT} />);
+    await render(<ChangePasswordForm onSubmit$={ON_SUBMIT} />);
     const currentPasswordInput = screen.querySelector(
       '#currentPassword',
     ) as HTMLInputElement;
@@ -144,7 +144,7 @@ describe('[ChangePasswordForm Component]', () => {
   // FIXME: Enable the test after this is resolved: https://github.com/fabian-hiller/modular-forms/issues/161
   test.skip(`displays success message`, async () => {
     const { screen, render, userEvent } = await createDOM();
-    await render(<ChangePasswordForm onSubmit={ON_SUBMIT} />);
+    await render(<ChangePasswordForm onSubmit$={ON_SUBMIT} />);
     const currentPasswordInput = screen.querySelector(
       '#currentPassword',
     ) as HTMLInputElement;

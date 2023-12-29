@@ -1,4 +1,4 @@
-import { component$ } from '@builder.io/qwik';
+import { component$, type PropFunction } from '@builder.io/qwik';
 import { type FieldElement, type FieldEvent } from '@modular-forms/qwik';
 
 type TextInputProps = {
@@ -10,9 +10,9 @@ type TextInputProps = {
   error: string;
   required?: boolean;
   ref: (element: Element) => void;
-  onInput$: (event: FieldEvent, element: FieldElement) => void;
-  onChange$: (event: FieldEvent, element: FieldElement) => void;
-  onBlur$: (event: FieldEvent, element: FieldElement) => void;
+  onInput$: PropFunction<(event: FieldEvent, element: FieldElement) => void>;
+  onChange$: PropFunction<(event: FieldEvent, element: FieldElement) => void>;
+  onBlur$: PropFunction<(event: FieldEvent, element: FieldElement) => void>;
 };
 
 export const TextInput = component$<TextInputProps>(

@@ -1,4 +1,9 @@
-import { $, component$, type QRL, type Signal } from '@builder.io/qwik';
+import {
+  $,
+  component$,
+  type PropFunction,
+  type Signal,
+} from '@builder.io/qwik';
 import {
   type InitialValues,
   maxLength,
@@ -21,11 +26,13 @@ export type UpdateAccountFormSchema = {
 
 interface UpdateAccountFormProps {
   loader: Readonly<Signal<InitialValues<UpdateAccountFormSchema>>>;
-  onSubmit: QRL<(input: UpdateMeInput) => Promise<UpdateAccountFormSchema>>;
+  onSubmit$: PropFunction<
+    (input: UpdateMeInput) => Promise<UpdateAccountFormSchema>
+  >;
 }
 
 export const UpdateAccountForm = component$<UpdateAccountFormProps>(
-  ({ loader, onSubmit }) => {
+  ({ loader, onSubmit$ }) => {
     const t = inlineTranslate();
     const [form, { Form, Field }] = useForm<UpdateAccountFormSchema>({
       loader,
@@ -34,7 +41,7 @@ export const UpdateAccountForm = component$<UpdateAccountFormProps>(
     const handleSubmit = $<SubmitHandler<UpdateAccountFormSchema>>(
       async ({ fullName }, _event) => {
         const t = inlineTranslate();
-        const user = await onSubmit({ fullName });
+        const user = await onSubmit$({ fullName });
         setResponse(form, {
           message: t('updateAccount.updateAccountSuccess'),
         });

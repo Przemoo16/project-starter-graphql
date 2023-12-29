@@ -16,8 +16,9 @@ FROM base as deps
 RUN corepack enable
 
 COPY ./package.json ./.yarnrc.yml ./yarn.lock ./
-RUN yarn install --immutable \
-    && yarn cache clean
+# hadolint ignore=DL3060
+RUN --mount=type=cache,target=/root/.yarn \
+    yarn install --immutable
 
 COPY . .
 

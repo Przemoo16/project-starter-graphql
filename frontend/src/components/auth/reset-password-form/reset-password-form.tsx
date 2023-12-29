@@ -1,4 +1,4 @@
-import { $, component$, type QRL } from '@builder.io/qwik';
+import { $, component$, type PropFunction } from '@builder.io/qwik';
 import {
   custom$,
   getValue,
@@ -24,11 +24,13 @@ export type ResetPasswordFormSchema = {
 };
 
 interface ResetPasswordFormProps {
-  onSubmit: QRL<(input: Omit<ResetPasswordInput, 'token'>) => Promise<void>>;
+  onSubmit$: PropFunction<
+    (input: Omit<ResetPasswordInput, 'token'>) => Promise<void>
+  >;
 }
 
 export const ResetPasswordForm = component$<ResetPasswordFormProps>(
-  ({ onSubmit }) => {
+  ({ onSubmit$ }) => {
     const t = inlineTranslate();
 
     const [form, { Form, Field }] = useForm<ResetPasswordFormSchema>({
@@ -38,7 +40,7 @@ export const ResetPasswordForm = component$<ResetPasswordFormProps>(
     const handleSubmit = $<SubmitHandler<ResetPasswordFormSchema>>(
       async ({ password }, _event) => {
         const t = inlineTranslate();
-        await onSubmit({ password });
+        await onSubmit$({ password });
         reset(form);
         setResponse(form, {
           message: t('resetPassword.resetPasswordSuccess'),

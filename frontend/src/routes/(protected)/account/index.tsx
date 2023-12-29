@@ -113,9 +113,9 @@ const Account = component$(() => {
     <>
       <UpdateAccountForm
         loader={updateAccountFormSignal}
-        onSubmit={onUpdateAccount}
+        onSubmit$={onUpdateAccount}
       />
-      <ChangePasswordForm onSubmit={onChangePassword} />
+      <ChangePasswordForm onSubmit$={onChangePassword} />
       <LoadingButton
         onClick$={onDeleteAccount}
         loading={deleteAccountPending.value}

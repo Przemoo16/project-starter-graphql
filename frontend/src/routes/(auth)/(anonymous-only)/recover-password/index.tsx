@@ -39,7 +39,7 @@ const RecoverPassword = component$(() => {
   return (
     <>
       <Title>{t('recoverPassword.recoverYourPassword')}</Title>
-      <RecoverPasswordForm onSubmit={onSubmit} />
+      <RecoverPasswordForm onSubmit$={onSubmit} />
       <Link href={RouteURL.Login}>{t('auth.backToLogin')}</Link>
     </>
   );

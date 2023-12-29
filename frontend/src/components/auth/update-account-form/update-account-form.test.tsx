@@ -20,7 +20,7 @@ describe('[UpdateAccountForm Component]', () => {
     const loader = {
       value: { fullName: 'Test User' },
     };
-    await render(<UpdateAccountForm loader={loader} onSubmit={ON_SUBMIT} />);
+    await render(<UpdateAccountForm loader={loader} onSubmit$={ON_SUBMIT} />);
     const input = screen.querySelector('#fullName') as HTMLInputElement;
 
     expect(input.value).toEqual('Test User');
@@ -28,7 +28,7 @@ describe('[UpdateAccountForm Component]', () => {
 
   test(`doesn't display error if full name passes validation`, async () => {
     const { screen, render, userEvent } = await createDOM();
-    await render(<UpdateAccountForm loader={LOADER} onSubmit={ON_SUBMIT} />);
+    await render(<UpdateAccountForm loader={LOADER} onSubmit$={ON_SUBMIT} />);
     const input = screen.querySelector('#fullName') as HTMLInputElement;
 
     await fillInput(input, userEvent, 'Updated User');
@@ -40,7 +40,7 @@ describe('[UpdateAccountForm Component]', () => {
 
   test(`displays error if full name is not provided`, async () => {
     const { screen, render, userEvent } = await createDOM();
-    await render(<UpdateAccountForm loader={LOADER} onSubmit={ON_SUBMIT} />);
+    await render(<UpdateAccountForm loader={LOADER} onSubmit$={ON_SUBMIT} />);
     const input = screen.querySelector('#fullName') as HTMLInputElement;
 
     await fillInput(input, userEvent, '');
@@ -52,7 +52,7 @@ describe('[UpdateAccountForm Component]', () => {
 
   test(`displays error if full name is too long`, async () => {
     const { screen, render, userEvent } = await createDOM();
-    await render(<UpdateAccountForm loader={LOADER} onSubmit={ON_SUBMIT} />);
+    await render(<UpdateAccountForm loader={LOADER} onSubmit$={ON_SUBMIT} />);
     const input = screen.querySelector('#fullName') as HTMLInputElement;
 
     await fillInput(input, userEvent, 'T'.repeat(129));
@@ -73,7 +73,7 @@ describe('[UpdateAccountForm Component]', () => {
         fullName: 'Test User',
       };
     });
-    await render(<UpdateAccountForm loader={LOADER} onSubmit={onSubmit} />);
+    await render(<UpdateAccountForm loader={LOADER} onSubmit$={onSubmit} />);
 
     await userEvent('button[type="submit"]', 'submit');
 
@@ -91,7 +91,7 @@ describe('[UpdateAccountForm Component]', () => {
         fullName: 'Updated User',
       };
     });
-    await render(<UpdateAccountForm loader={LOADER} onSubmit={onSubmit} />);
+    await render(<UpdateAccountForm loader={LOADER} onSubmit$={onSubmit} />);
     const input = screen.querySelector('#fullName') as HTMLInputElement;
 
     await fillInput(input, userEvent, 'Updated User');
@@ -107,7 +107,7 @@ describe('[UpdateAccountForm Component]', () => {
         fullName: 'Updated User',
       };
     });
-    await render(<UpdateAccountForm loader={LOADER} onSubmit={onSubmit} />);
+    await render(<UpdateAccountForm loader={LOADER} onSubmit$={onSubmit} />);
     const input = screen.querySelector('#fullName') as HTMLInputElement;
 
     await userEvent('button[type="submit"]', 'submit');
@@ -118,7 +118,7 @@ describe('[UpdateAccountForm Component]', () => {
   // FIXME: Enable the test after this is resolved: https://github.com/fabian-hiller/modular-forms/issues/161
   test.skip(`displays success message`, async () => {
     const { screen, render, userEvent } = await createDOM();
-    await render(<UpdateAccountForm loader={LOADER} onSubmit={ON_SUBMIT} />);
+    await render(<UpdateAccountForm loader={LOADER} onSubmit$={ON_SUBMIT} />);
     const input = screen.querySelector('#fullName') as HTMLInputElement;
 
     await fillInput(input, userEvent, 'Test User');

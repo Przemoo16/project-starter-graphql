@@ -1,4 +1,4 @@
-import { $, component$, type QRL } from '@builder.io/qwik';
+import { $, component$, type PropFunction } from '@builder.io/qwik';
 import {
   custom$,
   email,
@@ -31,10 +31,10 @@ export type RegisterFormSchema = {
 };
 
 interface RegisterFormProps {
-  onSubmit: QRL<(input: UserCreateInput) => Promise<void>>;
+  onSubmit$: PropFunction<(input: UserCreateInput) => Promise<void>>;
 }
 
-export const RegisterForm = component$<RegisterFormProps>(({ onSubmit }) => {
+export const RegisterForm = component$<RegisterFormProps>(({ onSubmit$ }) => {
   const t = inlineTranslate();
   const [form, { Form, Field }] = useForm<RegisterFormSchema>({
     loader: {
@@ -45,7 +45,7 @@ export const RegisterForm = component$<RegisterFormProps>(({ onSubmit }) => {
   const handleSubmit = $<SubmitHandler<RegisterFormSchema>>(
     async ({ fullName, email, password }, _event) => {
       const t = inlineTranslate();
-      await onSubmit({ fullName, email, password });
+      await onSubmit$({ fullName, email, password });
       reset(form);
       setResponse(form, {
         message: t('register.registerSuccess'),
