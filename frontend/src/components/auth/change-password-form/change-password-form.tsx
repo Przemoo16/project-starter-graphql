@@ -26,8 +26,8 @@ interface ChangePasswordFormProps {
   onSubmit: QRL<(input: ChangeMyPasswordInput) => Promise<void>>;
 }
 
-export const ChangePasswordForm = component$(
-  ({ onSubmit }: ChangePasswordFormProps) => {
+export const ChangePasswordForm = component$<ChangePasswordFormProps>(
+  ({ onSubmit }) => {
     const t = inlineTranslate();
     const [form, { Form, Field }] = useForm<ChangePasswordFormSchema>({
       loader: {

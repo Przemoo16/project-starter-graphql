@@ -5,7 +5,7 @@ interface LinkProps {
   href: string;
 }
 
-export const Link = component$(({ href }: LinkProps) => (
+export const Link = component$<LinkProps>(({ href }) => (
   <BaseLink href={href} class="link-hover link link-primary">
     <Slot />
   </BaseLink>

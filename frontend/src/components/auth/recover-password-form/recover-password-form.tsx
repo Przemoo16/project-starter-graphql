@@ -22,8 +22,8 @@ interface RecoverPasswordFormProps {
   onSubmit: QRL<(email: string) => Promise<void>>;
 }
 
-export const RecoverPasswordForm = component$(
-  ({ onSubmit }: RecoverPasswordFormProps) => {
+export const RecoverPasswordForm = component$<RecoverPasswordFormProps>(
+  ({ onSubmit }) => {
     const t = inlineTranslate();
     const [form, { Form, Field }] = useForm<RecoverPasswordFormSchema>({
       loader: { value: { email: '' } },

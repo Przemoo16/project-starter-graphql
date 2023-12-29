@@ -4,8 +4,8 @@ interface LoadingButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
   loading: boolean;
 }
 
-export const LoadingButton = component$(
-  ({ loading, ...rest }: LoadingButtonProps) => (
+export const LoadingButton = component$<LoadingButtonProps>(
+  ({ loading, ...rest }) => (
     <button disabled={loading} class="btn btn-primary" {...rest}>
       {loading && <span class="loading loading-dots" />}
       {!loading && <Slot />}

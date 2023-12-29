@@ -34,7 +34,7 @@ interface RegisterFormProps {
   onSubmit: QRL<(input: UserCreateInput) => Promise<void>>;
 }
 
-export const RegisterForm = component$(({ onSubmit }: RegisterFormProps) => {
+export const RegisterForm = component$<RegisterFormProps>(({ onSubmit }) => {
   const t = inlineTranslate();
   const [form, { Form, Field }] = useForm<RegisterFormSchema>({
     loader: {
