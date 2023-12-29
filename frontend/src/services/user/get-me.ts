@@ -12,8 +12,6 @@ export const getMe = async (onRequest: RequestSender, storage: Storage) => {
   const query = `
     query GetMe {
       me {
-        id
-        email
         fullName
       }
     }

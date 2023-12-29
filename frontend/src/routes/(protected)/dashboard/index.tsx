@@ -1,11 +1,6 @@
-import { $, component$, useSignal } from '@builder.io/qwik';
+import { component$ } from '@builder.io/qwik';
 import { type DocumentHead } from '@builder.io/qwik-city';
 import { inlineTranslate, useSpeak } from 'qwik-speak';
-
-import { getClientLogoutRedirection } from '~/auth/get-client-logout-redirection';
-import { getClientTokenStorage } from '~/auth/get-client-token-storage';
-import { LoadingButton } from '~/components/common/loading-button/loading-button';
-import { logout } from '~/services/user/logout';
 
 export const head: DocumentHead = () => {
   const t = inlineTranslate();
@@ -22,26 +17,17 @@ export const head: DocumentHead = () => {
 };
 
 export default component$(() => {
-  useSpeak({ assets: ['auth'] });
+  useSpeak({ assets: ['dashboard'] });
 
   return <Dashboard />;
 });
 
 const Dashboard = component$(() => {
   const t = inlineTranslate();
-  const logoutPending = useSignal(false);
-
-  const onLogout = $(() => {
-    logoutPending.value = true;
-    logout(getClientTokenStorage(), getClientLogoutRedirection());
-    logoutPending.value = false;
-  });
 
   return (
-    <>
-      <LoadingButton onClick$={onLogout} loading={logoutPending.value}>
-        {t('auth.logout')}
-      </LoadingButton>
-    </>
+    <div class="grid h-full place-items-center">
+      <h1 class="text-center text-5xl font-bold">{t('dashboard.dashboard')}</h1>
+    </div>
   );
 });
