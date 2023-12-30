@@ -40,8 +40,10 @@
       }
     },
     "ui": {
+      "account": "Account",
       "getStarted": "Get started",
-      "login": "Login"
+      "login": "Login",
+      "logout": "Logout"
     }
   }
 }

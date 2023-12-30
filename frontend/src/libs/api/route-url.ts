@@ -1,9 +1,8 @@
 export enum RouteURL {
-  ConfirmEmail = '/confirm-email',
+  Account = '/account',
   Dashboard = '/dashboard',
   Home = '/',
   Login = '/login',
   RecoverPassword = '/recover-password',
   Register = '/register',
-  ResetPassword = '/reset-password',
 }
