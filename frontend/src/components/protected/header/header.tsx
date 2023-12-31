@@ -23,7 +23,12 @@ export const Header = component$<HeaderProps>(props => {
             </Link>
           </div>
           <div class="dropdown dropdown-end">
-            <div tabIndex={0} role="button" class="btn btn-circle btn-ghost">
+            <div
+              tabIndex={0}
+              role="button"
+              class="btn btn-circle btn-ghost"
+              aria-label="open dropdown"
+            >
               <User />
             </div>
             <ul

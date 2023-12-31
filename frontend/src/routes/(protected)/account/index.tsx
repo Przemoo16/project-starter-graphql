@@ -1,4 +1,4 @@
-import { $, component$, useSignal } from '@builder.io/qwik';
+import { $, component$ } from '@builder.io/qwik';
 import { type DocumentHead, routeLoader$ } from '@builder.io/qwik-city';
 import { FormError, type InitialValues } from '@modular-forms/qwik';
 import { inlineTranslate, useSpeak } from 'qwik-speak';
@@ -11,12 +11,13 @@ import { getServerTokenStorage } from '~/auth/get-server-token-storage';
 import {
   ChangePasswordForm,
   type ChangePasswordFormSchema,
-} from '~/components/auth/change-password-form/change-password-form';
+} from '~/components/protected/change-password-form/change-password-form';
+import { DeleteAccountModal } from '~/components/protected/delete-account-modal/delete-account-modal';
+import { SettingsSection } from '~/components/protected/settings-section/settings-section';
 import {
   UpdateAccountForm,
   type UpdateAccountFormSchema,
-} from '~/components/auth/update-account-form/update-account-form';
-import { LoadingButton } from '~/components/common/loading-button/loading-button';
+} from '~/components/protected/update-account-form/update-account-form';
 import { hasProblems } from '~/libs/api/has-problems';
 import { isProblemPresent } from '~/libs/api/is-problem-present';
 import {
@@ -54,14 +55,7 @@ export const useUpdateAccountFormLoader = routeLoader$<
 
 export default component$(() => {
   useSpeak({
-    assets: [
-      'account',
-      'auth',
-      'changePassword',
-      'deleteAccount',
-      'updateAccount',
-      'validation',
-    ],
+    assets: ['account', 'auth', 'validation'],
   });
 
   return <Account />;
@@ -69,7 +63,6 @@ export default component$(() => {
 
 const Account = component$(() => {
   const t = inlineTranslate();
-  const deleteAccountPending = useSignal(false);
   const updateAccountFormSignal = useUpdateAccountFormLoader();
 
   const onChangePassword = $(async (input: ChangeMyPasswordInput) => {
@@ -80,9 +73,9 @@ const Account = component$(() => {
     if (hasProblems(data)) {
       let error = '';
       if (isProblemPresent(data.problems, 'InvalidPasswordProblem')) {
-        error = t('changePassword.invalidCurrentPassword');
+        error = t('account.invalidCurrentPassword');
       } else {
-        error = t('changePassword.changePasswordError');
+        error = t('account.changePasswordError');
       }
       throw new FormError<ChangePasswordFormSchema>(error);
     }
@@ -95,7 +88,7 @@ const Account = component$(() => {
 
     if (hasProblems(data)) {
       throw new FormError<UpdateAccountFormSchema>(
-        t('updateAccount.updateAccountError'),
+        t('account.updateAccountError'),
       );
     }
 
@@ -103,25 +96,25 @@ const Account = component$(() => {
   });
 
   const onDeleteAccount = $(async () => {
-    deleteAccountPending.value = true;
     await deleteMe(getClientRequestSender());
     logout(getClientTokenStorage(), getClientLogoutRedirection());
-    deleteAccountPending.value = false;
   });
 
   return (
-    <>
-      <UpdateAccountForm
-        loader={updateAccountFormSignal}
-        onSubmit$={onUpdateAccount}
-      />
-      <ChangePasswordForm onSubmit$={onChangePassword} />
-      <LoadingButton
-        onClick$={onDeleteAccount}
-        loading={deleteAccountPending.value}
-      >
-        {t('deleteAccount.deleteAccount')}
-      </LoadingButton>
-    </>
+    <div class="my-6 flex flex-col items-center justify-center gap-5">
+      <SettingsSection title={t('account.updateYourAccount')}>
+        <UpdateAccountForm
+          loader={updateAccountFormSignal}
+          onSubmit$={onUpdateAccount}
+        />
+      </SettingsSection>
+      <SettingsSection title={t('account.changeYourPassword')}>
+        <ChangePasswordForm onSubmit$={onChangePassword} />
+      </SettingsSection>
+      <SettingsSection title={t('account.deleteYourAccount')}>
+        <p>{t('account.deleteAccountDescription')}</p>
+        <DeleteAccountModal onDelete$={onDeleteAccount} />
+      </SettingsSection>
+    </div>
   );
 });

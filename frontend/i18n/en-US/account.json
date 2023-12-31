@@ -1,5 +1,21 @@
 {
   "account": {
-    "fullName": "Full name"
+    "changePassword": "Change password",
+    "changePasswordError": "We couldn't change your password",
+    "changePasswordSuccess": "Your password has been changed",
+    "changeYourPassword": "Change your password",
+    "currentPassword": "Current password",
+    "deleteAccount": "Delete account",
+    "deleteAccountWarning": "Once you delete your account, there is no going back. Are you sure you want to do this?",
+    "deleteAccountDescription": "It's an irreversible operation. After doing this, you will lose access to your account and all resources associated with it will be deleted.",
+    "deleteYourAccount": "Delete your account",
+    "invalidCurrentPassword": "Invalid current password",
+    "newPassword": "New password",
+    "noKeepIt": "No, Keep it",
+    "updateYourAccount": "Update your account",
+    "updateAccount": "Update account",
+    "updateAccountError": "We couldn't update your account",
+    "updateAccountSuccess": "Your account has been updated",
+    "yesDelete": "Yes, Delete"
   }
 }
