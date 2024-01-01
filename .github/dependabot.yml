@@ -3,30 +3,30 @@ updates:
   - package-ecosystem: "github-actions"
     directory: "/"
     schedule:
-      interval: "weekly"
+      interval: "monthly"
     commit-message:
       prefix: ⬆
   - package-ecosystem: "pip"
     directory: "/infrastructure"
     schedule:
-      interval: "weekly"
+      interval: "monthly"
     commit-message:
       prefix: ⬆
   - package-ecosystem: "pip"
     directory: "/backend"
     schedule:
-      interval: "weekly"
+      interval: "monthly"
     commit-message:
       prefix: ⬆
   - package-ecosystem: "npm"
     directory: "/frontend"
     schedule:
-      interval: "weekly"
+      interval: "monthly"
     commit-message:
       prefix: ⬆
   - package-ecosystem: "npm"
     directory: "/e2e"
     schedule:
-      interval: "weekly"
+      interval: "monthly"
     commit-message:
       prefix: ⬆

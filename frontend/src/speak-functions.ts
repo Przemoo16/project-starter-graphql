@@ -10,7 +10,6 @@ const translationData = import.meta.glob<Translation>('/i18n/**/*.json');
 /**
  * Using server$, translation data is always accessed on the server
  */
-// @ts-expect-error: FIXME: Remove it after qwik-speak works together with the latest qwik
 const loadTranslation$: LoadTranslationFn = server$(
   async (lang: string, asset: string) =>
     await translationData[`/i18n/${lang}/${asset}.json`]?.(),
