@@ -699,9 +699,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@builder.io/qwik-city@npm:^1.3.1":
-  version: 1.3.1
-  resolution: "@builder.io/qwik-city@npm:1.3.1"
+"@builder.io/qwik-city@npm:^1.3.2":
+  version: 1.3.2
+  resolution: "@builder.io/qwik-city@npm:1.3.2"
   dependencies:
     "@mdx-js/mdx": "npm:2.3.0"
     "@types/mdx": "npm:^2.0.8"
@@ -712,7 +712,7 @@ __metadata:
     vite: "npm:^5.0.0"
     vite-imagetools: "npm:^6.2.7"
     zod: "npm:^3.22.4"
-  checksum: 35d501a1fe5b7569feeed03b9a1387458c4280bf2b5437c7b77a18cf18aeb5cce73e10667ed87300c1704e7f69e388574dd359f9c2f00a77071ee433db121b3e
+  checksum: 5be5943f8fe514da8a630195e2bd5c3d8069259791112c821a0e169a407b4d293f580f31739025b841ac7c3b6761863d9958ed8f16843a7caabc251a907ea73c
   languageName: node
   linkType: hard
 
@@ -4542,7 +4542,7 @@ __metadata:
   resolution: "frontend@workspace:."
   dependencies:
     "@builder.io/qwik": "npm:^1.3.1"
-    "@builder.io/qwik-city": "npm:^1.3.1"
+    "@builder.io/qwik-city": "npm:^1.3.2"
     "@graphql-codegen/cli": "npm:5.0.0"
     "@graphql-codegen/typescript": "npm:4.0.1"
     "@modular-forms/qwik": "npm:^0.22.0"
