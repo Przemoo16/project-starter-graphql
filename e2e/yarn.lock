@@ -191,12 +191,12 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@types/node@npm:^20.10.5":
-  version: 20.10.5
-  resolution: "@types/node@npm:20.10.5"
+"@types/node@npm:^20.10.6":
+  version: 20.10.6
+  resolution: "@types/node@npm:20.10.6"
   dependencies:
     undici-types: "npm:~5.26.4"
-  checksum: be30609aae0bfe492097815f166ccc07f465220cb604647fa4e5ec05a1d16c012a41b82b5f11ecfe2485cbb479d4d20384b95b809ca0bcff6d94d5bbafa645bb
+  checksum: 6692ccfa8552ef60c4069fda3c8de726c23e8d403cdf788e3c7efa769987e80fbda5f02723dd857f9de7df24a5fa40b3ed4580ec3c5cbac04eba44cf7b2ab1dc
   languageName: node
   linkType: hard
 
@@ -812,15 +812,15 @@ __metadata:
   dependencies:
     "@playwright/test": "npm:^1.40.1"
     "@types/eslint": "npm:^8.56.0"
-    "@types/node": "npm:^20.10.5"
+    "@types/node": "npm:^20.10.6"
     "@typescript-eslint/eslint-plugin": "npm:^6.16.0"
     "@typescript-eslint/parser": "npm:^6.16.0"
     eslint: "npm:^8.56.0"
     eslint-config-prettier: "npm:^9.1.0"
     eslint-config-standard-with-typescript: "npm:^43.0.0"
     eslint-plugin-import: "npm:^2.29.1"
-    eslint-plugin-n: "npm:^16.5.0"
-    eslint-plugin-promise: "npm:^6.0.0"
+    eslint-plugin-n: "npm:^16.6.0"
+    eslint-plugin-promise: "npm:^6.1.1"
     eslint-plugin-simple-import-sort: "npm:^10.0.0"
     typescript: "npm:^5.3.3"
   languageName: unknown
@@ -1067,14 +1067,15 @@ __metadata:
   languageName: node
   linkType: hard
 
-"eslint-plugin-n@npm:^16.5.0":
-  version: 16.5.0
-  resolution: "eslint-plugin-n@npm:16.5.0"
+"eslint-plugin-n@npm:^16.6.0":
+  version: 16.6.0
+  resolution: "eslint-plugin-n@npm:16.6.0"
   dependencies:
     "@eslint-community/eslint-utils": "npm:^4.4.0"
     builtins: "npm:^5.0.1"
     eslint-plugin-es-x: "npm:^7.5.0"
     get-tsconfig: "npm:^4.7.0"
+    globals: "npm:^13.24.0"
     ignore: "npm:^5.2.4"
     is-builtin-module: "npm:^3.2.1"
     is-core-module: "npm:^2.12.1"
@@ -1083,11 +1084,11 @@ __metadata:
     semver: "npm:^7.5.3"
   peerDependencies:
     eslint: ">=7.0.0"
-  checksum: 07ff2d63993899ad86cbb7c2ef71932c40ae582442e23c950c46e3136dafabcd8477d2956b15d08ebe2689d37d331ed8ce7a4e2a4e02e42a5cd4dc5b3c7529e0
+  checksum: 8018d653f25e1bb2793a4fba3fe89b33aa384dce6e2ec66ba72aad9843c3ac0263271a7255a600be75079bafec68ac5701570757b51b65e80d440feb5efa8c2e
   languageName: node
   linkType: hard
 
-"eslint-plugin-promise@npm:^6.0.0":
+"eslint-plugin-promise@npm:^6.1.1":
   version: 6.1.1
   resolution: "eslint-plugin-promise@npm:6.1.1"
   peerDependencies:
@@ -1476,7 +1477,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"globals@npm:^13.19.0":
+"globals@npm:^13.19.0, globals@npm:^13.24.0":
   version: 13.24.0
   resolution: "globals@npm:13.24.0"
   dependencies:
