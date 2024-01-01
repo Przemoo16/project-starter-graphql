@@ -13,15 +13,14 @@ import {
 } from '@modular-forms/qwik';
 import { inlineTranslate } from 'qwik-speak';
 
-import { SubmitButton } from '~/components/auth/submit-button/submit-button';
+import { FormBody } from '~/components/common/form-body/form-body';
+import { SubmitButton } from '~/components/common/submit-button/submit-button';
 import { TextInput } from '~/components/common/text-input/text-input';
 import {
   MAX_FULL_NAME_LENGTH,
   MIN_PASSWORD_LENGTH,
 } from '~/routes/schema-config';
 import { type UserCreateInput } from '~/services/graphql';
-
-import { FormBody } from '../form-body/form-body';
 
 export type RegisterFormSchema = {
   fullName: string;
@@ -53,7 +52,7 @@ export const RegisterForm = component$<RegisterFormProps>(({ onSubmit$ }) => {
     },
   );
 
-  const fullNameLabel = t('account.fullName');
+  const fullNameLabel = t('app.ui.fullName');
   const emailLabel = t('auth.email');
   const passwordLabel = t('auth.password');
   const repeatPasswordLabel = t('auth.repeatPassword');

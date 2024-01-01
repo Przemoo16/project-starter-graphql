@@ -7,11 +7,10 @@ import {
 } from '@modular-forms/qwik';
 import { inlineTranslate } from 'qwik-speak';
 
-import { SubmitButton } from '~/components/auth/submit-button/submit-button';
+import { FormBody } from '~/components/common/form-body/form-body';
+import { SubmitButton } from '~/components/common/submit-button/submit-button';
 import { TextInput } from '~/components/common/text-input/text-input';
 import { type LoginInput } from '~/services/graphql';
-
-import { FormBody } from '../form-body/form-body';
 
 export type LoginFormSchema = {
   email: string;

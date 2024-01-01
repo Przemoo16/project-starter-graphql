@@ -41,6 +41,7 @@
     },
     "ui": {
       "account": "Account",
+      "fullName": "Full name",
       "getStarted": "Get started",
       "login": "Login",
       "logout": "Logout"

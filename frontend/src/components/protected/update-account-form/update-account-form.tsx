@@ -15,7 +15,8 @@ import {
 } from '@modular-forms/qwik';
 import { inlineTranslate } from 'qwik-speak';
 
-import { LoadingButton } from '~/components/common/loading-button/loading-button';
+import { FormBody } from '~/components/common/form-body/form-body';
+import { SubmitButton } from '~/components/common/submit-button/submit-button';
 import { TextInput } from '~/components/common/text-input/text-input';
 import { MAX_FULL_NAME_LENGTH } from '~/routes/schema-config';
 import { type UpdateMeInput } from '~/services/graphql';
@@ -43,43 +44,45 @@ export const UpdateAccountForm = component$<UpdateAccountFormProps>(
         const t = inlineTranslate();
         const user = await onSubmit$({ fullName });
         setResponse(form, {
-          message: t('updateAccount.updateAccountSuccess'),
+          message: t('account.updateAccountSuccess'),
         });
         reset(form, { initialValues: user });
       },
     );
 
-    const fullNameLabel = t('account.fullName');
+    const fullNameLabel = t('app.ui.fullName');
 
     return (
       <Form onSubmit$={handleSubmit} shouldDirty>
-        <Field
-          name="fullName"
-          validate={[
-            // @ts-expect-error: FIXME: https://github.com/fabian-hiller/modular-forms/issues/158
-            required(t('validation.fieldRequired')),
-            maxLength(
-              MAX_FULL_NAME_LENGTH,
-              t('validation.fullNameTooLong', { max: MAX_FULL_NAME_LENGTH }),
-            ),
-          ]}
-        >
-          {(field, props) => (
-            <TextInput
-              {...props}
-              type="text"
-              label={fullNameLabel}
-              placeholder="Jon Doe"
-              value={field.value}
-              error={field.error}
-              required
-            />
-          )}
-        </Field>
-        <div>{form.response.message}</div>
-        <LoadingButton type="submit" loading={form.submitting}>
-          {t('updateAccount.updateAccount')}
-        </LoadingButton>
+        <FormBody>
+          <Field
+            name="fullName"
+            validate={[
+              // @ts-expect-error: FIXME: https://github.com/fabian-hiller/modular-forms/issues/158
+              required(t('validation.fieldRequired')),
+              maxLength(
+                MAX_FULL_NAME_LENGTH,
+                t('validation.fullNameTooLong', { max: MAX_FULL_NAME_LENGTH }),
+              ),
+            ]}
+          >
+            {(field, props) => (
+              <TextInput
+                {...props}
+                type="text"
+                label={fullNameLabel}
+                placeholder="Jon Doe"
+                value={field.value}
+                error={field.error}
+                required
+              />
+            )}
+          </Field>
+          <div>{form.response.message}</div>
+          <SubmitButton submitting={form.submitting}>
+            {t('account.updateAccount')}
+          </SubmitButton>
+        </FormBody>
       </Form>
     );
   },

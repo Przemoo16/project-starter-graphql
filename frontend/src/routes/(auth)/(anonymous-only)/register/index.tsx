@@ -31,7 +31,7 @@ export const head: DocumentHead = () => {
 };
 
 export default component$(() => {
-  useSpeak({ assets: ['account', 'auth', 'register', 'validation'] });
+  useSpeak({ assets: ['auth', 'register', 'validation'] });
 
   return <Register />;
 });
