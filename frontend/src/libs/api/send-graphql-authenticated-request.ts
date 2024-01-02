@@ -54,13 +54,8 @@ export const sendGraphQLAuthenticatedRequest = async (
   }
 };
 
-const isUnauthorized = (error: unknown) => {
-  return (
-    error instanceof GraphQLError &&
-    error.errors.some(error =>
-      ['Authentication token required', 'Invalid token'].includes(
-        error.message,
-      ),
-    )
+const isUnauthorized = (error: unknown) =>
+  error instanceof GraphQLError &&
+  error.errors.some(error =>
+    ['Authentication token required', 'Invalid token'].includes(error.message),
   );
-};

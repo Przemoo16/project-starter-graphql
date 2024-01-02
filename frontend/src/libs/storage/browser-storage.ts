@@ -5,9 +5,7 @@ export class BrowserStorage {
     this.storage = storage;
   }
 
-  get = (key: string) => {
-    return this.storage.getItem(key);
-  };
+  get = (key: string) => this.storage.getItem(key);
 
   set = (key: string, value: string) => {
     this.storage.setItem(key, value);
