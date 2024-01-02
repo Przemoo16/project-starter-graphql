@@ -18,6 +18,7 @@ type TextInputProps = {
 export const TextInput = component$<TextInputProps>(
   ({ label, error, name, required, ...props }) => {
     const inputErrorClass = error ? 'input-error' : '';
+
     return (
       <div class="form-control">
         {label && (
