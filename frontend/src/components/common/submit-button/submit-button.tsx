@@ -7,13 +7,11 @@ interface SubmitButtonProps {
 }
 
 export const SubmitButton = component$<SubmitButtonProps>(({ submitting }) => (
-  <div class="flex flex-col">
-    <LoadingButton
-      type="submit"
-      additionalClass="btn-primary"
-      loading={submitting}
-    >
-      <Slot />
-    </LoadingButton>
-  </div>
+  <LoadingButton
+    type="submit"
+    additionalClass="btn-primary"
+    loading={submitting}
+  >
+    <Slot />
+  </LoadingButton>
 ));

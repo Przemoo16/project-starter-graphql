@@ -21,30 +21,30 @@ import { TextInput } from '~/components/common/text-input/text-input';
 import { MAX_FULL_NAME_LENGTH } from '~/routes/schema-config';
 import { type UpdateMeInput } from '~/services/graphql';
 
-export type UpdateAccountFormSchema = {
+export type EditProfileFormSchema = {
   fullName: string;
 };
 
-interface UpdateAccountFormProps {
-  loader: Readonly<Signal<InitialValues<UpdateAccountFormSchema>>>;
+interface EditProfileFormProps {
+  loader: Readonly<Signal<InitialValues<EditProfileFormSchema>>>;
   onSubmit$: PropFunction<
-    (input: UpdateMeInput) => Promise<UpdateAccountFormSchema>
+    (input: UpdateMeInput) => Promise<EditProfileFormSchema>
   >;
 }
 
-export const UpdateAccountForm = component$<UpdateAccountFormProps>(
+export const EditProfileForm = component$<EditProfileFormProps>(
   ({ loader, onSubmit$ }) => {
     const t = inlineTranslate();
-    const [form, { Form, Field }] = useForm<UpdateAccountFormSchema>({
+    const [form, { Form, Field }] = useForm<EditProfileFormSchema>({
       loader,
     });
 
-    const handleSubmit = $<SubmitHandler<UpdateAccountFormSchema>>(
+    const handleSubmit = $<SubmitHandler<EditProfileFormSchema>>(
       async ({ fullName }, _event) => {
         const t = inlineTranslate();
         const user = await onSubmit$({ fullName });
         setResponse(form, {
-          message: t('account.updateAccountSuccess'),
+          message: t('account.profileSaved'),
         });
         reset(form, { initialValues: user });
       },
@@ -80,7 +80,7 @@ export const UpdateAccountForm = component$<UpdateAccountFormProps>(
           </Field>
           <div>{form.response.message}</div>
           <SubmitButton submitting={form.submitting}>
-            {t('account.updateAccount')}
+            {t('account.saveProfile')}
           </SubmitButton>
         </FormBody>
       </Form>

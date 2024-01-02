@@ -13,11 +13,11 @@ import {
   type ChangePasswordFormSchema,
 } from '~/components/protected/change-password-form/change-password-form';
 import { DeleteAccountModal } from '~/components/protected/delete-account-modal/delete-account-modal';
-import { SettingsSection } from '~/components/protected/settings-section/settings-section';
 import {
-  UpdateAccountForm,
-  type UpdateAccountFormSchema,
-} from '~/components/protected/update-account-form/update-account-form';
+  EditProfileForm,
+  type EditProfileFormSchema,
+} from '~/components/protected/edit-profile-form/edit-profile-form';
+import { SettingsSection } from '~/components/protected/settings-section/settings-section';
 import { hasProblems } from '~/libs/api/has-problems';
 import { isProblemPresent } from '~/libs/api/is-problem-present';
 import {
@@ -44,14 +44,14 @@ export const head: DocumentHead = () => {
   };
 };
 
-export const useUpdateAccountFormLoader = routeLoader$<
-  InitialValues<UpdateAccountFormSchema>
->(async requestEvent => {
-  return await getMe(
-    getServerRequestSender(requestEvent),
-    getServerTokenStorage(requestEvent.cookie),
-  );
-});
+export const useUser = routeLoader$<InitialValues<EditProfileFormSchema>>(
+  async requestEvent => {
+    return await getMe(
+      getServerRequestSender(requestEvent),
+      getServerTokenStorage(requestEvent.cookie),
+    );
+  },
+);
 
 export default component$(() => {
   useSpeak({
@@ -63,7 +63,7 @@ export default component$(() => {
 
 const Account = component$(() => {
   const t = inlineTranslate();
-  const updateAccountFormSignal = useUpdateAccountFormLoader();
+  const user = useUser();
 
   const onChangePassword = $(async (input: ChangeMyPasswordInput) => {
     const t = inlineTranslate();
@@ -81,15 +81,13 @@ const Account = component$(() => {
     }
   });
 
-  const onUpdateAccount = $(async (input: UpdateMeInput) => {
+  const onEditProfile = $(async (input: UpdateMeInput) => {
     const t = inlineTranslate();
 
     const data = await updateMe(getClientRequestSender(), input);
 
     if (hasProblems(data)) {
-      throw new FormError<UpdateAccountFormSchema>(
-        t('account.updateAccountError'),
-      );
+      throw new FormError<EditProfileFormSchema>(t('account.editProfileError'));
     }
 
     return data;
@@ -102,11 +100,8 @@ const Account = component$(() => {
 
   return (
     <div class="my-6 flex flex-col items-center justify-center gap-5">
-      <SettingsSection title={t('account.updateYourAccount')}>
-        <UpdateAccountForm
-          loader={updateAccountFormSignal}
-          onSubmit$={onUpdateAccount}
-        />
+      <SettingsSection title={t('account.editYourProfile')}>
+        <EditProfileForm loader={user} onSubmit$={onEditProfile} />
       </SettingsSection>
       <SettingsSection title={t('account.changeYourPassword')}>
         <ChangePasswordForm onSubmit$={onChangePassword} />

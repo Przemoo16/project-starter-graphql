@@ -30,7 +30,7 @@ const NotFound = component$(() => {
   return (
     <div class="grid h-full place-items-center">
       <div class="p-4 text-center">
-        <h1 class="text-8xl font-bold">{t('notFound.404')}</h1>
+        <h1 class="text-5xl font-bold">{t('notFound.404')}</h1>
         <p class="mt-6">{t('notFound.pageDoesNotExist')}</p>
         <Link href={RouteURL.Home} class="btn btn-primary mt-6">
           {t('notFound.backToHome')}
