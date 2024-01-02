@@ -102,11 +102,9 @@ describe('[EditProfileForm Component]', () => {
 
   test(`displays updated values from the response`, async () => {
     const { screen, render, userEvent } = await createDOM();
-    const onSubmit = $(async (_input: UpdateMeInput) => {
-      return {
-        fullName: 'Updated User',
-      };
-    });
+    const onSubmit = $(async (_input: UpdateMeInput) => ({
+      fullName: 'Updated User',
+    }));
     await render(<EditProfileForm loader={LOADER} onSubmit$={onSubmit} />);
     const input = screen.querySelector('#fullName') as HTMLInputElement;
 

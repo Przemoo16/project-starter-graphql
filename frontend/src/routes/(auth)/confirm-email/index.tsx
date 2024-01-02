@@ -27,12 +27,13 @@ export const head: DocumentHead = () => {
   };
 };
 
-export const useConfirmEmail = routeLoader$(async requestEvent => {
-  return await confirmEmail(
-    getServerRequestSender(requestEvent),
-    requestEvent.url.searchParams.get('token') ?? '',
-  );
-});
+export const useConfirmEmail = routeLoader$(
+  async requestEvent =>
+    await confirmEmail(
+      getServerRequestSender(requestEvent),
+      requestEvent.url.searchParams.get('token') ?? '',
+    ),
+);
 
 export default component$(() => {
   useSpeak({ assets: ['auth', 'confirmEmail'] });

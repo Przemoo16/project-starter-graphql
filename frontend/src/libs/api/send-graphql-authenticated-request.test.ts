@@ -35,13 +35,11 @@ describe('[sendGraphQLAuthenticatedRequest function]', () => {
 
   test(`sends original request successfully`, async () => {
     let onUnauthorizedCalled = false;
-    const onFetch = async () => {
-      return {
-        data: {
-          foo: 'bar',
-        },
-      };
-    };
+    const onFetch = async () => ({
+      data: {
+        foo: 'bar',
+      },
+    });
     const onUnauthorized = async () => {
       onUnauthorizedCalled = true;
     };

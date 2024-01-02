@@ -45,12 +45,11 @@ export const head: DocumentHead = () => {
 };
 
 export const useUser = routeLoader$<InitialValues<EditProfileFormSchema>>(
-  async requestEvent => {
-    return await getMe(
+  async requestEvent =>
+    await getMe(
       getServerRequestSender(requestEvent),
       getServerTokenStorage(requestEvent.cookie),
-    );
-  },
+    ),
 );
 
 export default component$(() => {
