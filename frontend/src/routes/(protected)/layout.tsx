@@ -6,7 +6,7 @@ import { getClientTokenStorage } from '~/auth/get-client-token-storage';
 import { onProtectedRoute } from '~/auth/on-protected-route';
 import { Footer } from '~/components/common/footer/footer';
 import { Header } from '~/components/protected/header/header';
-import { useServerTimeLoader } from '~/routes/layout';
+import { useServerTime } from '~/routes/layout';
 import { logout } from '~/services/user/logout';
 
 export const onGet: RequestHandler = requestEvent => {
@@ -14,7 +14,7 @@ export const onGet: RequestHandler = requestEvent => {
 };
 
 export default component$(() => {
-  const serverTime = useServerTimeLoader();
+  const serverTime = useServerTime();
 
   const onLogout = $(async () => {
     logout(getClientTokenStorage(), getClientLogoutRedirection());

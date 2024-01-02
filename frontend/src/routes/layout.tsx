@@ -11,6 +11,6 @@ export const onGet: RequestHandler = async ({ cacheControl }) => {
   });
 };
 
-export const useServerTimeLoader = routeLoader$(() => ({
+export const useServerTime = routeLoader$(() => ({
   date: new Date(),
 }));

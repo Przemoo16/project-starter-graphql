@@ -5,7 +5,7 @@ import { describe, expect, test } from 'vitest';
 import { type UpdateMeInput } from '~/services/graphql';
 import { fillInput } from '~/tests/input';
 
-import { UpdateAccountForm } from './update-account-form';
+import { EditProfileForm } from './edit-profile-form';
 
 const LOADER = {
   value: { fullName: 'Test User' },
@@ -14,13 +14,13 @@ const ON_SUBMIT = $(async (_input: UpdateMeInput) => ({
   fullName: 'Updated User',
 }));
 
-describe('[UpdateAccountForm Component]', () => {
+describe('[EditProfileForm Component]', () => {
   test(`displays fetched full name`, async () => {
     const { screen, render } = await createDOM();
     const loader = {
       value: { fullName: 'Test User' },
     };
-    await render(<UpdateAccountForm loader={loader} onSubmit$={ON_SUBMIT} />);
+    await render(<EditProfileForm loader={loader} onSubmit$={ON_SUBMIT} />);
     const input = screen.querySelector('#fullName') as HTMLInputElement;
 
     expect(input.value).toEqual('Test User');
@@ -28,7 +28,7 @@ describe('[UpdateAccountForm Component]', () => {
 
   test(`doesn't display error if full name passes validation`, async () => {
     const { screen, render, userEvent } = await createDOM();
-    await render(<UpdateAccountForm loader={LOADER} onSubmit$={ON_SUBMIT} />);
+    await render(<EditProfileForm loader={LOADER} onSubmit$={ON_SUBMIT} />);
     const input = screen.querySelector('#fullName') as HTMLInputElement;
 
     await fillInput(input, userEvent, 'Updated User');
@@ -40,7 +40,7 @@ describe('[UpdateAccountForm Component]', () => {
 
   test(`displays error if full name is not provided`, async () => {
     const { screen, render, userEvent } = await createDOM();
-    await render(<UpdateAccountForm loader={LOADER} onSubmit$={ON_SUBMIT} />);
+    await render(<EditProfileForm loader={LOADER} onSubmit$={ON_SUBMIT} />);
     const input = screen.querySelector('#fullName') as HTMLInputElement;
 
     await fillInput(input, userEvent, '');
@@ -52,7 +52,7 @@ describe('[UpdateAccountForm Component]', () => {
 
   test(`displays error if full name is too long`, async () => {
     const { screen, render, userEvent } = await createDOM();
-    await render(<UpdateAccountForm loader={LOADER} onSubmit$={ON_SUBMIT} />);
+    await render(<EditProfileForm loader={LOADER} onSubmit$={ON_SUBMIT} />);
     const input = screen.querySelector('#fullName') as HTMLInputElement;
 
     await fillInput(input, userEvent, 'T'.repeat(129));
@@ -73,7 +73,7 @@ describe('[UpdateAccountForm Component]', () => {
         fullName: 'Test User',
       };
     });
-    await render(<UpdateAccountForm loader={LOADER} onSubmit$={onSubmit} />);
+    await render(<EditProfileForm loader={LOADER} onSubmit$={onSubmit} />);
 
     await userEvent('button[type="submit"]', 'submit');
 
@@ -91,7 +91,7 @@ describe('[UpdateAccountForm Component]', () => {
         fullName: 'Updated User',
       };
     });
-    await render(<UpdateAccountForm loader={LOADER} onSubmit$={onSubmit} />);
+    await render(<EditProfileForm loader={LOADER} onSubmit$={onSubmit} />);
     const input = screen.querySelector('#fullName') as HTMLInputElement;
 
     await fillInput(input, userEvent, 'Updated User');
@@ -107,7 +107,7 @@ describe('[UpdateAccountForm Component]', () => {
         fullName: 'Updated User',
       };
     });
-    await render(<UpdateAccountForm loader={LOADER} onSubmit$={onSubmit} />);
+    await render(<EditProfileForm loader={LOADER} onSubmit$={onSubmit} />);
     const input = screen.querySelector('#fullName') as HTMLInputElement;
 
     await userEvent('button[type="submit"]', 'submit');
@@ -118,12 +118,12 @@ describe('[UpdateAccountForm Component]', () => {
   // FIXME: Enable the test after this is resolved: https://github.com/fabian-hiller/modular-forms/issues/161
   test.skip(`displays success message`, async () => {
     const { screen, render, userEvent } = await createDOM();
-    await render(<UpdateAccountForm loader={LOADER} onSubmit$={ON_SUBMIT} />);
+    await render(<EditProfileForm loader={LOADER} onSubmit$={ON_SUBMIT} />);
     const input = screen.querySelector('#fullName') as HTMLInputElement;
 
     await fillInput(input, userEvent, 'Test User');
     await userEvent('button[type="submit"]', 'submit');
 
-    expect(screen.textContent).toContain('updateAccountSuccess');
+    expect(screen.textContent).toContain('profileSaved');
   });
 });
