@@ -3,7 +3,6 @@ import { extendConfig } from '@builder.io/qwik-city/vite';
 
 import baseConfig from '../../vite.config';
 
-// @ts-expect-error: FIXME: Remove it after qwik works together with the latest vite
 export default extendConfig(baseConfig, () => {
   return {
     build: {
