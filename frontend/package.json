@@ -4,6 +4,7 @@
   "version": "0.1.0",
   "private": true,
   "packageManager": "yarn@4.0.2",
+  "type": "module",
   "scripts": {
     "build": "qwik build",
     "build.client": "vite build",

@@ -21,13 +21,12 @@
       "~/*": ["./src/*"]
     }
   },
-  "files": ["./.eslintrc.cjs"],
-  "include": [
-    "./adapters",
-    "./src",
-    "./*.d.ts",
-    "./*.config.ts",
-    "./*.config.js",
-    "./codegen.ts"
-  ]
+  "files": [
+    "./.eslintrc.cjs",
+    "./codegen.ts",
+    "./postcss.config.cjs",
+    "./tailwind.config.ts",
+    "./vite.config.ts"
+  ],
+  "include": ["./adapters", "./src"]
 }

@@ -4,6 +4,7 @@
   "version": "0.1.0",
   "private": true,
   "packageManager": "yarn@4.0.2",
+  "type": "module",
   "scripts": {
     "eslint": "eslint --ext .js,.jsx,.ts,.tsx . --fix",
     "lint": "yarn run tsc && yarn run eslint",

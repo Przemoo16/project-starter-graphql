@@ -17,6 +17,6 @@
     "types": ["node"],
     "paths": {}
   },
-  "files": ["./.eslintrc.cjs"],
-  "include": ["./tests", "./*.config.ts"]
+  "files": ["./.eslintrc.cjs", "./playwright.config.ts"],
+  "include": ["./tests"]
 }
