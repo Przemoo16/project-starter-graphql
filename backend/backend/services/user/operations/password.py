@@ -5,8 +5,6 @@ from gettext import gettext as _
 from typing import Any
 from uuid import UUID
 
-from pydantic import SecretStr
-
 from backend.libs.db.crud import NoObjectFoundError
 from backend.libs.email.message import HTMLMessage
 from backend.libs.security.token import InvalidTokenError
@@ -181,11 +179,11 @@ async def _validate_token_fingerprint(
 
 async def _set_password(
     user: User,
-    password: SecretStr,
+    password: str,
     password_hasher: AsyncPasswordHasher,
     crud: UserCRUDProtocol,
 ) -> None:
-    hashed_password = await password_hasher(password.get_secret_value())
+    hashed_password = await password_hasher(password)
     await crud.update(user, UserUpdateData(hashed_password=hashed_password))
 
 
@@ -204,11 +202,9 @@ async def change_password(
 
 
 async def _validate_password(
-    user: User, password: SecretStr, password_validator: AsyncPasswordValidator
+    user: User, password: str, password_validator: AsyncPasswordValidator
 ) -> None:
-    is_valid, _ = await password_validator(
-        password.get_secret_value(), user.hashed_password
-    )
+    is_valid, _ = await password_validator(password, user.hashed_password)
     if not is_valid:
         _logger.info("Invalid password for the user %r", user.email)
         raise InvalidPasswordError

@@ -5,8 +5,6 @@ from datetime import UTC, datetime
 from typing import Any
 from uuid import UUID
 
-from pydantic import SecretStr
-
 from backend.libs.api.headers import BearerTokenNotFoundError, read_bearer_token
 from backend.libs.db.crud import NoObjectFoundError
 from backend.libs.security.token import InvalidTokenError
@@ -93,16 +91,16 @@ async def _get_user_by_credentials(
         return await crud.read_one(UserFilters(email=credentials.email))
     except NoObjectFoundError as exc:
         # Run the password hasher to mitigate timing attack
-        await password_hasher(credentials.password.get_secret_value())
+        await password_hasher(credentials.password)
         _logger.info("User %r not found", credentials.email)
         raise UserNotFoundError from exc
 
 
 async def _validate_password(
-    user: User, password: SecretStr, password_validator: AsyncPasswordValidator
+    user: User, password: str, password_validator: AsyncPasswordValidator
 ) -> str | None:
     is_valid, updated_password_hash = await password_validator(
-        password.get_secret_value(), user.hashed_password
+        password, user.hashed_password
     )
     if not is_valid:
         _logger.info("Invalid password for the user %r", user.email)
