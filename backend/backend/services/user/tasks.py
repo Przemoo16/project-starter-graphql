@@ -34,8 +34,8 @@ _smtp_server = partial(
     SMTPServer,
     host=_email_settings.smtp_host,
     port=_email_settings.smtp_port,
-    user=_email_settings.smtp_user.get_secret_value(),
-    password=_email_settings.smtp_password.get_secret_value(),
+    user=_email_settings.smtp_user,
+    password=_email_settings.smtp_password,
 )
 
 

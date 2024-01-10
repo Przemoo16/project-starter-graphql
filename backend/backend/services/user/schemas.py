@@ -1,4 +1,4 @@
-from pydantic import BaseModel, EmailStr, Field, SecretStr
+from pydantic import BaseModel, EmailStr, Field
 
 from backend.config.settings import settings
 
@@ -7,7 +7,7 @@ _user_settings = settings.user
 
 class UserCreateSchema(BaseModel):
     email: EmailStr
-    password: SecretStr = Field(min_length=_user_settings.password_min_length)
+    password: str = Field(min_length=_user_settings.password_min_length)
     full_name: str = Field(
         min_length=_user_settings.full_name_min_length,
         max_length=_user_settings.full_name_max_length,
@@ -24,14 +24,14 @@ class UserUpdateSchema(BaseModel):
 
 class CredentialsSchema(BaseModel):
     email: str
-    password: SecretStr
+    password: str
 
 
 class PasswordResetSchema(BaseModel):
     token: str
-    password: SecretStr = Field(min_length=_user_settings.password_min_length)
+    password: str = Field(min_length=_user_settings.password_min_length)
 
 
 class PasswordChangeSchema(BaseModel):
-    current_password: SecretStr
-    new_password: SecretStr = Field(min_length=_user_settings.password_min_length)
+    current_password: str
+    new_password: str = Field(min_length=_user_settings.password_min_length)
