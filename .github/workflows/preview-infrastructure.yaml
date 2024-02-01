@@ -43,7 +43,7 @@ jobs:
           role-to-assume: arn:aws:iam::059132655198:role/github-actions-role
 
       - name: Show a preview of infrastructure updates
-        uses: pulumi/actions@v4
+        uses: pulumi/actions@v5
         with:
           work-dir: ./infrastructure
           command: preview
