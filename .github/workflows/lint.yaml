@@ -101,7 +101,7 @@ jobs:
         shell: bash
 
       - name: Restore pre-commit cache
-        uses: actions/cache@v3
+        uses: actions/cache@v4
         with:
           path: ~/.cache/pre-commit/
           key: ${{ runner.os }}-pre-commit-${{ hashFiles('.pre-commit-config.yaml') }}
@@ -116,7 +116,7 @@ jobs:
       # It utilizes the restore-keys to always update the existing cache:
       # https://github.com/actions/cache/blob/main/tips-and-workarounds.md#update-a-cache
       - name: Restore mypy cache
-        uses: actions/cache@v3
+        uses: actions/cache@v4
         with:
           path: ./.mypy_cache
           key: ${{ runner.os }}-${{ env.pythonLocation }}-mypy-${{ github.run_id }}
@@ -125,7 +125,7 @@ jobs:
 
       - name: Restore infrastructure venv cache
         id: infrastructure-venv-cache
-        uses: actions/cache@v3
+        uses: actions/cache@v4
         with:
           path: ./infrastructure/venv
           key: ${{ runner.os }}-${{ env.pythonLocation }}-infrastructure-venv-${{ hashFiles('./infrastructure/requirements.txt') }}
