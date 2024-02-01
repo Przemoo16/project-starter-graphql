@@ -24,7 +24,7 @@ jobs:
 
       - name: Restore infrastructure venv cache
         id: infrastructure-venv-cache
-        uses: actions/cache@v3
+        uses: actions/cache@v4
         with:
           path: ./infrastructure/venv
           key: ${{ runner.os }}-${{ env.pythonLocation }}-infrastructure-venv-${{ hashFiles('./infrastructure/requirements.txt') }}
