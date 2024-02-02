@@ -698,7 +698,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@builder.io/qwik-city@npm:^1.3.2":
+"@builder.io/qwik-city@npm:^1.4.3":
   version: 1.4.3
   resolution: "@builder.io/qwik-city@npm:1.4.3"
   dependencies:
@@ -715,7 +715,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@builder.io/qwik@npm:^1.3.2":
+"@builder.io/qwik@npm:^1.4.3":
   version: 1.4.3
   resolution: "@builder.io/qwik@npm:1.4.3"
   dependencies:
@@ -1836,13 +1836,13 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@modular-forms/qwik@npm:^0.22.0":
-  version: 0.22.0
-  resolution: "@modular-forms/qwik@npm:0.22.0"
+"@modular-forms/qwik@npm:^0.23.1":
+  version: 0.23.1
+  resolution: "@modular-forms/qwik@npm:0.23.1"
   peerDependencies:
-    "@builder.io/qwik": ^1.2.4
-    "@builder.io/qwik-city": ^1.2.4
-  checksum: 52b3ff2a3e0b5db8828d77a6a5ada6b944e3dc1d433f927067f8666452ced7f97135a41fb59ed8d67b577f91804e7f8219bd9913df6fc150b3562849b2ee5ef6
+    "@builder.io/qwik": ^1.4.0
+    "@builder.io/qwik-city": ^1.4.0
+  checksum: 8bee0aa6382f76045fc8f89ba4a9e95e271c7fe6e84497f7cdbdd9e10570fc55e33129a61dd6317f3de4ebf25474b49f6c319579315bb0c7b30bbfa97410437d
   languageName: node
   linkType: hard
 
@@ -2081,7 +2081,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@types/eslint@npm:^8.56.1":
+"@types/eslint@npm:^8.56.2":
   version: 8.56.2
   resolution: "@types/eslint@npm:8.56.2"
   dependencies:
@@ -2213,7 +2213,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@typescript-eslint/eslint-plugin@npm:^6.18.1":
+"@typescript-eslint/eslint-plugin@npm:^6.20.0":
   version: 6.20.0
   resolution: "@typescript-eslint/eslint-plugin@npm:6.20.0"
   dependencies:
@@ -2739,7 +2739,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"autoprefixer@npm:^10.4.16":
+"autoprefixer@npm:^10.4.17":
   version: 10.4.17
   resolution: "autoprefixer@npm:10.4.17"
   dependencies:
@@ -3487,7 +3487,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"daisyui@npm:^4.5.0":
+"daisyui@npm:^4.6.1":
   version: 4.6.1
   resolution: "daisyui@npm:4.6.1"
   dependencies:
@@ -4008,7 +4008,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"eslint-config-standard-with-typescript@npm:^43.0.0":
+"eslint-config-standard-with-typescript@npm:^43.0.1":
   version: 43.0.1
   resolution: "eslint-config-standard-with-typescript@npm:43.0.1"
   dependencies:
@@ -4572,21 +4572,21 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "frontend@workspace:."
   dependencies:
-    "@builder.io/qwik": "npm:^1.3.2"
-    "@builder.io/qwik-city": "npm:^1.3.2"
+    "@builder.io/qwik": "npm:^1.4.3"
+    "@builder.io/qwik-city": "npm:^1.4.3"
     "@graphql-codegen/cli": "npm:5.0.1"
     "@graphql-codegen/typescript": "npm:4.0.2"
-    "@modular-forms/qwik": "npm:^0.22.0"
-    "@types/eslint": "npm:^8.56.1"
+    "@modular-forms/qwik": "npm:^0.23.1"
+    "@types/eslint": "npm:^8.56.2"
     "@types/js-cookie": "npm:^3.0.6"
     "@types/node": "npm:^20.11.16"
-    "@typescript-eslint/eslint-plugin": "npm:^6.18.1"
+    "@typescript-eslint/eslint-plugin": "npm:^6.20.0"
     "@typescript-eslint/parser": "npm:^6.20.0"
-    autoprefixer: "npm:^10.4.16"
-    daisyui: "npm:^4.5.0"
+    autoprefixer: "npm:^10.4.17"
+    daisyui: "npm:^4.6.1"
     eslint: "npm:^8.56.0"
     eslint-config-prettier: "npm:^9.1.0"
-    eslint-config-standard-with-typescript: "npm:^43.0.0"
+    eslint-config-standard-with-typescript: "npm:^43.0.1"
     eslint-plugin-import: "npm:^2.29.1"
     eslint-plugin-n: "npm:^16.6.2"
     eslint-plugin-promise: "npm:^6.1.1"
@@ -4595,15 +4595,15 @@ __metadata:
     graphql: "npm:^16.8.1"
     js-cookie: "npm:^3.0.5"
     postcss: "npm:8.4.33"
-    prettier: "npm:^3.1.1"
+    prettier: "npm:^3.2.4"
     prettier-plugin-tailwindcss: "npm:^0.5.11"
-    qwik-speak: "npm:^0.19.0"
+    qwik-speak: "npm:^0.20.1"
     tailwindcss: "npm:3.4.1"
     typescript: "npm:^5.3.3"
-    undici: "npm:^6.3.0"
+    undici: "npm:^6.6.0"
     vite: "npm:^5.0.12"
-    vite-tsconfig-paths: "npm:^4.2.3"
-    vitest: "npm:^1.1.3"
+    vite-tsconfig-paths: "npm:^4.3.1"
+    vitest: "npm:^1.2.2"
   languageName: unknown
   linkType: soft
 
@@ -7391,7 +7391,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"prettier@npm:^3.1.1":
+"prettier@npm:^3.2.4":
   version: 3.2.4
   resolution: "prettier@npm:3.2.4"
   bin:
@@ -7481,14 +7481,14 @@ __metadata:
   languageName: node
   linkType: hard
 
-"qwik-speak@npm:^0.19.0":
-  version: 0.19.0
-  resolution: "qwik-speak@npm:0.19.0"
+"qwik-speak@npm:^0.20.1":
+  version: 0.20.1
+  resolution: "qwik-speak@npm:0.20.1"
   peerDependencies:
     "@builder.io/qwik": ">=1.3.1"
   bin:
     qwik-speak-extract: extract/cli.js
-  checksum: b0025bd759dc53a3ac48ab3d92579acf90244d993164d4f45b6b0cec4fb5f44ecaf15497e5fedf8963781c0712ba4033f637bf973c9798c1c23b4c4d6ffda322
+  checksum: 17283a3675014b7a2c9a9ea5ad2909df99b19e8e25c26371329e991eada7c623c9b9e13f3b1ab01a3a2fc2f98c0665eb8c155a987f188bc49ae09d1bf39b27c2
   languageName: node
   linkType: hard
 
@@ -8737,7 +8737,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"undici@npm:*, undici@npm:^6.3.0":
+"undici@npm:*, undici@npm:^6.6.0":
   version: 6.6.0
   resolution: "undici@npm:6.6.0"
   dependencies:
@@ -9022,7 +9022,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"vite-tsconfig-paths@npm:^4.2.3":
+"vite-tsconfig-paths@npm:^4.3.1":
   version: 4.3.1
   resolution: "vite-tsconfig-paths@npm:4.3.1"
   dependencies:
@@ -9078,7 +9078,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"vitest@npm:^1.1.3":
+"vitest@npm:^1.2.2":
   version: 1.2.2
   resolution: "vitest@npm:1.2.2"
   dependencies:
