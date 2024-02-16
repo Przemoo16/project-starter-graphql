@@ -4600,7 +4600,7 @@ __metadata:
     qwik-speak: "npm:^0.20.1"
     tailwindcss: "npm:3.4.1"
     typescript: "npm:^5.3.3"
-    undici: "npm:^6.6.0"
+    undici: "npm:^6.6.1"
     vite: "npm:^5.0.12"
     vite-tsconfig-paths: "npm:^4.3.1"
     vitest: "npm:^1.2.2"
@@ -8737,12 +8737,21 @@ __metadata:
   languageName: node
   linkType: hard
 
-"undici@npm:*, undici@npm:^6.6.0":
+"undici@npm:*":
   version: 6.6.0
   resolution: "undici@npm:6.6.0"
   dependencies:
     "@fastify/busboy": "npm:^2.0.0"
   checksum: 7c31ef256adab266bd98ebdef0da7584041f7a06f320d360fdbd10ce53758182e6a1dee0ddc9cc456a08cb96923d3b7d277fe67c02963e6e2cc2586ee77d5b3f
+  languageName: node
+  linkType: hard
+
+"undici@npm:^6.6.1":
+  version: 6.6.2
+  resolution: "undici@npm:6.6.2"
+  dependencies:
+    "@fastify/busboy": "npm:^2.0.0"
+  checksum: c8c8a436059b13603f67ed4d917b4ba6d9ef282ac55c932c4790ee1a1c8cad1369da3c11b6e0b9df5a95ed1849cb98fa2f2310f6d0f9331dd359286c912497d2
   languageName: node
   linkType: hard
 
