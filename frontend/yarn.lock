@@ -4661,7 +4661,7 @@ __metadata:
     postcss: "npm:8.4.33"
     prettier: "npm:^3.2.4"
     prettier-plugin-tailwindcss: "npm:^0.5.11"
-    qwik-speak: "npm:^0.20.1"
+    qwik-speak: "npm:^0.21.0"
     tailwindcss: "npm:3.4.1"
     typescript: "npm:^5.3.3"
     undici: "npm:^6.6.1"
@@ -7545,14 +7545,14 @@ __metadata:
   languageName: node
   linkType: hard
 
-"qwik-speak@npm:^0.20.1":
-  version: 0.20.1
-  resolution: "qwik-speak@npm:0.20.1"
+"qwik-speak@npm:^0.21.0":
+  version: 0.21.0
+  resolution: "qwik-speak@npm:0.21.0"
   peerDependencies:
-    "@builder.io/qwik": ">=1.3.1"
+    "@builder.io/qwik": ">=1.4.3"
   bin:
     qwik-speak-extract: extract/cli.js
-  checksum: 17283a3675014b7a2c9a9ea5ad2909df99b19e8e25c26371329e991eada7c623c9b9e13f3b1ab01a3a2fc2f98c0665eb8c155a987f188bc49ae09d1bf39b27c2
+  checksum: 435c6fdc6312e57104ce95ad55eb8d35bb618e1f557f926a2455bc76a46f2207e77ee0484435f308ea757cd1beddd829d279051408da05d17eb6a2087e6eb04b
   languageName: node
   linkType: hard
 
