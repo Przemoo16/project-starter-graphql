@@ -18,7 +18,7 @@
     "noEmit": true,
     "types": ["node", "vite/client"],
     "paths": {
-      "~/*": ["./src/*"],
+      "~/*": ["./src/*"]
     },
   },
   "files": [
@@ -26,7 +26,7 @@
     "./codegen.ts",
     "./postcss.config.cjs",
     "./tailwind.config.ts",
-    "./vite.config.ts",
+    "./vite.config.ts"
   ],
-  "include": ["./adapters", "./src"],
+  "include": ["./adapters", "./src"]
 }
